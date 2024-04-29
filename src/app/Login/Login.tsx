@@ -24,8 +24,10 @@ export const Login = () => {
 
   const onLogin = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    // Check if the credentials are correct
-    if (username === "admin" && password === "password") {
+    const adminUsername = process.env.REACT_APP_ADMIN_USERNAME || "admin";
+    const adminPassword = process.env.REACT_APP_ADMIN_PASSWORD || "password";
+    // Check if the credentials are correct, using environment variables if available
+    if (username === adminUsername && password === adminPassword) {
       login();
       navigate('/');
     } else {

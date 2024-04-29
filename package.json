@@ -7,9 +7,8 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "prebuild": "npm run type-check && npm run clean",
     "dr:surge": "node dr-surge.js",
-    "build": "webpack --config webpack.prod.js && npm run dr:surge",
+    "build": "webpack --config webpack.prod.js",
     "start": "sirv dist --cors --single --host --port 8080",
     "start:dev": "webpack serve --color --progress --config webpack.dev.js",
     "eslint": "eslint --ext .tsx,.js ./src/",
@@ -56,7 +55,6 @@
     "tslib": "^2.6.2",
     "typescript": "^5.4.5",
     "url-loader": "^4.1.1",
-    "webpack": "^5.91.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4",
@@ -68,6 +66,7 @@
     "@patternfly/react-icons": "^5.3.1",
     "@patternfly/react-table": "^5.3.1",
     "react": "^18.3.1",
+    "webpack": "^5.91.0",
     "react-dom": "^18.3.1",
     "sirv-cli": "^2.0.2"
   }
