@@ -1,10 +1,10 @@
 import React from 'react';
 import { ChartPie, ChartLegend, ChartThemeColor } from '@patternfly/react-charts';
 import { useNavigate } from 'react-router-dom';
-import useWebSocket from '@app/common/HooksWebSocket';
+import useFetchJobs from '@app/common/HooksApiServer';
 
 const JobStatusPieChart: React.FunctionComponent = () => {
-  const jobs = useWebSocket();
+  const jobs = useFetchJobs();
   const navigate = useNavigate();
 
   const countJobStatuses = (jobs) => {
@@ -32,7 +32,7 @@ const JobStatusPieChart: React.FunctionComponent = () => {
   };
 
   return (
-    <div style={{ height: '230px', width: '350px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div style={{ height: '250px', width: '100%' }}>
       <ChartPie
         ariaDesc="Job status distribution"
         ariaTitle="Job status distribution"

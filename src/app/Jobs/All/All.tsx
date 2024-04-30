@@ -1,6 +1,6 @@
 // All.tsx
 import { Columns } from "@app/common/DisplayColumns";
-import useWebSocket from "@app/common/HooksWebSocket";
+import useFetchJobs from "@app/common/HooksApiServer";
 import JobsLayout from "@app/common/JobsLayout";
 import { formatDate } from "@app/utils/dateUtils";
 import { getSortParams } from "@app/utils/tableUtils";
@@ -10,7 +10,7 @@ import { Table, Thead, Tr, Th, Td, Tbody, ExpandableRowContent } from '@patternf
 import { GithubIcon, CodeBranchIcon, AngleRightIcon } from '@patternfly/react-icons';
 
 const AllJobs: React.FunctionComponent = () => {
-  const jobs = useWebSocket();
+  const jobs = useFetchJobs();
   const [expandedRows, setExpandedRows] = React.useState<Record<number, boolean>>({});
   const [activeSortIndex, setActiveSortIndex] = React.useState<number | null>(null);
   const [activeSortDirection, setActiveSortDirection] = React.useState<'asc' | 'desc'>('asc');

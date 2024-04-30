@@ -1,5 +1,4 @@
 // routes.tsx
-import { Settings } from '@app/Settings/Settings';
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@app/common/AuthContext';
@@ -73,12 +72,6 @@ const routes: Array<IAppRoute | IAppRouteGroup> = [
       },
     ],
     title: 'Jobs',
-  },
-  {
-    path: '/',
-    element: <PrivateRoute element={<Settings />} />,
-    label: 'Settings',
-    title: 'Settings',
   },
   {
     path: '*',

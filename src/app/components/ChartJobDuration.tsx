@@ -1,10 +1,10 @@
 // JobDurationChart.tsx
 import React, { useEffect, useState } from 'react';
 import { Chart, ChartAxis, ChartBar, ChartThemeColor, ChartTooltip } from '@patternfly/react-charts';
-import useWebSocket from '@app/common/HooksWebSocket';
+import useFetchJobs from '@app/common/HooksApiServer';
 
 const JobDurationChart: React.FunctionComponent = () => {
-  const jobs = useWebSocket();
+  const jobs = useFetchJobs();
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
@@ -39,7 +39,11 @@ const JobDurationChart: React.FunctionComponent = () => {
         themeColor={ChartThemeColor.multi}
         width={600}
       >
-        <ChartAxis label="Job ID" />
+        <ChartAxis
+          label="Rollover the bar for the Job ID"
+          // Hide any text from the individual bars to avoid crowding
+          tickFormat={() => ''}
+        />
         <ChartAxis
           dependentAxis
           showGrid

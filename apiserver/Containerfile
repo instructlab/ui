@@ -1,0 +1,25 @@
+# apiserver Containerfile
+FROM golang:latest as builder
+WORKDIR /app
+
+COPY ui/apiserver/go.mod ui/apiserver/go.sum ./
+RUN go mod download
+COPY ui/apiserver/ .
+
+# Build
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o apiserver .
+
+# Stage 2
+FROM alpine:latest
+
+# Certs as needed
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /app
+
+# Copy the binary
+COPY --from=builder /app/apiserver .
+
+# Run the binary with environment variables if defined
+ENTRYPOINT ["sh", "-c"]
+CMD ["./apiserver --listen-address=${LISTEN_ADDRESS:-localhost:3000} --redis-server=${REDIS_SERVER:-localhost:6379} --api-user=${API_USER:-kitteh} --api-pass=${API_PASS:-floofykittens} --debug=${DEBUG_MODE:-false}"]

@@ -1,0 +1,82 @@
+# Multi-Worker Compose File
+# 1. Fill in the .env.template from the root of the repo and rename it to .env
+# 2. Each worker needs its own volume to mount with a clone of your taxonomy repo fork, example uses /home/fedora/instructlab-worker(n).
+# 3 Start the compose stack
+# 4. Next, exec into a worker and start instructlab-bot-worker with the following:
+# export AWS_ACCESS_KEY_ID=x
+# export AWS_SECRET_ACCESS_KEY=x
+# export AWS_DEFAULT_REGION=x
+# git config --global --add safe.directory /data/taxonomy
+# instructlab-bot-worker generate --github-token <YOUR_GITHUB_TOKEN_FOR_THE_TAXONOMY_REPO> \
+# --redis redis:6379  \
+# --s3-bucket some-bucket-name \
+# --aws-region us-east-1
+# 5. Add the IP address clients will point their browsers at in the /ui/.env file in the IL_UI_API_SERVER_URL variable
+# Make sure the IL_UI_API_SERVER_USERNAME and IL_UI_API_SERVER_PASSWORD match the apiserver API_USER and API_PASS variables
+services:
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - 6379:6379
+
+  bot:
+    container_name: bot
+    image: ghcr.io/instructlab/instructlab-bot/instructlab-gobot:main
+    env_file:
+      - ../.env
+    depends_on:
+      - redis
+
+  bot-ui:
+    container_name: bot-ui
+    image: ghcr.io/instructlab/instructlab-bot/bot-ui:main
+    network_mode: "host"
+
+  apiserver:
+    container_name: apiserver
+    image: ghcr.io/instructlab/instructlab-bot/apiserver:main
+    network_mode: "host"
+    depends_on:
+      - redis
+    environment:
+      # Bind on all interface
+      LISTEN_ADDRESS: "${LISTEN_ADDRESS:-:3000}"
+      REDIS_SERVER: "${REDIS_SERVER:-localhost:6379}"
+      API_USER: "${API_USER:-kitteh}"
+      API_PASS: "${API_PASS:-floofykittens}"
+      DEBUG_MODE: "${DEBUG_MODE:-false}"
+
+  worker1:
+    container_name: worker1
+    image: ghcr.io/instructlab/instructlab-bot/instructlab-serve:main
+    volumes:
+      - /home/fedora/instructlab-worker1:/data
+    entrypoint: ["/bin/bash"]
+    stdin_open: true
+    tty: true
+    env_file:
+      - ../.env
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+
+  worker2:
+    container_name: worker2
+    image: ghcr.io/instructlab/instructlab-bot/instructlab-serve:main
+    volumes:
+      - /home/fedora/instructlab-worker2:/data
+    entrypoint: ["/bin/bash"]
+    stdin_open: true
+    tty: true
+    env_file:
+      - ../.env
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]

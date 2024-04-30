@@ -8,6 +8,7 @@
   "private": true,
   "scripts": {
     "dr:surge": "node dr-surge.js",
+    "prebuild": "npm run clean",
     "build": "webpack --config webpack.prod.js",
     "start": "dotenv -e .env -- cross-env sirv dist --cors --single --host --port 8080",
     "start:dev": "webpack serve --color --progress --config webpack.dev.js",
@@ -15,6 +16,7 @@
     "lint": "npm run eslint",
     "format": "prettier --check --write ./src/**/*.{tsx,ts}",
     "type-check": "tsc --noEmit",
+    "clean": "rimraf dist",
     "ci-checks": "npm run type-check && npm run lint && npm run test:coverage",
     "build:bundle-profile": "webpack --config webpack.prod.js --profile --json > stats.json",
     "bundle-profile:analyze": "npm run build:bundle-profile && webpack-bundle-analyzer ./stats.json"
@@ -47,7 +49,6 @@
     "react-docgen-typescript-loader": "^3.7.2",
     "react-router-dom": "^6.23.0",
     "regenerator-runtime": "^0.14.1",
-    "rimraf": "^5.0.5",
     "style-loader": "^4.0.0",
     "svg-url-loader": "^8.0.0",
     "terser-webpack-plugin": "^5.3.10",
@@ -57,6 +58,7 @@
     "tslib": "^2.6.2",
     "typescript": "^5.4.5",
     "url-loader": "^4.1.1",
+    "webpack": "^5.91.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4",
@@ -69,7 +71,7 @@
     "@patternfly/react-table": "^5.3.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "sirv-cli": "^2.0.2",
-    "webpack": "^5.91.0"
+    "rimraf": "^5.0.5",
+    "sirv-cli": "^2.0.2"
   }
 }
