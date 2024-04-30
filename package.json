@@ -9,7 +9,7 @@
   "scripts": {
     "dr:surge": "node dr-surge.js",
     "build": "webpack --config webpack.prod.js",
-    "start": "sirv dist --cors --single --host --port 8080",
+    "start": "dotenv -e .env -- cross-env sirv dist --cors --single --host --port 8080",
     "start:dev": "webpack serve --color --progress --config webpack.dev.js",
     "eslint": "eslint --ext .tsx,.js ./src/",
     "lint": "npm run eslint",
@@ -26,8 +26,10 @@
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
     "copy-webpack-plugin": "^12.0.2",
+    "cross-env": "^7.0.3",
     "css-loader": "^7.1.1",
     "css-minimizer-webpack-plugin": "^6.0.0",
+    "dotenv-cli": "^7.4.1",
     "dotenv-webpack": "^8.1.0",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.1",
@@ -66,8 +68,8 @@
     "@patternfly/react-icons": "^5.3.1",
     "@patternfly/react-table": "^5.3.1",
     "react": "^18.3.1",
-    "webpack": "^5.91.0",
     "react-dom": "^18.3.1",
-    "sirv-cli": "^2.0.2"
+    "sirv-cli": "^2.0.2",
+    "webpack": "^5.91.0"
   }
 }
