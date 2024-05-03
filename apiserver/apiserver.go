@@ -37,6 +37,7 @@ type JobData struct {
 	RepoName       string `json:"repoName"`
 	JobType        string `json:"jobType"`
 	InstallationID string `json:"installationID"`
+	Cmd            string `json:"cmd"`
 }
 
 func getAllJobs(c *gin.Context) {
@@ -94,6 +95,7 @@ func fetchJobData(jobID string) (JobData, error) {
 	jobData.RepoName = rdb.Get(ctx, fmt.Sprintf("jobs:%s:repo_name", jobID)).Val()
 	jobData.JobType = rdb.Get(ctx, fmt.Sprintf("jobs:%s:job_type", jobID)).Val()
 	jobData.InstallationID = rdb.Get(ctx, fmt.Sprintf("jobs:%s:installation_id", jobID)).Val()
+	jobData.Cmd = rdb.Get(ctx, fmt.Sprintf("jobs:%s:cmd", jobID)).Val()
 
 	return jobData, nil
 }

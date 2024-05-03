@@ -79,6 +79,7 @@ const SuccessJobs: React.FunctionComponent = () => {
                           <p><strong>Repository Name:</strong> {job.repoName}</p>
                           <p><strong>S3 URL:</strong> <a href={job.s3URL} target="_blank" rel="noopener noreferrer">{job.s3URL}</a></p>
                           <p><strong>Model Name:</strong> {job.modelName}</p>
+                          <p><strong>Command Run:</strong> {job.cmd}</p>
                         </div>
                       </ExpandableRowContent>
                     </Td>

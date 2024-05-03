@@ -13,4 +13,5 @@ export interface JobModel {
   installationID: string;
   s3URL: string;
   modelName: string;
+  cmd: string;
 }
