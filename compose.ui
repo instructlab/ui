@@ -46,6 +46,7 @@ services:
       API_USER: "${API_USER:-kitteh}"
       API_PASS: "${API_PASS:-floofykittens}"
       DEBUG_MODE: "${DEBUG_MODE:-false}"
+      TEST_MODE: "${TEST_MODE:-false}"
 
   worker1:
     container_name: worker1

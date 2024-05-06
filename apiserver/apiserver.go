@@ -28,11 +28,12 @@ const (
 const PreCheckEndpointURL = "https://merlinite-7b-vllm-openai.apps.fmaas-backend.fmaas.res.ibm.com/v1"
 
 type ApiServer struct {
-	router   *gin.Engine
-	logger   *zap.SugaredLogger
-	redis    *redis.Client
-	ctx      context.Context
-	testMode bool
+	router              *gin.Engine
+	logger              *zap.SugaredLogger
+	redis               *redis.Client
+	ctx                 context.Context
+	testMode            bool
+	preCheckEndpointURL string
 }
 
 type JobData struct {
@@ -183,7 +184,7 @@ func (api *ApiServer) runIlabChatCommand(question, context string) (string, erro
 	var cmd *exec.Cmd
 	if api.testMode {
 		// the model name is a dummy example in test mode
-		commandStr += fmt.Sprintf(" --endpoint-url %s --model %s", PreCheckEndpointURL, "/shared_model_storage/transformers_cache/models--ibm--merlinite-7b/snapshots/233d12759d5bb9344231dafdb51310ec19d79c0e")
+		commandStr += fmt.Sprintf(" --endpoint-url %s --model %s", api.preCheckEndpointURL, "/shared_model_storage/transformers_cache/models--ibm--merlinite-7b/snapshots/233d12759d5bb9344231dafdb51310ec19d79c0e")
 		cmdArgs := strings.Fields(commandStr)
 		cmd = exec.Command("echo", cmdArgs...)
 		api.logger.Infof("Running in test mode: %s", commandStr)
@@ -193,7 +194,7 @@ func (api *ApiServer) runIlabChatCommand(question, context string) (string, erro
 			api.logger.Errorf("Failed to fetch model name: %v", err)
 			return "failed to retrieve the model name", err
 		}
-		commandStr += fmt.Sprintf(" --endpoint-url %s --model %s", PreCheckEndpointURL, modelName)
+		commandStr += fmt.Sprintf(" --endpoint-url %s --model %s", api.preCheckEndpointURL, modelName)
 		cmdArgs := strings.Fields(commandStr)
 		cmd = exec.Command("ilab", cmdArgs...)
 		api.logger.Infof("Running in production mode with model name %s: %s", modelName, commandStr)
@@ -236,7 +237,7 @@ func setupLogger(debugMode bool) *zap.SugaredLogger {
 // If fullName is true, it returns the entire ID value; if false, it returns the parsed out name after the double hyphens.
 func (api *ApiServer) fetchModelName(fullName bool) (string, error) {
 	// Ensure the endpoint URL ends with "/models"
-	endpoint := PreCheckEndpointURL
+	endpoint := api.preCheckEndpointURL
 	if !strings.HasSuffix(endpoint, "/") {
 		endpoint += "/"
 	}
@@ -306,18 +307,19 @@ func (api *ApiServer) fetchModelName(fullName bool) (string, error) {
 
 func main() {
 	debugFlag := pflag.Bool("debug", false, "Enable debug mode")
-	testMode := pflag.Bool("test-mode", false, "Don't run ilab commands, just echo back to the chat")
+	testMode := pflag.Bool("test-mode", false, "Don't run ilab commands, just echo back the ilab command to the chat response")
 	listenAddress := pflag.String("listen-address", "localhost:3000", "Address to listen on")
 	redisAddress := pflag.String("redis-server", "localhost:6379", "Redis server address")
 	apiUser := pflag.String("api-user", "", "API username")
 	apiPass := pflag.String("api-pass", "", "API password")
+	preCheckEndpointURL := pflag.String("precheck-endpoint", PreCheckEndpointURL, "PreCheck endpoint URL")
 	pflag.Parse()
 
-	sugaredLogger := setupLogger(*debugFlag)
-	defer sugaredLogger.Sync()
+	logger := setupLogger(*debugFlag)
+	defer logger.Sync()
 
 	if *apiUser == "" || *apiPass == "" {
-		sugaredLogger.Fatal("Username and password must be provided")
+		logger.Fatal("Username and password must be provided")
 	}
 
 	rdb := redis.NewClient(&redis.Options{
@@ -325,17 +327,18 @@ func main() {
 	})
 
 	router := gin.Default()
-	server := ApiServer{
-		router:   router,
-		logger:   sugaredLogger,
-		redis:    rdb,
-		ctx:      context.Background(),
-		testMode: *testMode,
+	svr := ApiServer{
+		router:              router,
+		logger:              logger,
+		redis:               rdb,
+		ctx:                 context.Background(),
+		testMode:            *testMode,
+		preCheckEndpointURL: *preCheckEndpointURL,
 	}
-	server.setupRoutes(*apiUser, *apiPass)
+	svr.setupRoutes(*apiUser, *apiPass)
 
-	server.logger.Info("ApiServer starting", zap.String("listen-address", *listenAddress))
-	if err := server.router.Run(*listenAddress); err != nil {
-		server.logger.Error("ApiServer failed to start", zap.Error(err))
+	svr.logger.Info("ApiServer starting", zap.String("listen-address", *listenAddress))
+	if err := svr.router.Run(*listenAddress); err != nil {
+		svr.logger.Error("ApiServer failed to start", zap.Error(err))
 	}
 }

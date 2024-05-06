@@ -77,7 +77,7 @@ const routes: Array<IAppRoute | IAppRouteGroup> = [
     path: '/chat',
     element: <PrivateRoute element={<ChatForm />} />,
     label: 'Chat',
-    title: 'Chat with Us',
+    title: 'Chat with Ilab Backend',
   },
   {
     path: '*',
