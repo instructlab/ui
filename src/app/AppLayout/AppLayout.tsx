@@ -1,4 +1,3 @@
-// AppLayout.tsx
 import * as React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -18,10 +17,12 @@ import {
   PageSidebarBody,
   SkipToContent
 } from '@patternfly/react-core';
-import logo from '@app/bgimages/InstructLab-Logo.svg';
-import { BarsIcon } from '@patternfly/react-icons';
+import { BarsIcon, SignOutAltIcon } from '@patternfly/react-icons';
 import { IAppRoute, IAppRouteGroup, routes } from '@app/routes';
 import { useAuth } from '../common/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import ThemeToggle from '../components/ThemeToggle';
+import logo from '@app/bgimages/InstructLab-Logo.svg';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -30,6 +31,7 @@ interface IAppLayout {
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const { isAuthenticated, logout } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -51,14 +53,18 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         </MastheadBrand>
       </MastheadMain>
       {isAuthenticated && (
-        <MastheadContent className="masthead-right-align">
-          <Button variant="plain" onClick={handleLogout} aria-label="Logout">
-            Logout
-          </Button>
+        <MastheadContent className="masthead-right-align" style={{ width: '100%' }}>
+          <div style={{ paddingLeft: '80%' }}>
+            <ThemeToggle />
+            <Button variant="plain" onClick={handleLogout} aria-label="Logout">
+              <SignOutAltIcon />
+            </Button>
+          </div>
         </MastheadContent>
       )}
     </Masthead>
   );
+
 
   const renderNavItem = (route: IAppRoute, index: number) => (
     <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={route.path === location.pathname}>
@@ -80,7 +86,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   );
 
   const Navigation = (
-    <Nav id="nav-primary-simple" theme="dark">
+    <Nav id="nav-primary-simple" theme={theme}>
       <NavList id="nav-list-simple">
         {routes.map(
           (route, idx) => route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx))
@@ -90,7 +96,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   );
 
   const Sidebar = (
-    <PageSidebar theme="dark">
+    <PageSidebar theme={theme}>
       <PageSidebarBody>
         {Navigation}
       </PageSidebarBody>

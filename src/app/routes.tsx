@@ -9,8 +9,8 @@ import { FailedJobs } from '@app/Jobs/Failed/Failed';
 import { PendingJobs } from '@app/Jobs/Pending/Pending';
 import { RunningJobs } from '@app/Jobs/Running/Running';
 import { SuccessJobs } from '@app/Jobs/Success/Success';
+import { ChatForm } from '@app/Chat/Chat';
 import Login from '@app/Login/Login';
-import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 
 const PrivateRoute = ({ element }: { element: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -72,6 +72,12 @@ const routes: Array<IAppRoute | IAppRouteGroup> = [
       },
     ],
     title: 'Jobs',
+  },
+  {
+    path: '/chat',
+    element: <PrivateRoute element={<ChatForm />} />,
+    label: 'Chat',
+    title: 'Chat with Us',
   },
   {
     path: '*',
