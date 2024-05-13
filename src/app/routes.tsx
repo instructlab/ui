@@ -10,6 +10,8 @@ import { PendingJobs } from '@app/Jobs/Pending/Pending';
 import { RunningJobs } from '@app/Jobs/Running/Running';
 import { SuccessJobs } from '@app/Jobs/Success/Success';
 import { ChatForm } from '@app/Chat/Chat';
+import { SkillForm } from '@app/Contribute/Skill/Skill';
+import { KnowledgeForm } from '@app/Contribute/Knowledge/Knowledge';
 import Login from '@app/Login/Login';
 
 const PrivateRoute = ({ element }: { element: React.ReactNode }) => {
@@ -36,6 +38,24 @@ const routes: Array<IAppRoute | IAppRouteGroup> = [
     element: <PrivateRoute element={<Dashboard />} />,
     label: 'Dashboard',
     title: 'Main Dashboard',
+  },
+  {
+    label: 'Contribute',
+    routes: [
+      {
+        path: '/contribute/skill',
+        element: <PrivateRoute element={<SkillForm />} />,
+        label: 'Skill',
+        title: 'Contribute Skill',
+      },
+      {
+        path: '/contribute/knowledge',
+        element: <PrivateRoute element={<KnowledgeForm />} />,
+        label: 'Knowledge',
+        title: 'Contribute Knowledge',
+      },
+    ],
+    title: 'Contribute',
   },
   {
     label: 'Jobs',

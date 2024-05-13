@@ -26,6 +26,7 @@ const (
 )
 
 const PreCheckEndpointURL = "https://merlinite-7b-vllm-openai.apps.fmaas-backend.fmaas.res.ibm.com/v1"
+const InstructLabBotUrl = "http://bot:8081"
 
 type ApiServer struct {
 	router              *gin.Engine
@@ -34,6 +35,7 @@ type ApiServer struct {
 	ctx                 context.Context
 	testMode            bool
 	preCheckEndpointURL string
+	instructLabBotUrl   string
 }
 
 type JobData struct {
@@ -59,6 +61,38 @@ type ChatRequest struct {
 	Context  string `json:"context"`
 }
 
+type SkillPRRequest struct {
+	Name             string   `json:"name"`
+	Email            string   `json:"email"`
+	Task_description string   `json:"task_description"`
+	Task_details     string   `json:"task_details"`
+	Title_work       string   `json:"title_work"`
+	Link_work        string   `json:"link_work"`
+	License_work     string   `json:"license_work"`
+	Creators         string   `json:"creators"`
+	Questions        []string `json:"questions"`
+	Contexts         []string `json:"contexts"`
+	Answers          []string `json:"answers"`
+}
+
+type KnowledgePRRequest struct {
+	Name             string   `json:"name"`
+	Email            string   `json:"email"`
+	Task_description string   `json:"task_description"`
+	Task_details     string   `json:"task_details"`
+	Repo             string   `json:"repo"`
+	Commit           string   `json:"commit"`
+	Patterns         string   `json:"patterns"`
+	Title_work       string   `json:"title_work"`
+	Link_work        string   `json:"link_work"`
+	Revision         string   `json:"revision"`
+	License_work     string   `json:"license_work"`
+	Creators         string   `json:"creators"`
+	Domain           string   `json:"domain"`
+	Questions        []string `json:"questions"`
+	Answers          []string `json:"answers"`
+}
+
 func (api *ApiServer) chatHandler(c *gin.Context) {
 
 	var req ChatRequest
@@ -78,6 +112,117 @@ func (api *ApiServer) chatHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"answer": answer})
+}
+
+func (api *ApiServer) skillPRHandler(c *gin.Context) {
+
+	var prData SkillPRRequest
+	if err := c.ShouldBindJSON(&prData); err != nil {
+		api.logger.Error("Failed to bind JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	api.logger.Infof("Received Skill pull request data: %v", prData)
+
+	prJson, err := json.Marshal(prData)
+	if err != nil {
+		api.logger.Errorf("Error encoding JSON: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	url := fmt.Sprintf("%s/pr/skill", InstructLabBotUrl)
+	resp, err := api.sendPostRequest(url, bytes.NewBuffer(prJson))
+	if err != nil {
+		api.logger.Errorf("Error sending post request to bot http server: %v -- %v", err, resp)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	defer resp.Body.Close()
+
+	responseBody := new(bytes.Buffer)
+	_, err = responseBody.ReadFrom(resp.Body)
+	if err != nil {
+		api.logger.Errorf("Error reading response body: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		api.logger.Errorf("Error response (code : %s) from bot http server: %v", resp.StatusCode, responseBody.String())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": responseBody.String()})
+		return
+	}
+
+	api.logger.Infof("Skill pull request response: %v", responseBody.String())
+	c.JSON(http.StatusOK, gin.H{"msg": responseBody.String()})
+}
+
+func (api *ApiServer) knowledgePRHandler(c *gin.Context) {
+
+	var prData KnowledgePRRequest
+	if err := c.ShouldBindJSON(&prData); err != nil {
+		api.logger.Error("Failed to bind JSON:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	api.logger.Infof("Received Knowledge pull request data: %v", prData)
+
+	prJson, err := json.Marshal(prData)
+	if err != nil {
+		api.logger.Errorf("Error encoding JSON: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	url := fmt.Sprintf("%s/pr/knowledge", InstructLabBotUrl)
+	resp, err := api.sendPostRequest(url, bytes.NewBuffer(prJson))
+	if err != nil {
+		api.logger.Errorf("Error sending post request to bot http server: %v -- %v", err, resp)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	responseBody := new(bytes.Buffer)
+	_, err = responseBody.ReadFrom(resp.Body)
+	if err != nil {
+		api.logger.Errorf("Error reading response body: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		api.logger.Errorf("Error response (code : %s) from bot http server: %v", resp.StatusCode, responseBody.String())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": responseBody.String()})
+		return
+	}
+
+	api.logger.Infof("Knowledge pull request response: %v", responseBody.String())
+
+	c.JSON(http.StatusOK, gin.H{"msg": responseBody.String()})
+}
+
+// Sent http post request using custom client with zero timeout
+func (api *ApiServer) sendPostRequest(url string, body io.Reader) (*http.Response, error) {
+	client := &http.Client{
+		Timeout: 0 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+
+	request, err := http.NewRequest("POST", url, body)
+	if err != nil {
+		api.logger.Errorf("Error creating http request: %v", err)
+		return nil, err
+	}
+	request.Header.Set("Content-Type", "application/json")
+	response, err := client.Do(request)
+	if err != nil {
+		api.logger.Errorf("Error sending http request: %v", err)
+		return nil, err
+	}
+	return response, nil
 }
 
 func (api *ApiServer) getAllJobs(c *gin.Context) {
@@ -160,6 +305,8 @@ func (api *ApiServer) setupRoutes(apiUser, apiPass string) {
 	authorized.Use(AuthRequired(apiUser, apiPass))
 	authorized.GET("/jobs", api.getAllJobs)
 	authorized.POST("/chat", api.chatHandler)
+	authorized.POST("/pr/skill", api.skillPRHandler)
+	authorized.POST("/pr/knowledge", api.knowledgePRHandler)
 
 	api.router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "IL Redis Queue")
@@ -233,7 +380,7 @@ func setupLogger(debugMode bool) *zap.SugaredLogger {
 	return logger.Sugar()
 }
 
-// fetchModelName hits the defined precheckEndpoint with "/models" appended to extract the model name.
+// fetchModelName hits the defined precheck endpoint with "/models" appended to extract the model name.
 // If fullName is true, it returns the entire ID value; if false, it returns the parsed out name after the double hyphens.
 func (api *ApiServer) fetchModelName(fullName bool) (string, error) {
 	// Ensure the endpoint URL ends with "/models"
@@ -312,7 +459,8 @@ func main() {
 	redisAddress := pflag.String("redis-server", "localhost:6379", "Redis server address")
 	apiUser := pflag.String("api-user", "", "API username")
 	apiPass := pflag.String("api-pass", "", "API password")
-	preCheckEndpointURL := pflag.String("precheck-endpoint", PreCheckEndpointURL, "PreCheck endpoint URL")
+	preCheckEndpointURL := pflag.String("precheck-endpoint", PreCheckEndpointURL, "Precheck endpoint URL")
+	InstructLabBotUrl := pflag.String("bot-url", InstructLabBotUrl, "InstructLab Bot URL")
 	pflag.Parse()
 
 	logger := setupLogger(*debugFlag)
@@ -334,6 +482,7 @@ func main() {
 		ctx:                 context.Background(),
 		testMode:            *testMode,
 		preCheckEndpointURL: *preCheckEndpointURL,
+		instructLabBotUrl:   *InstructLabBotUrl,
 	}
 	svr.setupRoutes(*apiUser, *apiPass)
 

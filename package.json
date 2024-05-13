@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^2.0.4",
+    "@types/js-yaml": "^4.0.9",
     "@types/react-router-dom": "^5.3.3",
     "@types/victory": "^33.1.5",
     "@typescript-eslint/eslint-plugin": "^7.7.1",

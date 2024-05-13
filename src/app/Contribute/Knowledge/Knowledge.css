@@ -1,0 +1,83 @@
+/* Knowledge CSS */
+
+.main-k {
+	display: block;
+	/* Use flexbox */
+}
+
+.dataarea-k {
+	display: flex;
+	/* Use flexbox */
+	width: 100%;
+	height: 80%;
+	margin-top: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.knowledge-k {
+	width: 60%;
+	height: 100%;
+	margin-top: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+	scroll-behavior: smooth;
+	overflow: scroll;
+}
+
+.metadata-k {
+	width: 35%;
+	height: 60%;
+	margin-top: 60px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.info-k {
+	width: 100%;
+	height: 40%;
+	margin-top: 50px;
+
+}
+
+.attribution-k {
+	width: 100%;
+	height: 30%;
+	margin-top: 100px;
+	margin-right: 10px;
+}
+
+.document-k {
+	width: 100%;
+	height: 30%;
+	margin-right: 10px;
+}
+
+.submit-k {
+	display: inline-block;
+	margin-top: 30px;
+	margin-left: 50%;
+
+}
+
+.submit-k:hover {
+	background-color: #45a049;
+	/* Darker Green */
+}
+
+.title-k {
+	align-items: center;
+	margin-bottom: 10px;
+	text-align: center;
+	text-shadow: #45a049;
+	font-size: large;
+	font-weight: bold;
+	color: rgb(4, 4, 135);
+}
+
+.heading-k {
+	text-align: left;
+	text-shadow: #45a049;
+	font-size: large;
+	color: rgb(4, 4, 135);
+}
