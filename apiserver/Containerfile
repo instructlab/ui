@@ -40,4 +40,4 @@ WORKDIR /data
 COPY --from=builder /app/instructlab-bot/ui/apiserver/apiserver /usr/local/bin/apiserver
 
 # Run the apiserver binary with environment variables
-CMD /usr/local/bin/apiserver --listen-address=${LISTEN_ADDRESS:-localhost:3000} --redis-server=${REDIS_SERVER:-localhost:6379} --api-user=${API_USER:-kitteh} --api-pass=${API_PASS:-floofykittens} --debug=${DEBUG_MODE:-false} --test-mode=${TEST_MODE:-false}
+CMD /usr/local/bin/apiserver --listen-address=${LISTEN_ADDRESS:-localhost:3000} --bot-url ${BOT_URL:-http://instructlab-bot:8081}  --redis-server=${REDIS_SERVER:-localhost:6379} --api-user=${API_USER:-kitteh} --api-pass=${API_PASS:-floofykittens} --debug=${DEBUG_MODE:-false} --test-mode=${TEST_MODE:-false}
