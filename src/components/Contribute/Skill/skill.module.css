@@ -1,0 +1,72 @@
+/* Skill CSS */
+
+.main {
+  display: block; /* Use flexbox */
+}
+
+.dataarea {
+  display: flex; /* Use flexbox */
+  width: 100%;
+  height: 60%;
+  margin-top: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.skill {
+  width: 60%;
+  height: 100%;
+  margin-top: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  scroll-behavior: smooth;
+  overflow: scroll;
+}
+
+.metadata {
+  width: 35%;
+  height: 60%;
+  margin-top: 60px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.info {
+  width: 100%;
+  height: 50%;
+  margin-top: 100px;
+}
+
+.attribution {
+  width: 100%;
+  height: 50%;
+  margin-top: 100px;
+  margin-right: 10px;
+}
+
+.submit {
+  display: inline-block;
+  margin-top: 30px;
+  margin-left: 50%;
+}
+
+.submit:hover {
+  background-color: #45a049; /* Darker Green */
+}
+
+.title {
+  align-items: center;
+  margin-bottom: 10px;
+  text-align: center;
+  text-shadow: #45a049;
+  font-size: large;
+  font-weight: bold;
+  color: rgb(4, 4, 135);
+}
+
+.heading {
+  text-align: left;
+  text-shadow: #45a049;
+  font-size: large;
+  color: rgb(4, 4, 135);
+}

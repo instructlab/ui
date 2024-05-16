@@ -1,32 +1,17 @@
-// index.tsx
-import { AuthProvider } from '@app/common/AuthContext';
-import { ThemeProvider } from '@app/context/ThemeContext';
+// src/app/index.tsx
+'use client';
+
 import * as React from 'react';
+import { ThemeProvider } from '../context/ThemeContext';
 import '@patternfly/react-core/dist/styles/base.css';
-import { BrowserRouter as Route, Router, Routes } from 'react-router-dom';
-import { AppLayout } from '@app/AppLayout/AppLayout';
-import { AppRoutes } from '@app/routes';
-import Login from '@app/Login/Login';
-import '@app/app.css';
+import Dashboard from './dashboard/page';
 
-const App: React.FunctionComponent = () => (
-  <AuthProvider>
+const Home: React.FunctionComponent = () => {
+  return (
     <ThemeProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="*"
-            element={
-              <AppLayout>
-                <AppRoutes />
-              </AppLayout>
-            }
-          />
-        </Routes>
-      </Router>
+      <Dashboard />
     </ThemeProvider>
-  </AuthProvider>
-);
+  );
+};
 
-export default App;
+export default Home;
