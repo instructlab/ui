@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChartPie, ChartLegend, ChartThemeColor } from '@patternfly/react-charts';
+import { ChartLegend, ChartPie, ChartThemeColor } from '@patternfly/react-charts';
 import { useNavigate } from 'react-router-dom';
 import useFetchJobs from '@app/common/HooksApiServer';
 

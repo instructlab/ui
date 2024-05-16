@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import './Skill.css';
 import { usePostSkillPR } from "@app/common/HooksPostSkillPR";
-import {
-  Alert,
-  AlertActionCloseButton,
-  ActionGroup,
-  Button,
-  Text,
-  TextInput,
-  Form,
-  FormGroup,
-  TextArea,
-} from '@patternfly/react-core';
+import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form'
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert'
+import { AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert'
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button'
+import { Form } from '@patternfly/react-core/dist/dynamic/components/Form'
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form'
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text'
+import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea'
+import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput'
 
 export const SkillForm: React.FunctionComponent = () => {
   const [email, setEmail] = useState('');

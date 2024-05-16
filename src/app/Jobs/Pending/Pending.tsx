@@ -3,10 +3,13 @@ import { Columns } from "@app/common/DisplayColumns";
 import useFetchJobs from "@app/common/HooksApiServer";
 import JobsLayout from "@app/common/JobsLayout";
 import { formatDate } from '@app/utils/dateUtils';
-import {GithubIcon, AngleRightIcon, CodeBranchIcon} from "@patternfly/react-icons";
+import AngleRightIcon from '@patternfly/react-icons/dist/dynamic/icons/angle-right-icon'
+import CodeBranchIcon from '@patternfly/react-icons/dist/dynamic/icons/code-branch-icon'
+import GithubIcon from '@patternfly/react-icons/dist/dynamic/icons/github-icon'
 import * as React from 'react';
-import { PageSection, Title } from '@patternfly/react-core';
-import { Table, Thead, Tr, Th, Td, Tbody, ExpandableRowContent } from '@patternfly/react-table';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page'
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title'
+import { ExpandableRowContent, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { getSortParams } from '@app/utils/tableUtils';
 
 const PendingJobs: React.FunctionComponent = () => {

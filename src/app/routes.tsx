@@ -1,6 +1,6 @@
 // routes.tsx
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from '@app/common/AuthContext';
 import { NotFound } from '@app/NotFound/NotFound';
 import { Dashboard } from '@app/Dashboard/Dashboard';
@@ -109,7 +109,7 @@ const routes: Array<IAppRoute | IAppRouteGroup> = [
 export const AppRoutes = (): React.ReactElement => (
   <Routes>
     <Route path="/login" element={<Login />} />
-    {routes.map((route, idx) =>
+    {routes.map((route) =>
       'routes' in route ? (
         route.routes?.map((subRoute) => (
           <Route key={subRoute.path} path={subRoute.path} element={<PrivateRoute element={subRoute.element} />} />

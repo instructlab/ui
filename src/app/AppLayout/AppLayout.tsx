@@ -1,23 +1,22 @@
 import * as React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import {
-  Brand,
-  Button,
-  Masthead,
-  MastheadBrand,
-  MastheadMain,
-  MastheadToggle,
-  MastheadContent,
-  Nav,
-  NavExpandable,
-  NavItem,
-  NavList,
-  Page,
-  PageSidebar,
-  PageSidebarBody,
-  SkipToContent
-} from '@patternfly/react-core';
-import { BarsIcon, SignOutAltIcon } from '@patternfly/react-icons';
+import { Brand } from '@patternfly/react-core/dist/dynamic/components/Brand'
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button'
+import { Masthead } from '@patternfly/react-core/dist/dynamic/components/Masthead'
+import { MastheadBrand } from '@patternfly/react-core/dist/dynamic/components/Masthead'
+import { MastheadContent } from '@patternfly/react-core/dist/dynamic/components/Masthead'
+import { MastheadMain } from '@patternfly/react-core/dist/dynamic/components/Masthead'
+import { MastheadToggle } from '@patternfly/react-core/dist/dynamic/components/Masthead'
+import { Nav } from '@patternfly/react-core/dist/dynamic/components/Nav'
+import { NavExpandable } from '@patternfly/react-core/dist/dynamic/components/Nav'
+import { NavItem } from '@patternfly/react-core/dist/dynamic/components/Nav'
+import { NavList } from '@patternfly/react-core/dist/dynamic/components/Nav'
+import { Page } from '@patternfly/react-core/dist/dynamic/components/Page'
+import { PageSidebar } from '@patternfly/react-core/dist/dynamic/components/Page'
+import { PageSidebarBody } from '@patternfly/react-core/dist/dynamic/components/Page'
+import { SkipToContent } from '@patternfly/react-core/dist/dynamic/components/SkipToContent'
+import BarsIcon from '@patternfly/react-icons/dist/dynamic/icons/bars-icon'
+import SignOutAltIcon from '@patternfly/react-icons/dist/dynamic/icons/sign-out-alt-icon'
 import { IAppRoute, IAppRouteGroup, routes } from '@app/routes';
 import { useAuth } from '../common/AuthContext';
 import { useTheme } from '../context/ThemeContext';

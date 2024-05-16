@@ -5,9 +5,12 @@ import JobsLayout from "@app/common/JobsLayout";
 import { formatDate } from "@app/utils/dateUtils";
 import { getSortParams } from "@app/utils/tableUtils";
 import * as React from 'react';
-import { PageSection, Title } from '@patternfly/react-core';
-import { Table, Thead, Tr, Th, Td, Tbody, ExpandableRowContent } from '@patternfly/react-table';
-import { GithubIcon, CodeBranchIcon, AngleRightIcon } from '@patternfly/react-icons';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page'
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title'
+import { ExpandableRowContent, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import AngleRightIcon from '@patternfly/react-icons/dist/dynamic/icons/angle-right-icon'
+import CodeBranchIcon from '@patternfly/react-icons/dist/dynamic/icons/code-branch-icon'
+import GithubIcon from '@patternfly/react-icons/dist/dynamic/icons/github-icon'
 
 const AllJobs: React.FunctionComponent = () => {
   const jobs = useFetchJobs();

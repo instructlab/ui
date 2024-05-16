@@ -1,7 +1,11 @@
 // Dashboard.tsx
 import JobDurationChart from "@app/components/ChartJobDuration";
 import * as React from 'react';
-import { PageSection, Title, Card, CardBody, CardTitle } from '@patternfly/react-core';
+import { Card } from '@patternfly/react-core/dist/dynamic/components/Card'
+import { CardBody } from '@patternfly/react-core/dist/dynamic/components/Card'
+import { CardTitle } from '@patternfly/react-core/dist/dynamic/components/Card'
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page'
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title'
 import JobStatusPieChart from '@app/components/ChartJobDistribution';
 
 const Dashboard: React.FunctionComponent = () => {

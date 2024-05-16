@@ -1,13 +1,11 @@
 // Login.tsx
-import {ExclamationCircleIcon} from "@patternfly/react-icons";
-import React, { useState, ChangeEvent } from "react";
-import {
-  LoginForm,
-  LoginPage,
-  ListItem,
-  ListVariant,
-  LoginFooterItem
-} from "@patternfly/react-core";
+import {ExclamationCircleIcon} from "@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon";
+import React, { ChangeEvent, useState } from "react";
+import { LoginForm } from '@patternfly/react-core/dist/dynamic/components/LoginPage'
+import { LoginPage } from '@patternfly/react-core/dist/dynamic/components/LoginPage'
+import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List'
+import { ListVariant } from '@patternfly/react-core/dist/dynamic/components/List'
+import { LoginFooterItem } from '@patternfly/react-core/dist/dynamic/components/LoginPage'
 import logo from '@app/bgimages/InstructLab-Logo.svg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../common/AuthContext";

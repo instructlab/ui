@@ -1,8 +1,9 @@
 // ThemeToggle.tsx
 import React from 'react';
 import { useTheme } from '../context/ThemeContext';
-import { Button } from '@patternfly/react-core';
-import { SunIcon, MoonIcon } from '@patternfly/react-icons';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import MoonIcon from '@patternfly/react-icons/dist/dynamic/icons/moon-icon'
+import SunIcon from '@patternfly/react-icons/dist/dynamic/icons/sun-icon'
 
 const ThemeToggle: React.FC = () => {
   const { theme, setTheme } = useTheme();

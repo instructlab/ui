@@ -1,9 +1,15 @@
 // Chat.tsx
-import React, { useState, useRef, useEffect } from 'react';
-import { ActionGroup, Button, Form, FormGroup, TextInput, Spinner } from '@patternfly/react-core';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form'
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button'
+import { Form } from '@patternfly/react-core/dist/dynamic/components/Form'
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form'
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner'
+import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput'
 import { usePostChat } from "@app/common/HooksPostChat";
 import './ChatForm.css';
-import { UserIcon, CopyIcon } from "@patternfly/react-icons";
+import UserIcon from '@patternfly/react-icons/dist/dynamic/icons/user-icon'
+import CopyIcon from '@patternfly/react-icons/dist/dynamic/icons/copy-icon'
 import botIconSrc from '../bgimages/bot-icon-chat-32x32.svg';
 
 interface Message {
