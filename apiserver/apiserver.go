@@ -155,7 +155,7 @@ func (api *ApiServer) skillPRHandler(c *gin.Context) {
 	}
 
 	api.logger.Infof("Skill pull request response: %v", responseBody.String())
-	c.JSON(http.StatusOK, gin.H{"msg": responseBody.String()})
+	c.JSON(http.StatusCreated, gin.H{"msg": responseBody.String()})
 }
 
 func (api *ApiServer) knowledgePRHandler(c *gin.Context) {
@@ -199,7 +199,7 @@ func (api *ApiServer) knowledgePRHandler(c *gin.Context) {
 
 	api.logger.Infof("Knowledge pull request response: %v", responseBody.String())
 
-	c.JSON(http.StatusOK, gin.H{"msg": responseBody.String()})
+	c.JSON(http.StatusCreated, gin.H{"msg": responseBody.String()})
 }
 
 // Sent http post request using custom client with zero timeout
@@ -305,8 +305,8 @@ func (api *ApiServer) setupRoutes(apiUser, apiPass string) {
 	authorized.Use(AuthRequired(apiUser, apiPass))
 	authorized.GET("/jobs", api.getAllJobs)
 	authorized.POST("/chat", api.chatHandler)
-	authorized.POST("/pr/skill", api.skillPRHandler)
-	authorized.POST("/pr/knowledge", api.knowledgePRHandler)
+	authorized.POST("pr/skill", api.skillPRHandler)
+	authorized.POST("pr/knowledge", api.knowledgePRHandler)
 
 	api.router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "IL Redis Queue")

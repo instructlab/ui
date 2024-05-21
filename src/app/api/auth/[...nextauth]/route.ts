@@ -18,8 +18,8 @@ export const authOptions: NextAuthOptions = {
       },
       authorize: async (credentials) => {
         if (
-          credentials?.username === (process.env.NEXT_PUBLIC_IL_UI_ADMIN_USERNAME || 'admin') &&
-          credentials?.password === (process.env.NEXT_PUBLIC_IL_UI_ADMIN_PASSWORD || 'password')
+          credentials?.username === (process.env.IL_UI_ADMIN_USERNAME || 'admin') &&
+          credentials?.password === (process.env.IL_UI_ADMIN_PASSWORD || 'password')
         ) {
           return { id: '1', name: 'Admin', email: 'admin@example.com' };
         }

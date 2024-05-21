@@ -1,11 +1,11 @@
 // src/components/Contribute/Skill/index.tsx
 'use client';
 import React, { useState } from 'react';
-import './skill.module.css';
+import './skill.css';
 import { usePostSkillPR } from '../../../common/HooksPostSkillPR';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { ActionGroup, FormFieldGroupExpandable, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
@@ -94,6 +94,10 @@ export const SkillForm: React.FunctionComponent = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
+
+    // Hide the existing alerts if any
+    setIsSuccessAlertVisible(false);
+    setIsFailureAlertVisible(false);
 
     // Make sure all the questions, contexts and answers are not empty
     if (questions.some((question) => question.trim() === '') || answers.some((answer) => answer.trim() === '')) {
@@ -184,7 +188,149 @@ export const SkillForm: React.FunctionComponent = () => {
   };
 
   return (
-    <div className="main">
+    <Form className="form">
+      <FormFieldGroupExpandable
+        isExpanded
+        toggleAriaLabel="Details"
+        header={
+          <FormFieldGroupHeader
+            titleText={{ text: 'Author Info', id: 'author-info-id' }}
+            titleDescription="Provide your information. Needed for GitHub DCO sign-off."
+          />
+        }
+      >
+        <FormGroup isRequired key={'author-info-details-id'}>
+          <TextInput
+            isRequired
+            type="email"
+            aria-label="email"
+            placeholder="Enter your email address"
+            value={email}
+            onChange={(_event, value) => setEmail(value)}
+          />
+          <TextInput
+            isRequired
+            type="text"
+            aria-label="name"
+            placeholder="Enter your full name"
+            value={name}
+            onChange={(_event, value) => setName(value)}
+          />
+        </FormGroup>
+      </FormFieldGroupExpandable>
+      <FormFieldGroupExpandable
+        isExpanded
+        toggleAriaLabel="Details"
+        header={
+          <FormFieldGroupHeader
+            titleText={{ text: 'Skill Info', id: 'skill-info-id' }}
+            titleDescription="Provide brief information about the skill."
+          />
+        }
+      >
+        <FormGroup key={'skill-info-details-id'}>
+          <TextInput
+            isRequired
+            type="text"
+            aria-label="task_description"
+            placeholder="Enter brief description of the skill"
+            value={task_description}
+            onChange={(_event, value) => setTaskDescription(value)}
+          />
+          <TextArea
+            isRequired
+            type="text"
+            aria-label="task_details"
+            placeholder="Provide details about the skill"
+            value={task_details}
+            onChange={(_event, value) => setTaskDetails(value)}
+          />
+        </FormGroup>
+      </FormFieldGroupExpandable>
+
+      <FormFieldGroupExpandable
+        toggleAriaLabel="Details"
+        header={
+          <FormFieldGroupHeader
+            titleText={{ text: 'Skill', id: 'contrib-skill-id' }}
+            titleDescription="Contribute new skill to the taxonomy repository."
+          />
+        }
+      >
+        {[...Array(5)].map((_, index) => (
+          <FormGroup key={index}>
+            <Text className="heading"> Example : {index + 1}</Text>
+            <TextArea
+              isRequired
+              type="text"
+              aria-label={`Question ${index + 1}`}
+              placeholder="Enter the question"
+              value={questions[index]}
+              onChange={(_event, value) => handleInputChange(index, 'question', value)}
+            />
+            <TextArea
+              type="text"
+              aria-label={`Context ${index + 1}`}
+              placeholder="Enter the context"
+              value={contexts[index]}
+              onChange={(_event, value) => handleInputChange(index, 'context', value)}
+            />
+            <TextArea
+              isRequired
+              type="text"
+              aria-label={`Answer ${index + 1}`}
+              placeholder="Enter the answer"
+              value={answers[index]}
+              onChange={(_event, value) => handleInputChange(index, 'answer', value)}
+            />
+          </FormGroup>
+        ))}
+      </FormFieldGroupExpandable>
+
+      <FormFieldGroupExpandable
+        toggleAriaLabel="Details"
+        header={
+          <FormFieldGroupHeader
+            titleText={{ text: 'Attribution Info', id: 'attribution-info-id' }}
+            titleDescription="Provide attribution information."
+          />
+        }
+      >
+        <FormGroup isRequired key={'attribution-info-details-id'}>
+          <TextInput
+            isRequired
+            type="text"
+            aria-label="title_work"
+            placeholder="Enter title of work"
+            value={title_work}
+            onChange={(_event, value) => setTitleWork(value)}
+          />
+          <TextInput
+            isRequired
+            type="url"
+            aria-label="link_work"
+            placeholder="Enter link to work"
+            value={link_work}
+            onChange={(_event, value) => setLinkWork(value)}
+          />
+          <TextInput
+            isRequired
+            type="text"
+            aria-label="license_work"
+            placeholder="Enter license of the work"
+            value={license_work}
+            onChange={(_event, value) => setLicenseWork(value)}
+          />
+          <TextInput
+            isRequired
+            type="text"
+            aria-label="creators"
+            placeholder="Enter creators Name"
+            value={creators}
+            onChange={(_event, value) => setCreators(value)}
+          />
+        </FormGroup>
+      </FormFieldGroupExpandable>
       {isSuccessAlertVisible && (
         <Alert variant="success" title={success_alert_title} actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}>
           {success_alert_message}
@@ -195,121 +341,11 @@ export const SkillForm: React.FunctionComponent = () => {
           {failure_alert_message}
         </Alert>
       )}
-      <div className="dataarea">
-        <div className="skill">
-          <Form>
-            <Text className="title">Contribute a Skill</Text>
-            {[...Array(5)].map((_, index) => (
-              <FormGroup key={index}>
-                <Text className="heading"> Example : {index + 1}</Text>
-                <TextArea
-                  isRequired
-                  type="text"
-                  aria-label={`Question ${index + 1}`}
-                  placeholder="Please enter the question"
-                  value={questions[index]}
-                  onChange={(_event, value) => handleInputChange(index, 'question', value)}
-                />
-                <TextArea
-                  isRequired
-                  type="text"
-                  aria-label={`Context ${index + 1}`}
-                  placeholder="Please enter the context related to the question."
-                  value={contexts[index]}
-                  onChange={(_event, value) => handleInputChange(index, 'context', value)}
-                />
-                <TextArea
-                  isRequired
-                  type="text"
-                  aria-label={`Answer ${index + 1}`}
-                  placeholder="Please enter the expected answer for the question."
-                  value={answers[index]}
-                  onChange={(_event, value) => handleInputChange(index, 'answer', value)}
-                />
-              </FormGroup>
-            ))}
-          </Form>
-        </div>
-        <div className="metadata">
-          <div className="info">
-            <Text className="title">Info</Text>
-            <TextInput
-              isRequired
-              type="email"
-              aria-label="email"
-              placeholder="Enter your email address"
-              value={email}
-              onChange={(_event, value) => setEmail(value)}
-            />
-            <TextInput
-              isRequired
-              type="text"
-              aria-label="name"
-              placeholder="Enter your name"
-              value={name}
-              onChange={(_event, value) => setName(value)}
-            />
-            <TextInput
-              isRequired
-              type="text"
-              aria-label="task_description"
-              placeholder="Enter brief description of the skill"
-              value={task_description}
-              onChange={(_event, value) => setTaskDescription(value)}
-            />
-            <TextArea
-              isRequired
-              type="text"
-              aria-label="task_details"
-              placeholder="Please provide details about the skill"
-              value={task_details}
-              onChange={(_event, value) => setTaskDetails(value)}
-            />
-          </div>
-          <div className="attribution">
-            <Text className="title">Attributions</Text>
-            <TextInput
-              isRequired
-              type="text"
-              aria-label="title_work"
-              placeholder="Enter title of work"
-              value={title_work}
-              onChange={(_event, value) => setTitleWork(value)}
-            />
-            <TextInput
-              isRequired
-              type="url"
-              aria-label="link_work"
-              placeholder="Link to work"
-              value={link_work}
-              onChange={(_event, value) => setLinkWork(value)}
-            />
-            <TextInput
-              isRequired
-              type="text"
-              aria-label="license_work"
-              placeholder="License of the work"
-              value={license_work}
-              onChange={(_event, value) => setLicenseWork(value)}
-            />
-            <TextInput
-              isRequired
-              type="text"
-              aria-label="creators"
-              placeholder="Creators Name"
-              value={creators}
-              onChange={(_event, value) => setCreators(value)}
-            />
-          </div>
-        </div>
-      </div>
-      <div className="submit">
-        <ActionGroup>
-          <Button variant="primary" type="submit" className="submit-button" onClick={handleSubmit}>
-            Submit
-          </Button>
-        </ActionGroup>
-      </div>
-    </div>
+      <ActionGroup>
+        <Button variant="primary" type="submit" className="submit" onClick={handleSubmit}>
+          Submit
+        </Button>
+      </ActionGroup>
+    </Form>
   );
 };

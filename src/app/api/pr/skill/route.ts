@@ -1,38 +1,40 @@
-// pages/api/pr/skill.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
+// src/app/api/pr/skill/route.ts
+
+import { NextResponse } from 'next/server';
 
 const API_SERVER_URL = process.env.IL_UI_API_SERVER_URL || 'http://localhost:3000';
 const USERNAME = process.env.IL_UI_API_SERVER_USERNAME || 'kitteh';
 const PASSWORD = process.env.IL_UI_API_SERVER_PASSWORD || 'floofykittens';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
-    const auth = Buffer.from(`${USERNAME}:${PASSWORD}`).toString('base64');
-    const headers = {
-      'Content-Type': 'application/json',
-      Authorization: 'Basic ' + auth,
-    };
+export async function POST(req: Request) {
+  console.log(`Received request: ${req.method} ${req.url} ${req.body}}`);
 
-    try {
-      const apiRes = await fetch(`${API_SERVER_URL}pr/skill`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(req.body),
-      });
+  const auth = Buffer.from(`${USERNAME}:${PASSWORD}`).toString('base64');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: 'Basic ' + auth,
+  };
 
-      if (!apiRes.ok) {
-        const errorResult = await apiRes.json();
-        throw new Error(`HTTP error! status: ${apiRes.status} - ${errorResult.error}`);
-      }
+  try {
+    const body = await req.json();
+    const response = await fetch(`${API_SERVER_URL}/pr/skill`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
 
-      const result = await apiRes.json();
-      res.status(201).json(result);
-    } catch (error) {
-      console.error('Failed to post Skill PR:', error);
-      res.status(500).json({ error: 'Failed to post Skill PR' });
+    if (response.status !== 201) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  } else {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+
+    const result = await response.json();
+    return NextResponse.json(result, { status: 201 });
+  } catch (error) {
+    console.error('Failed to post skill data:', error);
+    return NextResponse.json({ error: 'Failed to post skill data' }, { status: 500 });
   }
 }
+
+export const methods = {
+  POST,
+};
