@@ -72,7 +72,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         { path: '/contribute/knowledge', label: 'Knowledge' },
       ],
     },
-    { path: '/chat', label: 'Chat' },
+    { path: '/granitechat', label: 'Granite-7b Chat' },
+    { path: '/merlinitechat', label: 'Merlinite-7b Chat' },
   ];
 
   const Header = (

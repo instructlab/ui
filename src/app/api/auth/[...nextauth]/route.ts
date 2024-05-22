@@ -3,6 +3,7 @@ import NextAuth from 'next-auth';
 import { NextAuthOptions } from 'next-auth';
 import GitHubProvider from 'next-auth/providers/github';
 import CredentialsProvider from 'next-auth/providers/credentials';
+// import '../../../../../envConfig';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -44,6 +45,9 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+  },
+  pages: {
+    signIn: '/login', // Custom sign-in page
   },
 };
 
