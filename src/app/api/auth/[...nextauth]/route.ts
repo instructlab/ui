@@ -3,13 +3,12 @@ import NextAuth from 'next-auth';
 import { NextAuthOptions } from 'next-auth';
 import GitHubProvider from 'next-auth/providers/github';
 import CredentialsProvider from 'next-auth/providers/credentials';
-// import '../../../../../envConfig';
 
 export const authOptions: NextAuthOptions = {
   providers: [
     GitHubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
+      clientId: process.env.OAUTH_GITHUB_ID!,
+      clientSecret: process.env.OAUTH_GITHUB_SECRET!,
     }),
     CredentialsProvider({
       name: 'Credentials',
@@ -47,7 +46,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: '/login', // Custom sign-in page
+    signIn: '/login',
   },
 };
 

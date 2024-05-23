@@ -3,8 +3,13 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { AppLayout } from '@/components/AppLayout';
-import { Button, Form, FormGroup, TextInput, Spinner } from '@patternfly/react-core';
-import { UserIcon, CopyIcon } from '@patternfly/react-icons';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import UserIcon from '@patternfly/react-icons/dist/dynamic/icons/user-icon';
+import CopyIcon from '@patternfly/react-icons/dist/dynamic/icons/copy-icon';
 import Image from 'next/image';
 import styles from './chat.module.css';
 
@@ -53,7 +58,7 @@ const ChatPage: React.FC = () => {
       setMessages((messages) => [...messages, { text: '', isUser: false }]);
 
       (async () => {
-        while (true) {
+        for (;;) {
           const { value, done } = await reader.read();
           if (done) break;
           const chunk = textDecoder.decode(value, { stream: true });
@@ -80,6 +85,33 @@ const ChatPage: React.FC = () => {
     }
   }, [messages]);
 
+  const handleCopyToClipboard = (text: string) => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          console.log('Text copied to clipboard');
+        })
+        .catch((err) => {
+          console.error('Could not copy text: ', err);
+        });
+    } else {
+      // Fallback method for copying text if the browser doesn't support navigator.clipboard
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        console.log('Text copied to clipboard');
+      } catch (err) {
+        console.error('Could not copy text: ', err);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
   return (
     <AppLayout>
       <div className={styles.chatContainer}>
@@ -98,7 +130,7 @@ const ChatPage: React.FC = () => {
                 <code>{msg.text}</code>
               </pre>
               {!msg.isUser && (
-                <Button variant="plain" onClick={() => console.log('Text copied to clipboard')} aria-label="Copy to clipboard">
+                <Button variant="plain" onClick={() => handleCopyToClipboard(msg.text)} aria-label="Copy to clipboard">
                   <CopyIcon />
                 </Button>
               )}
