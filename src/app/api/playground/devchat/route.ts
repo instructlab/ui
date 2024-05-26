@@ -1,31 +1,41 @@
-// src/app/api/merlinitechat/route.ts
+// src/app/api/playground/devchat/route.ts
 'use server';
 import { NextRequest, NextResponse } from 'next/server';
 import fetch from 'node-fetch';
 import https from 'https';
+import http from 'http';
 import { PassThrough } from 'stream';
-import '../../../../envConfig';
+import '../../../../../envConfig';
 
 export async function POST(req: NextRequest) {
   try {
-    const { question } = await req.json();
+    const { question, temperature, maxTokens, topP, frequencyPenalty, presencePenalty, repetitionPenalty, selectedModel, systemRole } =
+      await req.json();
 
-    const messages = [{ text: question, isUser: true }];
+    const messages = [
+      { role: 'system', content: systemRole },
+      { role: 'user', content: question },
+    ].filter((message) => message.content);
 
-    const requestData = {
-      model: process.env.IL_MERLINITE_MODEL_NAME,
-      messages: messages.map((message) => ({
-        content: message.text,
-        role: 'user',
-      })),
+    // TODO: resolve this typing eslint skip
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    const requestData: any = {
+      model: selectedModel.modelName,
+      messages: messages,
+      temperature,
+      max_tokens: maxTokens,
+      top_p: topP,
+      frequency_penalty: frequencyPenalty,
+      presence_penalty: presencePenalty,
+      repetition_penalty: repetitionPenalty,
+      stop: ['<|endoftext|>'],
+      logprobs: false,
       stream: true,
     };
 
-    const agent = new https.Agent({
-      rejectUnauthorized: false,
-    });
+    const agent = selectedModel.apiURL.startsWith('https') ? new https.Agent({ rejectUnauthorized: false }) : new http.Agent();
 
-    const chatResponse = await fetch(`${process.env.IL_MERLINITE_API}/v1/chat/completions`, {
+    const chatResponse = await fetch(`${selectedModel.apiURL}/v1/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

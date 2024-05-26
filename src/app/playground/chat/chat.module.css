@@ -25,7 +25,6 @@
   padding: 20px;
   border: 1px solid #e0e0e0;
   background-color: white;
-  border-radius: 8px;
 }
 
 /* Message Styling */
@@ -33,7 +32,7 @@
   display: flex;
   align-items: flex-start;
   margin-bottom: 20px;
-  font-size: 0.9rem; /* Smaller font size */
+  font-size: 0.9rem; /* Smaller bot font size */
 }
 
 .message pre {
@@ -121,4 +120,18 @@
 .spinner {
   display: block;
   margin: 20px auto;
+}
+
+.modelSelector {
+  display: flex;
+  align-items: center;
+}
+
+.modelSelectorLabel {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.boldLabel {
+  font-weight: bold;
 }

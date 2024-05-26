@@ -1,4 +1,4 @@
-// src/app/merlinitechat/page.tsx
+// src/app/playground/chat/page.tsx
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -6,7 +6,10 @@ import { AppLayout } from '@/components/AppLayout';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
+import { TextInput, TextArea } from '@patternfly/react-core/';
+import { Select } from '@patternfly/react-core/dist/dynamic/components/Select';
+import { SelectOption, SelectList } from '@patternfly/react-core/dist/dynamic/components/Select';
+import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import UserIcon from '@patternfly/react-icons/dist/dynamic/icons/user-icon';
 import CopyIcon from '@patternfly/react-icons/dist/dynamic/icons/copy-icon';
@@ -18,37 +21,103 @@ interface Message {
   isUser: boolean;
 }
 
+interface Model {
+  name: string;
+  apiURL: string;
+  modelName: string;
+}
+
 const ChatPage: React.FC = () => {
   const [question, setQuestion] = useState('');
-  const [context, setContext] = useState('');
+  const [systemRole, setSystemRole] = useState(
+    'You are a cautious assistant. You carefully follow instructions.' +
+      ' You are helpful and harmless and you follow ethical guidelines and promote positive behavior.'
+  );
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSelectOpen, setIsSelectOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<Model | null>(null);
+  const [customModels, setCustomModels] = useState<Model[]>([]);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchDefaultModels = async () => {
+      const response = await fetch('/api/envConfig');
+      const envConfig = await response.json();
+
+      const defaultModels: Model[] = [
+        { name: 'Granite-7b', apiURL: envConfig.GRANITE_API, modelName: envConfig.GRANITE_MODEL_NAME },
+        { name: 'Merlinite-7b', apiURL: envConfig.MERLINITE_API, modelName: envConfig.MERLINITE_MODEL_NAME },
+      ];
+
+      const storedEndpoints = localStorage.getItem('endpoints');
+
+      const customModels = storedEndpoints
+        ? JSON.parse(storedEndpoints).map((endpoint: any) => ({
+            name: endpoint.modelName,
+            apiURL: `${endpoint.url}`,
+            modelName: endpoint.modelName,
+          }))
+        : [];
+
+      const allModels = [...defaultModels, ...customModels];
+      setCustomModels(allModels);
+      setSelectedModel(allModels[0] || null);
+    };
+
+    fetchDefaultModels();
+  }, []);
+
+  const onToggleClick = () => {
+    setIsSelectOpen(!isSelectOpen);
+  };
+
+  const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
+    const selected = customModels.find((model) => model.name === value) || null;
+    setSelectedModel(selected);
+    setIsSelectOpen(false);
+  };
+
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+    <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isSelectOpen} style={{ width: '200px' }}>
+      {selectedModel ? selectedModel.name : 'Select a model'}
+    </MenuToggle>
+  );
+
+  const dropdownItems = customModels
+    .filter((model) => model.name && model.apiURL && model.modelName)
+    .map((model, index) => (
+      <SelectOption key={index} value={model.name}>
+        {model.name}
+      </SelectOption>
+    ));
 
   const handleQuestionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuestion(event.target.value);
   };
 
-  const handleContextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setContext(event.target.value);
+  const handleSystemRoleChange = (value: string) => {
+    setSystemRole(value);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!question.trim()) return;
+    if (!question.trim() || !selectedModel) return;
 
     setMessages((messages) => [...messages, { text: question, isUser: true }]);
     setQuestion('');
-    setContext('');
 
     setIsLoading(true);
-    const response = await fetch('/api/merlinitechat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ question, context }),
-    });
+    const response = await fetch(
+      `/api/playground/chat?apiURL=${encodeURIComponent(selectedModel.apiURL)}&modelName=${encodeURIComponent(selectedModel.modelName)}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question, systemRole }),
+      }
+    );
 
     if (response.body) {
       const reader = response.body.getReader();
@@ -64,7 +133,6 @@ const ChatPage: React.FC = () => {
           const chunk = textDecoder.decode(value, { stream: true });
           botMessage += chunk;
 
-          // Update the last bot message with the new chunk
           setMessages((messages) => {
             const updatedMessages = [...messages];
             updatedMessages[updatedMessages.length - 1].text = botMessage;
@@ -96,7 +164,6 @@ const ChatPage: React.FC = () => {
           console.error('Could not copy text: ', err);
         });
     } else {
-      // Fallback method for copying text if the browser doesn't support navigator.clipboard
       const textArea = document.createElement('textarea');
       textArea.value = text;
       document.body.appendChild(textArea);
@@ -115,9 +182,32 @@ const ChatPage: React.FC = () => {
   return (
     <AppLayout>
       <div className={styles.chatContainer}>
-        <h1 className={styles.chatTitle}>
-          Merlinite-7b Model Chat - <em>Experimental</em>
-        </h1>
+        <div className={styles.modelSelector}>
+          <span className={styles.modelSelectorLabel}>Model Selector</span>
+          <Select
+            id="single-select"
+            isOpen={isSelectOpen}
+            selected={selectedModel ? selectedModel.name : 'Select a model'}
+            onSelect={onSelect}
+            onOpenChange={(isOpen) => setIsSelectOpen(isOpen)}
+            toggle={toggle}
+            shouldFocusToggleOnSelect
+          >
+            <SelectList>{dropdownItems}</SelectList>
+          </Select>
+        </div>
+        <FormGroup fieldId="system-role-field" label={<span className={styles.boldLabel}>System Role</span>}>
+          <TextArea
+            isRequired
+            id="system-role-field"
+            name="system-role-field"
+            value={systemRole}
+            onChange={(event) => handleSystemRoleChange(event.currentTarget.value)}
+            placeholder="Enter system role..."
+            aria-label="System Role"
+            rows={2}
+          />
+        </FormGroup>
         <div ref={messagesContainerRef} className={styles.messagesContainer}>
           {messages.map((msg, index) => (
             <div key={index} className={`${styles.message} ${msg.isUser ? styles.chatQuestion : styles.chatAnswer}`}>
@@ -148,16 +238,6 @@ const ChatPage: React.FC = () => {
               value={question}
               onChange={handleQuestionChange}
               placeholder="Type your question here..."
-            />
-          </FormGroup>
-          <FormGroup fieldId="context-field">
-            <TextInput
-              type="text"
-              id="context-field"
-              name="context-field"
-              value={context}
-              onChange={handleContextChange}
-              placeholder="Optional context here..."
             />
           </FormGroup>
           <Button variant="primary" type="submit">

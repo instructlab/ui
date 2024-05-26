@@ -1,0 +1,143 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 1rem;
+}
+
+.headerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.headerButtons {
+  display: flex;
+  align-items: center;
+}
+
+.headerButtons > button {
+  margin-left: 0.5rem;
+}
+
+/*.chatTitle {*/
+/*  text-align: center;*/
+/*  margin-bottom: 1rem;*/
+/*}*/
+
+.contentContainer {
+  display: flex;
+  flex: 1;
+}
+
+.chatSection {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  padding: 1rem;
+  margin-right: 1rem;
+  border-radius: 0;
+  /*max-height: 100vh; !* Adjust the maximum height of the main chat window here *!*/
+}
+
+.messagesContainer {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 0; /* Remove rounded corners */
+  max-height: 60vh; /* Adjust the maximum height to fit better on screen */
+}
+
+.chatInputContainer {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.parametersSection {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.parameterGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.parameterInput {
+  margin-right: 1rem;
+  width: 60px;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.parameterInput::-webkit-outer-spin-button,
+.parameterInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.message {
+  display: flex;
+  flex-direction: column; /* Change to column to stack label and message */
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.messageType {
+  font-weight: bold; /* Add styling for message type labels */
+  margin-bottom: 0.5rem; /* Add some space below the label */
+}
+
+.chatQuestion {
+  justify-content: flex-end;
+}
+
+.userIcon {
+  margin-left: 10px;
+}
+
+.chatAnswer {
+  justify-content: flex-start;
+}
+
+.botIcon {
+  margin-right: 10px;
+}
+
+.pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.boldLabel {
+  font-weight: bold;
+}
+
+.modelSelector {
+  display: flex;
+  align-items: center;
+}
+
+.modelSelectorLabel {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+
+.messageActions {
+  display: flex;
+}

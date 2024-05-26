@@ -1,23 +1,29 @@
-// src/app/api/granitechat/route.ts
+// src/app/api/playground/chat/route.ts
 'use server';
 import { NextRequest, NextResponse } from 'next/server';
 import fetch from 'node-fetch';
 import https from 'https';
 import { PassThrough } from 'stream';
-import '../../../../envConfig';
+import '../../../../../envConfig';
 
 export async function POST(req: NextRequest) {
   try {
-    const { question } = await req.json();
+    const { question, systemRole } = await req.json();
+    const apiURL = req.nextUrl.searchParams.get('apiURL');
+    const modelName = req.nextUrl.searchParams.get('modelName');
 
-    const messages = [{ text: question, isUser: true }];
+    if (!apiURL || !modelName) {
+      return new NextResponse('Missing API URL or Model Name', { status: 400 });
+    }
+
+    const messages = [
+      { role: 'system', content: systemRole },
+      { role: 'user', content: question },
+    ];
 
     const requestData = {
-      model: process.env.IL_GRANITE_MODEL_NAME,
-      messages: messages.map((message) => ({
-        content: message.text,
-        role: 'user',
-      })),
+      model: modelName,
+      messages,
       stream: true,
     };
 
@@ -25,14 +31,14 @@ export async function POST(req: NextRequest) {
       rejectUnauthorized: false,
     });
 
-    const chatResponse = await fetch(`${process.env.IL_GRANITE_API}/v1/chat/completions`, {
+    const chatResponse = await fetch(`${apiURL}/v1/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         accept: 'application/json',
       },
       body: JSON.stringify(requestData),
-      agent,
+      agent: apiURL.startsWith('https') ? agent : undefined,
     });
 
     if (!chatResponse.body) {
@@ -58,7 +64,7 @@ export async function POST(req: NextRequest) {
             const deltaContent = parsed.choices[0].delta?.content;
 
             if (deltaContent) {
-              passThrough.write(deltaContent); // Send the delta content to the client
+              passThrough.write(deltaContent);
             }
           } catch (err) {
             console.error('Error parsing chunk:', err);

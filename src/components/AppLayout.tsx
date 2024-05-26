@@ -72,8 +72,15 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         { path: '/contribute/knowledge', label: 'Knowledge' },
       ],
     },
-    { path: '/granitechat', label: 'Granite-7b Chat' },
-    { path: '/merlinitechat', label: 'Merlinite-7b Chat' },
+    {
+      path: '/playground',
+      label: 'Playground',
+      children: [
+        { path: '/playground/chat', label: 'Chat' },
+        { path: '/playground/devchat', label: 'Developer Chat' },
+        { path: '/playground/endpoints', label: 'Custom Model Endpoints' },
+      ],
+    },
   ];
 
   const Header = (
