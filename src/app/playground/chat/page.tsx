@@ -15,17 +15,7 @@ import UserIcon from '@patternfly/react-icons/dist/dynamic/icons/user-icon';
 import CopyIcon from '@patternfly/react-icons/dist/dynamic/icons/copy-icon';
 import Image from 'next/image';
 import styles from './chat.module.css';
-
-interface Message {
-  text: string;
-  isUser: boolean;
-}
-
-interface Model {
-  name: string;
-  apiURL: string;
-  modelName: string;
-}
+import { Endpoint, Message, Model } from '@/types';
 
 const ChatPage: React.FC = () => {
   const [question, setQuestion] = useState('');
@@ -53,7 +43,7 @@ const ChatPage: React.FC = () => {
       const storedEndpoints = localStorage.getItem('endpoints');
 
       const customModels = storedEndpoints
-        ? JSON.parse(storedEndpoints).map((endpoint: any) => ({
+        ? JSON.parse(storedEndpoints).map((endpoint: Endpoint) => ({
             name: endpoint.modelName,
             apiURL: `${endpoint.url}`,
             modelName: endpoint.modelName,

@@ -35,10 +35,10 @@ export const useModelSelector = () => {
 
       const customModels = storedEndpoints
         ? JSON.parse(storedEndpoints).map((endpoint: Endpoint) => ({
-          name: endpoint.modelName,
-          apiURL: `${endpoint.url}`,
-          modelName: endpoint.modelName,
-        }))
+            name: endpoint.modelName,
+            apiURL: `${endpoint.url}`,
+            modelName: endpoint.modelName,
+          }))
         : [];
       console.log('Custom Models:', customModels);
 

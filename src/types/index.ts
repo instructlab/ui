@@ -6,3 +6,14 @@ export interface Endpoint {
   apiKey: string;
   modelName: string;
 }
+
+export interface Message {
+  text: string;
+  isUser: boolean;
+}
+
+export interface Model {
+  name: string;
+  apiURL: string;
+  modelName: string;
+}

@@ -1,25 +1,24 @@
 /* Knowledge CSS */
 
 .form-k {
-	width: 80%;
-	padding-left: 20%;
+  width: 80%;
+  padding-left: 20%;
 }
 
-
 .submit-k {
-	display: inline-block;
-	margin-top: 30px;
-	margin-left: 50%;
+  display: inline-block;
+  margin-top: 30px;
+  margin-left: 50%;
 }
 
 .submit-k:hover {
-	background-color: #45a049;
-	/* Darker Green */
+  background-color: #45a049;
+  /* Darker Green */
 }
 
 .heading-k {
-	text-align: left;
-	text-shadow: #45a049;
-	font-size: large;
-	color: rgb(4, 4, 135);
+  text-align: left;
+  text-shadow: #45a049;
+  font-size: large;
+  color: rgb(4, 4, 135);
 }

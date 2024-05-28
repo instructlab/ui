@@ -38,7 +38,7 @@ const ChatPage: React.FC = () => {
   const [question, setQuestion] = useState('');
   const [systemRole, setSystemRole] = useState(
     'You are a cautious assistant. You carefully follow instructions.' +
-    ' You are helpful and harmless and you follow ethical guidelines and promote positive behavior.'
+      ' You are helpful and harmless and you follow ethical guidelines and promote positive behavior.'
   );
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessages, setNewMessages] = useState<Message[]>([]);
@@ -52,14 +52,7 @@ const ChatPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  const {
-    isSelectOpen,
-    selectedModel,
-    customModels,
-    setIsSelectOpen,
-    onToggleClick,
-    onSelect,
-  } = useModelSelector();
+  const { isSelectOpen, selectedModel, customModels, setIsSelectOpen, onToggleClick, onSelect } = useModelSelector();
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isSelectOpen} style={{ width: '200px' }}>
