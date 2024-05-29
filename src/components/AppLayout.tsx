@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Brand } from '@patternfly/react-core/dist/dynamic/components/Brand';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -35,13 +35,14 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const { theme } = useTheme();
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
 
   React.useEffect(() => {
     if (status === 'loading') return; // Do nothing while loading
-    if (!session && router.pathname !== '/login') {
+    if (!session && pathname !== '/login') {
       router.push('/login'); // Redirect if not authenticated and not already on login page
     }
-  }, [session, status, router]);
+  }, [session, status, pathname, router]);
 
   if (status === 'loading') {
     return <Spinner />;
@@ -111,7 +112,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   );
 
   const renderNavItem = (route: { path: string; label: string }, index: number) => (
-    <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={route.path === router.pathname}>
+    <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={route.path === pathname}>
       <Link href={route.path}>{route.label}</Link>
     </NavItem>
   );
@@ -127,7 +128,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     <NavExpandable
       key={`${route.label}-${index}`}
       title={route.label}
-      isActive={route.path === router.pathname || route.children.some((child) => child.path === router.pathname)}
+      isActive={route.path === pathname || route.children.some((child) => child.path === pathname)}
       isExpanded
     >
       {route.children.map((child, idx) => renderNavItem(child, idx))}

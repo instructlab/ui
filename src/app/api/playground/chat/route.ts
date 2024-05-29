@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
     chatResponse.body.on('data', (chunk) => {
       const chunkString = chunk.toString();
-      const lines = chunkString.split('\n').filter((line) => line.trim() !== '');
+      const lines = chunkString.split('\n').filter((line: string) => line.trim() !== '');
 
       for (const line of lines) {
         if (line.startsWith('data:')) {
@@ -77,7 +77,21 @@ export async function POST(req: NextRequest) {
       passThrough.end();
     });
 
-    return new NextResponse(passThrough, {
+    const readableStream = new ReadableStream({
+      start(controller) {
+        passThrough.on('data', (chunk) => {
+          controller.enqueue(chunk);
+        });
+        passThrough.on('end', () => {
+          controller.close();
+        });
+        passThrough.on('error', (err) => {
+          controller.error(err);
+        });
+      },
+    });
+
+    return new NextResponse(readableStream, {
       headers: {
         'Content-Type': 'text/plain',
       },

@@ -1,11 +1,11 @@
 // src/app/error/page.tsx
 'use client';
 
+import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import React from 'react';
 import styles from './error.module.css';
 
-const ErrorPage = () => {
+const ErrorPageContent = () => {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
 
@@ -32,5 +32,11 @@ const ErrorPage = () => {
     </div>
   );
 };
+
+const ErrorPage = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <ErrorPageContent />
+  </Suspense>
+);
 
 export default ErrorPage;

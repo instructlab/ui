@@ -1,5 +1,6 @@
 // src/app/playground/devchat/handlers.ts
-import React, { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react';
+import { SliderOnChangeEvent } from '@patternfly/react-core/components';
 
 interface Message {
   text: string;
@@ -25,8 +26,10 @@ export const handleParameterChange = (setter: Dispatch<SetStateAction<number>>) 
   setter(numValue);
 };
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export const handleSliderChange =
-  (setter: Dispatch<SetStateAction<number>>) => (_event: React.MouseEvent | React.ChangeEvent | React.TouchEvent, value: number) => {
+  (setter: Dispatch<SetStateAction<number>>) =>
+  (_event: SliderOnChangeEvent, value: number, _inputValue?: number, _setLocalInputValue?: Dispatch<SetStateAction<number>>) => {
     setter(value);
   };
 

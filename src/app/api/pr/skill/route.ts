@@ -34,7 +34,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Failed to post skill data' }, { status: 500 });
   }
 }
-
-export const methods = {
-  POST,
-};

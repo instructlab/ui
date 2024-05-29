@@ -11,6 +11,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "type-check": "tsc --noEmit",
     "lint:fix": "npx eslint --fix 'src/**/*.{js,jsx,ts,tsx}'",
     "pretty": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md}'"
   },

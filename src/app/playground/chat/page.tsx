@@ -82,8 +82,8 @@ const ChatPage: React.FC = () => {
       </SelectOption>
     ));
 
-  const handleQuestionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuestion(event.target.value);
+  const handleQuestionChange = (event: React.FormEvent<HTMLInputElement>, value: string) => {
+    setQuestion(value);
   };
 
   const handleSystemRoleChange = (value: string) => {
