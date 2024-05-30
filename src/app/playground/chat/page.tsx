@@ -16,6 +16,8 @@ import CopyIcon from '@patternfly/react-icons/dist/dynamic/icons/copy-icon';
 import Image from 'next/image';
 import styles from './chat.module.css';
 import { Endpoint, Message, Model } from '@/types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBroom } from '@fortawesome/free-solid-svg-icons';
 
 const ChatPage: React.FC = () => {
   const [question, setQuestion] = useState('');
@@ -169,6 +171,10 @@ const ChatPage: React.FC = () => {
     }
   };
 
+  const handleCleanup = () => {
+    setMessages([]);
+  };
+
   return (
     <AppLayout>
       <div className={styles.chatContainer}>
@@ -185,6 +191,9 @@ const ChatPage: React.FC = () => {
           >
             <SelectList>{dropdownItems}</SelectList>
           </Select>
+          <Button variant="plain" onClick={handleCleanup} aria-label="Cleanup" style={{ marginLeft: 'auto' }}>
+            <FontAwesomeIcon icon={faBroom} />
+          </Button>
         </div>
         <FormGroup fieldId="system-role-field" label={<span className={styles.boldLabel}>System Role</span>}>
           <TextArea
