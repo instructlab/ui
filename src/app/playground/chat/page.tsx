@@ -12,12 +12,12 @@ import { SelectOption, SelectList } from '@patternfly/react-core/dist/dynamic/co
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import UserIcon from '@patternfly/react-icons/dist/dynamic/icons/user-icon';
-import CopyIcon from '@patternfly/react-icons/dist/dynamic/icons/copy-icon';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBroom } from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
 import styles from './chat.module.css';
 import { Endpoint, Message, Model } from '@/types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBroom } from '@fortawesome/free-solid-svg-icons';
+import CopyToClipboardButton from '@/components/CopyToClipboardButton';
 
 const ChatPage: React.FC = () => {
   const [question, setQuestion] = useState('');
@@ -30,6 +30,7 @@ const ChatPage: React.FC = () => {
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
   const [customModels, setCustomModels] = useState<Model[]>([]);
+  const [defaultModels, setDefaultModels] = useState<Model[]>([]);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -52,9 +53,9 @@ const ChatPage: React.FC = () => {
           }))
         : [];
 
-      const allModels = [...defaultModels, ...customModels];
-      setCustomModels(allModels);
-      setSelectedModel(allModels[0] || null);
+      setDefaultModels(defaultModels);
+      setCustomModels(customModels);
+      setSelectedModel([...defaultModels, ...customModels][0] || null);
     };
 
     fetchDefaultModels();
@@ -65,7 +66,7 @@ const ChatPage: React.FC = () => {
   };
 
   const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
-    const selected = customModels.find((model) => model.name === value) || null;
+    const selected = [...defaultModels, ...customModels].find((model) => model.name === value) || null;
     setSelectedModel(selected);
     setIsSelectOpen(false);
   };
@@ -76,7 +77,7 @@ const ChatPage: React.FC = () => {
     </MenuToggle>
   );
 
-  const dropdownItems = customModels
+  const dropdownItems = [...defaultModels, ...customModels]
     .filter((model) => model.name && model.apiURL && model.modelName)
     .map((model, index) => (
       <SelectOption key={index} value={model.name}>
@@ -100,42 +101,123 @@ const ChatPage: React.FC = () => {
     setQuestion('');
 
     setIsLoading(true);
-    const response = await fetch(
-      `/api/playground/chat?apiURL=${encodeURIComponent(selectedModel.apiURL)}&modelName=${encodeURIComponent(selectedModel.modelName)}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ question, systemRole }),
-      }
-    );
 
-    if (response.body) {
-      const reader = response.body.getReader();
-      const textDecoder = new TextDecoder('utf-8');
-      let botMessage = '';
+    const messagesPayload = [
+      { role: 'system', content: systemRole },
+      { role: 'user', content: question },
+    ];
 
-      setMessages((messages) => [...messages, { text: '', isUser: false }]);
+    const requestData = {
+      model: selectedModel.modelName,
+      messages: messagesPayload,
+      stream: true,
+    };
 
-      (async () => {
-        for (;;) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          const chunk = textDecoder.decode(value, { stream: true });
-          botMessage += chunk;
+    if (customModels.some((model) => model.name === selectedModel.name)) {
+      // Client-side fetch if the selected model is a custom endpoint
+      try {
+        const chatResponse = await fetch(`${selectedModel.apiURL}/v1/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            accept: 'application/json',
+          },
+          body: JSON.stringify(requestData),
+        });
 
-          setMessages((messages) => {
-            const updatedMessages = [...messages];
-            updatedMessages[updatedMessages.length - 1].text = botMessage;
-            return updatedMessages;
-          });
+        if (!chatResponse.body) {
+          setMessages((messages) => [...messages, { text: 'Failed to fetch chat response', isUser: false }]);
+          setIsLoading(false);
+          return;
         }
+
+        const reader = chatResponse.body.getReader();
+        const textDecoder = new TextDecoder('utf-8');
+        let botMessage = '';
+
+        setMessages((messages) => [...messages, { text: '', isUser: false }]);
+
+        let done = false;
+        while (!done) {
+          const { value, done: isDone } = await reader.read();
+          done = isDone;
+          if (value) {
+            const chunk = textDecoder.decode(value, { stream: true });
+            const lines = chunk.split('\n').filter((line) => line.trim() !== '');
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const json = line.replace('data: ', '');
+                if (json === '[DONE]') {
+                  setIsLoading(false);
+                  return;
+                }
+
+                try {
+                  const parsed = JSON.parse(json);
+                  const deltaContent = parsed.choices[0].delta?.content;
+
+                  if (deltaContent) {
+                    botMessage += deltaContent;
+
+                    setMessages((messages) => {
+                      const updatedMessages = [...messages];
+                      updatedMessages[updatedMessages.length - 1].text = botMessage;
+                      return updatedMessages;
+                    });
+                  }
+                } catch (err) {
+                  console.error('Error parsing chunk:', err);
+                }
+              }
+            }
+          }
+        }
+
         setIsLoading(false);
-      })();
+      } catch (error) {
+        setMessages((messages) => [...messages, { text: 'Error fetching chat response', isUser: false }]);
+        setIsLoading(false);
+      }
     } else {
-      setMessages((messages) => [...messages, { text: 'Failed to fetch response from the server.', isUser: false }]);
-      setIsLoading(false);
+      // Server-side fetch for default endpoints
+      const response = await fetch(
+        `/api/playground/chat?apiURL=${encodeURIComponent(selectedModel.apiURL)}&modelName=${encodeURIComponent(selectedModel.modelName)}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ question, systemRole }),
+        }
+      );
+
+      if (response.body) {
+        const reader = response.body.getReader();
+        const textDecoder = new TextDecoder('utf-8');
+        let botMessage = '';
+
+        setMessages((messages) => [...messages, { text: '', isUser: false }]);
+
+        (async () => {
+          for (;;) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            const chunk = textDecoder.decode(value, { stream: true });
+            botMessage += chunk;
+
+            setMessages((messages) => {
+              const updatedMessages = [...messages];
+              updatedMessages[updatedMessages.length - 1].text = botMessage;
+              return updatedMessages;
+            });
+          }
+          setIsLoading(false);
+        })();
+      } else {
+        setMessages((messages) => [...messages, { text: 'Failed to fetch response from the server.', isUser: false }]);
+        setIsLoading(false);
+      }
     }
   };
 
@@ -144,32 +226,6 @@ const ChatPage: React.FC = () => {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
   }, [messages]);
-
-  const handleCopyToClipboard = (text: string) => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard
-        .writeText(text)
-        .then(() => {
-          console.log('Text copied to clipboard');
-        })
-        .catch((err) => {
-          console.error('Could not copy text: ', err);
-        });
-    } else {
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        console.log('Text copied to clipboard');
-      } catch (err) {
-        console.error('Could not copy text: ', err);
-      }
-      document.body.removeChild(textArea);
-    }
-  };
 
   const handleCleanup = () => {
     setMessages([]);
@@ -218,11 +274,7 @@ const ChatPage: React.FC = () => {
               <pre>
                 <code>{msg.text}</code>
               </pre>
-              {!msg.isUser && (
-                <Button variant="plain" onClick={() => handleCopyToClipboard(msg.text)} aria-label="Copy to clipboard">
-                  <CopyIcon />
-                </Button>
-              )}
+              {!msg.isUser && <CopyToClipboardButton text={msg.text} />}
             </div>
           ))}
           {isLoading && <Spinner aria-label="Loading" size="lg" />}

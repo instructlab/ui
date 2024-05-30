@@ -85,8 +85,7 @@ export const handleRunMessages = async (
       return value !== 0;
     })
   );
-
-  setMessages((messages) => [...messages, ...newMessages]);
+  // Clear the user message, so it isn't printed again since its already in the chatbox
   setNewMessages([]);
   setIsLoading(true);
 

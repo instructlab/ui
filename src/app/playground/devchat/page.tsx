@@ -16,9 +16,9 @@ import { faBroom } from '@fortawesome/free-solid-svg-icons';
 import CodeIcon from '@patternfly/react-icons/dist/dynamic/icons/code-icon';
 import TimesIcon from '@patternfly/react-icons/dist/dynamic/icons/times-icon';
 import styles from './playground.module.css';
-import { useModelSelector } from './useModelSelector';
 import CurlCommandModal from '../../../components/CurlCommandModal';
 import CopyToClipboardButton from '../../../components/CopyToClipboardButton';
+import { Endpoint, Message, Model } from '@/types';
 import {
   handleQuestionChange,
   handleContextChange,
@@ -29,12 +29,7 @@ import {
   handleRunMessages,
 } from './handlers';
 
-interface Message {
-  text: string;
-  isUser: boolean;
-}
-
-const ChatPage: React.FC = () => {
+const DevChatPage: React.FC = () => {
   const [question, setQuestion] = useState('');
   const [systemRole, setSystemRole] = useState(
     'You are a cautious assistant. You carefully follow instructions.' +
@@ -52,7 +47,48 @@ const ChatPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  const { isSelectOpen, selectedModel, customModels, setIsSelectOpen, onToggleClick, onSelect } = useModelSelector();
+  const [isSelectOpen, setIsSelectOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<Model | null>(null);
+  const [customModels, setCustomModels] = useState<Model[]>([]);
+  const [defaultModels, setDefaultModels] = useState<Model[]>([]);
+
+  useEffect(() => {
+    const fetchDefaultModels = async () => {
+      const response = await fetch('/api/envConfig');
+      const envConfig = await response.json();
+
+      const defaultModels: Model[] = [
+        { name: 'Granite-7b', apiURL: envConfig.GRANITE_API, modelName: envConfig.GRANITE_MODEL_NAME },
+        { name: 'Merlinite-7b', apiURL: envConfig.MERLINITE_API, modelName: envConfig.MERLINITE_MODEL_NAME },
+      ];
+
+      const storedEndpoints = localStorage.getItem('endpoints');
+
+      const customModels = storedEndpoints
+        ? JSON.parse(storedEndpoints).map((endpoint: Endpoint) => ({
+            name: endpoint.modelName,
+            apiURL: `${endpoint.url}`,
+            modelName: endpoint.modelName,
+          }))
+        : [];
+
+      setDefaultModels(defaultModels);
+      setCustomModels(customModels);
+      setSelectedModel([...defaultModels, ...customModels][0] || null);
+    };
+
+    fetchDefaultModels();
+  }, []);
+
+  const onToggleClick = () => {
+    setIsSelectOpen(!isSelectOpen);
+  };
+
+  const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
+    const selected = [...defaultModels, ...customModels].find((model) => model.name === value) || null;
+    setSelectedModel(selected);
+    setIsSelectOpen(false);
+  };
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isSelectOpen} style={{ width: '200px' }}>
@@ -60,8 +96,8 @@ const ChatPage: React.FC = () => {
     </MenuToggle>
   );
 
-  const dropdownItems = customModels
-    .filter((model) => model.name && model.apiURL && model.modelName) // Filter out models with missing properties
+  const dropdownItems = [...defaultModels, ...customModels]
+    .filter((model) => model.name && model.apiURL && model.modelName)
     .map((model, index) => (
       <SelectOption key={index} value={model.name}>
         {model.name}
@@ -79,6 +115,130 @@ const ChatPage: React.FC = () => {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const runMessage = async (
+    newMessages: Message[],
+    setNewMessages: React.Dispatch<React.SetStateAction<Message[]>>,
+    setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    systemRole: string,
+    temperature: number,
+    maxTokens: number,
+    topP: number,
+    frequencyPenalty: number,
+    presencePenalty: number,
+    repetitionPenalty: number,
+    selectedModel: Model | null
+  ) => {
+    if (!selectedModel) return;
+
+    setIsLoading(true);
+
+    const messagesPayload = [
+      { role: 'system', content: systemRole },
+      ...newMessages.map((msg) => ({ role: msg.isUser ? 'user' : 'assistant', content: msg.text })),
+    ];
+
+    const requestData = {
+      model: selectedModel.modelName,
+      messages: messagesPayload,
+      temperature,
+      max_tokens: maxTokens,
+      top_p: topP,
+      frequency_penalty: frequencyPenalty,
+      presence_penalty: presencePenalty,
+      repetition_penalty: repetitionPenalty,
+      stream: true,
+    };
+
+    setMessages((messages) => [...messages, ...newMessages]);
+    setNewMessages([]);
+
+    if (customModels.some((model) => model.name === selectedModel.name)) {
+      // Client-side fetch if the model is a custom endpoint
+      try {
+        const chatResponse = await fetch(`${selectedModel.apiURL}/v1/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            accept: 'application/json',
+          },
+          body: JSON.stringify(requestData),
+        });
+
+        if (!chatResponse.body) {
+          setMessages((messages) => [...messages, { text: 'Failed to fetch chat response', isUser: false }]);
+          setIsLoading(false);
+          return;
+        }
+
+        const reader = chatResponse.body.getReader();
+        const textDecoder = new TextDecoder('utf-8');
+        let botMessage = '';
+
+        setMessages((messages) => [...messages, { text: '', isUser: false }]);
+        const lastIndex = messages.length + 1;
+
+        let done = false;
+        while (!done) {
+          const { value, done: isDone } = await reader.read();
+          done = isDone;
+          if (value) {
+            const chunk = textDecoder.decode(value, { stream: true });
+            const lines = chunk.split('\n').filter((line) => line.trim() !== '');
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const json = line.replace('data: ', '');
+                if (json === '[DONE]') {
+                  setIsLoading(false);
+                  return;
+                }
+
+                try {
+                  const parsed = JSON.parse(json);
+                  const deltaContent = parsed.choices[0].delta?.content;
+
+                  if (deltaContent) {
+                    botMessage += deltaContent;
+
+                    setMessages((messages) => {
+                      const updatedMessages = [...messages];
+                      updatedMessages[lastIndex].text = botMessage;
+                      return updatedMessages;
+                    });
+                  }
+                } catch (err) {
+                  console.error('Error parsing chunk:', err);
+                }
+              }
+            }
+          }
+        }
+
+        setIsLoading(false);
+      } catch (error) {
+        setMessages((messages) => [...messages, { text: 'Error fetching chat response', isUser: false }]);
+        setIsLoading(false);
+      }
+    } else {
+      // Run default server side models messaging if the model is not a custom endpoint
+      handleRunMessages(
+        newMessages,
+        setNewMessages,
+        setMessages,
+        setIsLoading,
+        systemRole,
+        temperature,
+        maxTokens,
+        topP,
+        frequencyPenalty,
+        presencePenalty,
+        repetitionPenalty,
+        selectedModel
+      );
+    }
+  };
 
   return (
     <AppLayout>
@@ -194,7 +354,7 @@ const ChatPage: React.FC = () => {
               <Button
                 variant="primary"
                 onClick={() =>
-                  handleRunMessages(
+                  runMessage(
                     newMessages,
                     setNewMessages,
                     setMessages,
@@ -381,4 +541,4 @@ const ChatPage: React.FC = () => {
   );
 };
 
-export default ChatPage;
+export default DevChatPage;
