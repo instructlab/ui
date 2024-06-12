@@ -18,27 +18,27 @@ export async function POST(req: NextRequest) {
 
     const messages = [
       { role: 'system', content: systemRole },
-      { role: 'user', content: question },
+      { role: 'user', content: question }
     ];
 
     const requestData = {
       model: modelName,
       messages,
-      stream: true,
+      stream: true
     };
 
     const agent = new https.Agent({
-      rejectUnauthorized: false,
+      rejectUnauthorized: false
     });
 
     const chatResponse = await fetch(`${apiURL}/v1/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        accept: 'application/json',
+        accept: 'application/json'
       },
       body: JSON.stringify(requestData),
-      agent: apiURL.startsWith('https') ? agent : undefined,
+      agent: apiURL.startsWith('https') ? agent : undefined
     });
 
     if (!chatResponse.body) {
@@ -88,13 +88,13 @@ export async function POST(req: NextRequest) {
         passThrough.on('error', (err) => {
           controller.error(err);
         });
-      },
+      }
     });
 
     return new NextResponse(readableStream, {
       headers: {
-        'Content-Type': 'text/plain',
-      },
+        'Content-Type': 'text/plain'
+      }
     });
   } catch (error) {
     console.error('Error processing request:', error);

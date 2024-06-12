@@ -12,5 +12,5 @@ export const Columns = {
   repoName: 'Repository Name',
   jobType: 'Job Type',
   s3URL: 'S3 URL',
-  modelName: 'Model Name',
+  modelName: 'Model Name'
 };

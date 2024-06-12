@@ -3,22 +3,23 @@
 .form {
   width: 80%;
   padding-left: 20%;
+  margin-bottom: 50px;
 }
 
-.submit {
+.submit,
+.download {
   display: inline-block;
   margin-top: 30px;
   margin-left: 50%;
 }
 
-.submit:hover {
+.submit:hover,
+.download-yaml:hover,
+.download-attribution:hover {
   background-color: #45a049;
-  /* Darker Green */
 }
 
 .heading {
   text-align: left;
-  text-shadow: #45a049;
-  font-size: large;
-  color: rgb(4, 4, 135);
+  font-size: medium;
 }

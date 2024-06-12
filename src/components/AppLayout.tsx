@@ -55,33 +55,21 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const routes = [
     { path: '/dashboard', label: 'Dashboard' },
     {
-      path: '/jobs',
-      label: 'Jobs',
-      children: [
-        { path: '/jobs/all', label: 'All Jobs' },
-        { path: '/jobs/running', label: 'Running Jobs' },
-        { path: '/jobs/pending', label: 'Pending Jobs' },
-        { path: '/jobs/failed', label: 'Failed Jobs' },
-        { path: '/jobs/success', label: 'Successful Jobs' },
-      ],
-    },
-    {
       path: '/contribute',
       label: 'Contribute',
       children: [
         { path: '/contribute/skill', label: 'Skill' },
-        { path: '/contribute/knowledge', label: 'Knowledge' },
-      ],
+        { path: '/contribute/knowledge', label: 'Knowledge' }
+      ]
     },
     {
       path: '/playground',
       label: 'Playground',
       children: [
         { path: '/playground/chat', label: 'Chat' },
-        { path: '/playground/devchat', label: 'Developer Chat' },
-        { path: '/playground/endpoints', label: 'Custom Model Endpoints' },
-      ],
-    },
+        { path: '/playground/endpoints', label: 'Custom Model Endpoints' }
+      ]
+    }
   ];
 
   const Header = (

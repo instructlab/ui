@@ -6,7 +6,7 @@ import { AppLayout } from '@/components/AppLayout';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { TextInput, TextArea } from '@patternfly/react-core/';
+import { TextInput } from '@patternfly/react-core/';
 import { Select } from '@patternfly/react-core/dist/dynamic/components/Select';
 import { SelectOption, SelectList } from '@patternfly/react-core/dist/dynamic/components/Select';
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
@@ -21,10 +21,9 @@ import CopyToClipboardButton from '@/components/CopyToClipboardButton';
 
 const ChatPage: React.FC = () => {
   const [question, setQuestion] = useState('');
-  const [systemRole, setSystemRole] = useState(
+  const systemRole =
     'You are a cautious assistant. You carefully follow instructions.' +
-      ' You are helpful and harmless and you follow ethical guidelines and promote positive behavior.'
-  );
+    ' You are helpful and harmless and you follow ethical guidelines and promote positive behavior.';
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSelectOpen, setIsSelectOpen] = useState(false);
@@ -40,7 +39,7 @@ const ChatPage: React.FC = () => {
 
       const defaultModels: Model[] = [
         { name: 'Granite-7b', apiURL: envConfig.GRANITE_API, modelName: envConfig.GRANITE_MODEL_NAME },
-        { name: 'Merlinite-7b', apiURL: envConfig.MERLINITE_API, modelName: envConfig.MERLINITE_MODEL_NAME },
+        { name: 'Merlinite-7b', apiURL: envConfig.MERLINITE_API, modelName: envConfig.MERLINITE_MODEL_NAME }
       ];
 
       const storedEndpoints = localStorage.getItem('endpoints');
@@ -49,7 +48,7 @@ const ChatPage: React.FC = () => {
         ? JSON.parse(storedEndpoints).map((endpoint: Endpoint) => ({
             name: endpoint.modelName,
             apiURL: `${endpoint.url}`,
-            modelName: endpoint.modelName,
+            modelName: endpoint.modelName
           }))
         : [];
 
@@ -89,10 +88,6 @@ const ChatPage: React.FC = () => {
     setQuestion(value);
   };
 
-  const handleSystemRoleChange = (value: string) => {
-    setSystemRole(value);
-  };
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!question.trim() || !selectedModel) return;
@@ -104,13 +99,13 @@ const ChatPage: React.FC = () => {
 
     const messagesPayload = [
       { role: 'system', content: systemRole },
-      { role: 'user', content: question },
+      { role: 'user', content: question }
     ];
 
     const requestData = {
       model: selectedModel.modelName,
       messages: messagesPayload,
-      stream: true,
+      stream: true
     };
 
     if (customModels.some((model) => model.name === selectedModel.name)) {
@@ -120,9 +115,9 @@ const ChatPage: React.FC = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            accept: 'application/json',
+            accept: 'application/json'
           },
-          body: JSON.stringify(requestData),
+          body: JSON.stringify(requestData)
         });
 
         if (!chatResponse.body) {
@@ -186,9 +181,9 @@ const ChatPage: React.FC = () => {
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ question, systemRole }),
+          body: JSON.stringify({ question, systemRole })
         }
       );
 
@@ -251,18 +246,6 @@ const ChatPage: React.FC = () => {
             <FontAwesomeIcon icon={faBroom} />
           </Button>
         </div>
-        <FormGroup fieldId="system-role-field" label={<span className={styles.boldLabel}>System Role</span>}>
-          <TextArea
-            isRequired
-            id="system-role-field"
-            name="system-role-field"
-            value={systemRole}
-            onChange={(event) => handleSystemRoleChange(event.currentTarget.value)}
-            placeholder="Enter system role..."
-            aria-label="System Role"
-            rows={2}
-          />
-        </FormGroup>
         <div ref={messagesContainerRef} className={styles.messagesContainer}>
           {messages.map((msg, index) => (
             <div key={index} className={`${styles.message} ${msg.isUser ? styles.chatQuestion : styles.chatAnswer}`}>

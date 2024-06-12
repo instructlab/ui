@@ -8,7 +8,7 @@ import {
   DataListItemRow,
   DataListItemCells,
   DataListCell,
-  DataListAction,
+  DataListAction
 } from '@patternfly/react-core/dist/dynamic/components/DataList';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/next/components/Modal';
@@ -53,7 +53,7 @@ const EndpointsPage: React.FC = () => {
         url: url,
         modelName: modelName,
         apiKey: apiKey,
-        isApiKeyVisible: false,
+        isApiKeyVisible: false
       };
 
       const updatedEndpoints = currentEndpoint.id
@@ -131,7 +131,7 @@ const EndpointsPage: React.FC = () => {
                         <Button variant="link" onClick={() => toggleApiKeyVisibility(endpoint.id)}>
                           {endpoint.isApiKeyVisible ? <EyeSlashIcon /> : <EyeIcon />}
                         </Button>
-                      </DataListCell>,
+                      </DataListCell>
                     ]}
                   />
                   <DataListAction aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
@@ -159,7 +159,7 @@ const EndpointsPage: React.FC = () => {
               </Button>,
               <Button key="cancel" variant="link" onClick={handleModalToggle}>
                 Cancel
-              </Button>,
+              </Button>
             ]}
           >
             <Form>

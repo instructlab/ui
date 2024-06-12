@@ -24,9 +24,9 @@ export const usePostSkillPR = () => {
       const res = await fetch('/api/pr/skill', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(data)
       });
 
       const result = await res.json();

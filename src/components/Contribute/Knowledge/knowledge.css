@@ -3,22 +3,23 @@
 .form-k {
   width: 80%;
   padding-left: 20%;
+  margin-bottom: 50px;
 }
 
-.submit-k {
+.submit-k,
+.download-k {
   display: inline-block;
   margin-top: 30px;
   margin-left: 50%;
 }
 
-.submit-k:hover {
+.submit-k:hover,
+.download-k-yaml:hover,
+.download-k-attribution:hover {
   background-color: #45a049;
-  /* Darker Green */
 }
 
 .heading-k {
   text-align: left;
-  text-shadow: #45a049;
-  font-size: large;
-  color: rgb(4, 4, 135);
+  font-size: medium;
 }

@@ -31,7 +31,7 @@ const Login: React.FunctionComponent = () => {
     const result = await signIn('credentials', {
       redirect: false,
       username,
-      password,
+      password
     });
 
     if (result?.error) {

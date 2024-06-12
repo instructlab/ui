@@ -2,9 +2,9 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-COPY ui/package*.json ./
+COPY package*.json ./
 RUN npm install
-COPY ui/ .
+COPY ./ .
 
 RUN npm run build
 CMD ["npm", "run", "start"]
