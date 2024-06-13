@@ -1,4 +1,4 @@
-# Instructlab UI
+# InstructLab UI
 
 A GitHub UI to increase contributor test and review velocity for
 [instructlab/taxonomy](https://github.com/instructlab/taxonomy).

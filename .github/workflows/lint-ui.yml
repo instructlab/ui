@@ -5,14 +5,14 @@ on:
     branches: ["main"]
     paths:
       - '.github/workflows/lint-ui.yml'
-      - 'ui/*'
-      - '!ui/README.md'
+      - '**/*'
+      - '!**/*.md'
   pull_request:
     branches: ["main"]
     paths:
       - '.github/workflows/lint-ui.yml'
-      - 'ui/*'
-      - '!ui/README.md'
+      - '**/*'
+      - '!**/*.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -30,10 +30,9 @@ jobs:
           node-version: '20'
       - name: Install dependencies
         run: npm install
-        working-directory: ui
       - name: Run UI linting
         run: npm run lint
-        working-directory: ui
       - name: Run UI type check
         run: npm run type-check
-        working-directory: ui
+      - name: Run UI build
+        run: npm run build
