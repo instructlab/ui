@@ -1,0 +1,41 @@
+/* src/app/error/error.module.css */
+.errorContainer {
+  text-align: center;
+  padding: 50px;
+  font-family: Arial, sans-serif;
+}
+
+.errorTitle {
+  font-size: 72px;
+  margin-bottom: 20px;
+}
+
+.errorMessage {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.backLink {
+  font-size: 20px;
+  color: #007bff;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.orgLink {
+  font-size: 18px;
+}
+
+.inlineLink {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.inlineLink:hover {
+  text-decoration: underline;
+}
