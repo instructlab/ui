@@ -9,7 +9,7 @@ for users of the [instructlab/taxonomy](https://github.com/instructlab/taxonomy)
 We currently have features implemented to streamline contributor workflow.
 Please check out our UI [here](http://34.229.17.203:4000/).
 
-#### Current Features:
+### Current Features:
 
 - Chat with full precision Granite-7B and Merlinite-7B models
 - Automatically generate properly formatted qna.yaml documents for both
@@ -17,12 +17,12 @@ Please check out our UI [here](http://34.229.17.203:4000/).
 - Automatically generate attribution.txt files
 - Submit to create pull request on personal branch
 
-#### Proposed Features
+### Proposed Features
 
 - Document conversion to markdown for knowledge submissions
 - Integrate triager tooling to streamline triage process
 
-#### Personas:
+### Personas:
 
 - Taxonomy **Contributor**
 - Taxonomy **Triager**
