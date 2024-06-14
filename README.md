@@ -1,7 +1,8 @@
 # InstructLab UI
 
-Welcome to the repo for the InstructLab UI! This UI was created in order to
-streamline the contribution and triaging process for the [instructlab/taxonomy](https://github.com/instructlab/taxonomy).
+Welcome to the repo for the InstructLab UI! This UI was created as
+a front end in order to streamline the contribution and triaging process 
+for users of the [instructlab/taxonomy](https://github.com/instructlab/taxonomy).
 
 ## Overview
 
