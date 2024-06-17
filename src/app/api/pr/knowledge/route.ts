@@ -103,7 +103,7 @@ Creator names: ${creators}
     // Create a new branch in the user's fork
     await createBranch(headers, githubUsername, branchName, baseBranchSha);
 
-    // Create both files in a single commit
+    // Create both files in a single commit with DCO sign-off
     await createFilesInSingleCommit(
       headers,
       githubUsername,
@@ -112,7 +112,7 @@ Creator names: ${creators}
         { path: newAttributionFilePath, content: attributionContent }
       ],
       branchName,
-      task_details
+      `${task_details}\n\nSigned-off-by: ${email}`
     );
 
     // Create a pull request from the user's fork to the upstream repository

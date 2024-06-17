@@ -13,8 +13,10 @@ import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextAre
 import { PlusIcon, MinusCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
 import yaml from 'js-yaml';
 import { validateFields, validateEmail, validateUniqueItems } from '../../../utils/validation';
+import { UploadFile } from './UploadFile';
 
 export const KnowledgeForm: React.FunctionComponent = () => {
+  // Define the initial state and type
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [task_description, setTaskDescription] = useState('');
@@ -37,10 +39,14 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [isFailureAlertVisible, setIsFailureAlertVisible] = useState(false);
 
   const [failure_alert_title, setFailureAlertTitle] = useState('');
-  const [failure_alert_message, setFailureAlertMessage] = useState('');
+  const [failure_alert_message, setFailureAlertMessage] = useState<string>('');
 
   const [success_alert_title, setSuccessAlertTitle] = useState('');
-  const [success_alert_message, setSuccessAlertMessage] = useState('');
+  const [success_alert_message, setSuccessAlertMessage] = useState<React.ReactNode>('');
+  const [successAlertLink, setSuccessAlertLink] = useState<string>('');
+
+  const [useFileUpload, setUseFileUpload] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const handleInputChange = (index: number, type: string, value: string) => {
     switch (type) {
@@ -89,6 +95,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setLicenseWork('');
     setCreators('');
     setRevision('');
+    setUploadedFiles([]);
   };
 
   const onCloseSuccessAlert = () => {
@@ -97,6 +104,11 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
   const onCloseFailureAlert = () => {
     setIsFailureAlertVisible(false);
+  };
+
+  const handleFilesChange = (files: File[]) => {
+    setUploadedFiles(files);
+    setPatterns(files.map((file) => file.name).join(', ')); // Populate the patterns field
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
@@ -178,14 +190,70 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
       const result = await response.json();
       setSuccessAlertTitle('Knowledge contribution submitted successfully!');
-      setSuccessAlertMessage(result.html_url);
+      setSuccessAlertMessage('A pull request containing your knowledge submission has been successfully created.');
+      setSuccessAlertLink(result.html_url);
       setIsSuccessAlertVisible(true);
       resetForm();
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setFailureAlertTitle('Failed to submit your Knowledge contribution!');
+        setFailureAlertTitle('Failed to submit your Knowledge contribution');
         setFailureAlertMessage(error.message);
         setIsFailureAlertVisible(true);
+      }
+    }
+  };
+
+  const handleDocumentUpload = async () => {
+    if (uploadedFiles.length > 0) {
+      const fileContents: { fileName: string; fileContent: string }[] = [];
+
+      await Promise.all(
+        uploadedFiles.map(
+          (file) =>
+            new Promise<void>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const fileContent = e.target!.result as string;
+                fileContents.push({ fileName: file.name, fileContent });
+                resolve();
+              };
+              reader.onerror = reject;
+              reader.readAsText(file);
+            })
+        )
+      );
+
+      if (fileContents.length === uploadedFiles.length) {
+        try {
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ files: fileContents })
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            setRepo(result.repoUrl);
+            setCommit(result.commitSha);
+            setPatterns(result.documentNames.join(', ')); // Populate the patterns field
+            console.log('Files uploaded:', result.documentNames);
+            setSuccessAlertTitle('Document uploaded successfully!');
+            setSuccessAlertMessage('The document has been uploaded and a PR has been created.');
+            setSuccessAlertLink(result.prUrl);
+            setIsSuccessAlertVisible(true);
+            setUseFileUpload(false); // Switch back to manual mode
+          } else {
+            throw new Error(result.error || 'Failed to upload document');
+          }
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            setFailureAlertTitle('Failed to upload document');
+            setFailureAlertMessage(error.message);
+            setIsFailureAlertVisible(true);
+          }
+        }
       }
     }
   };
@@ -408,33 +476,62 @@ Creator names: ${creators}
           <FormFieldGroupHeader titleText={{ text: 'Document Info', id: 'doc-info-id' }} titleDescription="Add the relevant document's information" />
         }
       >
-        <FormGroup key={'doc-info-details-id'}>
-          <TextInput
-            isRequired
-            type="url"
-            aria-label="repo"
-            placeholder="Enter repo url where document exists"
-            value={repo}
-            onChange={(_event, value) => setRepo(value)}
-          />
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="commit"
-            placeholder="Enter the commit sha of the document in that repo"
-            value={commit}
-            onChange={(_event, value) => setCommit(value)}
-          />
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="patterns"
-            placeholder="Enter the documents name (comma separated)"
-            value={patterns}
-            onChange={(_event, value) => setPatterns(value)}
-          />
+        <FormGroup>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <Button
+              variant={useFileUpload ? 'secondary' : 'primary'}
+              className={!useFileUpload ? 'button-active' : 'button-secondary'}
+              onClick={() => setUseFileUpload(false)}
+            >
+              Manually Enter Document Details
+            </Button>
+            <Button
+              variant={useFileUpload ? 'primary' : 'secondary'}
+              className={useFileUpload ? 'button-active' : 'button-secondary'}
+              onClick={() => setUseFileUpload(true)}
+            >
+              Automatically Upload Documents
+            </Button>
+          </div>
         </FormGroup>
+
+        {!useFileUpload ? (
+          <FormGroup key={'doc-info-details-id'}>
+            <TextInput
+              isRequired
+              type="url"
+              aria-label="repo"
+              placeholder="Enter repo url where document exists"
+              value={repo}
+              onChange={(_event, value) => setRepo(value)}
+            />
+            <TextInput
+              isRequired
+              type="text"
+              aria-label="commit"
+              placeholder="Enter the commit sha of the document in that repo"
+              value={commit}
+              onChange={(_event, value) => setCommit(value)}
+            />
+            <TextInput
+              isRequired
+              type="text"
+              aria-label="patterns"
+              placeholder="Enter the documents name (comma separated)"
+              value={patterns}
+              onChange={(_event, value) => setPatterns(value)}
+            />
+          </FormGroup>
+        ) : (
+          <>
+            <UploadFile onFilesChange={handleFilesChange} />
+            <Button variant="primary" onClick={handleDocumentUpload}>
+              Submit Files
+            </Button>
+          </>
+        )}
       </FormFieldGroupExpandable>
+
       <FormFieldGroupExpandable
         toggleAriaLabel="Details"
         header={
@@ -493,12 +590,14 @@ Creator names: ${creators}
           title={success_alert_title}
           actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}
           actionLinks={
-            <AlertActionLink component="a" href={success_alert_message} target="_blank" rel="noopener noreferrer">
-              View your pull request
-            </AlertActionLink>
+            <>
+              <AlertActionLink component="a" href={successAlertLink} target="_blank" rel="noopener noreferrer">
+                View it here
+              </AlertActionLink>
+            </>
           }
         >
-          Thank you for your contribution!
+          {success_alert_message}
         </Alert>
       )}
       {isFailureAlertVisible && (
@@ -506,6 +605,7 @@ Creator names: ${creators}
           {failure_alert_message}
         </Alert>
       )}
+
       <ActionGroup>
         <Button variant="primary" type="submit" className="submit-k" onClick={handleSubmit}>
           Submit Knowledge
@@ -520,3 +620,5 @@ Creator names: ${creators}
     </Form>
   );
 };
+
+export default KnowledgeForm;
