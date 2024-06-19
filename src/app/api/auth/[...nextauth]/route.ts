@@ -77,7 +77,8 @@ const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
       }
-      console.log('JWT Callback:', token);
+      // Uncomment for JWT debugging
+      // console.log('JWT Callback:', token);
       return token;
     },
     async session({ session, token }) {
@@ -85,7 +86,8 @@ const authOptions: NextAuthOptions = {
         session.accessToken = token.accessToken;
         session.id = token.id;
       }
-      console.log('Session Callback:', session);
+      // Uncomment for session callback debugging
+      // console.log('Session Callback:', session);
       return session;
     },
     async signIn({ account, profile }) {

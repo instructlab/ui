@@ -240,10 +240,10 @@ export const KnowledgeForm: React.FunctionComponent = () => {
             setPatterns(result.documentNames.join(', ')); // Populate the patterns field
             console.log('Files uploaded:', result.documentNames);
             setSuccessAlertTitle('Document uploaded successfully!');
-            setSuccessAlertMessage('The document has been uploaded and a PR has been created.');
+            setSuccessAlertMessage('Documents have been uploaded to your repo to be referenced in the knowledge submission.');
             setSuccessAlertLink(result.prUrl);
             setIsSuccessAlertVisible(true);
-            setUseFileUpload(false); // Switch back to manual mode
+            setUseFileUpload(false); // Switch back to manual mode to display the newly created values in the knowledge submission
           } else {
             throw new Error(result.error || 'Failed to upload document');
           }
