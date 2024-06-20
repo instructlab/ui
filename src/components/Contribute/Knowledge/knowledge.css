@@ -15,11 +15,17 @@
 
 .submit-k:hover,
 .download-k-yaml:hover,
-.download-k-attribution:hover {
+.download-k-attribution:hover,
+.button-active,
+.button-active:hover {
   background-color: #45a049;
 }
 
 .heading-k {
   text-align: left;
   font-size: medium;
+}
+
+.button-secondary:hover {
+  border-color: #45a049;
 }

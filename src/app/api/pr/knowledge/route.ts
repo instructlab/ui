@@ -54,6 +54,11 @@ export async function POST(req: NextRequest) {
     const forkExists = await checkUserForkExists(headers, githubUsername);
     if (!forkExists) {
       await createFork(headers);
+      // Add a delay to ensure the fork operation completes to avoid a race condition when retrieving the bas SHA
+      // This only occurs if this is the first time submitting and the fork isn't present.
+      // TODO change to a retry
+      console.log('Pause 5s for the forking operation to complete');
+      await new Promise((resolve) => setTimeout(resolve, 5000));
     }
 
     const branchName = `knowledge-contribution-${Date.now()}`;
@@ -72,7 +77,7 @@ export async function POST(req: NextRequest) {
     }
 
     const yamlData = {
-      created_by: email,
+      created_by: githubUsername,
       domain: domain,
       task_description: task_description,
       seed_examples: questions.map((question: string, index: number) => {
@@ -103,7 +108,7 @@ Creator names: ${creators}
     // Create a new branch in the user's fork
     await createBranch(headers, githubUsername, branchName, baseBranchSha);
 
-    // Create both files in a single commit
+    // Create both files in a single commit with DCO sign-off
     await createFilesInSingleCommit(
       headers,
       githubUsername,
@@ -112,7 +117,7 @@ Creator names: ${creators}
         { path: newAttributionFilePath, content: attributionContent }
       ],
       branchName,
-      task_details
+      `${task_details}\n\nSigned-off-by: ${email}`
     );
 
     // Create a pull request from the user's fork to the upstream repository
