@@ -17,6 +17,7 @@ import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { AppLayout } from '../../../../components/AppLayout';
+import { AttributionData, PullRequestFile, SkillYamlData } from '@/types';
 import {
   fetchPullRequest,
   fetchFileContent,
@@ -26,24 +27,7 @@ import {
   amendCommit
 } from '../../../../utils/github';
 import yaml from 'js-yaml';
-
-interface YamlData {
-  created_by: string;
-  task_description: string;
-  seed_examples: Array<{
-    question: string;
-    context?: string;
-    answer: string;
-  }>;
-}
-
-interface AttributionData {
-  title_of_work: string;
-  link_to_work: string;
-  revision: string;
-  license_of_the_work: string;
-  creator_names: string;
-}
+import axios from 'axios';
 
 const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ params }) => {
   const { data: session } = useSession();
@@ -61,11 +45,11 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
   const [contexts, setContexts] = React.useState<string[]>([]);
   const [answers, setAnswers] = React.useState<string[]>([]);
   const [error, setError] = React.useState<string | null>(null);
-  const [yamlFile, setYamlFile] = React.useState<{ filename: string } | null>(null);
-  const [attributionFile, setAttributionFile] = React.useState<{ filename: string } | null>(null);
+  const [yamlFile, setYamlFile] = React.useState<PullRequestFile | null>(null);
+  const [attributionFile, setAttributionFile] = React.useState<PullRequestFile | null>(null);
   const [branchName, setBranchName] = React.useState<string | null>(null);
   const router = useRouter();
-  const { id: number } = params;
+  const number = parseInt(params.id, 10); // Parse the id parameter as an integer
 
   // Alerts
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = React.useState(false);
@@ -88,10 +72,10 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
           setBody(prData.body);
           setBranchName(prData.head.ref); // Store the branch name from the pull request
 
-          const prFiles = await fetchPullRequestFiles(session.accessToken, number);
+          const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, number);
           console.log(`Fetched PR files:`, prFiles);
 
-          const foundYamlFile = prFiles.find((file) => file.filename.endsWith('.yaml'));
+          const foundYamlFile = prFiles.find((file: PullRequestFile) => file.filename.endsWith('.yaml'));
           if (!foundYamlFile) {
             throw new Error('No YAML file found in the pull request.');
           }
@@ -100,7 +84,7 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
 
           const yamlContent = await fetchFileContent(session.accessToken, foundYamlFile.filename, prData.head.sha);
           console.log('Fetched YAML content:', yamlContent);
-          const yamlData: YamlData = yaml.load(yamlContent);
+          const yamlData: SkillYamlData = yaml.load(yamlContent) as SkillYamlData;
           console.log('Parsed YAML data:', yamlData);
 
           // Populate the form fields with YAML data
@@ -111,7 +95,7 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
           setAnswers(yamlData.seed_examples.map((example) => example.answer));
 
           // Fetch and parse attribution file if it exists
-          const foundAttributionFile = prFiles.find((file) => file.filename.includes('attribution'));
+          const foundAttributionFile = prFiles.find((file: PullRequestFile) => file.filename.includes('attribution'));
           if (foundAttributionFile) {
             setAttributionFile(foundAttributionFile);
             console.log(`Attribution file found:`, foundAttributionFile);
@@ -127,8 +111,13 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
             setCreators(attributionData.creator_names);
           }
         } catch (error) {
-          console.error('Error fetching pull request data:', error.response ? error.response.data : error.message);
-          setError(`Failed to fetch pull request data: ${error.message}`);
+          if (axios.isAxiosError(error)) {
+            console.error('Error fetching pull request data:', error.response ? error.response.data : error.message);
+            setError(`Failed to fetch pull request data: ${error.message}`);
+          } else if (error instanceof Error) {
+            console.error('Error fetching pull request data:', error.message);
+            setError(`Failed to fetch pull request data: ${error.message}`);
+          }
         }
       }
     };
@@ -144,7 +133,7 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
         const githubUsername = await getGitHubUsername(session.accessToken);
         console.log(`GitHub username: ${githubUsername}`);
 
-        const updatedYamlData: YamlData = {
+        const updatedYamlData: SkillYamlData = {
           created_by: email,
           task_description,
           seed_examples: questions.map((question, index) => ({
@@ -179,16 +168,23 @@ Creator names: ${creators}
         );
         console.log('Amended commit response:', amendedCommitResponse);
 
-        const prLink = `https://github.com/brents-pet-robot/taxonomy-sub-testing/pull/${number}`;
+        const prLink = `https://github.com/${process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER}/${process.env.NEXT_PUBLIC_TAXONOMY_REPO}/pull/${number}`;
         setSuccessAlertTitle('Pull request updated successfully!');
         setSuccessAlertMessage('Your pull request has been updated successfully.');
         setSuccessAlertLink(prLink);
         setIsSuccessAlertVisible(true);
       } catch (error) {
-        console.error('Error updating pull request:', error.response ? error.response.data : error.message);
-        setFailureAlertTitle('Failed to update pull request');
-        setFailureAlertMessage(error.message);
-        setIsFailureAlertVisible(true);
+        if (axios.isAxiosError(error)) {
+          console.error('Error updating pull request:', error.response ? error.response.data : error.message);
+          setFailureAlertTitle('Failed to update pull request');
+          setFailureAlertMessage(error.message);
+          setIsFailureAlertVisible(true);
+        } else if (error instanceof Error) {
+          console.error('Error updating pull request:', error.message);
+          setFailureAlertTitle('Failed to update pull request');
+          setFailureAlertMessage(error.message);
+          setIsFailureAlertVisible(true);
+        }
       }
     } else {
       setFailureAlertTitle('Error');
@@ -239,16 +235,24 @@ Creator names: ${creators}
 
   const parseAttributionContent = (content: string): AttributionData => {
     const lines = content.split('\n');
-    const attributionData: { [key: string]: string } = {};
+    const attributionData: AttributionData = {
+      title_of_work: '',
+      link_to_work: '',
+      revision: '',
+      license_of_the_work: '',
+      creator_names: ''
+    };
     lines.forEach((line) => {
       const [key, ...value] = line.split(':');
-      if (key && value) {
+      if (key && value.length > 0) {
         // Remove spaces in the attribution field for parsing
         const normalizedKey = key.trim().toLowerCase().replace(/\s+/g, '_');
-        attributionData[normalizedKey] = value.join(':').trim();
+        if (normalizedKey in attributionData) {
+          (attributionData as unknown as Record<string, string>)[normalizedKey] = value.join(':').trim();
+        }
       }
     });
-    return attributionData as AttributionData;
+    return attributionData;
   };
 
   return (
@@ -259,7 +263,7 @@ Creator names: ${creators}
         </Title>
         {error && <Alert variant="danger" title={error} />}
         <Form>
-          <FormGroup label="" fieldId="title">
+          <FormGroup label="Commit Message" fieldId="title">
             <TextInput isDisabled type="text" id="title" name="title" value={title} />
           </FormGroup>
           <FormFieldGroupExpandable

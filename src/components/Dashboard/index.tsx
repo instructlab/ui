@@ -15,17 +15,19 @@ import { PullRequest } from '../../types';
 const Index: React.FunctionComponent = () => {
   const { data: session } = useSession();
   const [pullRequests, setPullRequests] = React.useState<PullRequest[]>([]);
+  const [username, setUsername] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const router = useRouter();
 
   const fetchAndSetPullRequests = React.useCallback(async () => {
     if (session?.accessToken) {
       try {
-        const username = await getGitHubUsername(session.accessToken);
+        const fetchedUsername = await getGitHubUsername(session.accessToken);
+        setUsername(fetchedUsername);
         const data = await fetchPullRequests(session.accessToken);
         // Filter PRs to include only those with 'skill' or 'knowledge' labels and owned by the logged-in user
         const filteredPRs = data.filter(
-          (pr: PullRequest) => pr.user.login === username && pr.labels.some((label) => label.name === 'skill' || label.name === 'knowledge')
+          (pr: PullRequest) => pr.user.login === fetchedUsername && pr.labels.some((label) => label.name === 'skill' || label.name === 'knowledge')
         );
         setPullRequests(filteredPRs);
       } catch (error) {
@@ -58,8 +60,9 @@ const Index: React.FunctionComponent = () => {
   return (
     <PageSection>
       <Title headingLevel="h1" size="lg">
-        Dashboard
+        Taxonomy Submissions for {username || 'Loading...'}
       </Title>
+      <div style={{ marginBottom: '20px' }} />
       {error && <div>{error}</div>}
       <Table aria-label="Pull Requests">
         <Thead>

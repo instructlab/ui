@@ -18,6 +18,7 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { AppLayout } from '../../../../components/AppLayout';
 import { UploadFile } from '../../../../components/Contribute/Knowledge/UploadFile';
+import { AttributionData, PullRequestFile, KnowledgeYamlData } from '@/types';
 import {
   fetchPullRequest,
   fetchFileContent,
@@ -27,30 +28,7 @@ import {
   amendCommit
 } from '../../../../utils/github';
 import yaml from 'js-yaml';
-
-interface YamlData {
-  created_by: string;
-  domain: string;
-  task_description: string;
-  task_details: string;
-  document: {
-    repo: string;
-    commit: string;
-    patterns: string[];
-  };
-  seed_examples: Array<{
-    question: string;
-    answer: string;
-  }>;
-}
-
-interface AttributionData {
-  title_of_work: string;
-  link_to_work: string;
-  revision: string;
-  license_of_the_work: string;
-  creator_names: string;
-}
+import axios from 'axios';
 
 const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> = ({ params }) => {
   const { data: session } = useSession();
@@ -72,13 +50,13 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
   const [questions, setQuestions] = React.useState<string[]>([]);
   const [answers, setAnswers] = React.useState<string[]>([]);
   const [error, setError] = React.useState<string | null>(null);
-  const [yamlFile, setYamlFile] = React.useState<{ filename: string } | null>(null);
-  const [attributionFile, setAttributionFile] = React.useState<{ filename: string } | null>(null);
+  const [yamlFile, setYamlFile] = React.useState<PullRequestFile | null>(null);
+  const [attributionFile, setAttributionFile] = React.useState<PullRequestFile | null>(null);
   const [branchName, setBranchName] = React.useState<string | null>(null);
   const [useFileUpload, setUseFileUpload] = React.useState(false);
   const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
   const router = useRouter();
-  const { id: number } = params;
+  const number = parseInt(params.id, 10); // Parse the id parameter as an integer
 
   // Alerts
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = React.useState(false);
@@ -101,10 +79,10 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
           setBody(prData.body);
           setBranchName(prData.head.ref); // Store the branch name from the pull request
 
-          const prFiles = await fetchPullRequestFiles(session.accessToken, number);
+          const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, number);
           console.log(`Fetched PR files:`, prFiles);
 
-          const foundYamlFile = prFiles.find((file) => file.filename.endsWith('.yaml'));
+          const foundYamlFile = prFiles.find((file: PullRequestFile) => file.filename.endsWith('.yaml'));
           if (!foundYamlFile) {
             throw new Error('No YAML file found in the pull request.');
           }
@@ -113,7 +91,7 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
 
           const yamlContent = await fetchFileContent(session.accessToken, foundYamlFile.filename, prData.head.sha);
           console.log('Fetched YAML content:', yamlContent);
-          const yamlData: YamlData = yaml.load(yamlContent);
+          const yamlData: KnowledgeYamlData = yaml.load(yamlContent) as KnowledgeYamlData;
           console.log('Parsed YAML data:', yamlData);
 
           // Populate the form fields with YAML data
@@ -129,7 +107,7 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
           setAnswers(yamlData.seed_examples.map((example) => example.answer));
 
           // Fetch and parse attribution file if it exists
-          const foundAttributionFile = prFiles.find((file) => file.filename.includes('attribution'));
+          const foundAttributionFile = prFiles.find((file: PullRequestFile) => file.filename.includes('attribution'));
           if (foundAttributionFile) {
             setAttributionFile(foundAttributionFile);
             console.log(`Attribution file found:`, foundAttributionFile);
@@ -146,8 +124,13 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
             setCreators(attributionData.creator_names);
           }
         } catch (error) {
-          console.error('Error fetching pull request data:', error.response ? error.response.data : error.message);
-          setError(`Failed to fetch pull request data: ${error.message}`);
+          if (axios.isAxiosError(error)) {
+            console.error('Error fetching pull request data:', error.response ? error.response.data : error.message);
+            setError(`Failed to fetch pull request data: ${error.message}`);
+          } else if (error instanceof Error) {
+            console.error('Error fetching pull request data:', error.message);
+            setError(`Failed to fetch pull request data: ${error.message}`);
+          }
         }
       }
     };
@@ -163,7 +146,7 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
         const githubUsername = await getGitHubUsername(session.accessToken);
         console.log(`GitHub username: ${githubUsername}`);
 
-        const updatedYamlData: YamlData = {
+        const updatedYamlData: KnowledgeYamlData = {
           created_by: email,
           domain,
           task_description,
@@ -204,16 +187,23 @@ Creator names: ${creators}
         );
         console.log('Amended commit response:', amendedCommitResponse);
 
-        const prLink = `https://github.com/brents-pet-robot/taxonomy-sub-testing/pull/${number}`;
+        const prLink = `https://github.com/${process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER}/${process.env.NEXT_PUBLIC_TAXONOMY_REPO}/pull/${number}`;
         setSuccessAlertTitle('Pull request updated successfully!');
         setSuccessAlertMessage('Your pull request has been updated successfully.');
         setSuccessAlertLink(prLink);
         setIsSuccessAlertVisible(true);
       } catch (error) {
-        console.error('Error updating pull request:', error.response ? error.response.data : error.message);
-        setFailureAlertTitle('Failed to update pull request');
-        setFailureAlertMessage(error.message);
-        setIsFailureAlertVisible(true);
+        if (axios.isAxiosError(error)) {
+          console.error('Error updating pull request:', error.response ? error.response.data : error.message);
+          setFailureAlertTitle('Failed to update pull request');
+          setFailureAlertMessage(error.message);
+          setIsFailureAlertVisible(true);
+        } else if (error instanceof Error) {
+          console.error('Error updating pull request:', error.message);
+          setFailureAlertTitle('Failed to update pull request');
+          setFailureAlertMessage(error.message);
+          setIsFailureAlertVisible(true);
+        }
       }
     } else {
       setFailureAlertTitle('Error');
@@ -324,7 +314,7 @@ Creator names: ${creators}
         attributionData[normalizedKey] = value.join(':').trim();
       }
     });
-    return attributionData as AttributionData;
+    return attributionData as unknown as AttributionData;
   };
 
   return (

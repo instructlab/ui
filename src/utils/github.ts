@@ -1,9 +1,10 @@
 import axios from 'axios';
+import { PullRequestUpdateData } from '@/types';
 
 const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
 const UPSTREAM_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_REPO!;
 
-export const fetchPullRequests = async (token) => {
+export const fetchPullRequests = async (token: string) => {
   try {
     console.log('Refreshing PR Listing');
     const response = await axios.get(`https://api.github.com/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls?state=all`, {
@@ -15,12 +16,16 @@ export const fetchPullRequests = async (token) => {
     console.log('Fetched PRs:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error fetching pull requests:', error.response ? error.response.data : error.message);
+    if (axios.isAxiosError(error)) {
+      console.error('Error fetching pull requests:', error.response ? error.response.data : error.message);
+    } else {
+      console.error('Error fetching pull requests:', error);
+    }
     throw error;
   }
 };
 
-export const fetchPullRequest = async (token, prNumber) => {
+export const fetchPullRequest = async (token: string, prNumber: number) => {
   try {
     console.log(`Fetching PR Number: ${prNumber}`);
     const response = await axios.get(`https://api.github.com/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls/${prNumber}`, {
@@ -35,12 +40,16 @@ export const fetchPullRequest = async (token, prNumber) => {
     console.log(`Fetched PR ${prNumber}:`, response.data);
     return response.data;
   } catch (error) {
-    console.error(`Error fetching pull request ${prNumber}:`, error.response ? error.response.data : error.message);
+    if (axios.isAxiosError(error)) {
+      console.error(`Error fetching pull request ${prNumber}:`, error.response ? error.response.data : error.message);
+    } else {
+      console.error(`Error fetching pull request ${prNumber}:`, error);
+    }
     throw error;
   }
 };
 
-export const fetchPullRequestFiles = async (token, prNumber) => {
+export const fetchPullRequestFiles = async (token: string, prNumber: number) => {
   try {
     console.log(`Fetching files for PR Number: ${prNumber}`);
     const response = await axios.get(`https://api.github.com/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls/${prNumber}/files`, {
@@ -52,12 +61,16 @@ export const fetchPullRequestFiles = async (token, prNumber) => {
     console.log(`Fetched files for PR ${prNumber}:`, response.data);
     return response.data;
   } catch (error) {
-    console.error(`Error fetching files for pull request ${prNumber}:`, error.response ? error.response.data : error.message);
+    if (axios.isAxiosError(error)) {
+      console.error(`Error fetching files for pull request ${prNumber}:`, error.response ? error.response.data : error.message);
+    } else {
+      console.error(`Error fetching files for pull request ${prNumber}:`, error);
+    }
     throw error;
   }
 };
 
-export const fetchFileContent = async (token, filePath, ref) => {
+export const fetchFileContent = async (token: string, filePath: string, ref: string) => {
   try {
     console.log(`Fetching file content for path: ${filePath} with ref: ${ref}`);
     const response = await axios.get(`https://api.github.com/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/contents/${filePath}?ref=${ref}`, {
@@ -69,12 +82,16 @@ export const fetchFileContent = async (token, filePath, ref) => {
     console.log('Fetched file content:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error fetching file content:', error.response ? error.response.data : error.message);
+    if (axios.isAxiosError(error)) {
+      console.error('Error fetching file content:', error.response ? error.response.data : error.message);
+    } else {
+      console.error('Error fetching file content:', error);
+    }
     throw error;
   }
 };
 
-export const updatePullRequest = async (token, prNumber, data) => {
+export const updatePullRequest = async (token: string, prNumber: number, data: PullRequestUpdateData) => {
   try {
     console.log(`Updating PR Number: ${prNumber} with data:`, data);
     const response = await axios.patch(`https://api.github.com/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls/${prNumber}`, data, {
@@ -86,12 +103,24 @@ export const updatePullRequest = async (token, prNumber, data) => {
     console.log(`Updated PR ${prNumber}:`, response.data);
     return response.data;
   } catch (error) {
-    console.error(`Error updating pull request ${prNumber}:`, error.response ? error.response.data : error.message);
+    if (axios.isAxiosError(error)) {
+      console.error(`Error updating pull request ${prNumber}:`, error.response ? error.response.data : error.message);
+    } else {
+      console.error(`Error updating pull request ${prNumber}:`, error);
+    }
     throw error;
   }
 };
 
-export const amendCommit = async (token, username, repoName, filePath, updatedYamlContent, updatedAttributionContent, branch) => {
+export const amendCommit = async (
+  token: string,
+  username: string,
+  repoName: string,
+  filePath: { yaml: string; attribution: string },
+  updatedYamlContent: string,
+  updatedAttributionContent: string,
+  branch: string
+) => {
   try {
     console.log(`Amending commit for path: ${filePath} in repo: ${repoName}`);
 
@@ -215,12 +244,16 @@ export const amendCommit = async (token, username, repoName, filePath, updatedYa
 
     return newCommitResponse.data;
   } catch (error) {
-    console.error(`Error amending commit:`, error.response ? error.response.data : error.message);
+    if (axios.isAxiosError(error)) {
+      console.error(`Error amending commit:`, error.response ? error.response.data : error.message);
+    } else {
+      console.error(`Error amending commit:`, error);
+    }
     throw error;
   }
 };
 
-export const getGitHubUsername = async (token) => {
+export const getGitHubUsername = async (token: string) => {
   try {
     console.log('Fetching GitHub username');
     const response = await axios.get(`https://api.github.com/user`, {
@@ -232,7 +265,11 @@ export const getGitHubUsername = async (token) => {
     console.log('Fetched GitHub username:', response.data.login);
     return response.data.login;
   } catch (error) {
-    console.error('Error fetching GitHub username:', error.response ? error.response.data : error.message);
+    if (axios.isAxiosError(error)) {
+      console.error('Error fetching GitHub username:', error.response ? error.response.data : error.message);
+    } else {
+      console.error('Error fetching GitHub username:', error);
+    }
     throw error;
   }
 };
