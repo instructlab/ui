@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     const forkExists = await checkUserForkExists(headers, githubUsername);
     if (!forkExists) {
       await createFork(headers);
-      // Add a delay to ensure the fork operation completes to avoid a race condition when retrieving the bas SHA
+      // Add a delay to ensure the fork operation completes to avoid a race condition when retrieving the base SHA
       // This only occurs if this is the first time submitting and the fork isn't present.
       // TODO change to a retry
       console.log('Pause 5s for the forking operation to complete');
@@ -301,7 +301,7 @@ async function createPullRequest(headers: HeadersInit, username: string, branchN
     method: 'POST',
     headers,
     body: JSON.stringify({
-      title: `Add knowledge: ${knowledgeName}`,
+      title: `Knowledge: ${knowledgeName}`,
       head: `${username}:${branchName}`,
       base: BASE_BRANCH
     })

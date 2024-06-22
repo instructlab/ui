@@ -273,7 +273,7 @@ async function createPullRequest(headers: HeadersInit, username: string, branchN
     method: 'POST',
     headers,
     body: JSON.stringify({
-      title: `Add skill: ${skillName}`,
+      title: `Skill: ${skillName}`,
       head: `${username}:${branchName}`,
       base: BASE_BRANCH
     })

@@ -17,3 +17,20 @@ export interface Model {
   apiURL: string;
   modelName: string;
 }
+
+export interface Label {
+  name: string;
+}
+
+export interface PullRequest {
+  number: number;
+  title: string;
+  user: {
+    login: string;
+  };
+  html_url: string;
+  state: string;
+  created_at: string;
+  updated_at: string;
+  labels: Label[];
+}

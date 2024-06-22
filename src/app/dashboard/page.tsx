@@ -1,9 +1,12 @@
-// src/app/jobs/dashboard/page.tsx
-import * as React from 'react';
-import { AppLayout } from '../../components/AppLayout';
-import { Index } from '../../components/Dashboard';
+// src/app/page.tsx
+'use client';
 
-const DashboardPage: React.FC = () => {
+import * as React from 'react';
+import '@patternfly/react-core/dist/styles/base.css';
+import { AppLayout } from '@/components/AppLayout';
+import { Index } from '@/components/Dashboard';
+
+const Home: React.FunctionComponent = () => {
   return (
     <AppLayout>
       <Index />
@@ -11,4 +14,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default DashboardPage;
+export default Home;
