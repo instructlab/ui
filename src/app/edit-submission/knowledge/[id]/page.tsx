@@ -37,7 +37,6 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
   const [email, setEmail] = React.useState('');
   const [name, setName] = React.useState('');
   const [task_description, setTaskDescription] = React.useState('');
-  const [task_details, setTaskDetails] = React.useState('');
   const [domain, setDomain] = React.useState('');
   const [repo, setRepo] = React.useState('');
   const [commit, setCommit] = React.useState('');
@@ -56,7 +55,7 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
   const [useFileUpload, setUseFileUpload] = React.useState(false);
   const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
   const router = useRouter();
-  const number = parseInt(params.id, 10); // Parse the id parameter as an integer
+  const number = parseInt(params.id, 10);
 
   // Alerts
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = React.useState(false);
@@ -68,7 +67,7 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
   const [successAlertLink, setSuccessAlertLink] = React.useState<string>('');
 
   React.useEffect(() => {
-    console.log('Params:', params); // Log the params to verify its content
+    console.log('Params:', params);
     const fetchPRData = async () => {
       if (session?.accessToken) {
         try {
@@ -96,9 +95,7 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
 
           // Populate the form fields with YAML data
           setEmail(yamlData.created_by);
-          setName(yamlData.domain);
           setTaskDescription(yamlData.task_description);
-          setTaskDetails(yamlData.task_details);
           setDomain(yamlData.domain);
           setRepo(yamlData.document.repo);
           setCommit(yamlData.document.commit);
@@ -150,7 +147,6 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
           created_by: email,
           domain,
           task_description,
-          task_details,
           document: {
             repo,
             commit,
@@ -334,7 +330,7 @@ Creator names: ${creators}
             header={
               <FormFieldGroupHeader
                 titleText={{ text: 'Author Info', id: 'author-info-id' }}
-                titleDescription="Provide your information. Needed for GitHub DCO sign-off."
+                titleDescription="Provide your information required for a GitHub DCO sign-off."
               />
             }
           >
@@ -372,14 +368,6 @@ Creator names: ${creators}
               <TextInput
                 isRequired
                 type="text"
-                aria-label="task_description"
-                placeholder="Enter brief description of the knowledge"
-                value={task_description}
-                onChange={(_event, value) => setTaskDescription(value)}
-              />
-              <TextInput
-                isRequired
-                type="text"
                 aria-label="domain"
                 placeholder="Enter domain information"
                 value={domain}
@@ -388,10 +376,10 @@ Creator names: ${creators}
               <TextArea
                 isRequired
                 type="text"
-                aria-label="task_details"
-                placeholder="Provide details about the knowledge"
-                value={task_details}
-                onChange={(_event, value) => setTaskDetails(value)}
+                aria-label="task_description"
+                placeholder="Enter brief description of the knowledge"
+                value={task_description}
+                onChange={(_event, value) => setTaskDescription(value)}
               />
             </FormGroup>
           </FormFieldGroupExpandable>
@@ -556,7 +544,7 @@ Creator names: ${creators}
           </FormFieldGroupExpandable>
           <ActionGroup>
             <Button variant="primary" onClick={handleSave}>
-              Save
+              Update Knowledge Submission
             </Button>
             <Button variant="link" onClick={() => router.back()}>
               Cancel

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       name,
       email,
       task_description,
-      task_details,
+      submission_summary,
       domain,
       repo,
       commit,
@@ -117,11 +117,11 @@ Creator names: ${creators}
         { path: newAttributionFilePath, content: attributionContent }
       ],
       branchName,
-      `${task_details}\n\nSigned-off-by: ${email}`
+      `${submission_summary}\n\nSigned-off-by: ${name} <${email}>`
     );
 
     // Create a pull request from the user's fork to the upstream repository
-    const pr = await createPullRequest(headers, githubUsername, branchName, name);
+    const pr = await createPullRequest(headers, githubUsername, branchName, submission_summary);
 
     return NextResponse.json(pr, { status: 201 });
   } catch (error) {
@@ -296,12 +296,12 @@ async function getCommitSha(headers: HeadersInit, username: string, branchName: 
   return data.object.sha;
 }
 
-async function createPullRequest(headers: HeadersInit, username: string, branchName: string, knowledgeName: string) {
+async function createPullRequest(headers: HeadersInit, username: string, branchName: string, knowledgeSummary: string) {
   const response = await fetch(`${GITHUB_API_URL}/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls`, {
     method: 'POST',
     headers,
     body: JSON.stringify({
-      title: `Knowledge: ${knowledgeName}`,
+      title: `Knowledge: ${knowledgeSummary}`,
       head: `${username}:${branchName}`,
       base: BASE_BRANCH
     })

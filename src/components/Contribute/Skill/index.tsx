@@ -18,7 +18,7 @@ export const SkillForm: React.FunctionComponent = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [task_description, setTaskDescription] = useState('');
-  const [task_details, setTaskDetails] = useState('');
+  const [submission_summary, setSubmissionSummary] = useState('');
 
   const [title_work, setTitleWork] = useState('');
   const [link_work, setLinkWork] = useState('-');
@@ -84,7 +84,7 @@ export const SkillForm: React.FunctionComponent = () => {
     setEmail('');
     setName('');
     setTaskDescription('');
-    setTaskDetails('');
+    setSubmissionSummary('');
     setTitleWork('');
     setLinkWork('-');
     setLicenseWork('');
@@ -102,7 +102,7 @@ export const SkillForm: React.FunctionComponent = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
-    const infoFields = { email, name, task_description, task_details };
+    const infoFields = { email, name, task_description, submission_summary };
     const attributionFields = { title_work, link_work, license_work, creators };
 
     let validation = validateFields(infoFields);
@@ -149,7 +149,7 @@ export const SkillForm: React.FunctionComponent = () => {
       name: name,
       email: email,
       task_description: task_description,
-      task_details: task_details,
+      submission_summary: submission_summary,
       title_work: title_work,
       link_work: link_work,
       license_work: license_work,
@@ -187,8 +187,8 @@ export const SkillForm: React.FunctionComponent = () => {
   };
 
   const handleDownloadYaml = () => {
-    const infoFields = { email, name, task_description, task_details };
-    const attributionFields = { title_work, link_work: '-', revision: task_details, license_work, creators };
+    const infoFields = { email, name, task_description, submission_summary };
+    const attributionFields = { title_work, link_work: '-', revision: '-', license_work, creators };
 
     let validation = validateFields(infoFields);
     if (!validation.valid) {
@@ -263,7 +263,7 @@ export const SkillForm: React.FunctionComponent = () => {
   };
 
   const handleDownloadAttribution = () => {
-    const attributionFields = { title_work, link_work: '-', revision: task_details, license_work, creators };
+    const attributionFields = { title_work, link_work: '-', revision: '-', license_work, creators };
 
     const validation = validateFields(attributionFields);
     if (!validation.valid) {
@@ -275,7 +275,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     const attributionContent = `Title of work: ${title_work}
 Link to work: -
-Revision: ${task_details}
+Revision: -
 License of the work: ${license_work}
 Creator names: ${creators}
 `;
@@ -298,7 +298,7 @@ Creator names: ${creators}
         header={
           <FormFieldGroupHeader
             titleText={{ text: 'Author Info', id: 'author-info-id' }}
-            titleDescription="Provide your information. Needed for GitHub DCO sign-off."
+            titleDescription="Provide your information required for a GitHub DCO sign-off."
           />
         }
       >
@@ -325,28 +325,26 @@ Creator names: ${creators}
         isExpanded
         toggleAriaLabel="Details"
         header={
-          <FormFieldGroupHeader
-            titleText={{ text: 'Skill Info', id: 'skill-info-id' }}
-            titleDescription="Provide brief information about the skill."
-          />
+          <FormFieldGroupHeader titleText={{ text: 'Skill Info', id: 'skill-info-id' }} titleDescription="Provide information about the skill." />
         }
       >
         <FormGroup key={'skill-info-details-id'}>
           <TextInput
             isRequired
             type="text"
-            aria-label="task_description"
-            placeholder="Enter brief description of the skill"
-            value={task_description}
-            onChange={(_event, value) => setTaskDescription(value)}
+            aria-label="submission_summary"
+            placeholder="Enter a brief description for a submission summary (60 character max)"
+            value={submission_summary}
+            onChange={(_event, value) => setSubmissionSummary(value)}
+            maxLength={60}
           />
           <TextArea
             isRequired
             type="text"
-            aria-label="task_details"
-            placeholder="Provide details about the skill"
-            value={task_details}
-            onChange={(_event, value) => setTaskDetails(value)}
+            aria-label="task_description"
+            placeholder="Enter a detailed description to improve the teacher model's responses"
+            value={task_description}
+            onChange={(_event, value) => setTaskDescription(value)}
           />
         </FormGroup>
       </FormFieldGroupExpandable>

@@ -49,16 +49,15 @@ export interface KnowledgeYamlData {
   created_by: string;
   domain: string;
   task_description: string;
-  task_details: string;
+  seed_examples: Array<{
+    question: string;
+    answer: string;
+  }>;
   document: {
     repo: string;
     commit: string;
     patterns: string[];
   };
-  seed_examples: Array<{
-    question: string;
-    answer: string;
-  }>;
 }
 
 export interface AttributionData {

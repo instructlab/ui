@@ -20,7 +20,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [task_description, setTaskDescription] = useState('');
-  const [task_details, setTaskDetails] = useState('');
+  const [submission_summary, setSubmissionSummary] = useState('');
   const [domain, setDomain] = useState('');
 
   const [repo, setRepo] = useState('');
@@ -83,7 +83,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setEmail('');
     setName('');
     setTaskDescription('');
-    setTaskDetails('');
+    setSubmissionSummary('');
     setDomain('');
     setQuestions(new Array(5).fill(''));
     setAnswers(new Array(5).fill(''));
@@ -114,7 +114,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
-    const infoFields = { email, name, task_description, task_details, domain, repo, commit, patterns };
+    const infoFields = { email, name, task_description, submission_summary, domain, repo, commit, patterns };
     const attributionFields = { title_work, link_work, revision, license_work, creators };
 
     let validation = validateFields(infoFields);
@@ -161,7 +161,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       name: name,
       email: email,
       task_description: task_description,
-      task_details: task_details,
+      submission_summary: submission_summary,
       domain: domain,
       repo: repo,
       commit: commit,
@@ -259,7 +259,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   };
 
   const handleDownloadYaml = () => {
-    const infoFields = { email, name, task_description, task_details, domain, repo, commit, patterns };
+    const infoFields = { email, name, task_description, submission_summary: submission_summary, domain, repo, commit, patterns };
     const attributionFields = { title_work, link_work, revision, license_work, creators };
 
     let validation = validateFields(infoFields);
@@ -336,7 +336,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   };
 
   const handleDownloadAttribution = () => {
-    const attributionFields = { title_work, link_work, revision: task_details, license_work, creators };
+    const attributionFields = { title_work, link_work, revision: submission_summary, license_work, creators };
 
     const validation = validateFields(attributionFields);
     if (!validation.valid) {
@@ -348,7 +348,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
     const attributionContent = `Title of work: ${title_work}
 Link to work: ${link_work}
-Revision: ${task_details}
+Revision: ${submission_summary}
 License of the work: ${license_work}
 Creator names: ${creators}
 `;
@@ -371,7 +371,7 @@ Creator names: ${creators}
         header={
           <FormFieldGroupHeader
             titleText={{ text: 'Author Info', id: 'author-info-id' }}
-            titleDescription="Provide your information. Needed for GitHub DCO sign-off."
+            titleDescription="Provide your information required for a GitHub DCO sign-off."
           />
         }
       >
@@ -408,10 +408,11 @@ Creator names: ${creators}
           <TextInput
             isRequired
             type="text"
-            aria-label="task_description"
-            placeholder="Enter brief description of the knowledge"
-            value={task_description}
-            onChange={(_event, value) => setTaskDescription(value)}
+            aria-label="submission_summary"
+            placeholder="Enter a brief description for a submission summary (60 character max)"
+            value={submission_summary}
+            onChange={(_event, value) => setSubmissionSummary(value)}
+            maxLength={60}
           />
           <TextInput
             isRequired
@@ -424,10 +425,10 @@ Creator names: ${creators}
           <TextArea
             isRequired
             type="text"
-            aria-label="task_details"
-            placeholder="Provide details about the knowledge"
-            value={task_details}
-            onChange={(_event, value) => setTaskDetails(value)}
+            aria-label="task_description"
+            placeholder="Enter a detailed description to improve the teacher model's responses"
+            value={task_description}
+            onChange={(_event, value) => setTaskDescription(value)}
           />
         </FormGroup>
       </FormFieldGroupExpandable>

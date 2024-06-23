@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, email, task_description, title_work, link_work, license_work, revision, creators, questions, contexts, answers } = body;
+    const { name, email, task_description, submission_summary, title_work, link_work, license_work, creators, questions, contexts, answers } = body;
 
     // Fetch GitHub username
     const githubUsername = await getGitHubUsername(headers);
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     }
 
     const yamlData = {
-      created_by: email,
+      created_by: githubUsername,
       task_description: task_description,
       seed_examples: questions.map((question: string, index: number) => {
         const example: SeedExample = {
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
     const attributionContent = `Title of work: ${title_work}
 Link to work: ${link_work}
-Revision: ${revision}
+Revision: -
 License of the work: ${license_work}
 Creator names: ${creators}
 `;
@@ -89,11 +89,11 @@ Creator names: ${creators}
         { path: newAttributionFilePath, content: attributionContent }
       ],
       branchName,
-      task_description
+      `${submission_summary}\n\nSigned-off-by: ${name} <${email}>`
     );
 
     // Create a pull request from the user's fork to the upstream repository
-    const pr = await createPullRequest(headers, githubUsername, branchName, name);
+    const pr = await createPullRequest(headers, githubUsername, branchName, submission_summary);
 
     return NextResponse.json(pr, { status: 201 });
   } catch (error) {
@@ -268,12 +268,12 @@ async function getCommitSha(headers: HeadersInit, username: string, branchName: 
   return data.object.sha;
 }
 
-async function createPullRequest(headers: HeadersInit, username: string, branchName: string, skillName: string) {
+async function createPullRequest(headers: HeadersInit, username: string, branchName: string, skillSummary: string) {
   const response = await fetch(`${GITHUB_API_URL}/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls`, {
     method: 'POST',
     headers,
     body: JSON.stringify({
-      title: `Skill: ${skillName}`,
+      title: `Skill: ${skillSummary}`,
       head: `${username}:${branchName}`,
       base: BASE_BRANCH
     })

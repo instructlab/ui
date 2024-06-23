@@ -36,7 +36,6 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
   const [email, setEmail] = React.useState('');
   const [name, setName] = React.useState('');
   const [task_description, setTaskDescription] = React.useState('');
-  const [task_details, setTaskDetails] = React.useState('');
   const [title_work, setTitleWork] = React.useState('');
   const [link_work, setLinkWork] = React.useState('-');
   const [license_work, setLicenseWork] = React.useState('');
@@ -49,7 +48,7 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
   const [attributionFile, setAttributionFile] = React.useState<PullRequestFile | null>(null);
   const [branchName, setBranchName] = React.useState<string | null>(null);
   const router = useRouter();
-  const number = parseInt(params.id, 10); // Parse the id parameter as an integer
+  const number = parseInt(params.id, 10);
 
   // Alerts
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = React.useState(false);
@@ -61,7 +60,7 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
   const [successAlertLink, setSuccessAlertLink] = React.useState<string>('');
 
   React.useEffect(() => {
-    console.log('Params:', params); // Log the params to verify its content
+    console.log('Params:', params);
     const fetchPRData = async () => {
       if (session?.accessToken) {
         try {
@@ -148,7 +147,7 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
 
         const updatedAttributionContent = `Title of work: ${title_work}
 Link to work: ${link_work}
-Revision: ${task_details}
+Revision: '-'
 License of the work: ${license_work}
 Creator names: ${creators}
 `;
@@ -272,7 +271,7 @@ Creator names: ${creators}
             header={
               <FormFieldGroupHeader
                 titleText={{ text: 'Author Info', id: 'author-info-id' }}
-                titleDescription="Provide your information. Needed for GitHub DCO sign-off."
+                titleDescription="Provide your information required for a GitHub DCO sign-off."
               />
             }
           >
@@ -300,28 +299,17 @@ Creator names: ${creators}
             isExpanded
             toggleAriaLabel="Details"
             header={
-              <FormFieldGroupHeader
-                titleText={{ text: 'Skill Info', id: 'skill-info-id' }}
-                titleDescription="Provide brief information about the skill."
-              />
+              <FormFieldGroupHeader titleText={{ text: 'Skill Info', id: 'skill-info-id' }} titleDescription="Provide information about the skill." />
             }
           >
             <FormGroup key={'skill-info-details-id'}>
-              <TextInput
-                isRequired
-                type="text"
-                aria-label="task_description"
-                placeholder="Enter brief description of the skill"
-                value={task_description}
-                onChange={(_event, value) => setTaskDescription(value)}
-              />
               <TextArea
                 isRequired
                 type="text"
-                aria-label="task_details"
-                placeholder="Provide details about the skill"
-                value={task_details}
-                onChange={(_event, value) => setTaskDetails(value)}
+                aria-label="task_description"
+                placeholder="Enter a detailed description to improve the teacher model's responses"
+                value={task_description}
+                onChange={(_event, value) => setTaskDescription(value)}
               />
             </FormGroup>
           </FormFieldGroupExpandable>
@@ -413,7 +401,7 @@ Creator names: ${creators}
 
           <ActionGroup>
             <Button variant="primary" onClick={handleSave}>
-              Save
+              Update Skill Submission
             </Button>
             <Button variant="link" onClick={() => router.back()}>
               Cancel
