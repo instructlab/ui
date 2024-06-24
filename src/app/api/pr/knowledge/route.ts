@@ -5,8 +5,8 @@ import { NextRequest } from 'next/server';
 import yaml from 'js-yaml';
 
 const GITHUB_API_URL = 'https://api.github.com';
-const UPSTREAM_REPO_OWNER = process.env.TAXONOMY_REPO_OWNER!;
-const UPSTREAM_REPO_NAME = process.env.TAXONOMY_REPO!;
+const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
+const UPSTREAM_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_REPO!;
 const BASE_BRANCH = 'main';
 
 export async function POST(req: NextRequest) {

@@ -1,6 +1,6 @@
 // src/components/Contribute/Skill/index.tsx
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './skill.css';
 import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup, FormFieldGroupExpandable, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
@@ -10,11 +10,32 @@ import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextIn
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
-import { PlusIcon, MinusCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
+import { PlusIcon, MinusCircleIcon, CodeIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
 import { validateFields, validateEmail, validateUniqueItems } from '../../../utils/validation';
 import yaml from 'js-yaml';
+import { getGitHubUsername } from '../../../utils/github';
+import { useSession } from 'next-auth/react';
+import YamlCodeModal from '../../YamlCodeModal';
 
 export const SkillForm: React.FunctionComponent = () => {
+  const { data: session } = useSession();
+  const [githubUsername, setGithubUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      if (session?.accessToken) {
+        try {
+          const fetchedUsername = await getGitHubUsername(session.accessToken);
+          setGithubUsername(fetchedUsername);
+        } catch (error) {
+          console.error('Failed to fetch GitHub username:', error);
+        }
+      }
+    };
+
+    fetchUsername();
+  }, [session?.accessToken]);
+
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [task_description, setTaskDescription] = useState('');
@@ -36,6 +57,9 @@ export const SkillForm: React.FunctionComponent = () => {
 
   const [success_alert_title, setSuccessAlertTitle] = useState('');
   const [success_alert_message, setSuccessAlertMessage] = useState('');
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [yamlContent, setYamlContent] = useState('');
 
   const handleInputChange = (index: number, type: string, value: string) => {
     switch (type) {
@@ -186,6 +210,22 @@ export const SkillForm: React.FunctionComponent = () => {
     }
   };
 
+  const handleViewYaml = () => {
+    const yamlData = {
+      created_by: githubUsername,
+      task_description: task_description,
+      seed_examples: questions.map((question, index) => ({
+        question,
+        answer: answers[index],
+        context: contexts[index] || ''
+      }))
+    };
+
+    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
+    setYamlContent(yamlString);
+    setIsModalOpen(true);
+  };
+
   const handleDownloadYaml = () => {
     const infoFields = { email, name, task_description, submission_summary };
     const attributionFields = { title_work, link_work: '-', revision: '-', license_work, creators };
@@ -237,7 +277,7 @@ export const SkillForm: React.FunctionComponent = () => {
     }
 
     const yamlData = {
-      created_by: email,
+      created_by: githubUsername,
       task_description: task_description,
       seed_examples: questions.map((question, index) => {
         const example: SeedExample = {
@@ -274,11 +314,11 @@ export const SkillForm: React.FunctionComponent = () => {
     }
 
     const attributionContent = `Title of work: ${title_work}
-Link to work: -
-Revision: -
-License of the work: ${license_work}
-Creator names: ${creators}
-`;
+  Link to work: -
+  Revision: -
+  License of the work: ${license_work}
+  Creator names: ${creators}
+  `;
 
     const blob = new Blob([attributionContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -292,6 +332,13 @@ Creator names: ${creators}
 
   return (
     <Form className="form">
+      <YamlCodeModal isModalOpen={isModalOpen} handleModalToggle={() => setIsModalOpen(!isModalOpen)} yamlContent={yamlContent} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <FormFieldGroupHeader titleText={{ text: 'Skill Contribution Form', id: 'skill-contribution-form-id' }} />
+        <Button variant="plain" onClick={handleViewYaml} aria-label="View YAML">
+          <CodeIcon /> View YAML
+        </Button>
+      </div>
       <FormFieldGroupExpandable
         isExpanded
         toggleAriaLabel="Details"
@@ -354,7 +401,7 @@ Creator names: ${creators}
         header={
           <FormFieldGroupHeader
             titleText={{ text: 'Skill', id: 'contrib-skill-id' }}
-            titleDescription="Contribute new skill to the taxonomy repository."
+            titleDescription="Contribute skill to the taxonomy repository (shift+enter for a new line)."
           />
         }
       >

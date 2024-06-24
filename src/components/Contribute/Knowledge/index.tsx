@@ -1,6 +1,6 @@
 // src/components/Contribute/Knowledge/index.tsx
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './knowledge.css';
 import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup, FormFieldGroupExpandable, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
@@ -10,13 +10,33 @@ import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextIn
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
-import { PlusIcon, MinusCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
+import { PlusIcon, MinusCircleIcon, CodeIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
 import yaml from 'js-yaml';
 import { validateFields, validateEmail, validateUniqueItems } from '../../../utils/validation';
+import { getGitHubUsername } from '../../../utils/github';
+import { useSession } from 'next-auth/react';
+import YamlCodeModal from '../../YamlCodeModal';
 import { UploadFile } from './UploadFile';
 
 export const KnowledgeForm: React.FunctionComponent = () => {
-  // Define the initial state and type
+  const { data: session } = useSession();
+  const [githubUsername, setGithubUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      if (session?.accessToken) {
+        try {
+          const fetchedUsername = await getGitHubUsername(session.accessToken);
+          setGithubUsername(fetchedUsername);
+        } catch (error) {
+          console.error('Failed to fetch GitHub username:', error);
+        }
+      }
+    };
+
+    fetchUsername();
+  }, [session?.accessToken]);
+
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [task_description, setTaskDescription] = useState('');
@@ -47,6 +67,9 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
   const [useFileUpload, setUseFileUpload] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [yamlContent, setYamlContent] = useState('');
 
   const handleInputChange = (index: number, type: string, value: string) => {
     switch (type) {
@@ -308,7 +331,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     }
 
     const yamlData = {
-      created_by: email,
+      created_by: githubUsername,
       domain: domain,
       task_description: task_description,
       seed_examples: questions.map(
@@ -363,8 +386,36 @@ Creator names: ${creators}
     document.body.removeChild(a);
   };
 
+  const handleViewYaml = () => {
+    const yamlData = {
+      created_by: githubUsername,
+      domain: domain,
+      task_description: task_description,
+      seed_examples: questions.map((question, index) => ({
+        question,
+        answer: answers[index]
+      })),
+      document: {
+        repo: repo,
+        commit: commit,
+        patterns: patterns.split(',').map((pattern) => pattern.trim())
+      }
+    };
+
+    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
+    setYamlContent(yamlString);
+    setIsModalOpen(true);
+  };
+
   return (
     <Form className="form-k">
+      <YamlCodeModal isModalOpen={isModalOpen} handleModalToggle={() => setIsModalOpen(!isModalOpen)} yamlContent={yamlContent} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <FormFieldGroupHeader titleText={{ text: 'Knowledge Contribution Form', id: 'knowledge-contribution-form-id' }} />
+        <Button variant="plain" onClick={handleViewYaml} aria-label="View YAML">
+          <CodeIcon /> View YAML
+        </Button>
+      </div>
       <FormFieldGroupExpandable
         isExpanded
         toggleAriaLabel="Details"
@@ -438,7 +489,7 @@ Creator names: ${creators}
         header={
           <FormFieldGroupHeader
             titleText={{ text: 'Knowledge', id: 'contrib-knowledge-id' }}
-            titleDescription="Contribute new knowledge to the taxonomy repository."
+            titleDescription="Contribute knowledge to the taxonomy repository (shift+enter for a new line)."
           />
         }
       >

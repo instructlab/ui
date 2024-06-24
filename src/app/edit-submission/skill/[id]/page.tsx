@@ -258,7 +258,7 @@ Creator names: ${creators}
     <AppLayout>
       <PageSection>
         <Title headingLevel="h1" size="lg">
-          Edit Pull Request
+          Edit Skill Submission
         </Title>
         {error && <Alert variant="danger" title={error} />}
         <Form>
@@ -269,10 +269,7 @@ Creator names: ${creators}
             isExpanded
             toggleAriaLabel="Details"
             header={
-              <FormFieldGroupHeader
-                titleText={{ text: 'Author Info', id: 'author-info-id' }}
-                titleDescription="Provide your information required for a GitHub DCO sign-off."
-              />
+              <FormFieldGroupHeader titleText={{ text: 'Author Info', id: 'author-info-id' }} titleDescription="Provide your user information." />
             }
           >
             <FormGroup isRequired key={'author-info-details-id'}>
@@ -280,7 +277,7 @@ Creator names: ${creators}
                 isRequired
                 type="email"
                 aria-label="email"
-                placeholder="Enter your email address"
+                placeholder="Enter your github ID"
                 value={email}
                 onChange={(_event, value) => setEmail(value)}
               />
@@ -319,7 +316,7 @@ Creator names: ${creators}
             header={
               <FormFieldGroupHeader
                 titleText={{ text: 'Skill', id: 'contrib-skill-id' }}
-                titleDescription="Contribute new skill to the taxonomy repository."
+                titleDescription="Contribute skill to the taxonomy repository (shift+enter for a new line)."
               />
             }
           >
