@@ -18,7 +18,7 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { AppLayout } from '../../../../components/AppLayout';
 import { UploadFile } from '../../../../components/Contribute/Knowledge/UploadFile';
-import { AttributionData, PullRequestFile, KnowledgeYamlData } from '@/types';
+import { AttributionData, PullRequestFile, KnowledgeYamlData, SchemaVersion } from '@/types';
 import {
   fetchPullRequest,
   fetchFileContent,
@@ -145,6 +145,7 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
 
         const updatedYamlData: KnowledgeYamlData = {
           created_by: email,
+          version: SchemaVersion,
           domain,
           task_description,
           document: {

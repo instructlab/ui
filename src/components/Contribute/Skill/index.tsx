@@ -16,6 +16,7 @@ import yaml from 'js-yaml';
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
+import { SchemaVersion } from '@/types';
 
 export const SkillForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
@@ -213,6 +214,7 @@ export const SkillForm: React.FunctionComponent = () => {
   const handleViewYaml = () => {
     const yamlData = {
       created_by: githubUsername,
+      version: SchemaVersion,
       task_description: task_description,
       seed_examples: questions.map((question, index) => ({
         question,
@@ -278,6 +280,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     const yamlData = {
       created_by: githubUsername,
+      version: SchemaVersion,
       task_description: task_description,
       seed_examples: questions.map((question, index) => {
         const example: SeedExample = {

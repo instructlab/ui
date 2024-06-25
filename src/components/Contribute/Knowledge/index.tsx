@@ -17,6 +17,7 @@ import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { UploadFile } from './UploadFile';
+import { SchemaVersion } from '@/types';
 
 export const KnowledgeForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
@@ -332,6 +333,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
     const yamlData = {
       created_by: githubUsername,
+      version: SchemaVersion,
       domain: domain,
       task_description: task_description,
       seed_examples: questions.map(
@@ -389,6 +391,7 @@ Creator names: ${creators}
   const handleViewYaml = () => {
     const yamlData = {
       created_by: githubUsername,
+      version: SchemaVersion,
       domain: domain,
       task_description: task_description,
       seed_examples: questions.map((question, index) => ({

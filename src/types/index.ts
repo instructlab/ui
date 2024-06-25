@@ -1,5 +1,7 @@
 // src/types/index.ts
 
+export const SchemaVersion = 2;
+
 export interface Endpoint {
   id: string;
   url: string;
@@ -37,6 +39,7 @@ export interface PullRequest {
 
 export interface SkillYamlData {
   created_by: string;
+  version: number;
   task_description: string;
   seed_examples: Array<{
     question: string;
@@ -47,6 +50,7 @@ export interface SkillYamlData {
 
 export interface KnowledgeYamlData {
   created_by: string;
+  version: number;
   domain: string;
   task_description: string;
   seed_examples: Array<{

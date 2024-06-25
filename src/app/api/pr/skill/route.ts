@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
 import yaml from 'js-yaml';
+import { SchemaVersion } from '@/types';
 
 const GITHUB_API_URL = 'https://api.github.com';
 const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
@@ -52,6 +53,7 @@ export async function POST(req: NextRequest) {
 
     const yamlData = {
       created_by: githubUsername,
+      version: SchemaVersion,
       task_description: task_description,
       seed_examples: questions.map((question: string, index: number) => {
         const example: SeedExample = {

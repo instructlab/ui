@@ -17,7 +17,7 @@ import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { AppLayout } from '../../../../components/AppLayout';
-import { AttributionData, PullRequestFile, SkillYamlData } from '@/types';
+import { AttributionData, PullRequestFile, SchemaVersion, SkillYamlData } from '@/types';
 import {
   fetchPullRequest,
   fetchFileContent,
@@ -134,6 +134,7 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
 
         const updatedYamlData: SkillYamlData = {
           created_by: email,
+          version: SchemaVersion,
           task_description,
           seed_examples: questions.map((question, index) => ({
             question,
