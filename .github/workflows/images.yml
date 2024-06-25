@@ -47,7 +47,6 @@ jobs:
           tags: ${{ steps.ui_meta.outputs.tags }}
           labels: ${{ steps.ui_meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          target: ui
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: Containerfile
