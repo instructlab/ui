@@ -5,7 +5,7 @@ import { PullRequestUpdateData } from '@/types';
 const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
 const UPSTREAM_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_REPO!;
 
-export const fetchPullRequests = async (token: string) => {
+export async function fetchPullRequests(token: string) {
   try {
     console.log('Refreshing PR Listing');
     const response = await axios.get(`https://api.github.com/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls?state=all`, {
@@ -24,7 +24,7 @@ export const fetchPullRequests = async (token: string) => {
     }
     throw error;
   }
-};
+}
 
 export const fetchPullRequest = async (token: string, prNumber: number) => {
   try {

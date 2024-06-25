@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: instructlab
+resources:
+  - ../../base
+
+secretGenerator:
+- name: ui-config
+  envs:
+  - .env
+
+# Override the image of the ui deployment for Kind deployment
+patches:
+  - target:
+      kind: Deployment
+      name: ui
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: gchr.io/instructlab/ui/ui:main # Override this image if you want to use a different UI image
