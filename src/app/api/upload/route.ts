@@ -4,12 +4,12 @@ import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
 
 const GITHUB_API_URL = 'https://api.github.com';
-const TAXONOMY_DOCUMENTS_REPO = process.env.TAXONOMY_DOCUMENTS_REPO!;
+const TAXONOMY_DOCUMENTS_REPO = process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO!;
 const BASE_BRANCH = 'main';
 
 export async function POST(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET! });
-  console.log('GitHub Token:', token);
+  // console.log('GitHub Token:', token);
 
   if (!token || !token.accessToken) {
     console.error('Unauthorized: Missing or invalid access token');
@@ -64,7 +64,8 @@ export async function POST(req: NextRequest) {
       const [name, extension] = file.fileName.split(/\.(?=[^.]+$)/);
       return {
         fileName: `${name}-${timestamp}.${extension}`,
-        fileContent: file.fileContent
+        fileContent: file.fileContent,
+        encoding: extension === 'pdf' ? 'base64' : 'utf-8'
       };
     });
 
@@ -160,7 +161,7 @@ async function createFilesCommit(
   owner: string,
   repo: string,
   branchName: string,
-  files: { fileName: string; fileContent: string }[],
+  files: { fileName: string; fileContent: string; encoding: string }[],
   userEmail: string,
   baseSha: string
 ): Promise<string> {
@@ -173,7 +174,7 @@ async function createFilesCommit(
         headers,
         body: JSON.stringify({
           content: file.fileContent,
-          encoding: 'utf-8'
+          encoding: file.encoding
         })
       }).then((response) => response.json())
     )
@@ -202,12 +203,9 @@ async function createFilesCommit(
   }
 
   const treeData = await createTreeResponse.json();
-  console.log('Tree created:', treeData);
+  // console.log('Tree created:', treeData);
 
   // Create commit with DCO sign-off
-  // TODO: if the user's github does not have an associated github email, we need to specify one in the upload section
-  // or reuse the one from the form. If we use the email field from the form, it needs to be null checked when
-  // the user clicks the upload documents button.
   const createCommitResponse = await fetch(`${GITHUB_API_URL}/repos/${owner}/${repo}/git/commits`, {
     method: 'POST',
     headers,

@@ -503,7 +503,7 @@ Creator names: ${updatedAttributionData.creator_names}
                   className={useFileUpload ? 'button-active' : 'button-secondary'}
                   onClick={() => setUseFileUpload(true)}
                 >
-                  Automatically Upload Documents
+                  Upload Documents
                 </Button>
               </div>
             </FormGroup>
@@ -537,7 +537,7 @@ Creator names: ${updatedAttributionData.creator_names}
               </FormGroup>
             ) : (
               <>
-                <UploadFile onFilesChange={handleFilesChange} />
+                <UploadFile onFilesChange={handleFilesChange} files={uploadedFiles} isConverting={false} conversionMessage="" />
                 <Button variant="primary" onClick={handleDocumentUpload}>
                   Submit Files
                 </Button>
