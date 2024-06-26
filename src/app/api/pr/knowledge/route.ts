@@ -3,10 +3,11 @@ import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
 import yaml from 'js-yaml';
+import { SchemaVersion } from '@/types';
 
 const GITHUB_API_URL = 'https://api.github.com';
-const UPSTREAM_REPO_OWNER = process.env.TAXONOMY_REPO_OWNER!;
-const UPSTREAM_REPO_NAME = process.env.TAXONOMY_REPO!;
+const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
+const UPSTREAM_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_REPO!;
 const BASE_BRANCH = 'main';
 
 export async function POST(req: NextRequest) {
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
       name,
       email,
       task_description,
-      task_details,
+      submission_summary,
       domain,
       repo,
       commit,
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
     const forkExists = await checkUserForkExists(headers, githubUsername);
     if (!forkExists) {
       await createFork(headers);
-      // Add a delay to ensure the fork operation completes to avoid a race condition when retrieving the bas SHA
+      // Add a delay to ensure the fork operation completes to avoid a race condition when retrieving the base SHA
       // This only occurs if this is the first time submitting and the fork isn't present.
       // TODO change to a retry
       console.log('Pause 5s for the forking operation to complete');
@@ -78,6 +79,7 @@ export async function POST(req: NextRequest) {
 
     const yamlData = {
       created_by: githubUsername,
+      version: SchemaVersion,
       domain: domain,
       task_description: task_description,
       seed_examples: questions.map((question: string, index: number) => {
@@ -117,11 +119,11 @@ Creator names: ${creators}
         { path: newAttributionFilePath, content: attributionContent }
       ],
       branchName,
-      `${task_details}\n\nSigned-off-by: ${email}`
+      `${submission_summary}\n\nSigned-off-by: ${name} <${email}>`
     );
 
     // Create a pull request from the user's fork to the upstream repository
-    const pr = await createPullRequest(headers, githubUsername, branchName, name);
+    const pr = await createPullRequest(headers, githubUsername, branchName, submission_summary);
 
     return NextResponse.json(pr, { status: 201 });
   } catch (error) {
@@ -296,12 +298,12 @@ async function getCommitSha(headers: HeadersInit, username: string, branchName: 
   return data.object.sha;
 }
 
-async function createPullRequest(headers: HeadersInit, username: string, branchName: string, knowledgeName: string) {
+async function createPullRequest(headers: HeadersInit, username: string, branchName: string, knowledgeSummary: string) {
   const response = await fetch(`${GITHUB_API_URL}/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls`, {
     method: 'POST',
     headers,
     body: JSON.stringify({
-      title: `Add knowledge: ${knowledgeName}`,
+      title: `Knowledge: ${knowledgeSummary}`,
       head: `${username}:${branchName}`,
       base: BASE_BRANCH
     })

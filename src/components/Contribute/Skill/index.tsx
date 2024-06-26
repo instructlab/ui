@@ -1,6 +1,6 @@
 // src/components/Contribute/Skill/index.tsx
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './skill.css';
 import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup, FormFieldGroupExpandable, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
@@ -10,15 +10,37 @@ import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextIn
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
-import { PlusIcon, MinusCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
+import { PlusIcon, MinusCircleIcon, CodeIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
 import { validateFields, validateEmail, validateUniqueItems } from '../../../utils/validation';
 import yaml from 'js-yaml';
+import { getGitHubUsername } from '../../../utils/github';
+import { useSession } from 'next-auth/react';
+import YamlCodeModal from '../../YamlCodeModal';
+import { SchemaVersion } from '@/types';
 
 export const SkillForm: React.FunctionComponent = () => {
+  const { data: session } = useSession();
+  const [githubUsername, setGithubUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      if (session?.accessToken) {
+        try {
+          const fetchedUsername = await getGitHubUsername(session.accessToken);
+          setGithubUsername(fetchedUsername);
+        } catch (error) {
+          console.error('Failed to fetch GitHub username:', error);
+        }
+      }
+    };
+
+    fetchUsername();
+  }, [session?.accessToken]);
+
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [task_description, setTaskDescription] = useState('');
-  const [task_details, setTaskDetails] = useState('');
+  const [submission_summary, setSubmissionSummary] = useState('');
 
   const [title_work, setTitleWork] = useState('');
   const [link_work, setLinkWork] = useState('-');
@@ -36,6 +58,9 @@ export const SkillForm: React.FunctionComponent = () => {
 
   const [success_alert_title, setSuccessAlertTitle] = useState('');
   const [success_alert_message, setSuccessAlertMessage] = useState('');
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [yamlContent, setYamlContent] = useState('');
 
   const handleInputChange = (index: number, type: string, value: string) => {
     switch (type) {
@@ -84,7 +109,7 @@ export const SkillForm: React.FunctionComponent = () => {
     setEmail('');
     setName('');
     setTaskDescription('');
-    setTaskDetails('');
+    setSubmissionSummary('');
     setTitleWork('');
     setLinkWork('-');
     setLicenseWork('');
@@ -102,7 +127,7 @@ export const SkillForm: React.FunctionComponent = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
-    const infoFields = { email, name, task_description, task_details };
+    const infoFields = { email, name, task_description, submission_summary };
     const attributionFields = { title_work, link_work, license_work, creators };
 
     let validation = validateFields(infoFields);
@@ -149,7 +174,7 @@ export const SkillForm: React.FunctionComponent = () => {
       name: name,
       email: email,
       task_description: task_description,
-      task_details: task_details,
+      submission_summary: submission_summary,
       title_work: title_work,
       link_work: link_work,
       license_work: license_work,
@@ -186,9 +211,26 @@ export const SkillForm: React.FunctionComponent = () => {
     }
   };
 
+  const handleViewYaml = () => {
+    const yamlData = {
+      created_by: githubUsername,
+      version: SchemaVersion,
+      task_description: task_description,
+      seed_examples: questions.map((question, index) => ({
+        question,
+        answer: answers[index],
+        context: contexts[index] || ''
+      }))
+    };
+
+    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
+    setYamlContent(yamlString);
+    setIsModalOpen(true);
+  };
+
   const handleDownloadYaml = () => {
-    const infoFields = { email, name, task_description, task_details };
-    const attributionFields = { title_work, link_work: '-', revision: task_details, license_work, creators };
+    const infoFields = { email, name, task_description, submission_summary };
+    const attributionFields = { title_work, link_work: '-', revision: '-', license_work, creators };
 
     let validation = validateFields(infoFields);
     if (!validation.valid) {
@@ -237,7 +279,8 @@ export const SkillForm: React.FunctionComponent = () => {
     }
 
     const yamlData = {
-      created_by: email,
+      created_by: githubUsername,
+      version: SchemaVersion,
       task_description: task_description,
       seed_examples: questions.map((question, index) => {
         const example: SeedExample = {
@@ -263,7 +306,7 @@ export const SkillForm: React.FunctionComponent = () => {
   };
 
   const handleDownloadAttribution = () => {
-    const attributionFields = { title_work, link_work: '-', revision: task_details, license_work, creators };
+    const attributionFields = { title_work, link_work: '-', revision: '-', license_work, creators };
 
     const validation = validateFields(attributionFields);
     if (!validation.valid) {
@@ -274,11 +317,11 @@ export const SkillForm: React.FunctionComponent = () => {
     }
 
     const attributionContent = `Title of work: ${title_work}
-Link to work: -
-Revision: ${task_details}
-License of the work: ${license_work}
-Creator names: ${creators}
-`;
+  Link to work: -
+  Revision: -
+  License of the work: ${license_work}
+  Creator names: ${creators}
+  `;
 
     const blob = new Blob([attributionContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -292,13 +335,20 @@ Creator names: ${creators}
 
   return (
     <Form className="form">
+      <YamlCodeModal isModalOpen={isModalOpen} handleModalToggle={() => setIsModalOpen(!isModalOpen)} yamlContent={yamlContent} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <FormFieldGroupHeader titleText={{ text: 'Skill Contribution Form', id: 'skill-contribution-form-id' }} />
+        <Button variant="plain" onClick={handleViewYaml} aria-label="View YAML">
+          <CodeIcon /> View YAML
+        </Button>
+      </div>
       <FormFieldGroupExpandable
         isExpanded
         toggleAriaLabel="Details"
         header={
           <FormFieldGroupHeader
             titleText={{ text: 'Author Info', id: 'author-info-id' }}
-            titleDescription="Provide your information. Needed for GitHub DCO sign-off."
+            titleDescription="Provide your information required for a GitHub DCO sign-off."
           />
         }
       >
@@ -325,28 +375,26 @@ Creator names: ${creators}
         isExpanded
         toggleAriaLabel="Details"
         header={
-          <FormFieldGroupHeader
-            titleText={{ text: 'Skill Info', id: 'skill-info-id' }}
-            titleDescription="Provide brief information about the skill."
-          />
+          <FormFieldGroupHeader titleText={{ text: 'Skill Info', id: 'skill-info-id' }} titleDescription="Provide information about the skill." />
         }
       >
         <FormGroup key={'skill-info-details-id'}>
           <TextInput
             isRequired
             type="text"
-            aria-label="task_description"
-            placeholder="Enter brief description of the skill"
-            value={task_description}
-            onChange={(_event, value) => setTaskDescription(value)}
+            aria-label="submission_summary"
+            placeholder="Enter a brief description for a submission summary (60 character max)"
+            value={submission_summary}
+            onChange={(_event, value) => setSubmissionSummary(value)}
+            maxLength={60}
           />
           <TextArea
             isRequired
             type="text"
-            aria-label="task_details"
-            placeholder="Provide details about the skill"
-            value={task_details}
-            onChange={(_event, value) => setTaskDetails(value)}
+            aria-label="task_description"
+            placeholder="Enter a detailed description to improve the teacher model's responses"
+            value={task_description}
+            onChange={(_event, value) => setTaskDescription(value)}
           />
         </FormGroup>
       </FormFieldGroupExpandable>
@@ -356,7 +404,7 @@ Creator names: ${creators}
         header={
           <FormFieldGroupHeader
             titleText={{ text: 'Skill', id: 'contrib-skill-id' }}
-            titleDescription="Contribute new skill to the taxonomy repository."
+            titleDescription="Contribute skill to the taxonomy repository (shift+enter for a new line)."
           />
         }
       >
