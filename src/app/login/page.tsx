@@ -84,7 +84,7 @@ const Login: React.FunctionComponent = () => {
       isRememberMeChecked={isRememberMeChecked}
       onChangeRememberMe={onRememberMeClick}
       onLoginButtonClick={onLoginButtonClick}
-      loginButtonLabel="Log in"
+      loginButtonLabel="Login"
     />
   );
 
@@ -95,7 +95,7 @@ const Login: React.FunctionComponent = () => {
       brandImgAlt="InstructLab logo"
       backgroundImgSrc="/login-bg.svg"
       footerListItems={listItem}
-      textContent="Instruct Lab Bot Infrastructure"
+      textContent="InstructLab Taxonomy Submissions"
       loginTitle="Login Securely with Github OAuth"
       loginSubtitle="Local Account"
       socialMediaLoginContent={socialMediaLoginContent}
