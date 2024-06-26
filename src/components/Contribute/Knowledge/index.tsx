@@ -13,10 +13,11 @@ import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextAre
 import { PlusIcon, MinusCircleIcon, CodeIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
 import yaml from 'js-yaml';
 import { validateFields, validateEmail, validateUniqueItems } from '../../../utils/validation';
-import { getGitHubUsername } from '../../../utils/github';
+import { getGitHubUsername, fetchKnowledgeFileContent } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { UploadFile } from './UploadFile';
+import FileSelectionModal from './FileSelectionModal';
 import { SchemaVersion } from '@/types';
 import KnowledgeDescription from './KnowledgeDescription';
 
@@ -69,9 +70,12 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
   const [useFileUpload, setUseFileUpload] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [yamlContent, setYamlContent] = useState('');
+  const [isConverting, setIsConverting] = useState(false);
+  const [conversionMessage, setConversionMessage] = useState('');
 
   const handleInputChange = (index: number, type: string, value: string) => {
     switch (type) {
@@ -121,19 +125,131 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setCreators('');
     setRevision('');
     setUploadedFiles([]);
+    setSelectedFiles([]);
   };
 
   const onCloseSuccessAlert = () => {
     setIsSuccessAlertVisible(false);
+    setIsConverting(false);
   };
 
   const onCloseFailureAlert = () => {
     setIsFailureAlertVisible(false);
+    setIsConverting(false);
   };
 
   const handleFilesChange = (files: File[]) => {
     setUploadedFiles(files);
     setPatterns(files.map((file) => file.name).join(', ')); // Populate the patterns field
+  };
+
+  const handleSelectFiles = async (files: string[]) => {
+    console.log('Selected files:', files); // Log selected files
+
+    try {
+      const downloadedFiles = await Promise.all(
+        files.map(async (filePath) => {
+          console.log('Fetching file content for:', filePath); // Log each file path before fetching
+          const fileBlob = await fetchKnowledgeFileContent(session!.accessToken as string, githubUsername!, filePath);
+          console.log('Fetched file blob:', fileBlob); // Log the fetched content
+
+          const file = new File([fileBlob], filePath.split('/').pop()!, { type: fileBlob.type });
+          console.log('Created file:', file); // Log the created file
+          return file;
+        })
+      );
+
+      console.log('Downloaded files:', downloadedFiles);
+
+      const pdfFiles = downloadedFiles.filter((file) => file.type === 'application/pdf' || file.name.endsWith('.pdf'));
+      const otherFiles = downloadedFiles.filter((file) => file.type !== 'application/pdf' && !file.name.endsWith('.pdf'));
+
+      console.log('PDF files:', pdfFiles);
+      console.log('Other files:', otherFiles);
+
+      // Handle PDF conversion
+      if (pdfFiles.length > 0) {
+        const pdfFilesBase64 = await Promise.all(
+          pdfFiles.map(
+            (file) =>
+              new Promise<{ fileName: string; fileContent: string }>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  console.log('File read as base64:', e.target!.result); // Log base64 content
+                  resolve({
+                    fileName: file.name,
+                    fileContent: (e.target!.result as string).split(',')[1] // Extract base64 content
+                  });
+                };
+                reader.onerror = (error) => {
+                  console.error('Error reading file as base64:', error);
+                  reject(error);
+                };
+                reader.readAsDataURL(file);
+              })
+          )
+        );
+
+        console.log('Base64 encoded PDF files:', pdfFilesBase64);
+
+        const pdfUploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ files: pdfFilesBase64 })
+        });
+
+        const pdfUploadResult = await pdfUploadResponse.json();
+        if (!pdfUploadResponse.ok) {
+          throw new Error(pdfUploadResult.error || 'Failed to upload PDF files');
+        }
+
+        console.log('PDF upload result:', pdfUploadResult);
+
+        const conversionResponse = await fetch('/api/conversion', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ repoUrl: pdfUploadResult.repoUrl, documentNames: pdfUploadResult.documentNames })
+        });
+
+        const conversionResult = await conversionResponse.json();
+        if (!conversionResponse.ok) {
+          throw new Error(conversionResult.error || 'Failed to convert PDF');
+        }
+
+        console.log('PDF conversion result:', conversionResult);
+
+        const mdFileUrl = conversionResult.md_file_url;
+        const mdFileResponse = await fetch(mdFileUrl);
+        const mdFileContent = await mdFileResponse.text();
+
+        console.log('Converted Markdown file content:', mdFileContent);
+
+        otherFiles.push(new File([mdFileContent], pdfFiles[0].name.replace('.pdf', '.md'), { type: 'text/markdown' }));
+      }
+
+      const updatedFiles = otherFiles.reduce(
+        (acc, file) => {
+          const index = acc.findIndex((f) => f.name === file.name);
+          if (index !== -1) {
+            acc[index] = file; // Overwrite existing file
+          } else {
+            acc.push(file);
+          }
+          return acc;
+        },
+        [...uploadedFiles]
+      );
+
+      setUploadedFiles(updatedFiles);
+      console.log('Successfully read file count:', downloadedFiles.length);
+      console.log('Current files:', updatedFiles);
+    } catch (error) {
+      console.error('Error fetching file content:', error); // Log any errors
+    }
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
@@ -230,7 +346,12 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
   const handleDocumentUpload = async () => {
     if (uploadedFiles.length > 0) {
-      const fileContents: { fileName: string; fileContent: string }[] = [];
+      setIsConverting(true);
+      setConversionMessage('Files are being processed...');
+
+      const fileContents: { fileName: string; fileContent: string; fileType: string }[] = [];
+      const markdownFiles: { fileName: string; fileContent: string }[] = [];
+      const pdfFiles: { fileName: string; fileContent: string }[] = [];
 
       await Promise.all(
         uploadedFiles.map(
@@ -239,46 +360,110 @@ export const KnowledgeForm: React.FunctionComponent = () => {
               const reader = new FileReader();
               reader.onload = (e) => {
                 const fileContent = e.target!.result as string;
-                fileContents.push({ fileName: file.name, fileContent });
+                const fileType = file.type;
+
+                if (fileType === 'application/pdf') {
+                  // For PDF files, extract base64 content
+                  pdfFiles.push({
+                    fileName: file.name,
+                    fileContent: fileContent.split(',')[1]
+                  });
+                } else {
+                  // For Markdown and other text files, use the full content
+                  markdownFiles.push({
+                    fileName: file.name,
+                    fileContent
+                  });
+                }
                 resolve();
               };
               reader.onerror = reject;
-              reader.readAsText(file);
+
+              if (file.type === 'application/pdf') {
+                reader.readAsDataURL(file); // Read PDF files as base64
+              } else {
+                reader.readAsText(file); // Read Markdown and other files as text
+              }
             })
         )
       );
 
-      if (fileContents.length === uploadedFiles.length) {
-        try {
-          const response = await fetch('/api/upload', {
+      try {
+        // Upload PDF files for conversion
+        if (pdfFiles.length > 0) {
+          const pdfUploadResponse = await fetch('/api/upload', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ files: fileContents })
+            body: JSON.stringify({ files: pdfFiles })
           });
 
-          const result = await response.json();
-          if (response.ok) {
-            setRepo(result.repoUrl);
-            setCommit(result.commitSha);
-            setPatterns(result.documentNames.join(', ')); // Populate the patterns field
-            console.log('Files uploaded:', result.documentNames);
-            setSuccessAlertTitle('Document uploaded successfully!');
-            setSuccessAlertMessage('Documents have been uploaded to your repo to be referenced in the knowledge submission.');
-            setSuccessAlertLink(result.prUrl);
-            setIsSuccessAlertVisible(true);
-            setUseFileUpload(false); // Switch back to manual mode to display the newly created values in the knowledge submission
-          } else {
-            throw new Error(result.error || 'Failed to upload document');
+          const pdfUploadResult = await pdfUploadResponse.json();
+          if (!pdfUploadResponse.ok) {
+            throw new Error(pdfUploadResult.error || 'Failed to upload PDF files');
           }
-        } catch (error: unknown) {
-          if (error instanceof Error) {
-            setFailureAlertTitle('Failed to upload document');
-            setFailureAlertMessage(error.message);
-            setIsFailureAlertVisible(true);
+
+          const conversionResponse = await fetch('/api/conversion', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ repoUrl: pdfUploadResult.repoUrl, documentNames: pdfUploadResult.documentNames })
+          });
+
+          const conversionResult = await conversionResponse.json();
+          if (!conversionResponse.ok) {
+            throw new Error(conversionResult.error || 'Failed to convert PDF');
           }
+
+          const mdFileUrl = conversionResult.md_file_url;
+
+          // Download the converted Markdown file
+          const mdFileResponse = await fetch(mdFileUrl);
+          const mdFileContent = await mdFileResponse.text();
+
+          // Add converted Markdown to the list of Markdown files
+          markdownFiles.push({
+            fileName: pdfFiles[0].fileName.replace('.pdf', '.md'),
+            fileContent: mdFileContent
+          });
         }
+
+        // Upload all Markdown files in a single commit
+        if (markdownFiles.length > 0) {
+          const markdownUploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ files: markdownFiles })
+          });
+
+          const markdownUploadResult = await markdownUploadResponse.json();
+          if (!markdownUploadResponse.ok) {
+            throw new Error(markdownUploadResult.error || 'Failed to upload Markdown files');
+          }
+
+          setRepo(markdownUploadResult.repoUrl);
+          setCommit(markdownUploadResult.commitSha);
+          setPatterns(markdownUploadResult.documentNames.join(', ')); // Populate the patterns field
+          console.log('Markdown files uploaded:', markdownUploadResult.documentNames);
+
+          setSuccessAlertTitle('Document uploaded successfully!');
+          setSuccessAlertMessage('Documents have been uploaded to your repo to be referenced in the knowledge submission.');
+          setSuccessAlertLink(markdownUploadResult.prUrl);
+          setIsSuccessAlertVisible(true);
+          setUseFileUpload(false); // Switch back to manual mode to display the newly created values in the knowledge submission
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setFailureAlertTitle('Failed to upload document');
+          setFailureAlertMessage(error.message);
+          setIsFailureAlertVisible(true);
+        }
+      } finally {
+        setIsConverting(false);
       }
     }
   };
@@ -414,6 +599,7 @@ Creator names: ${creators}
   return (
     <Form className="form-k">
       <YamlCodeModal isModalOpen={isModalOpen} handleModalToggle={() => setIsModalOpen(!isModalOpen)} yamlContent={yamlContent} />
+      <FileSelectionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectFiles={handleSelectFiles} repoName={repo} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <FormFieldGroupHeader titleText={{ text: 'Knowledge Contribution Form', id: 'knowledge-contribution-form-id' }} />
         <Button variant="plain" onClick={handleViewYaml} aria-label="View YAML">
@@ -542,7 +728,10 @@ Creator names: ${creators}
       <FormFieldGroupExpandable
         toggleAriaLabel="Details"
         header={
-          <FormFieldGroupHeader titleText={{ text: 'Document Info', id: 'doc-info-id' }} titleDescription="Add the relevant document's information" />
+          <FormFieldGroupHeader
+            titleText={{ text: 'Knowledge Documents', id: 'doc-info-id' }}
+            titleDescription="Add the relevant knowledge documents"
+          />
         }
       >
         <FormGroup>
@@ -559,8 +748,13 @@ Creator names: ${creators}
               className={useFileUpload ? 'button-active' : 'button-secondary'}
               onClick={() => setUseFileUpload(true)}
             >
-              Automatically Upload Documents
+              Upload Documents
             </Button>
+            {useFileUpload && (
+              <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+                Select Files from GitHub
+              </Button>
+            )}
           </div>
         </FormGroup>
 
@@ -593,7 +787,7 @@ Creator names: ${creators}
           </FormGroup>
         ) : (
           <>
-            <UploadFile onFilesChange={handleFilesChange} />
+            <UploadFile onFilesChange={setUploadedFiles} files={uploadedFiles} isConverting={isConverting} conversionMessage={conversionMessage} />
             <Button variant="primary" onClick={handleDocumentUpload}>
               Submit Files
             </Button>

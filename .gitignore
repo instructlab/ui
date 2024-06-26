@@ -5,7 +5,6 @@ npm-debug.log
 .env
 *.env
 coverage
-lib
 taxonomy
 config.yaml
 generated

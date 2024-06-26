@@ -4,6 +4,7 @@ import { PullRequestUpdateData } from '@/types';
 
 const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
 const UPSTREAM_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_REPO!;
+const NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO_NAME!;
 
 export const fetchPullRequests = async (token: string) => {
   try {
@@ -87,6 +88,33 @@ export const fetchFileContent = async (token: string, filePath: string, ref: str
       console.error('Error fetching file content:', error.response ? error.response.data : error.message);
     } else {
       console.error('Error fetching file content:', error);
+    }
+    throw error;
+  }
+};
+
+export const fetchKnowledgeFileContent = async (token: string, username: string, filePath: string): Promise<Blob> => {
+  try {
+    console.log(`Fetching knowledge file content for path: ${filePath} from repo: ${NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO_NAME}`);
+    const response = await axios.get(`https://api.github.com/repos/${username}/${NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO_NAME}/contents/${filePath}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3.raw'
+      },
+      responseType: 'blob'
+    });
+
+    if (response.status === 404) {
+      throw new Error(`File not found: ${filePath}`);
+    }
+
+    console.log('Fetched knowledge file content:', response.data);
+    return response.data; // return the Blob content
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Error fetching knowledge file content:', error.response ? error.response.data : error.message);
+    } else {
+      console.error('Error fetching knowledge file content:', error);
     }
     throw error;
   }

@@ -450,7 +450,7 @@ Creator names: ${creators}
                   className={useFileUpload ? 'button-active' : 'button-secondary'}
                   onClick={() => setUseFileUpload(true)}
                 >
-                  Automatically Upload Documents
+                  Upload Documents
                 </Button>
               </div>
             </FormGroup>
