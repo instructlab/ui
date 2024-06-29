@@ -2,8 +2,8 @@
   "name": "instructlab-ui",
   "version": "0.1.0",
   "description": "InstructLab UI",
-  "repository": "https://github.com/instruct-lab/instruct-lab-bot.git",
-  "homepage": "https://github.com/instruct-lab/instruct-lab-bot",
+  "repository": "https://github.com/instructlab/ui.git",
+  "homepage": "https://github.com/instructlab/ui",
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
