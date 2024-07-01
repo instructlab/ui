@@ -59,7 +59,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       label: 'Contribute',
       children: [
         { path: '/contribute/skill', label: 'Skill' },
-        { path: '/contribute/knowledge', label: 'Knowledge' }
+        { path: '/contribute/knowledge', label: 'Knowledge' },
+        { path: '/contribute/knowledgefiles', label: 'Knowledge Files' }
       ]
     },
     {
