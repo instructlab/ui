@@ -142,7 +142,11 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
             answer: answers[index]
           }))
         };
-        const updatedYamlContent = yaml.dump(updatedYamlData, { lineWidth: -1 });
+        const updatedYamlContent = yaml.dump(updatedYamlData, {
+          lineWidth: -1,
+          noCompatMode: true,
+          quotingType: '"'
+        });
 
         console.log('Updated YAML content:', updatedYamlContent);
 
