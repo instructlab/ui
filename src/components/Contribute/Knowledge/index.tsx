@@ -419,6 +419,21 @@ Creator names: ${creators}
           <CodeIcon /> View YAML
         </Button>
       </div>
+
+      <div>
+        <p>
+          Knowledge in InstructLab is represented by question and answer pairs that involve facts, data, or references. This knowledge is represented
+          in the taxonomy tree and each node of this tree contains a qna.yaml file.
+        </p>
+        <div>
+          <a href="https://github.com/instructlab/taxonomy/blob/main/README.md#getting-started-with-knowledge-contributions" target="_blank">
+            <Button variant="plain" aria-label="Learn more about what InstructLab Knowledge is">
+              Learn More
+            </Button>
+          </a>
+        </div>
+      </div>
+
       <FormFieldGroupExpandable
         isExpanded
         toggleAriaLabel="Details"
