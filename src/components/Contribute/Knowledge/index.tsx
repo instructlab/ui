@@ -18,6 +18,7 @@ import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { UploadFile } from './UploadFile';
 import { SchemaVersion } from '@/types';
+import KnowledgeDescription from './KnowledgeDescription';
 
 export const KnowledgeForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
@@ -420,19 +421,17 @@ Creator names: ${creators}
         </Button>
       </div>
 
-      <div>
-        <p>
-          Knowledge in InstructLab is represented by question and answer pairs that involve facts, data, or references. This knowledge is represented
-          in the taxonomy tree and each node of this tree contains a qna.yaml file.
-        </p>
-        <div>
-          <a href="https://github.com/instructlab/taxonomy/blob/main/README.md#getting-started-with-knowledge-contributions" target="_blank">
-            <Button variant="plain" aria-label="Learn more about what InstructLab Knowledge is">
-              Learn More
-            </Button>
-          </a>
-        </div>
-      </div>
+      <FormFieldGroupExpandable
+        toggleAriaLabel="Details"
+        header={
+          <FormFieldGroupHeader
+            titleText={{ text: 'Knowledge Description', id: 'knowledge-description' }}
+            titleDescription="What is InstructLab Knowledge?"
+          />
+        }
+      >
+        <KnowledgeDescription />
+      </FormFieldGroupExpandable>
 
       <FormFieldGroupExpandable
         isExpanded

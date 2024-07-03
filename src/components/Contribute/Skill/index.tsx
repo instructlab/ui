@@ -17,6 +17,7 @@ import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { SchemaVersion } from '@/types';
+import SkillDescription from './SkillDescription';
 
 export const SkillForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
@@ -342,6 +343,19 @@ export const SkillForm: React.FunctionComponent = () => {
           <CodeIcon /> View YAML
         </Button>
       </div>
+
+      <FormFieldGroupExpandable
+        toggleAriaLabel="Details"
+        header={
+          <FormFieldGroupHeader
+            titleText={{ text: 'Skills Description', id: 'skills-description' }}
+            titleDescription="What are InstructLab Skills?"
+          />
+        }
+      >
+        <SkillDescription />
+      </FormFieldGroupExpandable>
+
       <FormFieldGroupExpandable
         isExpanded
         toggleAriaLabel="Details"
