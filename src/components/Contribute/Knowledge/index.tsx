@@ -72,7 +72,8 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isYamlModalOpen, setIsYamlModalOpen] = useState(false);
+  const [isFileSelectionModalOpen, setIsFileSelectionModalOpen] = useState(false);
   const [yamlContent, setYamlContent] = useState('');
   const [isConverting, setIsConverting] = useState(false);
   const [conversionMessage, setConversionMessage] = useState('');
@@ -248,7 +249,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       console.log('Successfully read file count:', downloadedFiles.length);
       console.log('Current files:', updatedFiles);
     } catch (error) {
-      console.error('Error fetching file content:', error); // Log any errors
+      console.error('Error fetching file content:', error);
     }
   };
 
@@ -593,13 +594,18 @@ Creator names: ${creators}
 
     const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
     setYamlContent(yamlString);
-    setIsModalOpen(true);
+    setIsYamlModalOpen(true);
   };
 
   return (
     <Form className="form-k">
-      <YamlCodeModal isModalOpen={isModalOpen} handleModalToggle={() => setIsModalOpen(!isModalOpen)} yamlContent={yamlContent} />
-      <FileSelectionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSelectFiles={handleSelectFiles} repoName={repo} />
+      <YamlCodeModal isModalOpen={isYamlModalOpen} handleModalToggle={() => setIsYamlModalOpen(!isYamlModalOpen)} yamlContent={yamlContent} />
+      <FileSelectionModal
+        isOpen={isFileSelectionModalOpen}
+        onClose={() => setIsFileSelectionModalOpen(false)}
+        onSelectFiles={handleSelectFiles}
+        repoName={repo}
+      />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <FormFieldGroupHeader titleText={{ text: 'Knowledge Contribution Form', id: 'knowledge-contribution-form-id' }} />
         <Button variant="plain" onClick={handleViewYaml} aria-label="View YAML">
@@ -751,7 +757,7 @@ Creator names: ${creators}
               Upload Documents
             </Button>
             {useFileUpload && (
-              <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+              <Button variant="primary" onClick={() => setIsFileSelectionModalOpen(true)}>
                 Select Files from GitHub
               </Button>
             )}

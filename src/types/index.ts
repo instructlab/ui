@@ -2,6 +2,34 @@
 
 export const SchemaVersion = 2;
 
+export interface DsDocument {
+  document_hash: string;
+  filename: string;
+  file_uri: string;
+  ref_uri: string | null;
+  number_pages: number | null;
+  status: string;
+}
+
+export interface DsDataIndex {
+  source: {
+    index_key: string;
+    proj_key: string;
+  };
+  name: string;
+  documents: number;
+  health: string;
+  status: string;
+  creation_date: string;
+  metadata: any;
+  description: string;
+  schema_key: string;
+  type: string;
+  view_of: any;
+  record_properties: any;
+  provenance: any;
+}
+
 export interface Endpoint {
   id: string;
   url: string;

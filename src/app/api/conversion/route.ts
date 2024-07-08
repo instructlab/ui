@@ -113,6 +113,7 @@ export async function POST(req: NextRequest) {
     };
 
     console.log('Task completed successfully.');
+    console.log(`Full Result: ${result}`);
     console.log(`JSON file URL: ${result.json_file_url}`);
     console.log(`Markdown file URL: ${result.md_file_url}`);
     console.log(`Document hash: ${result.document_hash}`);
