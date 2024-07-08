@@ -77,24 +77,24 @@ For the chat functionality to work you need a ilab model chat instance. To run t
 
 `cd server`
 
-https://github.com/instructlab/instructlab?tab=readme-ov-file#-getting-started
+[https://github.com/instructlab/instructlab?tab=readme-ov-file#-getting-started](https://github.com/instructlab/instructlab?tab=readme-ov-file#-getting-started)
 
-After you use the `ilab serve` you should have, by default, a chat server instance running on port 8000.
+After you use the `ilab serve` command you should have, by default, a chat server instance running on port 8000.
 
 ### 2) Using docker
 
-**Current issues**
+#### Current issues
 
 - The docker image that runs the server does not utilise Mac Metal GPU and therefore is very slow when answering prompts
 - The docker image is very large as it contains the model itself. Potential to have the model incoperated via a docker volume to reduce the size of the actual image.
 
-`docker run aevo987654/instructlab_chat_8000:v1`
+`docker run -p 8000:8000 aevo987654/instructlab_chat_8000:v2`
 
 This should run a server on port 8000
 
 ### Configuring the chat environment to use a local ilab model chat instance
 
-Return back to the root of the repo (ui) and run `npm run dev` and visit `http://localhost:3000/playground/endpoints`.
+Return back to the root of the repo (ui) and run `npm run dev` and visit [http://localhost:3000/playground/endpoints](http://localhost:3000/playground/endpoints).
 
 Click the `Add Endpoint` button and a popup modal will appear.
 
@@ -106,17 +106,17 @@ Click the `Add Endpoint` button and a popup modal will appear.
 
 Click the `Save` button
 
-![enter image description here](../public/dev-local-chat-server/add-endpoint.png)
+![enter image description here](../public/dev-local-chat-server/added-endpoint.png)
 
-Go to the chat interface http://localhost:3000/playground/chat and select the `merlinite-7b-lab-Q4_K_M.gguf` model.
+Go to the chat interface [http://localhost:3000/playground/chat](http://localhost:3000/playground/chat) and select the `merlinite-7b-lab-Q4_K_M.gguf` model.
 
-![enter image description here](../public/dev-local-chat-server/add-endpoint.png)
+![enter image description here](../public/dev-local-chat-server/select-the-correct-model.png)
 
 The chat interface should now use the server.
 
-![enter image description here](../public/dev-local-chat-server/add-endpoint.png)
+![enter image description here](../public/dev-local-chat-server/successful-chat.png)
 
-### Summary of Server-Side Rendering and Client-Side Data Handling for Jobs and Chat Routes
+## Summary of Server-Side Rendering and Client-Side Data Handling for Jobs and Chat Routes
 
 We are leveraging Next.js's app router to handle
 [server-side rendering](https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering)
@@ -124,7 +124,7 @@ We are leveraging Next.js's app router to handle
 Below is a summary of how we manage server-side rendering and client-side data
 handling for these routes.
 
-#### Server-Side Rendering (SSR)
+### Server-Side Rendering (SSR)
 
 **API Routes**:
 
