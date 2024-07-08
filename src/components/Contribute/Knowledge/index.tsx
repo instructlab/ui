@@ -18,6 +18,7 @@ import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { UploadFile } from './UploadFile';
 import { SchemaVersion } from '@/types';
+import KnowledgeDescription from './KnowledgeDescription';
 
 export const KnowledgeForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
@@ -419,6 +420,19 @@ Creator names: ${creators}
           <CodeIcon /> View YAML
         </Button>
       </div>
+
+      <FormFieldGroupExpandable
+        toggleAriaLabel="Details"
+        header={
+          <FormFieldGroupHeader
+            titleText={{ text: 'Knowledge Description', id: 'knowledge-description' }}
+            titleDescription="What is InstructLab Knowledge?"
+          />
+        }
+      >
+        <KnowledgeDescription />
+      </FormFieldGroupExpandable>
+
       <FormFieldGroupExpandable
         isExpanded
         toggleAriaLabel="Details"
