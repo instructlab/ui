@@ -59,7 +59,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       label: 'Contribute',
       children: [
         { path: '/contribute/skill', label: 'Skill' },
-        { path: '/contribute/knowledge', label: 'Knowledge' }
+        { path: '/contribute/knowledge', label: 'Knowledge' },
+        { path: '/contribute/knowledgefiles', label: 'Knowledge Files' }
       ]
     },
     {
@@ -67,7 +68,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       label: 'Playground',
       children: [
         { path: '/playground/chat', label: 'Chat' },
-        { path: '/playground/endpoints', label: 'Custom Model Endpoints' }
+        { path: '/playground/endpoints', label: 'Custom Model Endpoints' },
+        { path: '/playground/ragchat', label: 'Experimental RAG' }
       ]
     }
   ];
