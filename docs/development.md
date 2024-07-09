@@ -81,7 +81,7 @@ For the chat functionality to work you need a ilab model chat instance. To run t
 
 After you use the `ilab serve` command you should have, by default, a chat server instance running on port 8000.
 
-### 2) Using docker
+### 2) Using Podman
 
 #### Current issues
 
