@@ -29,16 +29,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { content, name, email, submission_summary, title_work, link_work, revision, license_work, creators } = body;
+    const { content, name, email, submission_summary, attribution, filePath } = body;
 
     const knowledgeData: KnowledgeYamlData = yaml.load(content) as KnowledgeYamlData;
-    const attributionData: AttributionData = {
-      title_of_work: title_work,
-      link_to_work: link_work,
-      revision: revision,
-      license_of_the_work: license_work,
-      creator_names: creators
-    };
+    const attributionData: AttributionData = attribution;
 
     // Fetch GitHub username
     const githubUsername = await getGitHubUsername(headers);
@@ -54,8 +48,8 @@ export async function POST(req: NextRequest) {
     }
 
     const branchName = `knowledge-contribution-${Date.now()}`;
-    const newYamlFilePath = `knowledge/${githubUsername.replace(/ /g, '_')}-${Date.now()}.yaml`;
-    const newAttributionFilePath = `knowledge/${githubUsername.replace(/ /g, '_')}-attribution.txt`;
+    const newYamlFilePath = `${filePath}qna.yaml`;
+    const newAttributionFilePath = `${filePath}attribution.txt`;
 
     const yamlString = yaml.dump(knowledgeData, { lineWidth: YamlLineLength });
     const attributionContent = `Title of work: ${attributionData.title_of_work}

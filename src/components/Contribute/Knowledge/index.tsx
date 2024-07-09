@@ -17,7 +17,7 @@ import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { UploadFile } from './UploadFile';
-import { SchemaVersion, YamlLineLength, KnowledgeYamlData } from '@/types';
+import { SchemaVersion, YamlLineLength, KnowledgeYamlData, AttributionData } from '@/types';
 import KnowledgeDescription from './KnowledgeDescription';
 
 export const KnowledgeForm: React.FunctionComponent = () => {
@@ -44,6 +44,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [task_description, setTaskDescription] = useState('');
   const [submission_summary, setSubmissionSummary] = useState('');
   const [domain, setDomain] = useState('');
+  const [filePath, setFilePath] = useState('');
 
   const [repo, setRepo] = useState('');
   const [commit, setCommit] = useState('');
@@ -121,6 +122,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setCreators('');
     setRevision('');
     setUploadedFiles([]);
+    setFilePath('');
   };
 
   const onCloseSuccessAlert = () => {
@@ -138,6 +140,10 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
+
+    // Strip leading slash and ensure trailing slash in the file path
+    let sanitizedFilePath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
+    sanitizedFilePath = sanitizedFilePath.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
     const infoFields = { email, name, task_description, submission_summary, domain, repo, commit, patterns };
     const attributionFields = { title_work, link_work, revision, license_work, creators };
@@ -199,12 +205,14 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     };
 
     const yamlString = yaml.dump(knowledgeData, { lineWidth: YamlLineLength });
-    const attributionString = `Title of work: ${title_work}
-Link to work: ${link_work}
-Revision: ${revision}
-License of the work: ${license_work}
-Creator names: ${creators}
-`;
+
+    const attributionData: AttributionData = {
+      title_of_work: title_work,
+      link_to_work: link_work,
+      revision: revision,
+      license_of_the_work: license_work,
+      creator_names: creators
+    };
 
     try {
       const response = await fetch('/api/pr/knowledge', {
@@ -212,7 +220,7 @@ Creator names: ${creators}
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ content: yamlString, attribution: attributionString, name, email, submission_summary })
+        body: JSON.stringify({ content: yamlString, attribution: attributionData, name, email, submission_summary, filePath: sanitizedFilePath })
       });
 
       if (!response.ok) {
@@ -506,7 +514,27 @@ Creator names: ${creators}
           />
         </FormGroup>
       </FormFieldGroupExpandable>
-
+      <FormFieldGroupExpandable
+        isExpanded
+        toggleAriaLabel="Details"
+        header={
+          <FormFieldGroupHeader
+            titleText={{ text: 'File Path Info', id: 'file-path-info-id' }}
+            titleDescription="Specify the file path for the QnA and Attribution files."
+          />
+        }
+      >
+        <FormGroup isRequired key={'file-path-details-id'}>
+          <TextInput
+            isRequired
+            type="text"
+            aria-label="filePath"
+            placeholder="Enter the file path for both files"
+            value={filePath}
+            onChange={(_event, value) => setFilePath(value)}
+          />
+        </FormGroup>
+      </FormFieldGroupExpandable>
       <FormFieldGroupExpandable
         toggleAriaLabel="Details"
         header={

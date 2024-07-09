@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
 import yaml from 'js-yaml';
-import { YamlLineLength, SkillYamlData } from '@/types';
+import { YamlLineLength, SkillYamlData, AttributionData } from '@/types';
 
 const GITHUB_API_URL = 'https://api.github.com';
 const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { content, attribution, name, email, submission_summary } = body;
+    const { content, attribution, name, email, submission_summary, filePath } = body;
 
     const githubUsername = await getGitHubUsername(headers);
     console.log('GitHub Username:', githubUsername);
@@ -41,12 +41,20 @@ export async function POST(req: NextRequest) {
     }
 
     const branchName = `skill-contribution-${Date.now()}`;
-    const newYamlFilePath = `skills/${name.replace(/ /g, '_')}-qna.yaml`;
-    const newAttributionFilePath = `skills/${name.replace(/ /g, '_')}-attribution.txt`;
+    const newYamlFilePath = `${filePath}qna.yaml`;
+    const newAttributionFilePath = `${filePath}attribution.txt`;
 
     const skillData = yaml.load(content) as SkillYamlData;
-    const attributionData = attribution;
+    const attributionData = attribution as AttributionData;
+
     const yamlString = yaml.dump(skillData, { lineWidth: YamlLineLength });
+
+    const attributionString = `Title of work: ${attributionData.title_of_work}
+Link to work: ${attributionData.link_to_work}
+Revision: ${attributionData.revision}
+License of the work: ${attributionData.license_of_the_work}
+Creator names: ${attributionData.creator_names}
+`;
 
     // Get the base branch SHA
     const baseBranchSha = await getBaseBranchSha(headers, githubUsername);
@@ -61,7 +69,7 @@ export async function POST(req: NextRequest) {
       githubUsername,
       [
         { path: newYamlFilePath, content: yamlString },
-        { path: newAttributionFilePath, content: attributionData }
+        { path: newAttributionFilePath, content: attributionString }
       ],
       branchName,
       `${submission_summary}\n\nSigned-off-by: ${name} <${email}>`
