@@ -17,7 +17,7 @@ import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { UploadFile } from './UploadFile';
-import { SchemaVersion, YamlLineLength } from '@/types';
+import { SchemaVersion, YamlLineLength, KnowledgeYamlData } from '@/types';
 import KnowledgeDescription from './KnowledgeDescription';
 
 export const KnowledgeForm: React.FunctionComponent = () => {
@@ -182,25 +182,29 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       return;
     }
 
-    const knowledgeData = {
-      name: name,
-      email: email,
-      task_description: task_description,
-      submission_summary: submission_summary,
+    const knowledgeData: KnowledgeYamlData = {
+      created_by: githubUsername!,
+      version: SchemaVersion,
       domain: domain,
-      repo: repo,
-      commit: commit,
-      patterns: patterns,
-      title_work: title_work,
-      link_work: link_work,
-      revision: revision,
-      license_work: license_work,
-      creators: creators,
-      questions,
-      answers
+      task_description: task_description,
+      seed_examples: questions.map((question, index) => ({
+        question,
+        answer: answers[index]
+      })),
+      document: {
+        repo: repo,
+        commit: commit,
+        patterns: patterns.split(',').map((pattern) => pattern.trim())
+      }
     };
 
     const yamlString = yaml.dump(knowledgeData, { lineWidth: YamlLineLength });
+    const attributionString = `Title of work: ${title_work}
+Link to work: ${link_work}
+Revision: ${revision}
+License of the work: ${license_work}
+Creator names: ${creators}
+`;
 
     try {
       const response = await fetch('/api/pr/knowledge', {
@@ -208,7 +212,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ content: yamlString })
+        body: JSON.stringify({ content: yamlString, attribution: attributionString, name, email, submission_summary })
       });
 
       if (!response.ok) {
@@ -334,8 +338,8 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       answer: string;
     }
 
-    const yamlData = {
-      created_by: githubUsername,
+    const yamlData: KnowledgeYamlData = {
+      created_by: githubUsername!,
       version: SchemaVersion,
       domain: domain,
       task_description: task_description,
@@ -392,8 +396,8 @@ Creator names: ${creators}
   };
 
   const handleViewYaml = () => {
-    const yamlData = {
-      created_by: githubUsername,
+    const yamlData: KnowledgeYamlData = {
+      created_by: githubUsername!,
       version: SchemaVersion,
       domain: domain,
       task_description: task_description,

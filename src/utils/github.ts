@@ -120,7 +120,8 @@ export const amendCommit = async (
   filePath: { yaml: string; attribution: string },
   updatedYamlContent: string,
   updatedAttributionContent: string,
-  branch: string
+  branch: string,
+  commitMessage: string
 ) => {
   try {
     console.log(`Amending commit for path: ${filePath} in repo: ${repoName}`);
@@ -214,7 +215,7 @@ export const amendCommit = async (
     const newCommitResponse = await axios.post(
       `https://api.github.com/repos/${username}/${repoName}/git/commits`,
       {
-        message: `Amend commit with updated content`,
+        message: commitMessage,
         tree: newTreeSha,
         parents: [parentSha]
       },

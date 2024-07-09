@@ -35,6 +35,7 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
   const [body, setBody] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [name, setName] = React.useState('');
+  // const [githubId, setGithubId] = React.useState('');
   const [task_description, setTaskDescription] = React.useState('');
   const [title_work, setTitleWork] = React.useState('');
   const [link_work, setLinkWork] = React.useState('-');
@@ -87,7 +88,6 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
           console.log('Parsed YAML data:', yamlData);
 
           // Populate the form fields with YAML data
-          setEmail(yamlData.created_by);
           setTaskDescription(yamlData.task_description);
           setQuestions(yamlData.seed_examples.map((example) => example.question));
           setContexts(yamlData.seed_examples.map((example) => example.context || ''));
@@ -109,6 +109,9 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
             setLicenseWork(attributionData.license_of_the_work);
             setCreators(attributionData.creator_names);
           }
+
+          // const githubUsername = await getGitHubUsername(session.accessToken);
+          // setGithubId(githubUsername);
         } catch (error) {
           if (axios.isAxiosError(error)) {
             console.error('Error fetching pull request data:', error.response ? error.response.data : error.message);
@@ -124,7 +127,7 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
   }, [session, number, params]);
 
   const handleSave = async () => {
-    if (session?.accessToken && yamlFile && attributionFile && branchName) {
+    if (session?.accessToken && yamlFile && attributionFile && branchName && email && name) {
       try {
         console.log(`Updating PR with number: ${number}`);
         await updatePullRequest(session.accessToken, number, { title, body });
@@ -159,8 +162,8 @@ Creator names: ${creators}
 
         console.log('Updated Attribution content:', updatedAttributionContent);
 
-        // Update the commit by amending it with the new content
-        console.log(`Amending commit with updated content`);
+        const commitMessage = `Amend commit with updated content\n\nSigned-off-by: ${name} <${email}>`;
+
         const amendedCommitResponse = await amendCommit(
           session.accessToken,
           githubUsername,
@@ -168,7 +171,8 @@ Creator names: ${creators}
           { yaml: yamlFile.filename, attribution: attributionFile.filename },
           updatedYamlContent,
           updatedAttributionContent,
-          branchName
+          branchName,
+          commitMessage
         );
         console.log('Amended commit response:', amendedCommitResponse);
 
@@ -192,7 +196,7 @@ Creator names: ${creators}
       }
     } else {
       setFailureAlertTitle('Error');
-      setFailureAlertMessage('YAML file, Attribution file, or branch name is missing.');
+      setFailureAlertMessage('YAML file, Attribution file, branch name, email, or name is missing.');
       setIsFailureAlertVisible(true);
     }
   };
@@ -280,19 +284,19 @@ Creator names: ${creators}
             <FormGroup isRequired key={'author-info-details-id'}>
               <TextInput
                 isRequired
-                type="email"
-                aria-label="email"
-                placeholder="Enter your github ID"
-                value={email}
-                onChange={(_event, value) => setEmail(value)}
-              />
-              <TextInput
-                isRequired
                 type="text"
                 aria-label="name"
                 placeholder="Enter your full name"
                 value={name}
                 onChange={(_event, value) => setName(value)}
+              />
+              <TextInput
+                isRequired
+                type="email"
+                aria-label="email"
+                placeholder="Enter your email address"
+                value={email}
+                onChange={(_event, value) => setEmail(value)}
               />
             </FormGroup>
           </FormFieldGroupExpandable>

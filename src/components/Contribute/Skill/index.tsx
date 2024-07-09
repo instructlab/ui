@@ -16,7 +16,7 @@ import yaml from 'js-yaml';
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
-import { SchemaVersion, YamlLineLength } from '@/types';
+import { SchemaVersion, SkillYamlData, YamlLineLength } from '@/types';
 import SkillDescription from './SkillDescription';
 
 export const SkillForm: React.FunctionComponent = () => {
@@ -171,21 +171,24 @@ export const SkillForm: React.FunctionComponent = () => {
       return;
     }
 
-    const skillData = {
-      name: name,
-      email: email,
-      task_description: task_description,
-      submission_summary: submission_summary,
-      title_work: title_work,
-      link_work: link_work,
-      license_work: license_work,
-      creators: creators,
-      questions,
-      contexts,
-      answers
+    const skillData: SkillYamlData = {
+      created_by: githubUsername!,
+      version: SchemaVersion,
+      task_description,
+      seed_examples: questions.map((question, index) => ({
+        question,
+        context: contexts[index],
+        answer: answers[index]
+      }))
     };
 
     const yamlString = yaml.dump(skillData, { lineWidth: YamlLineLength });
+    const attributionString = `Title of work: ${title_work}
+Link to work: ${link_work}
+Revision: -
+License of the work: ${license_work}
+Creator names: ${creators}
+`;
 
     try {
       const response = await fetch('/api/pr/skill', {
@@ -193,7 +196,7 @@ export const SkillForm: React.FunctionComponent = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ content: yamlString })
+        body: JSON.stringify({ content: yamlString, attribution: attributionString, name, email, submission_summary })
       });
 
       if (!response.ok) {
