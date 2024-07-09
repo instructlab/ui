@@ -16,7 +16,7 @@ import yaml from 'js-yaml';
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
-import { SchemaVersion } from '@/types';
+import { SchemaVersion, YamlLineLength } from '@/types';
 import SkillDescription from './SkillDescription';
 
 export const SkillForm: React.FunctionComponent = () => {
@@ -185,13 +185,15 @@ export const SkillForm: React.FunctionComponent = () => {
       answers
     };
 
+    const yamlString = yaml.dump(skillData, { lineWidth: YamlLineLength });
+
     try {
       const response = await fetch('/api/pr/skill', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(skillData)
+        body: JSON.stringify({ content: yamlString })
       });
 
       if (!response.ok) {
@@ -224,7 +226,8 @@ export const SkillForm: React.FunctionComponent = () => {
       }))
     };
 
-    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
+    const yamlString = yaml.dump(yamlData, { lineWidth: YamlLineLength });
+
     setYamlContent(yamlString);
     setIsModalOpen(true);
   };
@@ -295,7 +298,7 @@ export const SkillForm: React.FunctionComponent = () => {
       })
     };
 
-    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
+    const yamlString = yaml.dump(yamlData, { lineWidth: YamlLineLength });
     const blob = new Blob([yamlString], { type: 'application/x-yaml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

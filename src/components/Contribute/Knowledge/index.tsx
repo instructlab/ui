@@ -17,7 +17,7 @@ import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { UploadFile } from './UploadFile';
-import { SchemaVersion } from '@/types';
+import { SchemaVersion, YamlLineLength } from '@/types';
 import KnowledgeDescription from './KnowledgeDescription';
 
 export const KnowledgeForm: React.FunctionComponent = () => {
@@ -200,13 +200,15 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       answers
     };
 
+    const yamlString = yaml.dump(knowledgeData, { lineWidth: YamlLineLength });
+
     try {
       const response = await fetch('/api/pr/knowledge', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(knowledgeData)
+        body: JSON.stringify({ content: yamlString })
       });
 
       if (!response.ok) {
@@ -350,7 +352,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       }
     };
 
-    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
+    const yamlString = yaml.dump(yamlData, { lineWidth: YamlLineLength });
     const blob = new Blob([yamlString], { type: 'application/x-yaml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -406,7 +408,7 @@ Creator names: ${creators}
       }
     };
 
-    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
+    const yamlString = yaml.dump(yamlData, { lineWidth: YamlLineLength });
     setYamlContent(yamlString);
     setIsModalOpen(true);
   };

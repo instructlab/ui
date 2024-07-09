@@ -18,7 +18,7 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { AppLayout } from '../../../../components/AppLayout';
 import { UploadFile } from '../../../../components/Contribute/Knowledge/UploadFile';
-import { AttributionData, PullRequestFile, KnowledgeYamlData, SchemaVersion } from '@/types';
+import { AttributionData, PullRequestFile, KnowledgeYamlData, SchemaVersion, YamlLineLength } from '@/types';
 import {
   fetchPullRequest,
   fetchFileContent,
@@ -159,11 +159,10 @@ const EditPullRequestPage: React.FunctionComponent<{ params: { id: string } }> =
           }))
         };
         const updatedYamlContent = yaml.dump(updatedYamlData, {
-          lineWidth: -1,
+          lineWidth: YamlLineLength,
           noCompatMode: true,
           quotingType: '"'
         });
-
         console.log('Updated YAML content:', updatedYamlContent);
 
         const updatedAttributionContent = `Title of work: ${title_work}
