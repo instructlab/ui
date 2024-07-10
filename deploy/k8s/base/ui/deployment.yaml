@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    spec:
+      containers:
+        - name: ui
+          image: ghcr.io/instructlab/ui/ui:main
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+            limits:
+              cpu: 100m
+              memory: 200Mi
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: ui-config
+      restartPolicy: Always
