@@ -17,7 +17,7 @@ import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { AppLayout } from '../../../../components/AppLayout';
-import { AttributionData, PullRequestFile, SchemaVersion, SkillYamlData } from '@/types';
+import { AttributionData, PullRequestFile, SchemaVersion, SkillYamlData, YamlLineLength } from '@/types';
 import {
   fetchPullRequest,
   fetchFileContent,
@@ -29,6 +29,8 @@ import {
 import yaml from 'js-yaml';
 import axios from 'axios';
 
+const UPSTREAM_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_REPO!;
+
 const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ params }) => {
   const { data: session } = useSession();
   const [title, setTitle] = React.useState('');
@@ -37,7 +39,6 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
   const [name, setName] = React.useState('');
   const [task_description, setTaskDescription] = React.useState('');
   const [title_work, setTitleWork] = React.useState('');
-  const [link_work, setLinkWork] = React.useState('-');
   const [license_work, setLicenseWork] = React.useState('');
   const [creators, setCreators] = React.useState('');
   const [questions, setQuestions] = React.useState<string[]>([]);
@@ -47,6 +48,8 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
   const [yamlFile, setYamlFile] = React.useState<PullRequestFile | null>(null);
   const [attributionFile, setAttributionFile] = React.useState<PullRequestFile | null>(null);
   const [branchName, setBranchName] = React.useState<string | null>(null);
+  const [filePath, setFilePath] = React.useState<string>('');
+  const [originalFilePath, setOriginalFilePath] = React.useState<string>(''); // Store original file path
   const router = useRouter();
   const number = parseInt(params.id, 10);
 
@@ -87,11 +90,15 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
           console.log('Parsed YAML data:', yamlData);
 
           // Populate the form fields with YAML data
-          setEmail(yamlData.created_by);
           setTaskDescription(yamlData.task_description);
           setQuestions(yamlData.seed_examples.map((example) => example.question));
           setContexts(yamlData.seed_examples.map((example) => example.context || ''));
           setAnswers(yamlData.seed_examples.map((example) => example.answer));
+
+          // Set the file path from the current YAML file
+          const currentFilePath = foundYamlFile.filename.split('/').slice(0, -1).join('/');
+          setFilePath(currentFilePath);
+          setOriginalFilePath(currentFilePath); // Store the original file path
 
           // Fetch and parse attribution file if it exists
           const foundAttributionFile = prFiles.find((file: PullRequestFile) => file.filename.includes('attribution'));
@@ -105,7 +112,6 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
 
             // Populate the form fields with attribution data
             setTitleWork(attributionData.title_of_work);
-            setLinkWork(attributionData.link_to_work);
             setLicenseWork(attributionData.license_of_the_work);
             setCreators(attributionData.creator_names);
           }
@@ -124,7 +130,7 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
   }, [session, number, params]);
 
   const handleSave = async () => {
-    if (session?.accessToken && yamlFile && attributionFile && branchName) {
+    if (session?.accessToken && yamlFile && attributionFile && branchName && email && name) {
       try {
         console.log(`Updating PR with number: ${number}`);
         await updatePullRequest(session.accessToken, number, { title, body });
@@ -133,7 +139,7 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
         console.log(`GitHub username: ${githubUsername}`);
 
         const updatedYamlData: SkillYamlData = {
-          created_by: email,
+          created_by: githubUsername,
           version: SchemaVersion,
           task_description,
           seed_examples: questions.map((question, index) => ({
@@ -143,32 +149,56 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
           }))
         };
         const updatedYamlContent = yaml.dump(updatedYamlData, {
-          lineWidth: -1,
+          lineWidth: YamlLineLength,
           noCompatMode: true,
           quotingType: '"'
         });
 
         console.log('Updated YAML content:', updatedYamlContent);
 
-        const updatedAttributionContent = `Title of work: ${title_work}
-Link to work: ${link_work}
-Revision: '-'
-License of the work: ${license_work}
-Creator names: ${creators}
+        const updatedAttributionData: AttributionData = {
+          title_of_work: title_work,
+          link_to_work: '-',
+          revision: '-',
+          license_of_the_work: license_work,
+          creator_names: creators
+        };
+
+        const updatedAttributionContent = `Title of work: ${updatedAttributionData.title_of_work}
+Link to work: ${updatedAttributionData.link_to_work}
+Revision: ${updatedAttributionData.revision}
+License of the work: ${updatedAttributionData.license_of_the_work}
+Creator names: ${updatedAttributionData.creator_names}
 `;
 
         console.log('Updated Attribution content:', updatedAttributionContent);
 
-        // Update the commit by amending it with the new content
-        console.log(`Amending commit with updated content`);
+        const commitMessage = `Amend commit with updated content\n\nSigned-off-by: ${name} <${email}>`;
+
+        // Ensure proper file paths for the edit
+        const finalYamlPath = filePath.replace(/^\//, '').replace(/\/?$/, '/') + yamlFile.filename.split('/').pop();
+        const finalAttributionPath = filePath.replace(/^\//, '').replace(/\/?$/, '/') + attributionFile.filename.split('/').pop();
+
+        const oldFilePath = {
+          yaml: originalFilePath.replace(/^\//, '').replace(/\/?$/, '/') + yamlFile.filename.split('/').pop(),
+          attribution: originalFilePath.replace(/^\//, '').replace(/\/?$/, '/') + attributionFile.filename.split('/').pop()
+        };
+
+        const newFilePath = {
+          yaml: finalYamlPath,
+          attribution: finalAttributionPath
+        };
+
         const amendedCommitResponse = await amendCommit(
           session.accessToken,
           githubUsername,
-          'taxonomy-sub-testing',
-          { yaml: yamlFile.filename, attribution: attributionFile.filename },
+          UPSTREAM_REPO_NAME,
+          oldFilePath,
+          newFilePath,
           updatedYamlContent,
           updatedAttributionContent,
-          branchName
+          branchName,
+          commitMessage
         );
         console.log('Amended commit response:', amendedCommitResponse);
 
@@ -192,7 +222,7 @@ Creator names: ${creators}
       }
     } else {
       setFailureAlertTitle('Error');
-      setFailureAlertMessage('YAML file, Attribution file, or branch name is missing.');
+      setFailureAlertMessage('YAML file, Attribution file, branch name, email, or name is missing.');
       setIsFailureAlertVisible(true);
     }
   };
@@ -280,19 +310,19 @@ Creator names: ${creators}
             <FormGroup isRequired key={'author-info-details-id'}>
               <TextInput
                 isRequired
-                type="email"
-                aria-label="email"
-                placeholder="Enter your github ID"
-                value={email}
-                onChange={(_event, value) => setEmail(value)}
-              />
-              <TextInput
-                isRequired
                 type="text"
                 aria-label="name"
                 placeholder="Enter your full name"
                 value={name}
                 onChange={(_event, value) => setName(value)}
+              />
+              <TextInput
+                isRequired
+                type="email"
+                aria-label="email"
+                placeholder="Enter your email address"
+                value={email}
+                onChange={(_event, value) => setEmail(value)}
               />
             </FormGroup>
           </FormFieldGroupExpandable>
@@ -312,6 +342,28 @@ Creator names: ${creators}
                 placeholder="Enter a detailed description to improve the teacher model's responses"
                 value={task_description}
                 onChange={(_event, value) => setTaskDescription(value)}
+              />
+            </FormGroup>
+          </FormFieldGroupExpandable>
+
+          <FormFieldGroupExpandable
+            isExpanded
+            toggleAriaLabel="Details"
+            header={
+              <FormFieldGroupHeader
+                titleText={{ text: 'File Path Info', id: 'file-path-info-id' }}
+                titleDescription="Specify the file path for the QnA and Attribution files."
+              />
+            }
+          >
+            <FormGroup isRequired key={'file-path-details-id'}>
+              <TextInput
+                isRequired
+                type="text"
+                aria-label="filePath"
+                placeholder="Enter the file path for both files"
+                value={filePath}
+                onChange={(_event, value) => setFilePath(value)}
               />
             </FormGroup>
           </FormFieldGroupExpandable>

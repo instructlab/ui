@@ -117,13 +117,15 @@ export const amendCommit = async (
   token: string,
   username: string,
   repoName: string,
-  filePath: { yaml: string; attribution: string },
+  oldFilePath: { yaml: string; attribution: string }, // If the user changed the taxonomy file path on edit, adjust the amendment
+  newFilePath: { yaml: string; attribution: string },
   updatedYamlContent: string,
   updatedAttributionContent: string,
-  branch: string
+  branch: string,
+  commitMessage: string
 ) => {
   try {
-    console.log(`Amending commit for path: ${filePath} in repo: ${repoName}`);
+    console.log(`Amending commit for path: ${oldFilePath} in repo: ${repoName}`);
 
     // Step 1: Get the latest commit SHA for the branch
     const branchResponse = await axios.get(`https://api.github.com/repos/${username}/${repoName}/git/refs/heads/${branch}`, {
@@ -180,25 +182,45 @@ export const amendCommit = async (
     const attributionBlobSha = attributionBlobResponse.data.sha;
     console.log(`New Attribution blob SHA: ${attributionBlobSha}`);
 
-    // Step 4: Create a new tree with the updated blobs
+    // Step 4: Create a new tree with the updated blobs and remove old files if path changed
+    const tree = [
+      {
+        path: newFilePath.yaml,
+        mode: '100644',
+        type: 'blob',
+        sha: yamlBlobSha
+      },
+      {
+        path: newFilePath.attribution,
+        mode: '100644',
+        type: 'blob',
+        sha: attributionBlobSha
+      }
+    ];
+
+    if (oldFilePath.yaml !== newFilePath.yaml) {
+      tree.push({
+        path: oldFilePath.yaml,
+        mode: '100644',
+        type: 'blob',
+        sha: null
+      });
+    }
+
+    if (oldFilePath.attribution !== newFilePath.attribution) {
+      tree.push({
+        path: oldFilePath.attribution,
+        mode: '100644',
+        type: 'blob',
+        sha: null
+      });
+    }
+
     const newTreeResponse = await axios.post(
       `https://api.github.com/repos/${username}/${repoName}/git/trees`,
       {
         base_tree: treeSha,
-        tree: [
-          {
-            path: filePath.yaml,
-            mode: '100644',
-            type: 'blob',
-            sha: yamlBlobSha
-          },
-          {
-            path: filePath.attribution,
-            mode: '100644',
-            type: 'blob',
-            sha: attributionBlobSha
-          }
-        ]
+        tree
       },
       {
         headers: {
@@ -214,7 +236,7 @@ export const amendCommit = async (
     const newCommitResponse = await axios.post(
       `https://api.github.com/repos/${username}/${repoName}/git/commits`,
       {
-        message: `Amend commit with updated content`,
+        message: commitMessage,
         tree: newTreeSha,
         parents: [parentSha]
       },

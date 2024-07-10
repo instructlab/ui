@@ -17,7 +17,7 @@ import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { UploadFile } from './UploadFile';
-import { SchemaVersion } from '@/types';
+import { SchemaVersion, YamlLineLength, KnowledgeYamlData, AttributionData } from '@/types';
 import KnowledgeDescription from './KnowledgeDescription';
 
 export const KnowledgeForm: React.FunctionComponent = () => {
@@ -44,6 +44,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [task_description, setTaskDescription] = useState('');
   const [submission_summary, setSubmissionSummary] = useState('');
   const [domain, setDomain] = useState('');
+  const [filePath, setFilePath] = useState('');
 
   const [repo, setRepo] = useState('');
   const [commit, setCommit] = useState('');
@@ -121,6 +122,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setCreators('');
     setRevision('');
     setUploadedFiles([]);
+    setFilePath('');
   };
 
   const onCloseSuccessAlert = () => {
@@ -138,6 +140,10 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
+
+    // Strip leading slash and ensure trailing slash in the file path
+    let sanitizedFilePath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
+    sanitizedFilePath = sanitizedFilePath.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
     const infoFields = { email, name, task_description, submission_summary, domain, repo, commit, patterns };
     const attributionFields = { title_work, link_work, revision, license_work, creators };
@@ -182,22 +188,30 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       return;
     }
 
-    const knowledgeData = {
-      name: name,
-      email: email,
-      task_description: task_description,
-      submission_summary: submission_summary,
+    const knowledgeData: KnowledgeYamlData = {
+      created_by: githubUsername!,
+      version: SchemaVersion,
       domain: domain,
-      repo: repo,
-      commit: commit,
-      patterns: patterns,
-      title_work: title_work,
-      link_work: link_work,
+      task_description: task_description,
+      seed_examples: questions.map((question, index) => ({
+        question,
+        answer: answers[index]
+      })),
+      document: {
+        repo: repo,
+        commit: commit,
+        patterns: patterns.split(',').map((pattern) => pattern.trim())
+      }
+    };
+
+    const yamlString = yaml.dump(knowledgeData, { lineWidth: YamlLineLength });
+
+    const attributionData: AttributionData = {
+      title_of_work: title_work,
+      link_to_work: link_work,
       revision: revision,
-      license_work: license_work,
-      creators: creators,
-      questions,
-      answers
+      license_of_the_work: license_work,
+      creator_names: creators
     };
 
     try {
@@ -206,7 +220,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(knowledgeData)
+        body: JSON.stringify({ content: yamlString, attribution: attributionData, name, email, submission_summary, filePath: sanitizedFilePath })
       });
 
       if (!response.ok) {
@@ -332,8 +346,8 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       answer: string;
     }
 
-    const yamlData = {
-      created_by: githubUsername,
+    const yamlData: KnowledgeYamlData = {
+      created_by: githubUsername!,
       version: SchemaVersion,
       domain: domain,
       task_description: task_description,
@@ -350,7 +364,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       }
     };
 
-    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
+    const yamlString = yaml.dump(yamlData, { lineWidth: YamlLineLength });
     const blob = new Blob([yamlString], { type: 'application/x-yaml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -390,8 +404,8 @@ Creator names: ${creators}
   };
 
   const handleViewYaml = () => {
-    const yamlData = {
-      created_by: githubUsername,
+    const yamlData: KnowledgeYamlData = {
+      created_by: githubUsername!,
       version: SchemaVersion,
       domain: domain,
       task_description: task_description,
@@ -406,7 +420,7 @@ Creator names: ${creators}
       }
     };
 
-    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
+    const yamlString = yaml.dump(yamlData, { lineWidth: YamlLineLength });
     setYamlContent(yamlString);
     setIsModalOpen(true);
   };
@@ -500,7 +514,27 @@ Creator names: ${creators}
           />
         </FormGroup>
       </FormFieldGroupExpandable>
-
+      <FormFieldGroupExpandable
+        isExpanded
+        toggleAriaLabel="Details"
+        header={
+          <FormFieldGroupHeader
+            titleText={{ text: 'File Path Info', id: 'file-path-info-id' }}
+            titleDescription="Specify the file path for the QnA and Attribution files."
+          />
+        }
+      >
+        <FormGroup isRequired key={'file-path-details-id'}>
+          <TextInput
+            isRequired
+            type="text"
+            aria-label="filePath"
+            placeholder="Enter the file path for both files"
+            value={filePath}
+            onChange={(_event, value) => setFilePath(value)}
+          />
+        </FormGroup>
+      </FormFieldGroupExpandable>
       <FormFieldGroupExpandable
         toggleAriaLabel="Details"
         header={

@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
 import yaml from 'js-yaml';
-import { SchemaVersion } from '@/types';
+import { YamlLineLength, SkillYamlData, AttributionData } from '@/types';
 
 const GITHUB_API_URL = 'https://api.github.com';
 const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
@@ -29,9 +29,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, email, task_description, submission_summary, title_work, link_work, license_work, creators, questions, contexts, answers } = body;
+    const { content, attribution, name, email, submission_summary, filePath } = body;
 
-    // Fetch GitHub username
     const githubUsername = await getGitHubUsername(headers);
     console.log('GitHub Username:', githubUsername);
 
@@ -42,37 +41,19 @@ export async function POST(req: NextRequest) {
     }
 
     const branchName = `skill-contribution-${Date.now()}`;
-    const newYamlFilePath = `skills/${name.replace(/ /g, '_')}-qna.yaml`;
-    const newAttributionFilePath = `skills/${name.replace(/ /g, '_')}-attribution.txt`;
+    const newYamlFilePath = `${filePath}qna.yaml`;
+    const newAttributionFilePath = `${filePath}attribution.txt`;
 
-    interface SeedExample {
-      question: string;
-      answer: string;
-      context?: string;
-    }
+    const skillData = yaml.load(content) as SkillYamlData;
+    const attributionData = attribution as AttributionData;
 
-    const yamlData = {
-      created_by: githubUsername,
-      version: SchemaVersion,
-      task_description: task_description,
-      seed_examples: questions.map((question: string, index: number) => {
-        const example: SeedExample = {
-          question,
-          answer: answers[index]
-        };
-        if (contexts[index].trim() !== '') {
-          example.context = contexts[index];
-        }
-        return example;
-      })
-    };
+    const yamlString = yaml.dump(skillData, { lineWidth: YamlLineLength });
 
-    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
-    const attributionContent = `Title of work: ${title_work}
-Link to work: ${link_work}
-Revision: -
-License of the work: ${license_work}
-Creator names: ${creators}
+    const attributionString = `Title of work: ${attributionData.title_of_work}
+Link to work: ${attributionData.link_to_work}
+Revision: ${attributionData.revision}
+License of the work: ${attributionData.license_of_the_work}
+Creator names: ${attributionData.creator_names}
 `;
 
     // Get the base branch SHA
@@ -88,7 +69,7 @@ Creator names: ${creators}
       githubUsername,
       [
         { path: newYamlFilePath, content: yamlString },
-        { path: newAttributionFilePath, content: attributionContent }
+        { path: newAttributionFilePath, content: attributionString }
       ],
       branchName,
       `${submission_summary}\n\nSigned-off-by: ${name} <${email}>`

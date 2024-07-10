@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
 import yaml from 'js-yaml';
-import { SchemaVersion } from '@/types';
+import { KnowledgeYamlData, AttributionData, YamlLineLength } from '@/types';
 
 const GITHUB_API_URL = 'https://api.github.com';
 const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
@@ -29,23 +29,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const {
-      name,
-      email,
-      task_description,
-      submission_summary,
-      domain,
-      repo,
-      commit,
-      patterns,
-      questions,
-      answers,
-      title_work,
-      link_work,
-      revision,
-      license_work,
-      creators
-    } = body;
+    const { content, name, email, submission_summary, attribution, filePath } = body;
+
+    const knowledgeData: KnowledgeYamlData = yaml.load(content) as KnowledgeYamlData;
+    const attributionData: AttributionData = attribution;
 
     // Fetch GitHub username
     const githubUsername = await getGitHubUsername(headers);
@@ -56,51 +43,20 @@ export async function POST(req: NextRequest) {
     if (!forkExists) {
       await createFork(headers);
       // Add a delay to ensure the fork operation completes to avoid a race condition when retrieving the base SHA
-      // This only occurs if this is the first time submitting and the fork isn't present.
-      // TODO change to a retry
       console.log('Pause 5s for the forking operation to complete');
       await new Promise((resolve) => setTimeout(resolve, 5000));
     }
 
     const branchName = `knowledge-contribution-${Date.now()}`;
-    const newYamlFilePath = `knowledge/${name.replace(/ /g, '_')}-${Date.now()}.yaml`;
-    const newAttributionFilePath = `knowledge/${name.replace(/ /g, '_')}-attribution.txt`;
+    const newYamlFilePath = `${filePath}qna.yaml`;
+    const newAttributionFilePath = `${filePath}attribution.txt`;
 
-    interface SeedExample {
-      question: string;
-      answer: string;
-    }
-
-    interface Document {
-      repo: string;
-      commit: string;
-      patterns: string[];
-    }
-
-    const yamlData = {
-      created_by: githubUsername,
-      version: SchemaVersion,
-      domain: domain,
-      task_description: task_description,
-      seed_examples: questions.map((question: string, index: number) => {
-        return {
-          question,
-          answer: answers[index]
-        } as SeedExample;
-      }),
-      document: {
-        repo: repo,
-        commit: commit,
-        patterns: patterns.split(',').map((pattern: string) => pattern.trim())
-      } as Document
-    };
-
-    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
-    const attributionContent = `Title of work: ${title_work}
-Link to work: ${link_work}
-Revision: ${revision}
-License of the work: ${license_work}
-Creator names: ${creators}
+    const yamlString = yaml.dump(knowledgeData, { lineWidth: YamlLineLength });
+    const attributionContent = `Title of work: ${attributionData.title_of_work}
+Link to work: ${attributionData.link_to_work}
+Revision: ${attributionData.revision}
+License of the work: ${attributionData.license_of_the_work}
+Creator names: ${attributionData.creator_names}
 `;
 
     // Get the base branch SHA

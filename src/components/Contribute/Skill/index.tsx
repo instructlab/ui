@@ -16,7 +16,7 @@ import yaml from 'js-yaml';
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
-import { SchemaVersion } from '@/types';
+import { AttributionData, SchemaVersion, SkillYamlData, YamlLineLength } from '@/types';
 import SkillDescription from './SkillDescription';
 
 export const SkillForm: React.FunctionComponent = () => {
@@ -42,6 +42,7 @@ export const SkillForm: React.FunctionComponent = () => {
   const [name, setName] = useState('');
   const [task_description, setTaskDescription] = useState('');
   const [submission_summary, setSubmissionSummary] = useState('');
+  const [filePath, setFilePath] = useState('');
 
   const [title_work, setTitleWork] = useState('');
   const [link_work, setLinkWork] = useState('-');
@@ -115,6 +116,7 @@ export const SkillForm: React.FunctionComponent = () => {
     setLinkWork('-');
     setLicenseWork('');
     setCreators('');
+    setFilePath('');
   };
 
   const onCloseSuccessAlert = () => {
@@ -127,6 +129,10 @@ export const SkillForm: React.FunctionComponent = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
+
+    // Strip leading slash and ensure trailing slash in the file path
+    let sanitizedFilePath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
+    sanitizedFilePath = sanitizedFilePath.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
     const infoFields = { email, name, task_description, submission_summary };
     const attributionFields = { title_work, link_work, license_work, creators };
@@ -171,18 +177,25 @@ export const SkillForm: React.FunctionComponent = () => {
       return;
     }
 
-    const skillData = {
-      name: name,
-      email: email,
-      task_description: task_description,
-      submission_summary: submission_summary,
-      title_work: title_work,
-      link_work: link_work,
-      license_work: license_work,
-      creators: creators,
-      questions,
-      contexts,
-      answers
+    const skillData: SkillYamlData = {
+      created_by: githubUsername!,
+      version: SchemaVersion,
+      task_description,
+      seed_examples: questions.map((question, index) => ({
+        question,
+        context: contexts[index],
+        answer: answers[index]
+      }))
+    };
+
+    const yamlString = yaml.dump(skillData, { lineWidth: YamlLineLength });
+
+    const attributionData: AttributionData = {
+      title_of_work: title_work,
+      link_to_work: '-',
+      revision: '-',
+      license_of_the_work: license_work,
+      creator_names: creators
     };
 
     try {
@@ -191,7 +204,7 @@ export const SkillForm: React.FunctionComponent = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(skillData)
+        body: JSON.stringify({ content: yamlString, attribution: attributionData, name, email, submission_summary, filePath: sanitizedFilePath })
       });
 
       if (!response.ok) {
@@ -224,7 +237,8 @@ export const SkillForm: React.FunctionComponent = () => {
       }))
     };
 
-    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
+    const yamlString = yaml.dump(yamlData, { lineWidth: YamlLineLength });
+
     setYamlContent(yamlString);
     setIsModalOpen(true);
   };
@@ -295,7 +309,7 @@ export const SkillForm: React.FunctionComponent = () => {
       })
     };
 
-    const yamlString = yaml.dump(yamlData, { lineWidth: -1 });
+    const yamlString = yaml.dump(yamlData, { lineWidth: YamlLineLength });
     const blob = new Blob([yamlString], { type: 'application/x-yaml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -412,7 +426,27 @@ export const SkillForm: React.FunctionComponent = () => {
           />
         </FormGroup>
       </FormFieldGroupExpandable>
-
+      <FormFieldGroupExpandable
+        isExpanded
+        toggleAriaLabel="Details"
+        header={
+          <FormFieldGroupHeader
+            titleText={{ text: 'File Path Info', id: 'file-path-info-id' }}
+            titleDescription="Specify the file path for the QnA and Attribution files."
+          />
+        }
+      >
+        <FormGroup isRequired key={'file-path-details-id'}>
+          <TextInput
+            isRequired
+            type="text"
+            aria-label="filePath"
+            placeholder="Enter the file path for both files"
+            value={filePath}
+            onChange={(_event, value) => setFilePath(value)}
+          />
+        </FormGroup>
+      </FormFieldGroupExpandable>
       <FormFieldGroupExpandable
         toggleAriaLabel="Details"
         header={
