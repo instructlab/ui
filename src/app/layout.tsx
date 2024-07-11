@@ -5,6 +5,11 @@ import ClientProvider from '../components/ClientProviders';
 import '@patternfly/react-core/dist/styles/base.css';
 import '@patternfly/react-styles/css/components/Menu/menu.css';
 
+export const metadata = {
+  title: 'InstructLab UI',
+  description: 'InstructLab UI'
+};
+
 interface RootLayoutProps {
   children: ReactNode;
 }
@@ -12,7 +17,6 @@ interface RootLayoutProps {
 const RootLayout = ({ children }: RootLayoutProps) => {
   return (
     <html lang="en">
-      <head></head>
       <body>
         <ClientProvider>{children}</ClientProvider>
       </body>
