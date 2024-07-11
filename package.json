@@ -36,12 +36,12 @@
     "react-dom": "18.3.1",
     "react-query": "^3.39.3",
     "typescript": "5.4.5",
-    "winston": "^3.13.0"
+    "winston": "^3.13.0",
+    "@types/js-yaml": "^4.0.9"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^14.2.3",
     "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^2.0.4",
-    "@types/js-yaml": "^4.0.9",
     "@types/styled-components": "^5.1.34",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^7.13.0",
