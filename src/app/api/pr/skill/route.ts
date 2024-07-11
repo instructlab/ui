@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
 import yaml from 'js-yaml';
-import { YamlLineLength, SkillYamlData, AttributionData } from '@/types';
+import { SkillYamlData, AttributionData } from '@/types';
+import { dumpYaml } from '@/utils/yamlConfig';
 
 const GITHUB_API_URL = 'https://api.github.com';
 const SKILL_DIR = 'compositional_skills';
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
     const skillData = yaml.load(content) as SkillYamlData;
     const attributionData = attribution as AttributionData;
 
-    const yamlString = yaml.dump(skillData, { lineWidth: YamlLineLength });
+    const yamlString = dumpYaml(skillData);
 
     const attributionString = `Title of work: ${attributionData.title_of_work}
 Link to work: ${attributionData.link_to_work}

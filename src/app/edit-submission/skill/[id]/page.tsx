@@ -17,7 +17,7 @@ import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { AppLayout } from '../../../../components/AppLayout';
-import { AttributionData, PullRequestFile, SchemaVersion, SkillYamlData, YamlLineLength } from '@/types';
+import { AttributionData, PullRequestFile, SchemaVersion, SkillYamlData } from '@/types';
 import {
   fetchPullRequest,
   fetchFileContent,
@@ -28,6 +28,7 @@ import {
 } from '../../../../utils/github';
 import yaml from 'js-yaml';
 import axios from 'axios';
+import { dumpYaml } from '@/utils/yamlConfig';
 
 const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ params }) => {
   const { data: session } = useSession();
@@ -146,11 +147,8 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
             answer: answers[index]
           }))
         };
-        const updatedYamlContent = yaml.dump(updatedYamlData, {
-          lineWidth: YamlLineLength,
-          noCompatMode: true,
-          quotingType: '"'
-        });
+
+        const updatedYamlContent = dumpYaml(updatedYamlData);
 
         console.log('Updated YAML content:', updatedYamlContent);
 

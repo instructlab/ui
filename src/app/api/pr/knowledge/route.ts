@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
 import yaml from 'js-yaml';
-import { KnowledgeYamlData, AttributionData, YamlLineLength } from '@/types';
+import { KnowledgeYamlData, AttributionData } from '@/types';
+import { dumpYaml } from '@/utils/yamlConfig';
 
 const GITHUB_API_URL = 'https://api.github.com';
 const KNOWLEDGE_DIR = 'knowledge';
@@ -52,7 +53,8 @@ export async function POST(req: NextRequest) {
     const newYamlFilePath = `${KNOWLEDGE_DIR}/${filePath}qna.yaml`;
     const newAttributionFilePath = `${KNOWLEDGE_DIR}/${filePath}attribution.txt`;
 
-    const yamlString = yaml.dump(knowledgeData, { lineWidth: YamlLineLength });
+    const yamlString = dumpYaml(knowledgeData);
+
     const attributionContent = `Title of work: ${attributionData.title_of_work}
 Link to work: ${attributionData.link_to_work}
 Revision: ${attributionData.revision}

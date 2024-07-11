@@ -18,7 +18,7 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { AppLayout } from '../../../../components/AppLayout';
 import { UploadFile } from '../../../../components/Contribute/Knowledge/UploadFile';
-import { AttributionData, PullRequestFile, KnowledgeYamlData, SchemaVersion, YamlLineLength } from '@/types';
+import { AttributionData, PullRequestFile, KnowledgeYamlData, SchemaVersion } from '@/types';
 import {
   fetchPullRequest,
   fetchFileContent,
@@ -29,6 +29,7 @@ import {
 } from '../../../../utils/github';
 import yaml from 'js-yaml';
 import axios from 'axios';
+import { dumpYaml } from '@/utils/yamlConfig';
 
 const EditKnowledgePage: React.FunctionComponent<{ params: { id: string } }> = ({ params }) => {
   const { data: session } = useSession();
@@ -164,11 +165,9 @@ const EditKnowledgePage: React.FunctionComponent<{ params: { id: string } }> = (
             answer: answers[index]
           }))
         };
-        const updatedYamlContent = yaml.dump(updatedYamlData, {
-          lineWidth: YamlLineLength,
-          noCompatMode: true,
-          quotingType: '"'
-        });
+
+        const updatedYamlContent = dumpYaml(updatedYamlData);
+
         console.log('Updated YAML content:', updatedYamlContent);
 
         const updatedAttributionData: AttributionData = {
