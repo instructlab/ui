@@ -6,6 +6,7 @@ import yaml from 'js-yaml';
 import { KnowledgeYamlData, AttributionData, YamlLineLength } from '@/types';
 
 const GITHUB_API_URL = 'https://api.github.com';
+const KNOWLEDGE_DIR = 'knowledge';
 const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
 const UPSTREAM_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_REPO!;
 const BASE_BRANCH = 'main';
@@ -48,8 +49,8 @@ export async function POST(req: NextRequest) {
     }
 
     const branchName = `knowledge-contribution-${Date.now()}`;
-    const newYamlFilePath = `${filePath}qna.yaml`;
-    const newAttributionFilePath = `${filePath}attribution.txt`;
+    const newYamlFilePath = `${KNOWLEDGE_DIR}/${filePath}qna.yaml`;
+    const newAttributionFilePath = `${KNOWLEDGE_DIR}/${filePath}attribution.txt`;
 
     const yamlString = yaml.dump(knowledgeData, { lineWidth: YamlLineLength });
     const attributionContent = `Title of work: ${attributionData.title_of_work}
