@@ -11,14 +11,14 @@ import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
 import { PlusIcon, MinusCircleIcon, CodeIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
-import yaml from 'js-yaml';
 import { validateFields, validateEmail, validateUniqueItems } from '../../../utils/validation';
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { UploadFile } from './UploadFile';
-import { SchemaVersion, YamlLineLength, KnowledgeYamlData, AttributionData } from '@/types';
+import { SchemaVersion, KnowledgeYamlData, AttributionData } from '@/types';
 import KnowledgeDescription from './KnowledgeDescription';
+import { dumpYaml } from '@/utils/yamlConfig';
 
 export const KnowledgeForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
@@ -204,7 +204,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       }
     };
 
-    const yamlString = yaml.dump(knowledgeData, { lineWidth: YamlLineLength });
+    const yamlString = dumpYaml(knowledgeData);
 
     const attributionData: AttributionData = {
       title_of_work: title_work,
@@ -364,7 +364,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       }
     };
 
-    const yamlString = yaml.dump(yamlData, { lineWidth: YamlLineLength });
+    const yamlString = dumpYaml(yamlData);
     const blob = new Blob([yamlString], { type: 'application/x-yaml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -420,7 +420,7 @@ Creator names: ${creators}
       }
     };
 
-    const yamlString = yaml.dump(yamlData, { lineWidth: YamlLineLength });
+    const yamlString = dumpYaml(yamlData);
     setYamlContent(yamlString);
     setIsModalOpen(true);
   };

@@ -1,7 +1,6 @@
 // src/types/index.ts
 
 export const SchemaVersion = 2;
-export const YamlLineLength = 80;
 
 export interface Endpoint {
   id: string;
