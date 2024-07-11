@@ -26,4 +26,11 @@ spec:
           envFrom:
             - secretRef:
                 name: ui-config
+          volumeMounts:
+            - mountPath: /app/storage
+              name: ui-storage
+      volumes:
+        - name: ui-storage
+          persistentVolumeClaim:
+            claimName: ui-pvc
       restartPolicy: Always
