@@ -710,13 +710,13 @@ Creator names: ${creators}
       )}
 
       <ActionGroup>
-        <Button variant="primary" type="submit" className="submit-k" onClick={handleSubmit}>
+        <Button variant="primary" type="submit" onClick={handleSubmit}>
           Submit Knowledge
         </Button>
-        <Button variant="primary" type="button" className="download-k-yaml" onClick={handleDownloadYaml}>
+        <Button variant="primary" type="button" onClick={handleDownloadYaml}>
           Download YAML
         </Button>
-        <Button variant="primary" type="button" className="download-k-attribution" onClick={handleDownloadAttribution}>
+        <Button variant="primary" type="button" onClick={handleDownloadAttribution}>
           Download Attribution
         </Button>
       </ActionGroup>

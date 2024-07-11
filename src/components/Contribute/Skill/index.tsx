@@ -548,13 +548,13 @@ export const SkillForm: React.FunctionComponent = () => {
         </Alert>
       )}
       <ActionGroup>
-        <Button variant="primary" type="submit" className="submit" onClick={handleSubmit}>
+        <Button variant="primary" type="submit" onClick={handleSubmit}>
           Submit Skill
         </Button>
-        <Button variant="primary" type="button" className="download-yaml" onClick={handleDownloadYaml}>
+        <Button variant="primary" type="button" onClick={handleDownloadYaml}>
           Download YAML
         </Button>
-        <Button variant="primary" type="button" className="download-attribution" onClick={handleDownloadAttribution}>
+        <Button variant="primary" type="button" onClick={handleDownloadAttribution}>
           Download Attribution
         </Button>
       </ActionGroup>

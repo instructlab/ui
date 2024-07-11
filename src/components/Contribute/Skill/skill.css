@@ -6,13 +6,6 @@
   margin-bottom: 50px;
 }
 
-.submit,
-.download {
-  display: inline-block;
-  margin-top: 30px;
-  margin-left: 50%;
-}
-
 .submit:hover,
 .download-yaml:hover,
 .download-attribution:hover {
