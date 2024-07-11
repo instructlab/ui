@@ -29,8 +29,6 @@ import {
 import yaml from 'js-yaml';
 import axios from 'axios';
 
-const UPSTREAM_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_REPO!;
-
 const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ params }) => {
   const { data: session } = useSession();
   const [title, setTitle] = React.useState('');
@@ -189,10 +187,13 @@ Creator names: ${updatedAttributionData.creator_names}
           attribution: finalAttributionPath
         };
 
+        const res = await fetch('/api/envConfig');
+        const envConfig = await res.json();
+
         const amendedCommitResponse = await amendCommit(
           session.accessToken,
           githubUsername,
-          UPSTREAM_REPO_NAME,
+          envConfig.UPSTREAM_REPO_NAME,
           oldFilePath,
           newFilePath,
           updatedYamlContent,
@@ -202,7 +203,7 @@ Creator names: ${updatedAttributionData.creator_names}
         );
         console.log('Amended commit response:', amendedCommitResponse);
 
-        const prLink = `https://github.com/${process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER}/${process.env.NEXT_PUBLIC_TAXONOMY_REPO}/pull/${number}`;
+        const prLink = `https://github.com/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/pull/${number}`;
         setSuccessAlertTitle('Pull request updated successfully!');
         setSuccessAlertMessage('Your pull request has been updated successfully.');
         setSuccessAlertLink(prLink);

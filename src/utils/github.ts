@@ -2,18 +2,21 @@
 import axios from 'axios';
 import { PullRequestUpdateData } from '@/types';
 
-const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
-const UPSTREAM_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_REPO!;
-
 export async function fetchPullRequests(token: string) {
   try {
     console.log('Refreshing PR Listing');
-    const response = await axios.get(`https://api.github.com/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls?state=all`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json'
+    const res = await fetch('/api/envConfig');
+    const envConfig = await res.json();
+
+    const response = await axios.get(
+      `https://api.github.com/repos/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/pulls?state=all`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json'
+        }
       }
-    });
+    );
     console.log('Fetched PRs:', response.data);
     return response.data;
   } catch (error) {
@@ -29,12 +32,17 @@ export async function fetchPullRequests(token: string) {
 export const fetchPullRequest = async (token: string, prNumber: number) => {
   try {
     console.log(`Fetching PR Number: ${prNumber}`);
-    const response = await axios.get(`https://api.github.com/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls/${prNumber}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json'
+    const res = await fetch('/api/envConfig');
+    const envConfig = await res.json();
+    const response = await axios.get(
+      `https://api.github.com/repos/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/pulls/${prNumber}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json'
+        }
       }
-    });
+    );
     if (response.status === 404) {
       throw new Error(`Pull request with number ${prNumber} not found.`);
     }
@@ -53,12 +61,17 @@ export const fetchPullRequest = async (token: string, prNumber: number) => {
 export const fetchPullRequestFiles = async (token: string, prNumber: number) => {
   try {
     console.log(`Fetching files for PR Number: ${prNumber}`);
-    const response = await axios.get(`https://api.github.com/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls/${prNumber}/files`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json'
+    const res = await fetch('/api/envConfig');
+    const envConfig = await res.json();
+    const response = await axios.get(
+      `https://api.github.com/repos/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/pulls/${prNumber}/files`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json'
+        }
       }
-    });
+    );
     console.log(`Fetched files for PR ${prNumber}:`, response.data);
     return response.data;
   } catch (error) {
@@ -74,12 +87,17 @@ export const fetchPullRequestFiles = async (token: string, prNumber: number) => 
 export const fetchFileContent = async (token: string, filePath: string, ref: string) => {
   try {
     console.log(`Fetching file content for path: ${filePath} with ref: ${ref}`);
-    const response = await axios.get(`https://api.github.com/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/contents/${filePath}?ref=${ref}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github.v3.raw'
+    const res = await fetch('/api/envConfig');
+    const envConfig = await res.json();
+    const response = await axios.get(
+      `https://api.github.com/repos/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/contents/${filePath}?ref=${ref}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github.v3.raw'
+        }
       }
-    });
+    );
     console.log('Fetched file content:', response.data);
     return response.data;
   } catch (error) {
@@ -95,12 +113,18 @@ export const fetchFileContent = async (token: string, filePath: string, ref: str
 export const updatePullRequest = async (token: string, prNumber: number, data: PullRequestUpdateData) => {
   try {
     console.log(`Updating PR Number: ${prNumber} with data:`, data);
-    const response = await axios.patch(`https://api.github.com/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls/${prNumber}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json'
+    const res = await fetch('/api/envConfig');
+    const envConfig = await res.json();
+    const response = await axios.patch(
+      `https://api.github.com/repos/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/pulls/${prNumber}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json'
+        }
       }
-    });
+    );
     console.log(`Updated PR ${prNumber}:`, response.data);
     return response.data;
   } catch (error) {
