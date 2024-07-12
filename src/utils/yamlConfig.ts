@@ -37,8 +37,31 @@ function removeNullValues(obj: unknown): unknown {
   return obj === null ? '' : obj;
 }
 
+function trimTrailingSpaces(yamlString: string): string {
+  // Split the string, but keep the final newline if it exists
+  const hasTrailingNewline = yamlString.endsWith('\n');
+  const lines = yamlString.split('\n');
+  const trimmedLines = lines.map((line, index) => {
+    if (index === lines.length - 1 && line === '' && hasTrailingNewline) {
+      return line;
+    }
+    // Preserve empty lines
+    if (line.trim() === '') return '';
+    // Trim trailing spaces, preserving indentation
+    const match = line.match(/^(\s*)(.*)$/);
+    if (match) {
+      const [, indent, content] = match;
+      return indent + content.trimEnd();
+    }
+    return line;
+  });
+
+  return trimmedLines.join('\n');
+}
+
 export function dumpYaml(data: unknown, options: Partial<YamlDumpOptions> = {}): string {
   const mergedOptions: YamlDumpOptions = { ...defaultYamlDumpOptions, ...options };
   const processedData = removeNullValues(data);
-  return yaml.dump(processedData, mergedOptions);
+  const yamlString = yaml.dump(processedData, mergedOptions);
+  return trimTrailingSpaces(yamlString);
 }
