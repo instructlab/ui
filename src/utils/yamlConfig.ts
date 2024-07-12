@@ -37,8 +37,49 @@ function removeNullValues(obj: unknown): unknown {
   return obj === null ? '' : obj;
 }
 
+// If the Context field is empty, omit the key from the output
+function filterEmptyContext(data: unknown): unknown {
+  if (Array.isArray(data)) {
+    return data.map((item) => filterEmptyContext(item));
+  } else if (data !== null && typeof data === 'object') {
+    const filteredEntries = Object.entries(data)
+      .map(([key, value]) => {
+        if (key === 'context' && value === '') {
+          return null;
+        }
+        return [key, filterEmptyContext(value)];
+      })
+      .filter((entry): entry is [string, unknown] => entry !== null);
+    return Object.fromEntries(filteredEntries);
+  }
+  return data;
+}
+
+function trimTrailingSpaces(yamlString: string): string {
+  const hasTrailingNewline = yamlString.endsWith('\n');
+  const lines = yamlString.split('\n');
+  const trimmedLines = lines.map((line, index) => {
+    if (index === lines.length - 1 && line === '' && hasTrailingNewline) {
+      return line;
+    }
+    // Preserve empty lines
+    if (line.trim() === '') return '';
+    // Trim trailing spaces, preserving indentation
+    const match = line.match(/^(\s*)(.*)$/);
+    if (match) {
+      const [, indent, content] = match;
+      return indent + content.trimEnd();
+    }
+    return line;
+  });
+
+  return trimmedLines.join('\n');
+}
+
 export function dumpYaml(data: unknown, options: Partial<YamlDumpOptions> = {}): string {
   const mergedOptions: YamlDumpOptions = { ...defaultYamlDumpOptions, ...options };
-  const processedData = removeNullValues(data);
-  return yaml.dump(processedData, mergedOptions);
+  const filteredData = filterEmptyContext(data);
+  const processedData = removeNullValues(filteredData);
+  const yamlString = yaml.dump(processedData, mergedOptions);
+  return trimTrailingSpaces(yamlString);
 }
