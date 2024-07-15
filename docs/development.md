@@ -67,6 +67,16 @@ npm run pretty
 
 # Run type checking
 npm run type-check
+
+```
+
+## Make scripts
+
+Podman is a requirement. Install and init instructions [here](https://podman.io/docs/installation).
+
+```bash
+# Run markdown linter
+make md-lint
 ```
 
 ### Summary of Server-Side Rendering and Client-Side Data Handling for Jobs and Chat Routes
