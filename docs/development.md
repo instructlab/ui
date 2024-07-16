@@ -35,6 +35,16 @@ npm run pretty
 
 # Run type checking
 npm run type-check
+
+```
+
+## Make scripts
+
+Podman is a requirement. Install and init instructions [here](https://podman.io/docs/installation).
+
+```bash
+# Run markdown linter
+make md-lint
 ```
 
 ## Deploying the UI stack in KIND cluster
