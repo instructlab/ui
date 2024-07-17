@@ -314,7 +314,7 @@ export const SkillForm: React.FunctionComponent = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'skill.yaml';
+    a.download = 'qna.yaml';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
