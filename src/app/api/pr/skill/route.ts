@@ -14,7 +14,7 @@ const BASE_BRANCH = 'main';
 
 export async function POST(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET! });
-  console.log('GitHub Token:', token);
+  // console.log('GitHub Token:', token);
 
   if (!token || !token.accessToken) {
     console.error('Unauthorized: Missing or invalid access token');
