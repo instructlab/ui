@@ -12,6 +12,7 @@ import { SelectOption, SelectList } from '@patternfly/react-core/dist/dynamic/co
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import UserIcon from '@patternfly/react-icons/dist/dynamic/icons/user-icon';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBroom } from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
@@ -27,6 +28,7 @@ const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSelectOpen, setIsSelectOpen] = useState(false);
+  const [isModelSelectedOnSend, setIsModelSelectedOnSend] = useState(true);
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
   const [customModels, setCustomModels] = useState<Model[]>([]);
   const [defaultModels, setDefaultModels] = useState<Model[]>([]);
@@ -54,7 +56,6 @@ const ChatPage: React.FC = () => {
 
       setDefaultModels(defaultModels);
       setCustomModels(customModels);
-      setSelectedModel([...defaultModels, ...customModels][0] || null);
     };
 
     fetchDefaultModels();
@@ -68,6 +69,7 @@ const ChatPage: React.FC = () => {
     const selected = [...defaultModels, ...customModels].find((model) => model.name === value) || null;
     setSelectedModel(selected);
     setIsSelectOpen(false);
+    setIsModelSelectedOnSend(true);
   };
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
@@ -90,7 +92,13 @@ const ChatPage: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!question.trim() || !selectedModel) return;
+    if (!selectedModel) {
+      setIsModelSelectedOnSend(false);
+      return;
+    }
+    if (!question.trim()) {
+      return;
+    }
 
     setMessages((messages) => [...messages, { text: question, isUser: true }]);
     setQuestion('');
@@ -277,6 +285,11 @@ const ChatPage: React.FC = () => {
           <Button variant="primary" type="submit">
             Send
           </Button>
+          {isModelSelectedOnSend ? null : (
+            <div>
+              <Alert variant="danger" title="No Model Selected" ouiaId="DangerAlert" />
+            </div>
+          )}
         </Form>
       </div>
     </AppLayout>
