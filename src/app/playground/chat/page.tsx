@@ -29,6 +29,7 @@ const ChatPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [isModelSelectedOnSend, setIsModelSelectedOnSend] = useState(true);
+  const [isPromptOnSend, setIsPromptOnSend] = useState(true);
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
   const [customModels, setCustomModels] = useState<Model[]>([]);
   const [defaultModels, setDefaultModels] = useState<Model[]>([]);
@@ -90,6 +91,10 @@ const ChatPage: React.FC = () => {
     setQuestion(value);
   };
 
+  const handleQuestionFieldSelected = () => {
+    setIsPromptOnSend(true);
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!selectedModel) {
@@ -97,6 +102,7 @@ const ChatPage: React.FC = () => {
       return;
     }
     if (!question.trim()) {
+      setIsPromptOnSend(false);
       return;
     }
 
@@ -279,15 +285,21 @@ const ChatPage: React.FC = () => {
               name="question-field"
               value={question}
               onChange={handleQuestionChange}
+              onSelect={handleQuestionFieldSelected}
               placeholder="Type your question here..."
             />
           </FormGroup>
           <Button variant="primary" type="submit">
             Send
           </Button>
-          {isModelSelectedOnSend ? null : (
+          {!isModelSelectedOnSend && (
             <div>
               <Alert variant="danger" title="No Model Selected" ouiaId="DangerAlert" />
+            </div>
+          )}
+          {!isPromptOnSend && (
+            <div>
+              <Alert variant="danger" title="No Question Added!" ouiaId="DangerAlert" />
             </div>
           )}
         </Form>
