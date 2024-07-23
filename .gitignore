@@ -19,3 +19,4 @@ stats.json
 auth.log
 tsconfig.tsbuildinfo
 .idea
+.vscode
