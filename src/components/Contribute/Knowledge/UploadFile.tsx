@@ -126,7 +126,7 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
           titleIcon={<UploadIcon />}
           titleText="Drag and drop files here"
           titleTextSeparator="or"
-          infoText="Accepted file types: PDF, Markdown"
+          infoText="Accepted file types: Markdown"
         />
         {showStatus && (
           <MultipleFileUploadStatus

@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import fetch from 'node-fetch';
 import https from 'https';
 import { PassThrough } from 'stream';
-import '../../../../../envConfig';
 
 export async function POST(req: NextRequest) {
   try {
