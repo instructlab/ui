@@ -6,13 +6,16 @@ on:
       - main
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/ui
+  GHCR_REGISTRY: ghcr.io
+  GHCR_UI_IMAGE_NAME: ${{ github.repository }}/ui
+  QUAY_REGISTRY: quay.io
+  QUAY_UI_IMAGE_NAME: instructlab-ui/ui
 
 jobs:
   build_and_publish_ui_image:
-    name: Push UI container image to GHCR
+    name: Push UI container image to GHCR and QUAY
     runs-on: ubuntu-latest
+    environment: registry-creds
     permissions:
       packages: write
       contents: read
@@ -23,29 +26,51 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
 
-      - name: Log in to the Container registry
+      - name: Log in to the GHCR container image registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.GHCR_REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/setup-buildx-action@v3
+      - name: Log in to Quay container image registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.QUAY_REGISTRY }}
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Extract metadata (tags, labels) for UI image
-        id: ui_meta
+        id: ghcr_ui_meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME }}
 
-      - name: Build and push ui image
+      - name: Extract metadata (tags, labels) for UI image
+        id: quay_ui_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_UI_IMAGE_NAME }}
+
+      - name: Build and push ui image to ghcr.io
         id: push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ steps.ui_meta.outputs.tags }}
-          labels: ${{ steps.ui_meta.outputs.labels }}
+          tags: ${{ steps.ghcr_ui_meta.outputs.tags }}
+          labels: ${{ steps.ghcr_ui_meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -54,6 +79,19 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME}}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+
+      - name: Build and push ui image to quay.io
+        id: push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.quay_ui_meta.outputs.tags }}
+          labels: ${{ steps.quay_ui_meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: Containerfile
