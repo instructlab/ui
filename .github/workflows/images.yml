@@ -80,7 +80,7 @@ jobs:
         uses: actions/attest-build-provenance@v1
         with:
           subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME}}
-          subject-digest: ${{ steps.push.outputs.digest }}
+          subject-digest: ${{ steps.push-ui-ghcr.outputs.digest }}
           push-to-registry: true
 
       - name: Build and push ui image to quay.io
