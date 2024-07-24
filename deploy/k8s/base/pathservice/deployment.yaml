@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ui
+  name: pathservice
 spec:
   replicas: 1
   strategy:
@@ -9,8 +9,8 @@ spec:
   template:
     spec:
       containers:
-        - name: ui
-          image: quay.io/instructlab-ui/ui:main
+        - name: pathservice
+          image: quay.io/instructlab-ui/pathservice:main
           imagePullPolicy: Always
           resources:
             requests:
@@ -22,8 +22,5 @@ spec:
           ports:
             - name: http
               protocol: TCP
-              containerPort: 3000
-          envFrom:
-            - secretRef:
-                name: ui-config
+              containerPort: 4000
       restartPolicy: Always

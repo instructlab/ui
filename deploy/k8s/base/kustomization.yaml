@@ -4,6 +4,7 @@ namespace: instructlab
 resources:
   - namespace.yaml
   - ui
+  - pathservice
 labels:
   - includeSelectors: true
     pairs:

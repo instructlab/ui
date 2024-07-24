@@ -18,6 +18,7 @@ import YamlCodeModal from '../../YamlCodeModal';
 import { AttributionData, SchemaVersion, SkillYamlData } from '@/types';
 import SkillDescription from './SkillDescription';
 import { dumpYaml } from '@/utils/yamlConfig';
+import PathService from '@/components/PathService/PathService';
 
 export const SkillForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
@@ -436,15 +437,8 @@ export const SkillForm: React.FunctionComponent = () => {
           />
         }
       >
-        <FormGroup isRequired key={'file-path-details-id'}>
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="filePath"
-            placeholder="Enter the file path for both files"
-            value={filePath}
-            onChange={(_event, value) => setFilePath(value)}
-          />
+        <FormGroup isRequired key={'file-path-service-id'}>
+          <PathService rootPath="skills" handlePathChange={setFilePath} />
         </FormGroup>
       </FormFieldGroupExpandable>
       <FormFieldGroupExpandable

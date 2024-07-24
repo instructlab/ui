@@ -19,6 +19,7 @@ import { UploadFile } from './UploadFile';
 import { SchemaVersion, KnowledgeYamlData, AttributionData } from '@/types';
 import KnowledgeDescription from './KnowledgeDescription';
 import { dumpYaml } from '@/utils/yamlConfig';
+import PathService from '@/components/PathService/PathService';
 
 export const KnowledgeForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
@@ -524,15 +525,8 @@ Creator names: ${creators}
           />
         }
       >
-        <FormGroup isRequired key={'file-path-details-id'}>
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="filePath"
-            placeholder="Enter the file path for both files"
-            value={filePath}
-            onChange={(_event, value) => setFilePath(value)}
-          />
+        <FormGroup isRequired key={'file-path-service-id'}>
+          <PathService rootPath="knowledge" handlePathChange={setFilePath} />
         </FormGroup>
       </FormFieldGroupExpandable>
       <FormFieldGroupExpandable

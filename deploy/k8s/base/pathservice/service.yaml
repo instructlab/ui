@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pathservice
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/component: pathservice
+    app.kubernetes.io/instance: pathservice
+    app.kubernetes.io/name: pathservice
+  ports:
+    - port: 4000
+      targetPort: 4000
