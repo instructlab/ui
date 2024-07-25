@@ -4,6 +4,7 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress-ui.yaml
+  - pvc.yaml
 labels:
   - includeSelectors: true
     pairs:
