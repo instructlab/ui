@@ -48,15 +48,17 @@ export interface SkillYamlData {
   }>;
 }
 
+export interface QuestionAnswerPair {
+  question: string;
+  answer: string;
+}
+
 export interface KnowledgeYamlData {
   created_by: string;
   version: number;
   domain: string;
   task_description: string;
-  seed_examples: Array<{
-    question: string;
-    answer: string;
-  }>;
+  seed_examples: QuestionAnswerPair[];
   document: {
     repo: string;
     commit: string;

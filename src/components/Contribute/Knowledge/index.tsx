@@ -16,7 +16,7 @@ import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { UploadFile } from './UploadFile';
-import { SchemaVersion, KnowledgeYamlData, AttributionData } from '@/types';
+import { SchemaVersion, KnowledgeYamlData, AttributionData, QuestionAnswerPair } from '@/types';
 import KnowledgeDescription from './KnowledgeDescription';
 import { dumpYaml } from '@/utils/yamlConfig';
 
@@ -39,6 +39,15 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     fetchUsername();
   }, [session?.accessToken]);
 
+  const intialQuestionAnswerPair: QuestionAnswerPair = {
+    question: 'What is InstructLab?',
+    answer: `InstructLab is an open source project for enhancing large language models (LLMs) 
+      used in generative artificial intelligence (gen AI) applications. 
+      Created by IBM and Red Hat, the InstructLab community project provides a cost-effective 
+      solution for improving the alignment of LLMs and opens the doors for those with minimal 
+      machine learning experience to contribute.`
+  };
+
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [task_description, setTaskDescription] = useState('');
@@ -55,9 +64,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [revision, setRevision] = useState('');
   const [license_work, setLicenseWork] = useState('');
   const [creators, setCreators] = useState('');
-
-  const [questions, setQuestions] = useState<string[]>(new Array(5).fill(''));
-  const [answers, setAnswers] = useState<string[]>(new Array(5).fill(''));
+  const [questionAnswerPairs, setQuestionAnswerPairs] = useState<QuestionAnswerPair[]>([intialQuestionAnswerPair]);
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
   const [isFailureAlertVisible, setIsFailureAlertVisible] = useState(false);
 
@@ -74,35 +81,28 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [yamlContent, setYamlContent] = useState('');
 
-  const handleInputChange = (index: number, type: string, value: string) => {
-    switch (type) {
-      case 'question':
-        setQuestions((prevQuestions) => {
-          const updatedQuestions = [...prevQuestions];
-          updatedQuestions[index] = value;
-          return updatedQuestions;
-        });
-        break;
-      case 'answer':
-        setAnswers((prevAnswers) => {
-          const updatedAnswers = [...prevAnswers];
-          updatedAnswers[index] = value;
-          return updatedAnswers;
-        });
-        break;
-      default:
-        break;
-    }
+  const handleQuestionInputChange = (index: number, value: string) => {
+    setQuestionAnswerPairs(
+      questionAnswerPairs.map((questionAnswerPair, i) => (i === index ? { ...questionAnswerPair, question: value } : questionAnswerPair))
+    );
+  };
+
+  const handleAnswerInputChange = (index: number, value: string) => {
+    setQuestionAnswerPairs(
+      questionAnswerPairs.map((questionAnswerPair, i) => (i === index ? { ...questionAnswerPair, answer: value } : questionAnswerPair))
+    );
   };
 
   const addQuestionAnswerPair = () => {
-    setQuestions([...questions, '']);
-    setAnswers([...answers, '']);
+    const newQuestionAnswerPair: QuestionAnswerPair = {
+      question: '',
+      answer: ''
+    };
+    setQuestionAnswerPairs([...questionAnswerPairs, newQuestionAnswerPair]);
   };
 
   const deleteQuestionAnswerPair = (index: number) => {
-    setQuestions(questions.filter((_, i) => i !== index));
-    setAnswers(answers.filter((_, i) => i !== index));
+    setQuestionAnswerPairs(questionAnswerPairs.filter((_, i) => i !== index));
   };
 
   const resetForm = () => {
@@ -111,8 +111,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setTaskDescription('');
     setSubmissionSummary('');
     setDomain('');
-    setQuestions(new Array(5).fill(''));
-    setAnswers(new Array(5).fill(''));
+    setQuestionAnswerPairs([intialQuestionAnswerPair]);
     setRepo('');
     setCommit('');
     setPatterns('');
@@ -172,7 +171,10 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       return;
     }
 
-    validation = validateUniqueItems(questions, 'questions');
+    validation = validateUniqueItems(
+      questionAnswerPairs.map((questionAnswerPair) => questionAnswerPair.question),
+      'questions'
+    );
     if (!validation.valid) {
       setFailureAlertTitle('Something went wrong!');
       setFailureAlertMessage(validation.message);
@@ -180,7 +182,10 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       return;
     }
 
-    validation = validateUniqueItems(answers, 'answers');
+    validation = validateUniqueItems(
+      questionAnswerPairs.map((questionAnswerPair) => questionAnswerPair.answer),
+      'answers'
+    );
     if (!validation.valid) {
       setFailureAlertTitle('Something went wrong!');
       setFailureAlertMessage(validation.message);
@@ -193,10 +198,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       version: SchemaVersion,
       domain: domain,
       task_description: task_description,
-      seed_examples: questions.map((question, index) => ({
-        question,
-        answer: answers[index]
-      })),
+      seed_examples: questionAnswerPairs,
       document: {
         repo: repo,
         commit: commit,
@@ -325,7 +327,10 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       return;
     }
 
-    validation = validateUniqueItems(questions, 'questions');
+    validation = validateUniqueItems(
+      questionAnswerPairs.map((questionAnswerPair) => questionAnswerPair.question),
+      'questions'
+    );
     if (!validation.valid) {
       setFailureAlertTitle('Something went wrong!');
       setFailureAlertMessage(validation.message);
@@ -333,17 +338,15 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       return;
     }
 
-    validation = validateUniqueItems(answers, 'answers');
+    validation = validateUniqueItems(
+      questionAnswerPairs.map((questionAnswerPair) => questionAnswerPair.answer),
+      'answers'
+    );
     if (!validation.valid) {
       setFailureAlertTitle('Something went wrong!');
       setFailureAlertMessage(validation.message);
       setIsFailureAlertVisible(true);
       return;
-    }
-
-    interface SeedExample {
-      question: string;
-      answer: string;
     }
 
     const yamlData: KnowledgeYamlData = {
@@ -351,12 +354,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       version: SchemaVersion,
       domain: domain,
       task_description: task_description,
-      seed_examples: questions.map(
-        (question: string, index: number): SeedExample => ({
-          question,
-          answer: answers[index]
-        })
-      ),
+      seed_examples: questionAnswerPairs,
       document: {
         repo: repo,
         commit: commit,
@@ -409,10 +407,7 @@ Creator names: ${creators}
       version: SchemaVersion,
       domain: domain,
       task_description: task_description,
-      seed_examples: questions.map((question, index) => ({
-        question,
-        answer: answers[index]
-      })),
+      seed_examples: questionAnswerPairs,
       document: {
         repo: repo,
         commit: commit,
@@ -539,38 +534,40 @@ Creator names: ${creators}
         toggleAriaLabel="Details"
         header={
           <FormFieldGroupHeader
-            titleText={{ text: 'Knowledge', id: 'contrib-knowledge-id' }}
-            titleDescription="Contribute knowledge to the taxonomy repository (shift+enter for a new line)."
+            titleText={{ text: 'Question and Answers', id: 'question-answer-id' }}
+            titleDescription="Add question and answer examples for your knowledge submission (minimum of 5 required)."
           />
         }
       >
-        {questions.map((question, index) => (
-          <FormGroup key={index}>
+        {questionAnswerPairs.map((questionAnswerPair, index) => (
+          <FormGroup isRequired key={index} fieldId="grid-form-name-01">
             <Text className="heading-k"> Question and Answer: {index + 1}</Text>
             <TextArea
               isRequired
               type="text"
               aria-label={`Question ${index + 1}`}
               placeholder="Enter the question"
-              value={questions[index]}
-              onChange={(_event, value) => handleInputChange(index, 'question', value)}
+              value={questionAnswerPair.question}
+              onChange={(_event, value) => handleQuestionInputChange(index, value)}
             />
             <TextArea
               isRequired
               type="text"
               aria-label={`Answer ${index + 1}`}
               placeholder="Enter the answer"
-              value={answers[index]}
-              onChange={(_event, value) => handleInputChange(index, 'answer', value)}
+              value={questionAnswerPair.answer}
+              onChange={(_event, value) => handleAnswerInputChange(index, value)}
             />
             <Button variant="danger" onClick={() => deleteQuestionAnswerPair(index)}>
               <MinusCircleIcon /> Delete
             </Button>
           </FormGroup>
         ))}
-        <Button variant="primary" onClick={addQuestionAnswerPair}>
-          <PlusIcon /> Add Question and Answer
-        </Button>
+        <div>
+          <Button variant="primary" onClick={addQuestionAnswerPair}>
+            <PlusIcon /> Add Question and Answer
+          </Button>
+        </div>
       </FormFieldGroupExpandable>
 
       <FormFieldGroupExpandable
