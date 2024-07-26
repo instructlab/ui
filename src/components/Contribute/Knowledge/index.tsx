@@ -68,7 +68,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [success_alert_message, setSuccessAlertMessage] = useState<React.ReactNode>('');
   const [successAlertLink, setSuccessAlertLink] = useState<string>('');
 
-  const [useFileUpload, setUseFileUpload] = useState(false);
+  const [useFileUpload, setUseFileUpload] = useState(true);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -582,18 +582,18 @@ Creator names: ${creators}
         <FormGroup>
           <div style={{ display: 'flex', gap: '10px' }}>
             <Button
-              variant={useFileUpload ? 'secondary' : 'primary'}
-              className={!useFileUpload ? 'button-active' : 'button-secondary'}
-              onClick={() => setUseFileUpload(false)}
-            >
-              Manually Enter Document Details
-            </Button>
-            <Button
               variant={useFileUpload ? 'primary' : 'secondary'}
               className={useFileUpload ? 'button-active' : 'button-secondary'}
               onClick={() => setUseFileUpload(true)}
             >
               Automatically Upload Documents
+            </Button>
+            <Button
+              variant={useFileUpload ? 'secondary' : 'primary'}
+              className={!useFileUpload ? 'button-active' : 'button-secondary'}
+              onClick={() => setUseFileUpload(false)}
+            >
+              Manually Enter Document Details
             </Button>
           </div>
         </FormGroup>
