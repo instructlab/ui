@@ -40,8 +40,6 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     fetchUsername();
   }, [session?.accessToken]);
 
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
   const [task_description, setTaskDescription] = useState('');
   const [submission_summary, setSubmissionSummary] = useState('');
   const [domain, setDomain] = useState('');
@@ -106,25 +104,25 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setAnswers(answers.filter((_, i) => i !== index));
   };
 
-  const resetForm = () => {
-    setEmail('');
-    setName('');
-    setTaskDescription('');
-    setSubmissionSummary('');
-    setDomain('');
-    setQuestions(new Array(5).fill(''));
-    setAnswers(new Array(5).fill(''));
-    setRepo('');
-    setCommit('');
-    setPatterns('');
-    setTitleWork('');
-    setLinkWork('');
-    setLicenseWork('');
-    setCreators('');
-    setRevision('');
-    setUploadedFiles([]);
-    setFilePath('');
-  };
+  // const resetForm = () => {
+  //   setEmail(undefined);
+  //   setName('');
+  //   setTaskDescription('');
+  //   setSubmissionSummary('');
+  //   setDomain('');
+  //   setQuestions(new Array(5).fill(''));
+  //   setAnswers(new Array(5).fill(''));
+  //   setRepo('');
+  //   setCommit('');
+  //   setPatterns('');
+  //   setTitleWork('');
+  //   setLinkWork('');
+  //   setLicenseWork('');
+  //   setCreators('');
+  //   setRevision('');
+  //   setUploadedFiles([]);
+  //   setFilePath('');
+  // };
 
   const onCloseSuccessAlert = () => {
     setIsSuccessAlertVisible(false);
@@ -141,12 +139,11 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
-
     // Strip leading slash and ensure trailing slash in the file path
     let sanitizedFilePath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
     sanitizedFilePath = sanitizedFilePath.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
-    const infoFields = { email, name, task_description, submission_summary, domain, repo, commit, patterns };
+    const infoFields = { name, task_description, submission_summary, domain, repo, commit, patterns };
     const attributionFields = { title_work, link_work, revision, license_work, creators };
 
     let validation = validateFields(infoFields);
@@ -165,13 +162,13 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       return;
     }
 
-    validation = validateEmail(email);
-    if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
+    // validation = validateEmail(email);
+    // if (!validation.valid) {
+    //   setFailureAlertTitle('Something went wrong!');
+    //   setFailureAlertMessage(validation.message);
+    //   setIsFailureAlertVisible(true);
+    //   return;
+    // }
 
     validation = validateUniqueItems(questions, 'questions');
     if (!validation.valid) {
@@ -233,7 +230,10 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       setSuccessAlertMessage('A pull request containing your knowledge submission has been successfully created.');
       setSuccessAlertLink(result.html_url);
       setIsSuccessAlertVisible(true);
-      resetForm();
+      // resetForm();
+      // Alternative?
+      // const form = event.target as HTMLFormElement;
+      // form.reset();
     } catch (error: unknown) {
       if (error instanceof Error) {
         setFailureAlertTitle('Failed to submit your Knowledge contribution');
@@ -299,7 +299,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   };
 
   const handleDownloadYaml = () => {
-    const infoFields = { email, name, task_description, submission_summary: submission_summary, domain, repo, commit, patterns };
+    const infoFields = { name, task_description, submission_summary: submission_summary, domain, repo, commit, patterns };
     const attributionFields = { title_work, link_work, revision, license_work, creators };
 
     let validation = validateFields(infoFields);
@@ -318,13 +318,13 @@ export const KnowledgeForm: React.FunctionComponent = () => {
       return;
     }
 
-    validation = validateEmail(email);
-    if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
+    // validation = validateEmail(email);
+    // if (!validation.valid) {
+    //   setFailureAlertTitle('Something went wrong!');
+    //   setFailureAlertMessage(validation.message);
+    //   setIsFailureAlertVisible(true);
+    //   return;
+    // }
 
     validation = validateUniqueItems(questions, 'questions');
     if (!validation.valid) {
@@ -438,35 +438,6 @@ Creator names: ${creators}
 
       <KnowledgeDescription />
 
-      <FormFieldGroupExpandable
-        isExpanded
-        toggleAriaLabel="Details"
-        header={
-          <FormFieldGroupHeader
-            titleText={{ text: 'Author Info', id: 'author-info-id' }}
-            titleDescription="Provide your information required for a GitHub DCO sign-off."
-          />
-        }
-      >
-        <FormGroup isRequired key={'author-info-details-id'}>
-          <TextInput
-            isRequired
-            type="email"
-            aria-label="email"
-            placeholder="Enter your email address"
-            value={email}
-            onChange={(_event, value) => setEmail(value)}
-          />
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="name"
-            placeholder="Enter your full name"
-            value={name}
-            onChange={(_event, value) => setName(value)}
-          />
-        </FormGroup>
-      </FormFieldGroupExpandable>
       <FormFieldGroupExpandable
         isExpanded
         toggleAriaLabel="Details"
