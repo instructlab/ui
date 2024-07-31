@@ -20,3 +20,5 @@ auth.log
 tsconfig.tsbuildinfo
 .idea
 .vscode
+ui.pid
+pathservice.pid

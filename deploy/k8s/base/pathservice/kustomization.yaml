@@ -3,10 +3,9 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - service.yaml
-  - ingress.yaml
 labels:
   - includeSelectors: true
     pairs:
-      app.kubernetes.io/component: ui
-      app.kubernetes.io/instance: ui
-      app.kubernetes.io/name: ui
+      app.kubernetes.io/component: pathservice
+      app.kubernetes.io/instance: pathservice
+      app.kubernetes.io/name: pathservice
