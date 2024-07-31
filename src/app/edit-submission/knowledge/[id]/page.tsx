@@ -37,7 +37,7 @@ const EditKnowledgePage: React.FunctionComponent<{ params: { id: string } }> = (
   const [body, setBody] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [name, setName] = React.useState('');
-  const [task_description, setTaskDescription] = React.useState('');
+  const [document_outline, setDocumentOutline] = React.useState('');
   const [domain, setDomain] = React.useState('');
   const [repo, setRepo] = React.useState('');
   const [commit, setCommit] = React.useState('');
@@ -47,8 +47,16 @@ const EditKnowledgePage: React.FunctionComponent<{ params: { id: string } }> = (
   const [revision, setRevision] = React.useState('');
   const [license_work, setLicenseWork] = React.useState('');
   const [creators, setCreators] = React.useState('');
-  const [questions, setQuestions] = React.useState<string[]>([]);
-  const [answers, setAnswers] = React.useState<string[]>([]);
+  const [seedExamples, setSeedExamples] = React.useState([
+    {
+      context: '',
+      questions_and_answers: [
+        { question: '', answer: '' },
+        { question: '', answer: '' },
+        { question: '', answer: '' }
+      ]
+    }
+  ]);
   const [error, setError] = React.useState<string | null>(null);
   const [yamlFile, setYamlFile] = React.useState<PullRequestFile | null>(null);
   const [attributionFile, setAttributionFile] = React.useState<PullRequestFile | null>(null);
@@ -97,13 +105,12 @@ const EditKnowledgePage: React.FunctionComponent<{ params: { id: string } }> = (
           console.log('Parsed YAML data:', yamlData);
 
           // Populate the form fields with YAML data
-          setTaskDescription(yamlData.task_description);
+          setDocumentOutline(yamlData.document_outline);
           setDomain(yamlData.domain);
           setRepo(yamlData.document.repo);
           setCommit(yamlData.document.commit);
           setPatterns(yamlData.document.patterns.join(', '));
-          setQuestions(yamlData.seed_examples.map((example) => example.question));
-          setAnswers(yamlData.seed_examples.map((example) => example.answer));
+          setSeedExamples(yamlData.seed_examples);
 
           // Set the file path from the current YAML file
           const currentFilePath = foundYamlFile.filename.split('/').slice(0, -1).join('/');
@@ -154,15 +161,18 @@ const EditKnowledgePage: React.FunctionComponent<{ params: { id: string } }> = (
           created_by: githubUsername,
           version: SchemaVersion,
           domain,
-          task_description,
+          document_outline,
           document: {
             repo,
             commit,
             patterns: patterns.split(',').map((pattern) => pattern.trim())
           },
-          seed_examples: questions.map((question, index) => ({
-            question,
-            answer: answers[index]
+          seed_examples: seedExamples.map((example) => ({
+            context: example.context,
+            questions_and_answers: example.questions_and_answers.map((qa) => ({
+              question: qa.question,
+              answer: qa.answer
+            }))
           }))
         };
 
@@ -304,35 +314,44 @@ Creator names: ${updatedAttributionData.creator_names}
     }
   };
 
-  const handleInputChange = (index: number, type: string, value: string) => {
-    switch (type) {
-      case 'question':
-        setQuestions((prevQuestions) => {
-          const updatedQuestions = [...prevQuestions];
-          updatedQuestions[index] = value;
-          return updatedQuestions;
-        });
-        break;
-      case 'answer':
-        setAnswers((prevAnswers) => {
-          const updatedAnswers = [...prevAnswers];
-          updatedAnswers[index] = value;
-          return updatedAnswers;
-        });
-        break;
-      default:
-        break;
+  const handleInputChange = (exampleIndex: number, type: string, value: string, qaIndex?: number) => {
+    const updatedSeedExamples = [...seedExamples];
+    if (type === 'context') {
+      updatedSeedExamples[exampleIndex].context = value;
+    } else if (qaIndex !== undefined) {
+      if (type === 'question') {
+        updatedSeedExamples[exampleIndex].questions_and_answers[qaIndex].question = value;
+      } else if (type === 'answer') {
+        updatedSeedExamples[exampleIndex].questions_and_answers[qaIndex].answer = value;
+      }
     }
+    setSeedExamples(updatedSeedExamples);
   };
 
-  const addQuestionAnswerPair = () => {
-    setQuestions([...questions, '']);
-    setAnswers([...answers, '']);
+  const addQuestionAnswerPair = (exampleIndex: number) => {
+    const updatedSeedExamples = [...seedExamples];
+    updatedSeedExamples[exampleIndex].questions_and_answers.push({ question: '', answer: '' });
+    setSeedExamples(updatedSeedExamples);
   };
 
-  const deleteQuestionAnswerPair = (index: number) => {
-    setQuestions(questions.filter((_, i) => i !== index));
-    setAnswers(answers.filter((_, i) => i !== index));
+  const deleteQuestionAnswerPair = (exampleIndex: number, qaIndex: number) => {
+    const updatedSeedExamples = [...seedExamples];
+    updatedSeedExamples[exampleIndex].questions_and_answers = updatedSeedExamples[exampleIndex].questions_and_answers.filter((_, i) => i !== qaIndex);
+    setSeedExamples(updatedSeedExamples);
+  };
+
+  const addSeedExample = () => {
+    setSeedExamples([
+      ...seedExamples,
+      {
+        context: '',
+        questions_and_answers: [
+          { question: '', answer: '' },
+          { question: '', answer: '' },
+          { question: '', answer: '' }
+        ]
+      }
+    ]);
   };
 
   const parseAttributionContent = (content: string): AttributionData => {
@@ -409,10 +428,10 @@ Creator names: ${updatedAttributionData.creator_names}
               <TextArea
                 isRequired
                 type="text"
-                aria-label="task_description"
+                aria-label="document_outline"
                 placeholder="Enter brief description of the knowledge"
-                value={task_description}
-                onChange={(_event, value) => setTaskDescription(value)}
+                value={document_outline}
+                onChange={(_event, value) => setDocumentOutline(value)}
               />
             </FormGroup>
           </FormFieldGroupExpandable>
@@ -440,43 +459,58 @@ Creator names: ${updatedAttributionData.creator_names}
           </FormFieldGroupExpandable>
 
           <FormFieldGroupExpandable
+            isExpanded
             toggleAriaLabel="Details"
             header={
               <FormFieldGroupHeader
-                titleText={{ text: 'Knowledge', id: 'contrib-knowledge-id' }}
-                titleDescription="Contribute knowledge to the taxonomy repository (shift+enter for a new line)."
+                titleText={{ text: 'Seed Knowledge Examples', id: 'seed-examples-id' }}
+                titleDescription="Add seed examples with context and Q&A pairs"
               />
             }
           >
-            {questions.map((question, index) => (
-              <FormGroup key={index}>
-                <Text component="h6" className="heading-k">
-                  {' '}
-                  Question and Answer: {index + 1}
-                </Text>
+            {seedExamples.map((example, exampleIndex) => (
+              <FormGroup key={exampleIndex}>
+                <Text className="heading-k">Knowledge Seed Example {exampleIndex + 1}</Text>
                 <TextArea
                   isRequired
                   type="text"
-                  aria-label={`Question ${index + 1}`}
-                  placeholder="Enter the question"
-                  value={questions[index]}
-                  onChange={(_event, value) => handleInputChange(index, 'question', value)}
+                  aria-label={`Context ${exampleIndex + 1}`}
+                  placeholder="Enter the context"
+                  value={example.context}
+                  onChange={(_event, value) => handleInputChange(exampleIndex, 'context', value)}
                 />
-                <TextArea
-                  isRequired
-                  type="text"
-                  aria-label={`Answer ${index + 1}`}
-                  placeholder="Enter the answer"
-                  value={answers[index]}
-                  onChange={(_event, value) => handleInputChange(index, 'answer', value)}
-                />
-                <Button variant="danger" onClick={() => deleteQuestionAnswerPair(index)}>
-                  <MinusCircleIcon /> Delete
-                </Button>
+                {example.questions_and_answers.map((qa, qaIndex) => (
+                  <React.Fragment key={qaIndex}>
+                    <TextArea
+                      isRequired
+                      type="text"
+                      aria-label={`Question ${exampleIndex + 1}-${qaIndex + 1}`}
+                      placeholder={`Enter question ${qaIndex + 1}`}
+                      value={qa.question}
+                      onChange={(_event, value) => handleInputChange(exampleIndex, 'question', value, qaIndex)}
+                    />
+                    <TextArea
+                      isRequired
+                      type="text"
+                      aria-label={`Answer ${exampleIndex + 1}-${qaIndex + 1}`}
+                      placeholder={`Enter answer ${qaIndex + 1}`}
+                      value={qa.answer}
+                      onChange={(_event, value) => handleInputChange(exampleIndex, 'answer', value, qaIndex)}
+                    />
+                    <Button variant="danger" onClick={() => deleteQuestionAnswerPair(exampleIndex, qaIndex)}>
+                      <MinusCircleIcon /> Delete Question and Answer
+                    </Button>
+                  </React.Fragment>
+                ))}
+                <div style={{ marginTop: '10px', marginBottom: '20px' }}>
+                  <Button variant="primary" onClick={() => addQuestionAnswerPair(exampleIndex)}>
+                    <PlusIcon /> Add Question and Answer
+                  </Button>
+                </div>
               </FormGroup>
             ))}
-            <Button variant="primary" onClick={addQuestionAnswerPair}>
-              <PlusIcon /> Add Question and Answer
+            <Button variant="primary" onClick={addSeedExample}>
+              <PlusIcon /> Add Knowledge Seed Example
             </Button>
           </FormFieldGroupExpandable>
 

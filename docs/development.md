@@ -47,20 +47,39 @@ Podman is a requirement. Install and init instructions [here](https://podman.io/
 make md-lint
 ```
 
+## Deploying the UI stack on your local machine
+
+Set the .env in the ui directory and make sure you uncomment the `IL_UI_DEPLOYMENT=dev`. Once .env file is setup, run the following:
+
+```bash
+make start-dev-local
+```
+
+This will start the UI and the dependent pathservice locally on the machine.
+
+> [!NOTE]
+> It might ask for permission to allow to listen on port 4000.
+
+To stop the the local dev environment run the following:
+
+```bash
+make stop-dev-local
+```
+
 ## Deploying the UI stack in KIND cluster
 
 Set the .env in the ui directory and run the following:
 
 ```bash
-make start-dev
+make start-dev-kind
 ```
 
-This will start the kind cluster and deploy the ui stack related manifest files in the cluster.
+This will start the Kind cluster and deploy the UI stack related manifest files in the cluster.
 
-To stop the kind cluster and delete the ui stack related resources, run the following:
+To stop the Kind cluster and delete the UI stack related resources, run the following:
 
 ```bash
-make stop-dev
+make stop-dev-kind
 ```
 
 Use `make help` to see all the available commands.

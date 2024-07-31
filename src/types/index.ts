@@ -1,6 +1,7 @@
 // src/types/index.ts
 
-export const SchemaVersion = 2;
+// https://github.com/instructlab/schema/blob/main/src/instructlab/schema/
+export const SchemaVersion = 3;
 
 export interface Endpoint {
   id: string;
@@ -52,16 +53,19 @@ export interface KnowledgeYamlData {
   created_by: string;
   version: number;
   domain: string;
-  task_description: string;
   seed_examples: Array<{
-    question: string;
-    answer: string;
+    context: string;
+    questions_and_answers: Array<{
+      question: string;
+      answer: string;
+    }>;
   }>;
   document: {
     repo: string;
     commit: string;
     patterns: string[];
   };
+  document_outline: string;
 }
 
 export interface AttributionData {

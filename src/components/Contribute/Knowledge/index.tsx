@@ -20,6 +20,9 @@ import { SchemaVersion, KnowledgeYamlData, AttributionData } from '@/types';
 import KnowledgeDescriptionContent from './KnowledgeDescription/KnowledgeDescriptionContent';
 import { dumpYaml } from '@/utils/yamlConfig';
 import KnowledgeDescription from './KnowledgeDescription/KnowledgeDescription';
+import AuthorInformation from './AuthorInformation/AuthorInformation';
+import KnowledgeInformation from './KnowledgeInformation/KnowledgeInformation';
+import FilePathInformation from './FilePathInformation/FilePathInformation';
 
 export const KnowledgeForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
@@ -41,9 +44,15 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   }, [session?.accessToken]);
 
   const [task_description, setTaskDescription] = useState('');
-  const [submission_summary, setSubmissionSummary] = useState('');
-  const [domain, setDomain] = useState('');
-  const [filePath, setFilePath] = useState('');
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  // Knowledge Information
+  const [submissionSummary, setSubmissionSummary] = useState<string | undefined>();
+  const [domain, setDomain] = useState<string | undefined>();
+  const [documentOutline, setDocumentOutline] = useState<string | undefined>();
+
+  // File Path Information
+  const [filePath, setFilePath] = useState<string | undefined>();
 
   const [repo, setRepo] = useState('');
   const [commit, setCommit] = useState('');
@@ -55,8 +64,49 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [license_work, setLicenseWork] = useState('');
   const [creators, setCreators] = useState('');
 
-  const [questions, setQuestions] = useState<string[]>(new Array(5).fill(''));
-  const [answers, setAnswers] = useState<string[]>(new Array(5).fill(''));
+  const [seedExamples, setSeedExamples] = useState([
+    {
+      context: '',
+      questions_and_answers: [
+        { question: '', answer: '' },
+        { question: '', answer: '' },
+        { question: '', answer: '' }
+      ]
+    },
+    {
+      context: '',
+      questions_and_answers: [
+        { question: '', answer: '' },
+        { question: '', answer: '' },
+        { question: '', answer: '' }
+      ]
+    },
+    {
+      context: '',
+      questions_and_answers: [
+        { question: '', answer: '' },
+        { question: '', answer: '' },
+        { question: '', answer: '' }
+      ]
+    },
+    {
+      context: '',
+      questions_and_answers: [
+        { question: '', answer: '' },
+        { question: '', answer: '' },
+        { question: '', answer: '' }
+      ]
+    },
+    {
+      context: '',
+      questions_and_answers: [
+        { question: '', answer: '' },
+        { question: '', answer: '' },
+        { question: '', answer: '' }
+      ]
+    }
+  ]);
+
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
   const [isFailureAlertVisible, setIsFailureAlertVisible] = useState(false);
 
@@ -73,56 +123,105 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [yamlContent, setYamlContent] = useState('');
 
-  const handleInputChange = (index: number, type: string, value: string) => {
-    switch (type) {
-      case 'question':
-        setQuestions((prevQuestions) => {
-          const updatedQuestions = [...prevQuestions];
-          updatedQuestions[index] = value;
-          return updatedQuestions;
-        });
-        break;
-      case 'answer':
-        setAnswers((prevAnswers) => {
-          const updatedAnswers = [...prevAnswers];
-          updatedAnswers[index] = value;
-          return updatedAnswers;
-        });
-        break;
-      default:
-        break;
+  const handleInputChange = (exampleIndex: number, type: string, value: string, qaIndex?: number) => {
+    const updatedSeedExamples = [...seedExamples];
+    if (type === 'context') {
+      updatedSeedExamples[exampleIndex].context = value;
+    } else if (qaIndex !== undefined) {
+      if (type === 'question') {
+        updatedSeedExamples[exampleIndex].questions_and_answers[qaIndex].question = value;
+      } else if (type === 'answer') {
+        updatedSeedExamples[exampleIndex].questions_and_answers[qaIndex].answer = value;
+      }
     }
+    setSeedExamples(updatedSeedExamples);
   };
 
-  const addQuestionAnswerPair = () => {
-    setQuestions([...questions, '']);
-    setAnswers([...answers, '']);
+  const addQuestionAnswerPair = (exampleIndex: number) => {
+    const updatedSeedExamples = [...seedExamples];
+    updatedSeedExamples[exampleIndex].questions_and_answers.push({ question: '', answer: '' });
+    setSeedExamples(updatedSeedExamples);
   };
 
-  const deleteQuestionAnswerPair = (index: number) => {
-    setQuestions(questions.filter((_, i) => i !== index));
-    setAnswers(answers.filter((_, i) => i !== index));
+  const deleteQuestionAnswerPair = (exampleIndex: number, qaIndex: number) => {
+    const updatedSeedExamples = [...seedExamples];
+    updatedSeedExamples[exampleIndex].questions_and_answers = updatedSeedExamples[exampleIndex].questions_and_answers.filter((_, i) => i !== qaIndex);
+    setSeedExamples(updatedSeedExamples);
   };
 
-  // const resetForm = () => {
-  //   setEmail(undefined);
-  //   setName('');
-  //   setTaskDescription('');
-  //   setSubmissionSummary('');
-  //   setDomain('');
-  //   setQuestions(new Array(5).fill(''));
-  //   setAnswers(new Array(5).fill(''));
-  //   setRepo('');
-  //   setCommit('');
-  //   setPatterns('');
-  //   setTitleWork('');
-  //   setLinkWork('');
-  //   setLicenseWork('');
-  //   setCreators('');
-  //   setRevision('');
-  //   setUploadedFiles([]);
-  //   setFilePath('');
-  // };
+  const addSeedExample = () => {
+    setSeedExamples([
+      ...seedExamples,
+      {
+        context: '',
+        questions_and_answers: [
+          { question: '', answer: '' },
+          { question: '', answer: '' },
+          { question: '', answer: '' }
+        ]
+      }
+    ]);
+  };
+
+  const resetForm = () => {
+    setEmail('');
+    setName('');
+    setDocumentOutline('');
+    setSubmissionSummary('');
+    setDomain('');
+    setRepo('');
+    setCommit('');
+    setPatterns('');
+    setTitleWork('');
+    setLinkWork('');
+    setLicenseWork('');
+    setCreators('');
+    setRevision('');
+    setUploadedFiles([]);
+    setFilePath('');
+    setSeedExamples([
+      {
+        context: '',
+        questions_and_answers: [
+          { question: '', answer: '' },
+          { question: '', answer: '' },
+          { question: '', answer: '' }
+        ]
+      },
+      {
+        context: '',
+        questions_and_answers: [
+          { question: '', answer: '' },
+          { question: '', answer: '' },
+          { question: '', answer: '' }
+        ]
+      },
+      {
+        context: '',
+        questions_and_answers: [
+          { question: '', answer: '' },
+          { question: '', answer: '' },
+          { question: '', answer: '' }
+        ]
+      },
+      {
+        context: '',
+        questions_and_answers: [
+          { question: '', answer: '' },
+          { question: '', answer: '' },
+          { question: '', answer: '' }
+        ]
+      },
+      {
+        context: '',
+        questions_and_answers: [
+          { question: '', answer: '' },
+          { question: '', answer: '' },
+          { question: '', answer: '' }
+        ]
+      }
+    ]);
+  };
 
   const onCloseSuccessAlert = () => {
     setIsSuccessAlertVisible(false);
@@ -143,7 +242,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     let sanitizedFilePath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
     sanitizedFilePath = sanitizedFilePath.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
-    const infoFields = { name, task_description, submission_summary, domain, repo, commit, patterns };
+    const infoFields = { email, name, documentOutline, submissionSummary, domain, repo, commit, patterns };
     const attributionFields = { title_work, link_work, revision, license_work, creators };
 
     let validation = validateFields(infoFields);
@@ -170,30 +269,37 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     //   return;
     // }
 
-    validation = validateUniqueItems(questions, 'questions');
-    if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
+    for (const example of seedExamples) {
+      const questions = example.questions_and_answers.map((qa) => qa.question);
+      const answers = example.questions_and_answers.map((qa) => qa.answer);
+      validation = validateUniqueItems(questions, 'questions');
+      if (!validation.valid) {
+        setFailureAlertTitle('Something went wrong!');
+        setFailureAlertMessage(validation.message);
+        setIsFailureAlertVisible(true);
+        return;
+      }
 
-    validation = validateUniqueItems(answers, 'answers');
-    if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
+      validation = validateUniqueItems(answers, 'answers');
+      if (!validation.valid) {
+        setFailureAlertTitle('Something went wrong!');
+        setFailureAlertMessage(validation.message);
+        setIsFailureAlertVisible(true);
+        return;
+      }
     }
 
     const knowledgeData: KnowledgeYamlData = {
       created_by: githubUsername!,
       version: SchemaVersion,
       domain: domain,
-      task_description: task_description,
-      seed_examples: questions.map((question, index) => ({
-        question,
-        answer: answers[index]
+      document_outline: document_outline,
+      seed_examples: seedExamples.map((example) => ({
+        context: example.context,
+        questions_and_answers: example.questions_and_answers.map((qa) => ({
+          question: qa.question,
+          answer: qa.answer
+        }))
       })),
       document: {
         repo: repo,
@@ -299,7 +405,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   };
 
   const handleDownloadYaml = () => {
-    const infoFields = { name, task_description, submission_summary: submission_summary, domain, repo, commit, patterns };
+    const infoFields = { email, name, documentOutline, submissionSummary, domain, repo, commit, patterns };
     const attributionFields = { title_work, link_work, revision, license_work, creators };
 
     let validation = validateFields(infoFields);
@@ -326,42 +432,22 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     //   return;
     // }
 
-    validation = validateUniqueItems(questions, 'questions');
-    if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    validation = validateUniqueItems(answers, 'answers');
-    if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    interface SeedExample {
-      question: string;
-      answer: string;
-    }
-
     const yamlData: KnowledgeYamlData = {
       created_by: githubUsername!,
       version: SchemaVersion,
       domain: domain,
-      task_description: task_description,
-      seed_examples: questions.map(
-        (question: string, index: number): SeedExample => ({
-          question,
-          answer: answers[index]
-        })
-      ),
+      document_outline: document_outline,
+      seed_examples: seedExamples.map((example) => ({
+        context: example.context,
+        questions_and_answers: example.questions_and_answers.map((qa) => ({
+          question: qa.question,
+          answer: qa.answer
+        }))
+      })),
       document: {
         repo: repo,
         commit: commit,
-        patterns: patterns.split(',').map((pattern: string) => pattern.trim())
+        patterns: patterns.split(',').map((pattern) => pattern.trim())
       }
     };
 
@@ -370,14 +456,14 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'qna.yaml';
+    a.download = 'knowledge.yaml';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   };
 
   const handleDownloadAttribution = () => {
-    const attributionFields = { title_work, link_work, revision: submission_summary, license_work, creators };
+    const attributionFields = { title_work, link_work, revision, license_work, creators };
 
     const validation = validateFields(attributionFields);
     if (!validation.valid) {
@@ -389,7 +475,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
     const attributionContent = `Title of work: ${title_work}
 Link to work: ${link_work}
-Revision: ${submission_summary}
+Revision: ${submissionSummary}
 License of the work: ${license_work}
 Creator names: ${creators}
 `;
@@ -409,10 +495,13 @@ Creator names: ${creators}
       created_by: githubUsername!,
       version: SchemaVersion,
       domain: domain,
-      task_description: task_description,
-      seed_examples: questions.map((question, index) => ({
-        question,
-        answer: answers[index]
+      document_outline: documentOutline,
+      seed_examples: seedExamples.map((example) => ({
+        context: example.context,
+        questions_and_answers: example.questions_and_answers.map((qa) => ({
+          question: qa.question,
+          answer: qa.answer
+        }))
       })),
       document: {
         repo: repo,
@@ -438,100 +527,72 @@ Creator names: ${creators}
 
       <KnowledgeDescription />
 
+      <AuthorInformation email={email} setEmail={setEmail} name={name} setName={setName} />
+
+      <KnowledgeInformation
+        submissionSummary={submissionSummary}
+        setSubmissionSummary={setSubmissionSummary}
+        domain={domain}
+        setDomain={setDomain}
+        documentOutline={documentOutline}
+        setDocumentOutline={setDocumentOutline}
+      />
+
+      <FilePathInformation setFilePath={setFilePath} />
+
       <FormFieldGroupExpandable
         isExpanded
         toggleAriaLabel="Details"
         header={
           <FormFieldGroupHeader
-            titleText={{ text: 'Knowledge Info', id: 'knowledge-info-id' }}
-            titleDescription="Provide brief information about the knowledge."
+            titleText={{ text: 'Seed Examples', id: 'seed-examples-id' }}
+            titleDescription="Add seed examples with context and Q&A pairs"
           />
         }
       >
-        <FormGroup key={'knowledge-info-details-id'}>
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="submission_summary"
-            placeholder="Enter a brief description for a submission summary (60 character max)"
-            value={submission_summary}
-            onChange={(_event, value) => setSubmissionSummary(value)}
-            maxLength={60}
-          />
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="domain"
-            placeholder="Enter domain information"
-            value={domain}
-            onChange={(_event, value) => setDomain(value)}
-          />
-          <TextArea
-            isRequired
-            type="text"
-            aria-label="task_description"
-            placeholder="Enter a detailed description to improve the teacher model's responses"
-            value={task_description}
-            onChange={(_event, value) => setTaskDescription(value)}
-          />
-        </FormGroup>
-      </FormFieldGroupExpandable>
-      <FormFieldGroupExpandable
-        isExpanded
-        toggleAriaLabel="Details"
-        header={
-          <FormFieldGroupHeader
-            titleText={{ text: 'File Path Info', id: 'file-path-info-id' }}
-            titleDescription="Specify the file path for the QnA and Attribution files."
-          />
-        }
-      >
-        <FormGroup isRequired key={'file-path-details-id'}>
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="filePath"
-            placeholder="Enter the file path for both files"
-            value={filePath}
-            onChange={(_event, value) => setFilePath(value)}
-          />
-        </FormGroup>
-      </FormFieldGroupExpandable>
-      <FormFieldGroupExpandable
-        toggleAriaLabel="Details"
-        header={
-          <FormFieldGroupHeader
-            titleText={{ text: 'Knowledge', id: 'contrib-knowledge-id' }}
-            titleDescription="Contribute knowledge to the taxonomy repository (shift+enter for a new line)."
-          />
-        }
-      >
-        {questions.map((question, index) => (
-          <FormGroup key={index}>
-            <Text className="heading-k"> Question and Answer: {index + 1}</Text>
+        {seedExamples.map((example, exampleIndex) => (
+          <FormGroup key={exampleIndex}>
+            <Text className="heading-k">Knowledge Seed Example {exampleIndex + 1}</Text>
             <TextArea
               isRequired
               type="text"
-              aria-label={`Question ${index + 1}`}
-              placeholder="Enter the question"
-              value={questions[index]}
-              onChange={(_event, value) => handleInputChange(index, 'question', value)}
+              aria-label={`Context ${exampleIndex + 1}`}
+              placeholder="Enter the context"
+              value={example.context}
+              onChange={(_event, value) => handleInputChange(exampleIndex, 'context', value)}
             />
-            <TextArea
-              isRequired
-              type="text"
-              aria-label={`Answer ${index + 1}`}
-              placeholder="Enter the answer"
-              value={answers[index]}
-              onChange={(_event, value) => handleInputChange(index, 'answer', value)}
-            />
-            <Button variant="danger" onClick={() => deleteQuestionAnswerPair(index)}>
-              <MinusCircleIcon /> Delete
-            </Button>
+            {example.questions_and_answers.map((qa, qaIndex) => (
+              <React.Fragment key={qaIndex}>
+                <TextArea
+                  isRequired
+                  type="text"
+                  aria-label={`Question ${exampleIndex + 1}-${qaIndex + 1}`}
+                  placeholder={`Enter question ${qaIndex + 1}`}
+                  value={qa.question}
+                  onChange={(_event, value) => handleInputChange(exampleIndex, 'question', value, qaIndex)}
+                />
+                <TextArea
+                  isRequired
+                  type="text"
+                  aria-label={`Answer ${exampleIndex + 1}-${qaIndex + 1}`}
+                  placeholder={`Enter answer ${qaIndex + 1}`}
+                  value={qa.answer}
+                  onChange={(_event, value) => handleInputChange(exampleIndex, 'answer', value, qaIndex)}
+                />
+                <Button variant="danger" onClick={() => deleteQuestionAnswerPair(exampleIndex, qaIndex)}>
+                  <MinusCircleIcon /> Delete Question and Answer
+                </Button>
+              </React.Fragment>
+            ))}
+            <div style={{ marginTop: '10px', marginBottom: '20px' }}>
+              <Button variant="primary" onClick={() => addQuestionAnswerPair(exampleIndex)}>
+                <PlusIcon /> Add Question and Answer
+              </Button>
+            </div>
           </FormGroup>
         ))}
-        <Button variant="primary" onClick={addQuestionAnswerPair}>
-          <PlusIcon /> Add Question and Answer
+        <Button variant="primary" onClick={addSeedExample}>
+          <PlusIcon /> Add Knowledge Seed Example
         </Button>
       </FormFieldGroupExpandable>
 

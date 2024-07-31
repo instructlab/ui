@@ -42,8 +42,27 @@ ui-image: Containerfile ## Build continaer image for the InstructLab UI
 	$(CMD_PREFIX) docker build -f Containerfile -t ghcr.io/instructlab/ui/ui:$(TAG) .
 	$(CMD_PREFIX) docker tag ghcr.io/instructlab/ui/ui:$(TAG) ghcr.io/instructlab/ui/ui:main
 
+ps-image: Containerfile.ps ## Build continaer image for the pathservice
+	$(ECHO_PREFIX) printf "  %-12s Containerfile.ps\n" "[docker]"
+	$(CMD_PREFIX) docker build -f Containerfile.ps -t ghcr.io/instructlab/ui/pathservice:$(TAG) .
+	$(CMD_PREFIX) docker tag ghcr.io/instructlab/ui/pathservice:$(TAG) ghcr.io/instructlab/ui/pathservice:main
 
-##@ Kubernetes - kind dev environment
+##@ Local Dev - Run the stack (UI and PathService) on your local machine
+.PHONY: stop-dev-local
+stop-dev-local:  ## Stop the npm and pathservice local instances
+	$(CMD_PREFIX) echo "Stopping ui and pathservice..."
+	$(CMD_PREFIX) if [ -f ui.pid ]; then kill -2 `cat ui.pid` && rm ui.pid || echo "Failed to stop ui"; fi
+	$(CMD_PREFIX) if [ -f pathservice.pid ]; then kill -2 `cat pathservice.pid` && rm pathservice.pid || echo "Failed to stop pathservice"; fi
+	$(CMD_PREFIX) echo "Development environment stopped."
+
+.PHONY: start-dev-local
+start-dev-local:  ## Start the npm and pathservice local instances
+	$(CMD_PREFIX) echo "Starting ui and pathservice..."
+	$(CMD_PREFIX) cd ./pathservice; go run main.go & echo $$! > ../pathservice.pid
+	$(CMD_PREFIX) npm run dev & echo $$! > ui.pid
+	$(CMD_PREFIX) echo "Development environment started."
+
+##@ Kubernetes - Kind cluster based dev environment
 .PHONY: check-kind
 check-kind:
 	$(CMD_PREFIX) if [ -z "$(shell which kind)" ]; then \
@@ -61,15 +80,15 @@ check-kubectl:
 	fi
 
 .PHONY: load-images
-load-images: ## Load images onto kind
+load-images: ## Load images onto Kind cluster
 	$(CMD_PREFIX) kind load --name $(ILAB_KUBE_CLUSTER_NAME) docker-image ghcr.io/instructlab/ui/ui:main
 
-.PHONY: stop-dev
-stop-dev: check-kind ## Stop the kind cluster to destroy the development environment
+.PHONY: stop-dev-kind
+stop-dev-kind: check-kind ## Stop the Kind cluster to destroy the development environment
 	$(CMD_PREFIX) kind delete cluster --name $(ILAB_KUBE_CLUSTER_NAME)
 
 .PHONY: setup-kind
-setup-kind: check-kind check-kubectl stop-dev ## Create a kind cluster with ingress enabled
+setup-kind: check-kind check-kubectl stop-dev ## Create a Kind cluster with ingress enabled
 	$(CMD_PREFIX) kind create cluster --config ./deploy/k8s/kind.yaml
 	$(CMD_PREFIX) kubectl cluster-info
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -f ./deploy/k8s/kind-ingress.yaml
@@ -77,7 +96,7 @@ setup-kind: check-kind check-kubectl stop-dev ## Create a kind cluster with ingr
 .PHONY: wait-for-readiness
 wait-for-readiness: # Wait for operators to be ready
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n ingress-nginx rollout restart deployment ingress-nginx-controller
-	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n ingress-nginx rollout status deployment ingress-nginx-controller --timeout=5m
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n ingress-nginx rollout status deployment ingress-nginx-controller --timeout=10m
 
 .PHONY: deploy
 deploy: wait-for-readiness ## Deploy a InstructLab UI development stack onto a kubernetes cluster
@@ -92,6 +111,7 @@ deploy: wait-for-readiness ## Deploy a InstructLab UI development stack onto a k
 .PHONY: redeploy
 redeploy: ui-image load-images ## Redeploy the InstructLab UI stack onto a kubernetes cluster
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
 
 .PHONY: undeploy
 undeploy: ## Undeploy the InstructLab UI stack from a kubernetes cluster
@@ -100,8 +120,8 @@ undeploy: ## Undeploy the InstructLab UI stack from a kubernetes cluster
 	fi
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete namespace $(ILAB_KUBE_NAMESPACE)
 
-.PHONY: start-dev ## Run the development environment on kind
-start-dev: setup-kind deploy ## Setup a kind cluster and deploy InstructLab UI on it
+.PHONY: start-dev-kind ## Run the development environment on Kind cluster
+start-dev-kind: setup-kind deploy ## Setup a Kind cluster and deploy InstructLab UI on it
 
 ##@ OpenShift - UI deployment in OpenShift
 .PHONY: deploy-openshift
