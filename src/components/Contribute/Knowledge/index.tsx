@@ -5,24 +5,32 @@ import './knowledge.css';
 import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup, FormFieldGroupExpandable, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
-import { PlusIcon, MinusCircleIcon, CodeIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
+import { CodeIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
 import { validateFields, validateEmail, validateUniqueItems } from '../../../utils/validation';
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { UploadFile } from './UploadFile';
 import { SchemaVersion, KnowledgeYamlData, AttributionData } from '@/types';
-import KnowledgeDescriptionContent from './KnowledgeDescription/KnowledgeDescriptionContent';
 import { dumpYaml } from '@/utils/yamlConfig';
 import KnowledgeDescription from './KnowledgeDescription/KnowledgeDescription';
 import AuthorInformation from './AuthorInformation/AuthorInformation';
 import KnowledgeInformation from './KnowledgeInformation/KnowledgeInformation';
 import FilePathInformation from './FilePathInformation/FilePathInformation';
+import KnowledgeQuestionAnswerPairs from './KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs';
+
+export interface QuestionAndAnswerPair {
+  question: string;
+  answer: string;
+}
+
+export interface SeedExample {
+  context: string;
+  questionAndAnswers: QuestionAndAnswerPair[];
+}
 
 export const KnowledgeForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
@@ -64,48 +72,120 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [license_work, setLicenseWork] = useState('');
   const [creators, setCreators] = useState('');
 
-  const [seedExamples, setSeedExamples] = useState([
-    {
-      context: '',
-      questions_and_answers: [
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' }
-      ]
-    },
-    {
-      context: '',
-      questions_and_answers: [
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' }
-      ]
-    },
-    {
-      context: '',
-      questions_and_answers: [
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' }
-      ]
-    },
-    {
-      context: '',
-      questions_and_answers: [
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' }
-      ]
-    },
-    {
-      context: '',
-      questions_and_answers: [
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' }
-      ]
-    }
-  ]);
+  // Knowledge Question Answer Pairs
+
+  // State
+
+  const emptySeedExample: SeedExample = {
+    context: '',
+    questionAndAnswers: [
+      {
+        question: '',
+        answer: ''
+      },
+      {
+        question: '',
+        answer: ''
+      },
+      {
+        question: '',
+        answer: ''
+      }
+    ]
+  };
+
+  const [seedExamples, setSeedExamples] = useState<SeedExample[]>([emptySeedExample]);
+
+  // Functions
+
+  const handleContextInputChange = (seedExampleIndex: number, contextValue: string): undefined => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              context: contextValue
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const handleQuestionInputChange = (seedExampleIndex: number, questionAndAnswerIndex: number, questionValue: string): undefined => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, index: number) =>
+                index === questionAndAnswerIndex
+                  ? {
+                      ...questionAndAnswerPair,
+                      question: questionValue
+                    }
+                  : questionAndAnswerPair
+              )
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const handleAnswerInputChange = (seedExampleIndex: number, questionAndAnswerIndex: number, answerValue: string): undefined => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, index: number) =>
+                index === questionAndAnswerIndex
+                  ? {
+                      ...questionAndAnswerPair,
+                      answer: answerValue
+                    }
+                  : questionAndAnswerPair
+              )
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const addQuestionAnswerPair = (seedExampleIndex: number): undefined => {
+    const newQuestionAnswerPair: QuestionAndAnswerPair = {
+      question: '',
+      answer: ''
+    };
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              questionAndAnswers: [...seedExample.questionAndAnswers, newQuestionAnswerPair]
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const deleteQuestionAnswerPair = (seedExampleIndex: number, questionAnswerIndex: number): undefined => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              questionAndAnswers: seedExample.questionAndAnswers.filter((_, i) => i !== questionAnswerIndex)
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const addSeedExample = (): undefined => {
+    setSeedExamples([...seedExamples, emptySeedExample]);
+  };
+
+  // break
 
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
   const [isFailureAlertVisible, setIsFailureAlertVisible] = useState(false);
@@ -122,46 +202,6 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [yamlContent, setYamlContent] = useState('');
-
-  const handleInputChange = (exampleIndex: number, type: string, value: string, qaIndex?: number) => {
-    const updatedSeedExamples = [...seedExamples];
-    if (type === 'context') {
-      updatedSeedExamples[exampleIndex].context = value;
-    } else if (qaIndex !== undefined) {
-      if (type === 'question') {
-        updatedSeedExamples[exampleIndex].questions_and_answers[qaIndex].question = value;
-      } else if (type === 'answer') {
-        updatedSeedExamples[exampleIndex].questions_and_answers[qaIndex].answer = value;
-      }
-    }
-    setSeedExamples(updatedSeedExamples);
-  };
-
-  const addQuestionAnswerPair = (exampleIndex: number) => {
-    const updatedSeedExamples = [...seedExamples];
-    updatedSeedExamples[exampleIndex].questions_and_answers.push({ question: '', answer: '' });
-    setSeedExamples(updatedSeedExamples);
-  };
-
-  const deleteQuestionAnswerPair = (exampleIndex: number, qaIndex: number) => {
-    const updatedSeedExamples = [...seedExamples];
-    updatedSeedExamples[exampleIndex].questions_and_answers = updatedSeedExamples[exampleIndex].questions_and_answers.filter((_, i) => i !== qaIndex);
-    setSeedExamples(updatedSeedExamples);
-  };
-
-  const addSeedExample = () => {
-    setSeedExamples([
-      ...seedExamples,
-      {
-        context: '',
-        questions_and_answers: [
-          { question: '', answer: '' },
-          { question: '', answer: '' },
-          { question: '', answer: '' }
-        ]
-      }
-    ]);
-  };
 
   const resetForm = () => {
     setEmail('');
@@ -540,61 +580,15 @@ Creator names: ${creators}
 
       <FilePathInformation setFilePath={setFilePath} />
 
-      <FormFieldGroupExpandable
-        isExpanded
-        toggleAriaLabel="Details"
-        header={
-          <FormFieldGroupHeader
-            titleText={{ text: 'Seed Examples', id: 'seed-examples-id' }}
-            titleDescription="Add seed examples with context and Q&A pairs"
-          />
-        }
-      >
-        {seedExamples.map((example, exampleIndex) => (
-          <FormGroup key={exampleIndex}>
-            <Text className="heading-k">Knowledge Seed Example {exampleIndex + 1}</Text>
-            <TextArea
-              isRequired
-              type="text"
-              aria-label={`Context ${exampleIndex + 1}`}
-              placeholder="Enter the context"
-              value={example.context}
-              onChange={(_event, value) => handleInputChange(exampleIndex, 'context', value)}
-            />
-            {example.questions_and_answers.map((qa, qaIndex) => (
-              <React.Fragment key={qaIndex}>
-                <TextArea
-                  isRequired
-                  type="text"
-                  aria-label={`Question ${exampleIndex + 1}-${qaIndex + 1}`}
-                  placeholder={`Enter question ${qaIndex + 1}`}
-                  value={qa.question}
-                  onChange={(_event, value) => handleInputChange(exampleIndex, 'question', value, qaIndex)}
-                />
-                <TextArea
-                  isRequired
-                  type="text"
-                  aria-label={`Answer ${exampleIndex + 1}-${qaIndex + 1}`}
-                  placeholder={`Enter answer ${qaIndex + 1}`}
-                  value={qa.answer}
-                  onChange={(_event, value) => handleInputChange(exampleIndex, 'answer', value, qaIndex)}
-                />
-                <Button variant="danger" onClick={() => deleteQuestionAnswerPair(exampleIndex, qaIndex)}>
-                  <MinusCircleIcon /> Delete Question and Answer
-                </Button>
-              </React.Fragment>
-            ))}
-            <div style={{ marginTop: '10px', marginBottom: '20px' }}>
-              <Button variant="primary" onClick={() => addQuestionAnswerPair(exampleIndex)}>
-                <PlusIcon /> Add Question and Answer
-              </Button>
-            </div>
-          </FormGroup>
-        ))}
-        <Button variant="primary" onClick={addSeedExample}>
-          <PlusIcon /> Add Knowledge Seed Example
-        </Button>
-      </FormFieldGroupExpandable>
+      <KnowledgeQuestionAnswerPairs
+        seedExamples={seedExamples}
+        handleContextInputChange={handleContextInputChange}
+        handleQuestionInputChange={handleQuestionInputChange}
+        handleAnswerInputChange={handleAnswerInputChange}
+        deleteQuestionAnswerPair={deleteQuestionAnswerPair}
+        addQuestionAnswerPair={addQuestionAnswerPair}
+        addSeedExample={addSeedExample}
+      />
 
       <FormFieldGroupExpandable
         toggleAriaLabel="Details"
