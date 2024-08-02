@@ -13,7 +13,6 @@ import { validateFields, validateEmail, validateUniqueItems } from '../../../uti
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
-import { UploadFile } from './UploadFile';
 import { SchemaVersion, KnowledgeYamlData, AttributionData } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
 import KnowledgeDescription from './KnowledgeDescription/KnowledgeDescription';
@@ -21,6 +20,7 @@ import AuthorInformation from './AuthorInformation/AuthorInformation';
 import KnowledgeInformation from './KnowledgeInformation/KnowledgeInformation';
 import FilePathInformation from './FilePathInformation/FilePathInformation';
 import KnowledgeQuestionAnswerPairs from './KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs';
+import DocumentInformation from './DocumentInformation/DocumentInformation';
 
 export interface QuestionAndAnswerPair {
   question: string;
@@ -61,16 +61,6 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
   // File Path Information
   const [filePath, setFilePath] = useState<string | undefined>();
-
-  const [repo, setRepo] = useState('');
-  const [commit, setCommit] = useState('');
-  const [patterns, setPatterns] = useState('');
-
-  const [title_work, setTitleWork] = useState('');
-  const [link_work, setLinkWork] = useState('');
-  const [revision, setRevision] = useState('');
-  const [license_work, setLicenseWork] = useState('');
-  const [creators, setCreators] = useState('');
 
   // Knowledge Question Answer Pairs
 
@@ -185,19 +175,26 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setSeedExamples([...seedExamples, emptySeedExample]);
   };
 
+  // Document Information
+  // State
+
+  const [knowledgeDocumentRepositoryUrl, setKnowledgeDocumentRepositoryUrl] = useState<string | undefined>();
+  const [knowledgeDocumentCommit, setKnowledgeDocumentCommit] = useState<string | undefined>();
+  // This used to be 'patterns' but I am not totally sure what this variable actually is...
+  const [documentName, setDocumentName] = useState<string | undefined>();
+
   // break
+  const [title_work, setTitleWork] = useState('');
+  const [link_work, setLinkWork] = useState('');
+  const [revision, setRevision] = useState('');
+  const [license_work, setLicenseWork] = useState('');
+  const [creators, setCreators] = useState('');
 
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
   const [isFailureAlertVisible, setIsFailureAlertVisible] = useState(false);
 
-  const [failure_alert_title, setFailureAlertTitle] = useState('');
-  const [failure_alert_message, setFailureAlertMessage] = useState<string>('');
-
-  const [success_alert_title, setSuccessAlertTitle] = useState('');
-  const [success_alert_message, setSuccessAlertMessage] = useState<React.ReactNode>('');
   const [successAlertLink, setSuccessAlertLink] = useState<string>('');
 
-  const [useFileUpload, setUseFileUpload] = useState(true);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -263,43 +260,30 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     ]);
   };
 
-  const onCloseSuccessAlert = () => {
-    setIsSuccessAlertVisible(false);
-  };
-
-  const onCloseFailureAlert = () => {
-    setIsFailureAlertVisible(false);
-  };
-
-  const handleFilesChange = (files: File[]) => {
-    setUploadedFiles(files);
-    setPatterns(files.map((file) => file.name).join(', ')); // Populate the patterns field
-  };
-
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
     // Strip leading slash and ensure trailing slash in the file path
-    let sanitizedFilePath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
-    sanitizedFilePath = sanitizedFilePath.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
+    // let sanitizedFilePath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
+    // sanitizedFilePath = sanitizedFilePath.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
-    const infoFields = { email, name, documentOutline, submissionSummary, domain, repo, commit, patterns };
-    const attributionFields = { title_work, link_work, revision, license_work, creators };
+    // const infoFields = { email, name, documentOutline, submissionSummary, domain, repo, commit, patterns };
+    // const attributionFields = { title_work, link_work, revision, license_work, creators };
 
-    let validation = validateFields(infoFields);
-    if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
+    // let validation = validateFields(infoFields);
+    // if (!validation.valid) {
+    //   setFailureAlertTitle('Something went wrong!');
+    //   setFailureAlertMessage(validation.message);
+    //   setIsFailureAlertVisible(true);
+    //   return;
+    // }
 
-    validation = validateFields(attributionFields);
-    if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
+    // validation = validateFields(attributionFields);
+    // if (!validation.valid) {
+    //   setFailureAlertTitle('Something went wrong!');
+    //   setFailureAlertMessage(validation.message);
+    //   setIsFailureAlertVisible(true);
+    //   return;
+    // }
 
     // validation = validateEmail(email);
     // if (!validation.valid) {
@@ -385,61 +369,6 @@ export const KnowledgeForm: React.FunctionComponent = () => {
         setFailureAlertTitle('Failed to submit your Knowledge contribution');
         setFailureAlertMessage(error.message);
         setIsFailureAlertVisible(true);
-      }
-    }
-  };
-
-  const handleDocumentUpload = async () => {
-    if (uploadedFiles.length > 0) {
-      const fileContents: { fileName: string; fileContent: string }[] = [];
-
-      await Promise.all(
-        uploadedFiles.map(
-          (file) =>
-            new Promise<void>((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                const fileContent = e.target!.result as string;
-                fileContents.push({ fileName: file.name, fileContent });
-                resolve();
-              };
-              reader.onerror = reject;
-              reader.readAsText(file);
-            })
-        )
-      );
-
-      if (fileContents.length === uploadedFiles.length) {
-        try {
-          const response = await fetch('/api/upload', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ files: fileContents })
-          });
-
-          const result = await response.json();
-          if (response.ok) {
-            setRepo(result.repoUrl);
-            setCommit(result.commitSha);
-            setPatterns(result.documentNames.join(', ')); // Populate the patterns field
-            console.log('Files uploaded:', result.documentNames);
-            setSuccessAlertTitle('Document uploaded successfully!');
-            setSuccessAlertMessage('Documents have been uploaded to your repo to be referenced in the knowledge submission.');
-            setSuccessAlertLink(result.prUrl);
-            setIsSuccessAlertVisible(true);
-            setUseFileUpload(false); // Switch back to manual mode to display the newly created values in the knowledge submission
-          } else {
-            throw new Error(result.error || 'Failed to upload document');
-          }
-        } catch (error: unknown) {
-          if (error instanceof Error) {
-            setFailureAlertTitle('Failed to upload document');
-            setFailureAlertMessage(error.message);
-            setIsFailureAlertVisible(true);
-          }
-        }
       }
     }
   };
@@ -590,67 +519,16 @@ Creator names: ${creators}
         addSeedExample={addSeedExample}
       />
 
-      <FormFieldGroupExpandable
-        toggleAriaLabel="Details"
-        header={
-          <FormFieldGroupHeader titleText={{ text: 'Document Info', id: 'doc-info-id' }} titleDescription="Add the relevant document's information" />
-        }
-      >
-        <FormGroup>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <Button
-              variant={useFileUpload ? 'primary' : 'secondary'}
-              className={useFileUpload ? 'button-active' : 'button-secondary'}
-              onClick={() => setUseFileUpload(true)}
-            >
-              Automatically Upload Documents
-            </Button>
-            <Button
-              variant={useFileUpload ? 'secondary' : 'primary'}
-              className={!useFileUpload ? 'button-active' : 'button-secondary'}
-              onClick={() => setUseFileUpload(false)}
-            >
-              Manually Enter Document Details
-            </Button>
-          </div>
-        </FormGroup>
-
-        {!useFileUpload ? (
-          <FormGroup key={'doc-info-details-id'}>
-            <TextInput
-              isRequired
-              type="url"
-              aria-label="repo"
-              placeholder="Enter repo url where document exists"
-              value={repo}
-              onChange={(_event, value) => setRepo(value)}
-            />
-            <TextInput
-              isRequired
-              type="text"
-              aria-label="commit"
-              placeholder="Enter the commit sha of the document in that repo"
-              value={commit}
-              onChange={(_event, value) => setCommit(value)}
-            />
-            <TextInput
-              isRequired
-              type="text"
-              aria-label="patterns"
-              placeholder="Enter the documents name (comma separated)"
-              value={patterns}
-              onChange={(_event, value) => setPatterns(value)}
-            />
-          </FormGroup>
-        ) : (
-          <>
-            <UploadFile onFilesChange={handleFilesChange} />
-            <Button variant="primary" onClick={handleDocumentUpload}>
-              Submit Files
-            </Button>
-          </>
-        )}
-      </FormFieldGroupExpandable>
+      <DocumentInformation
+        knowledgeDocumentRepositoryUrl={knowledgeDocumentRepositoryUrl}
+        setKnowledgeDocumentRepositoryUrl={setKnowledgeDocumentRepositoryUrl}
+        knowledgeDocumentCommit={knowledgeDocumentCommit}
+        setKnowledgeDocumentCommit={setKnowledgeDocumentCommit}
+        documentName={documentName}
+        setDocumentName={setDocumentName}
+        uploadedFiles={uploadedFiles}
+        setUploadedFiles={setUploadedFiles}
+      />
 
       <FormFieldGroupExpandable
         toggleAriaLabel="Details"
@@ -704,27 +582,6 @@ Creator names: ${creators}
           />
         </FormGroup>
       </FormFieldGroupExpandable>
-      {isSuccessAlertVisible && (
-        <Alert
-          variant="success"
-          title={success_alert_title}
-          actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}
-          actionLinks={
-            <>
-              <AlertActionLink component="a" href={successAlertLink} target="_blank" rel="noopener noreferrer">
-                View it here
-              </AlertActionLink>
-            </>
-          }
-        >
-          {success_alert_message}
-        </Alert>
-      )}
-      {isFailureAlertVisible && (
-        <Alert variant="danger" title={failure_alert_title} actionClose={<AlertActionCloseButton onClose={onCloseFailureAlert} />}>
-          {failure_alert_message}
-        </Alert>
-      )}
 
       <ActionGroup>
         <Button variant="primary" type="submit" onClick={handleSubmit}>
