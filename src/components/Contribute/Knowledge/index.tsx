@@ -21,6 +21,7 @@ import KnowledgeInformation from './KnowledgeInformation/KnowledgeInformation';
 import FilePathInformation from './FilePathInformation/FilePathInformation';
 import KnowledgeQuestionAnswerPairs from './KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs';
 import DocumentInformation from './DocumentInformation/DocumentInformation';
+import AttributionInformation from './AttributionInformation/AttributionInformation';
 
 export interface QuestionAndAnswerPair {
   question: string;
@@ -184,11 +185,12 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [documentName, setDocumentName] = useState<string | undefined>();
 
   // break
-  const [title_work, setTitleWork] = useState('');
-  const [link_work, setLinkWork] = useState('');
-  const [revision, setRevision] = useState('');
-  const [license_work, setLicenseWork] = useState('');
-  const [creators, setCreators] = useState('');
+  // Attribution Information
+  const [titleWork, setTitleWork] = useState<string | undefined>();
+  const [linkWork, setLinkWork] = useState<string | undefined>();
+  const [revision, setRevision] = useState<string | undefined>();
+  const [licenseWork, setLicenseWork] = useState<string | undefined>();
+  const [creators, setCreators] = useState<string | undefined>();
 
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
   const [isFailureAlertVisible, setIsFailureAlertVisible] = useState(false);
@@ -530,58 +532,18 @@ Creator names: ${creators}
         setUploadedFiles={setUploadedFiles}
       />
 
-      <FormFieldGroupExpandable
-        toggleAriaLabel="Details"
-        header={
-          <FormFieldGroupHeader
-            titleText={{ text: 'Attribution Info', id: 'attribution-info-id' }}
-            titleDescription="Provide attribution information."
-          />
-        }
-      >
-        <FormGroup isRequired key={'attribution-info-details-id'}>
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="title_work"
-            placeholder="Enter title of work"
-            value={title_work}
-            onChange={(_event, value) => setTitleWork(value)}
-          />
-          <TextInput
-            isRequired
-            type="url"
-            aria-label="link_work"
-            placeholder="Enter link to work"
-            value={link_work}
-            onChange={(_event, value) => setLinkWork(value)}
-          />
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="revision"
-            placeholder="Enter document revision information"
-            value={revision}
-            onChange={(_event, value) => setRevision(value)}
-          />
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="license_work"
-            placeholder="Enter license of the work"
-            value={license_work}
-            onChange={(_event, value) => setLicenseWork(value)}
-          />
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="creators"
-            placeholder="Enter creators Name"
-            value={creators}
-            onChange={(_event, value) => setCreators(value)}
-          />
-        </FormGroup>
-      </FormFieldGroupExpandable>
+      <AttributionInformation
+        titleWork={titleWork}
+        setTitleWork={setTitleWork}
+        linkWork={linkWork}
+        setLinkWork={setLinkWork}
+        revision={revision}
+        setRevision={setRevision}
+        licenseWork={licenseWork}
+        setLicenseWork={setLicenseWork}
+        creators={creators}
+        setCreators={setCreators}
+      />
 
       <ActionGroup>
         <Button variant="primary" type="submit" onClick={handleSubmit}>
