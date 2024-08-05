@@ -10,7 +10,7 @@ const SkillDescription: React.FunctionComponent = () => {
         1) Compositional Skills - These are skills that are performative and you are teaching the model how to do tasks like &quot;write me a
         song&quot; or &quot;summarize an email&quot;.
       </p>
-      <p>2) Core Skills - Core skills are foudational like math, reasoning and coding.</p>
+      <p>2) Core Skills - Core skills are foundational like math, reasoning and coding.</p>
       <div>
         <a href="https://github.com/instructlab/taxonomy/blob/main/docs/SKILLS_GUIDE.md" target="_blank">
           <Button variant="plain" aria-label="Learn more about what Skills are in InstructLab">
