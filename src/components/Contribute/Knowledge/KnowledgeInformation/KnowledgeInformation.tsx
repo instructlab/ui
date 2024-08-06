@@ -4,12 +4,12 @@ import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextIn
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
 
 interface Props {
-  submissionSummary: string | undefined;
-  setSubmissionSummary: React.Dispatch<React.SetStateAction<string | undefined>>;
-  domain: string | undefined;
-  setDomain: React.Dispatch<React.SetStateAction<string | undefined>>;
-  documentOutline: string | undefined;
-  setDocumentOutline: React.Dispatch<React.SetStateAction<string | undefined>>;
+  submissionSummary: string;
+  setSubmissionSummary: React.Dispatch<React.SetStateAction<string>>;
+  domain: string;
+  setDomain: React.Dispatch<React.SetStateAction<string>>;
+  documentOutline: string;
+  setDocumentOutline: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const KnowledgeInformation: React.FC<Props> = ({

@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 
-interface Props {}
-
+interface Props {
+  email: string;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  name: string;
+  setName: React.Dispatch<React.SetStateAction<string>>;
+}
 const AuthorInformation: React.FC<Props> = () => {
-  const [email, setEmail] = useState<string | undefined>();
-  const [name, setName] = useState<string | undefined>();
-
   return (
     <FormFieldGroupExpandable
       isExpanded

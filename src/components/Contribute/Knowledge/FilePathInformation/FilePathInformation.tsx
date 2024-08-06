@@ -3,7 +3,7 @@ import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup } from '@patt
 import PathService from '@/components/PathService/PathService';
 
 interface Props {
-  setFilePath: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setFilePath: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const FilePathInformation: React.FC<Props> = ({ setFilePath }) => {

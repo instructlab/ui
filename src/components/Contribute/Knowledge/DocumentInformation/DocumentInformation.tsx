@@ -6,12 +6,12 @@ import { UploadFile } from './../UploadFile';
 import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 
 interface Props {
-  knowledgeDocumentRepositoryUrl: string | undefined;
-  setKnowledgeDocumentRepositoryUrl: React.Dispatch<React.SetStateAction<string | undefined>>;
-  knowledgeDocumentCommit: string | undefined;
-  setKnowledgeDocumentCommit: React.Dispatch<React.SetStateAction<string | undefined>>;
-  documentName: string | undefined;
-  setDocumentName: React.Dispatch<React.SetStateAction<string | undefined>>;
+  knowledgeDocumentRepositoryUrl: string;
+  setKnowledgeDocumentRepositoryUrl: React.Dispatch<React.SetStateAction<string>>;
+  knowledgeDocumentCommit: string;
+  setKnowledgeDocumentCommit: React.Dispatch<React.SetStateAction<string>>;
+  documentName: string;
+  setDocumentName: React.Dispatch<React.SetStateAction<string>>;
   uploadedFiles: File[];
   setUploadedFiles: React.Dispatch<React.SetStateAction<File[]>>;
 }

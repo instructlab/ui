@@ -22,6 +22,7 @@ import DocumentInformation from './DocumentInformation/DocumentInformation';
 import AttributionInformation from './AttributionInformation/AttributionInformation';
 import Submit from './Submit/Submit';
 import DownloadYaml from './DownloadYaml/DownloadYaml';
+import DownloadAttribution from './DownloadAttribution/DownloadAttribution';
 
 export interface QuestionAndAnswerPair {
   question: string;
@@ -34,21 +35,21 @@ export interface SeedExample {
 }
 
 export interface KnowledgeFormData {
-  email: string | undefined;
-  name: string | undefined;
-  submissionSummary: string | undefined;
-  domain: string | undefined;
-  documentOutline: string | undefined;
-  filePath: string | undefined;
+  email: string;
+  name: string;
+  submissionSummary: string;
+  domain: string;
+  documentOutline: string;
+  filePath: string;
   seedExamples: SeedExample[];
-  knowledgeDocumentRepositoryUrl: string | undefined;
-  knowledgeDocumentCommit: string | undefined;
-  documentName: string | undefined;
-  titleWork: string | undefined;
-  linkWork: string | undefined;
-  revision: string | undefined;
-  licenseWork: string | undefined;
-  creators: string | undefined;
+  knowledgeDocumentRepositoryUrl: string;
+  knowledgeDocumentCommit: string;
+  documentName: string;
+  titleWork: string;
+  linkWork: string;
+  revision: string;
+  licenseWork: string;
+  creators: string;
 }
 
 export interface ActionGroupAlertContent {
@@ -59,7 +60,7 @@ export interface ActionGroupAlertContent {
 
 export const KnowledgeForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
-  const [githubUsername, setGithubUsername] = useState<string | undefined>();
+  const [githubUsername, setGithubUsername] = useState<string>('');
 
   useEffect(() => {
     const fetchUsername = async () => {
@@ -75,17 +76,19 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
     fetchUsername();
   }, [session?.accessToken]);
+  // Author Information
+  const [email, setEmail] = useState<string>('');
+  const [name, setName] = useState<string>('');
 
   const [task_description, setTaskDescription] = useState('');
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
+
   // Knowledge Information
-  const [submissionSummary, setSubmissionSummary] = useState<string | undefined>();
-  const [domain, setDomain] = useState<string | undefined>();
-  const [documentOutline, setDocumentOutline] = useState<string | undefined>();
+  const [submissionSummary, setSubmissionSummary] = useState<string>('');
+  const [domain, setDomain] = useState<string>('');
+  const [documentOutline, setDocumentOutline] = useState<string>('');
 
   // File Path Information
-  const [filePath, setFilePath] = useState<string | undefined>();
+  const [filePath, setFilePath] = useState<string>('');
 
   // Knowledge Question Answer Pairs
 
@@ -203,18 +206,18 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   // Document Information
   // State
 
-  const [knowledgeDocumentRepositoryUrl, setKnowledgeDocumentRepositoryUrl] = useState<string | undefined>();
-  const [knowledgeDocumentCommit, setKnowledgeDocumentCommit] = useState<string | undefined>();
+  const [knowledgeDocumentRepositoryUrl, setKnowledgeDocumentRepositoryUrl] = useState<string>('');
+  const [knowledgeDocumentCommit, setKnowledgeDocumentCommit] = useState<string>('');
   // This used to be 'patterns' but I am not totally sure what this variable actually is...
-  const [documentName, setDocumentName] = useState<string | undefined>();
+  const [documentName, setDocumentName] = useState<string>('');
 
   // Attribution Information
   // State
-  const [titleWork, setTitleWork] = useState<string | undefined>();
-  const [linkWork, setLinkWork] = useState<string | undefined>();
-  const [revision, setRevision] = useState<string | undefined>();
-  const [licenseWork, setLicenseWork] = useState<string | undefined>();
-  const [creators, setCreators] = useState<string | undefined>();
+  const [titleWork, setTitleWork] = useState<string>('');
+  const [linkWork, setLinkWork] = useState<string>('');
+  const [revision, setRevision] = useState<string>('');
+  const [licenseWork, setLicenseWork] = useState<string>('');
+  const [creators, setCreators] = useState<string>('');
 
   const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
 
@@ -228,80 +231,47 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
   // break
 
-  const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
-  const [isFailureAlertVisible, setIsFailureAlertVisible] = useState(false);
-
-  const [successAlertLink, setSuccessAlertLink] = useState<string>('');
-
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [yamlContent, setYamlContent] = useState('');
 
   const resetForm = (): undefined => {
-    setEmail(undefined);
-    setName(undefined);
-    setDocumentOutline(undefined);
-    setSubmissionSummary(undefined);
-    setDomain(undefined);
-    setKnowledgeDocumentRepositoryUrl(undefined);
-    setKnowledgeDocumentCommit(undefined);
-    setDocumentName(undefined);
-    setTitleWork(undefined);
-    setLinkWork(undefined);
-    setLicenseWork(undefined);
-    setCreators(undefined);
-    setRevision(undefined);
+    setEmail('');
+    setName('');
+    setDocumentOutline('');
+    setSubmissionSummary('');
+    setDomain('');
+    setKnowledgeDocumentRepositoryUrl('');
+    setKnowledgeDocumentCommit('');
+    setDocumentName('');
+    setTitleWork('');
+    setLinkWork('');
+    setLicenseWork('');
+    setCreators('');
+    setRevision('');
     setUploadedFiles([]);
-    setFilePath(undefined);
+    setFilePath('');
     setSeedExamples([emptySeedExample]);
-  };
-
-  const handleDownloadAttribution = () => {
-    const attributionFields = { title_work, link_work, revision, license_work, creators };
-
-    const validation = validateFields(attributionFields);
-    if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    const attributionContent = `Title of work: ${title_work}
-Link to work: ${link_work}
-Revision: ${submissionSummary}
-License of the work: ${license_work}
-Creator names: ${creators}
-`;
-
-    const blob = new Blob([attributionContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'attribution.txt';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
   };
 
   const handleViewYaml = () => {
     const yamlData: KnowledgeYamlData = {
       created_by: githubUsername!,
       version: SchemaVersion,
-      domain: domain,
-      document_outline: documentOutline,
+      domain: domain!,
+      document_outline: documentOutline!,
       seed_examples: seedExamples.map((example) => ({
         context: example.context,
-        questions_and_answers: example.questions_and_answers.map((qa) => ({
+        questions_and_answers: example.questionAndAnswers.map((qa) => ({
           question: qa.question,
           answer: qa.answer
         }))
       })),
       document: {
-        repo: repo,
-        commit: commit,
-        patterns: patterns.split(',').map((pattern) => pattern.trim())
+        repo: knowledgeDocumentRepositoryUrl!,
+        commit: knowledgeDocumentCommit!,
+        patterns: documentName ? documentName!.split(',').map((pattern) => pattern.trim()) : ['']
       }
     };
 
@@ -395,22 +365,20 @@ Creator names: ${creators}
           resetForm={resetForm}
         />
         <DownloadYaml knowledgeFormData={knowledgeFormData} setActionGroupAlertContent={setActionGroupAlertContent} githubUsername={githubUsername} />
-        <Button variant="primary" type="button" onClick={handleDownloadAttribution}>
-          Download Attribution
-        </Button>
+        <DownloadAttribution knowledgeFormData={knowledgeFormData} setActionGroupAlertContent={setActionGroupAlertContent} />
       </ActionGroup>
       {actionGroupAlertContent && (
         <Alert
           variant={actionGroupAlertContent.success ? 'success' : 'danger'}
           title={actionGroupAlertContent.title}
           actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
-          actionLinks={
-            <>
-              <AlertActionLink component="a" href={successAlertLink} target="_blank" rel="noopener noreferrer">
-                View it here
-              </AlertActionLink>
-            </>
-          }
+          // actionLinks={
+          //   <>
+          //     <AlertActionLink component="a" href={successAlertLink} target="_blank" rel="noopener noreferrer">
+          //       View it here
+          //     </AlertActionLink>
+          //   </>
+          // }
         >
           {actionGroupAlertContent.message}
         </Alert>

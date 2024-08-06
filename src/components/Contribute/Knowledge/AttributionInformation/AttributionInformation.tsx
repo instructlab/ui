@@ -3,16 +3,16 @@ import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup } from '@patt
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 
 interface Props {
-  titleWork: string | undefined;
-  setTitleWork: React.Dispatch<React.SetStateAction<string | undefined>>;
-  linkWork: string | undefined;
-  setLinkWork: React.Dispatch<React.SetStateAction<string | undefined>>;
-  revision: string | undefined;
-  setRevision: React.Dispatch<React.SetStateAction<string | undefined>>;
-  licenseWork: string | undefined;
-  setLicenseWork: React.Dispatch<React.SetStateAction<string | undefined>>;
-  creators: string | undefined;
-  setCreators: React.Dispatch<React.SetStateAction<string | undefined>>;
+  titleWork: string;
+  setTitleWork: React.Dispatch<React.SetStateAction<string>>;
+  linkWork: string;
+  setLinkWork: React.Dispatch<React.SetStateAction<string>>;
+  revision: string;
+  setRevision: React.Dispatch<React.SetStateAction<string>>;
+  licenseWork: string;
+  setLicenseWork: React.Dispatch<React.SetStateAction<string>>;
+  creators: string;
+  setCreators: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const AttributionInformation: React.FC<Props> = ({

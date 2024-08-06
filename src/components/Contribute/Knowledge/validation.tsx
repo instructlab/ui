@@ -26,7 +26,7 @@ export const validateFields = (
 ): boolean => {
   // validate that data has been entered into all fields
   for (const [key, value] of Object.entries(knowledgeFormData)) {
-    if (value === undefined) {
+    if (!value) {
       const actionGroupAlertContent: ActionGroupAlertContent = {
         title: `Please make sure you complete the ${key} field`,
         message: `Some fields are not filled out`,
@@ -37,9 +37,9 @@ export const validateFields = (
     }
   }
 
-  //   Validate email
+  //   Validate email only if email has been entered
 
-  if (!validateEmail(knowledgeFormData.email!)) {
+  if (knowledgeFormData.email && !validateEmail(knowledgeFormData.email!)) {
     const actionGroupAlertContent: ActionGroupAlertContent = {
       title: `Email address issue!`,
       message: `Please enter a valid email address.`,
