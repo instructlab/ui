@@ -21,6 +21,7 @@ import KnowledgeQuestionAnswerPairs from './KnowledgeQuestionAnswerPairs/Knowled
 import DocumentInformation from './DocumentInformation/DocumentInformation';
 import AttributionInformation from './AttributionInformation/AttributionInformation';
 import Submit from './Submit/Submit';
+import DownloadYaml from './DownloadYaml/DownloadYaml';
 
 export interface QuestionAndAnswerPair {
   question: string;
@@ -256,64 +257,6 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setSeedExamples([emptySeedExample]);
   };
 
-  const handleDownloadYaml = () => {
-    const infoFields = { email, name, documentOutline, submissionSummary, domain, repo, commit, patterns };
-    const attributionFields = { title_work, link_work, revision, license_work, creators };
-
-    let validation = validateFields(infoFields);
-    if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    validation = validateFields(attributionFields);
-    if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    // validation = validateEmail(email);
-    // if (!validation.valid) {
-    //   setFailureAlertTitle('Something went wrong!');
-    //   setFailureAlertMessage(validation.message);
-    //   setIsFailureAlertVisible(true);
-    //   return;
-    // }
-
-    const yamlData: KnowledgeYamlData = {
-      created_by: githubUsername!,
-      version: SchemaVersion,
-      domain: domain,
-      document_outline: document_outline,
-      seed_examples: seedExamples.map((example) => ({
-        context: example.context,
-        questions_and_answers: example.questions_and_answers.map((qa) => ({
-          question: qa.question,
-          answer: qa.answer
-        }))
-      })),
-      document: {
-        repo: repo,
-        commit: commit,
-        patterns: patterns.split(',').map((pattern) => pattern.trim())
-      }
-    };
-
-    const yamlString = dumpYaml(yamlData);
-    const blob = new Blob([yamlString], { type: 'application/x-yaml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'knowledge.yaml';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
   const handleDownloadAttribution = () => {
     const attributionFields = { title_work, link_work, revision, license_work, creators };
 
@@ -450,10 +393,8 @@ Creator names: ${creators}
           setActionGroupAlertContent={setActionGroupAlertContent}
           githubUsername={githubUsername}
           resetForm={resetForm}
-        ></Submit>
-        <Button variant="primary" type="button" onClick={handleDownloadYaml}>
-          Download YAML
-        </Button>
+        />
+        <DownloadYaml knowledgeFormData={knowledgeFormData} setActionGroupAlertContent={setActionGroupAlertContent} githubUsername={githubUsername} />
         <Button variant="primary" type="button" onClick={handleDownloadAttribution}>
           Download Attribution
         </Button>
