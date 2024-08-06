@@ -3,17 +3,15 @@
 import React, { useEffect, useState } from 'react';
 import './knowledge.css';
 import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { ActionGroup, FormFieldGroupExpandable, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { ActionGroup, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { CodeIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
-import { validateFields, validateEmail, validateUniqueItems } from '../../../utils/validation';
+import { validateFields } from '../../../utils/validation';
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
-import { SchemaVersion, KnowledgeYamlData, AttributionData } from '@/types';
+import { SchemaVersion, KnowledgeYamlData } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
 import KnowledgeDescription from './KnowledgeDescription/KnowledgeDescription';
 import AuthorInformation from './AuthorInformation/AuthorInformation';
@@ -22,6 +20,7 @@ import FilePathInformation from './FilePathInformation/FilePathInformation';
 import KnowledgeQuestionAnswerPairs from './KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs';
 import DocumentInformation from './DocumentInformation/DocumentInformation';
 import AttributionInformation from './AttributionInformation/AttributionInformation';
+import Submit from './Submit/Submit';
 
 export interface QuestionAndAnswerPair {
   question: string;
@@ -33,9 +32,33 @@ export interface SeedExample {
   questionAndAnswers: QuestionAndAnswerPair[];
 }
 
+export interface KnowledgeFormData {
+  email: string | undefined;
+  name: string | undefined;
+  submissionSummary: string | undefined;
+  domain: string | undefined;
+  documentOutline: string | undefined;
+  filePath: string | undefined;
+  seedExamples: SeedExample[];
+  knowledgeDocumentRepositoryUrl: string | undefined;
+  knowledgeDocumentCommit: string | undefined;
+  documentName: string | undefined;
+  titleWork: string | undefined;
+  linkWork: string | undefined;
+  revision: string | undefined;
+  licenseWork: string | undefined;
+  creators: string | undefined;
+}
+
+export interface ActionGroupAlertContent {
+  title: string;
+  message: string;
+  success: boolean;
+}
+
 export const KnowledgeForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
-  const [githubUsername, setGithubUsername] = useState<string | null>(null);
+  const [githubUsername, setGithubUsername] = useState<string | undefined>();
 
   useEffect(() => {
     const fetchUsername = async () => {
@@ -184,13 +207,25 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   // This used to be 'patterns' but I am not totally sure what this variable actually is...
   const [documentName, setDocumentName] = useState<string | undefined>();
 
-  // break
   // Attribution Information
+  // State
   const [titleWork, setTitleWork] = useState<string | undefined>();
   const [linkWork, setLinkWork] = useState<string | undefined>();
   const [revision, setRevision] = useState<string | undefined>();
   const [licenseWork, setLicenseWork] = useState<string | undefined>();
   const [creators, setCreators] = useState<string | undefined>();
+
+  const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
+
+  // functions
+
+  const onCloseActionGroupAlert = () => {
+    setActionGroupAlertContent(undefined);
+  };
+
+  // Submit
+
+  // break
 
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
   const [isFailureAlertVisible, setIsFailureAlertVisible] = useState(false);
@@ -202,177 +237,23 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [yamlContent, setYamlContent] = useState('');
 
-  const resetForm = () => {
-    setEmail('');
-    setName('');
-    setDocumentOutline('');
-    setSubmissionSummary('');
-    setDomain('');
-    setRepo('');
-    setCommit('');
-    setPatterns('');
-    setTitleWork('');
-    setLinkWork('');
-    setLicenseWork('');
-    setCreators('');
-    setRevision('');
+  const resetForm = (): undefined => {
+    setEmail(undefined);
+    setName(undefined);
+    setDocumentOutline(undefined);
+    setSubmissionSummary(undefined);
+    setDomain(undefined);
+    setKnowledgeDocumentRepositoryUrl(undefined);
+    setKnowledgeDocumentCommit(undefined);
+    setDocumentName(undefined);
+    setTitleWork(undefined);
+    setLinkWork(undefined);
+    setLicenseWork(undefined);
+    setCreators(undefined);
+    setRevision(undefined);
     setUploadedFiles([]);
-    setFilePath('');
-    setSeedExamples([
-      {
-        context: '',
-        questions_and_answers: [
-          { question: '', answer: '' },
-          { question: '', answer: '' },
-          { question: '', answer: '' }
-        ]
-      },
-      {
-        context: '',
-        questions_and_answers: [
-          { question: '', answer: '' },
-          { question: '', answer: '' },
-          { question: '', answer: '' }
-        ]
-      },
-      {
-        context: '',
-        questions_and_answers: [
-          { question: '', answer: '' },
-          { question: '', answer: '' },
-          { question: '', answer: '' }
-        ]
-      },
-      {
-        context: '',
-        questions_and_answers: [
-          { question: '', answer: '' },
-          { question: '', answer: '' },
-          { question: '', answer: '' }
-        ]
-      },
-      {
-        context: '',
-        questions_and_answers: [
-          { question: '', answer: '' },
-          { question: '', answer: '' },
-          { question: '', answer: '' }
-        ]
-      }
-    ]);
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    // Strip leading slash and ensure trailing slash in the file path
-    // let sanitizedFilePath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
-    // sanitizedFilePath = sanitizedFilePath.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
-
-    // const infoFields = { email, name, documentOutline, submissionSummary, domain, repo, commit, patterns };
-    // const attributionFields = { title_work, link_work, revision, license_work, creators };
-
-    // let validation = validateFields(infoFields);
-    // if (!validation.valid) {
-    //   setFailureAlertTitle('Something went wrong!');
-    //   setFailureAlertMessage(validation.message);
-    //   setIsFailureAlertVisible(true);
-    //   return;
-    // }
-
-    // validation = validateFields(attributionFields);
-    // if (!validation.valid) {
-    //   setFailureAlertTitle('Something went wrong!');
-    //   setFailureAlertMessage(validation.message);
-    //   setIsFailureAlertVisible(true);
-    //   return;
-    // }
-
-    // validation = validateEmail(email);
-    // if (!validation.valid) {
-    //   setFailureAlertTitle('Something went wrong!');
-    //   setFailureAlertMessage(validation.message);
-    //   setIsFailureAlertVisible(true);
-    //   return;
-    // }
-
-    for (const example of seedExamples) {
-      const questions = example.questions_and_answers.map((qa) => qa.question);
-      const answers = example.questions_and_answers.map((qa) => qa.answer);
-      validation = validateUniqueItems(questions, 'questions');
-      if (!validation.valid) {
-        setFailureAlertTitle('Something went wrong!');
-        setFailureAlertMessage(validation.message);
-        setIsFailureAlertVisible(true);
-        return;
-      }
-
-      validation = validateUniqueItems(answers, 'answers');
-      if (!validation.valid) {
-        setFailureAlertTitle('Something went wrong!');
-        setFailureAlertMessage(validation.message);
-        setIsFailureAlertVisible(true);
-        return;
-      }
-    }
-
-    const knowledgeData: KnowledgeYamlData = {
-      created_by: githubUsername!,
-      version: SchemaVersion,
-      domain: domain,
-      document_outline: document_outline,
-      seed_examples: seedExamples.map((example) => ({
-        context: example.context,
-        questions_and_answers: example.questions_and_answers.map((qa) => ({
-          question: qa.question,
-          answer: qa.answer
-        }))
-      })),
-      document: {
-        repo: repo,
-        commit: commit,
-        patterns: patterns.split(',').map((pattern) => pattern.trim())
-      }
-    };
-
-    const yamlString = dumpYaml(knowledgeData);
-
-    const attributionData: AttributionData = {
-      title_of_work: title_work,
-      link_to_work: link_work,
-      revision: revision,
-      license_of_the_work: license_work,
-      creator_names: creators
-    };
-
-    try {
-      const response = await fetch('/api/pr/knowledge', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ content: yamlString, attribution: attributionData, name, email, submission_summary, filePath: sanitizedFilePath })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit knowledge data');
-      }
-
-      const result = await response.json();
-      setSuccessAlertTitle('Knowledge contribution submitted successfully!');
-      setSuccessAlertMessage('A pull request containing your knowledge submission has been successfully created.');
-      setSuccessAlertLink(result.html_url);
-      setIsSuccessAlertVisible(true);
-      // resetForm();
-      // Alternative?
-      // const form = event.target as HTMLFormElement;
-      // form.reset();
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setFailureAlertTitle('Failed to submit your Knowledge contribution');
-        setFailureAlertMessage(error.message);
-        setIsFailureAlertVisible(true);
-      }
-    }
+    setFilePath(undefined);
+    setSeedExamples([emptySeedExample]);
   };
 
   const handleDownloadYaml = () => {
@@ -486,6 +367,24 @@ Creator names: ${creators}
     setIsModalOpen(true);
   };
 
+  const knowledgeFormData: KnowledgeFormData = {
+    email: email,
+    name: name,
+    submissionSummary: submissionSummary,
+    domain: domain,
+    documentOutline: documentOutline,
+    filePath: filePath,
+    seedExamples: seedExamples,
+    knowledgeDocumentRepositoryUrl: knowledgeDocumentRepositoryUrl,
+    knowledgeDocumentCommit: knowledgeDocumentCommit,
+    documentName: documentName,
+    titleWork: titleWork,
+    linkWork: linkWork,
+    revision: revision,
+    licenseWork: licenseWork,
+    creators: creators
+  };
+
   return (
     <Form className="form-k">
       <YamlCodeModal isModalOpen={isModalOpen} handleModalToggle={() => setIsModalOpen(!isModalOpen)} yamlContent={yamlContent} />
@@ -546,9 +445,12 @@ Creator names: ${creators}
       />
 
       <ActionGroup>
-        <Button variant="primary" type="submit" onClick={handleSubmit}>
-          Submit Knowledge
-        </Button>
+        <Submit
+          knowledgeFormData={knowledgeFormData}
+          setActionGroupAlertContent={setActionGroupAlertContent}
+          githubUsername={githubUsername}
+          resetForm={resetForm}
+        ></Submit>
         <Button variant="primary" type="button" onClick={handleDownloadYaml}>
           Download YAML
         </Button>
@@ -556,6 +458,22 @@ Creator names: ${creators}
           Download Attribution
         </Button>
       </ActionGroup>
+      {actionGroupAlertContent && (
+        <Alert
+          variant={actionGroupAlertContent.success ? 'success' : 'danger'}
+          title={actionGroupAlertContent.title}
+          actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
+          actionLinks={
+            <>
+              <AlertActionLink component="a" href={successAlertLink} target="_blank" rel="noopener noreferrer">
+                View it here
+              </AlertActionLink>
+            </>
+          }
+        >
+          {actionGroupAlertContent.message}
+        </Alert>
+      )}
     </Form>
   );
 };
