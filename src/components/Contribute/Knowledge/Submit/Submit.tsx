@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ActionGroupAlertContent, KnowledgeFormData, SeedExample } from '..';
+import { ActionGroupAlertContent, KnowledgeFormData } from '..';
 import { AttributionData, KnowledgeYamlData, SchemaVersion } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '../validation';
@@ -70,6 +70,7 @@ const Submit: React.FC<Props> = ({ knowledgeFormData, setActionGroupAlertContent
         success: false
       };
       setActionGroupAlertContent(actionGroupAlertContent);
+      return;
     }
 
     const result = await response.json();

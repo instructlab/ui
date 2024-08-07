@@ -1,11 +1,10 @@
 import React from 'react';
-import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { PlusIcon, MinusCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
 import { QuestionAndAnswerPair, SeedExample } from '..';
-import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/esm/components/HelperText';
 
 interface Props {
   seedExamples: SeedExample[];
@@ -26,9 +25,6 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
   addQuestionAnswerPair,
   addSeedExample
 }) => {
-  const [validated, setValidated] = React.useState<'default' | 'error' | 'warning' | 'success' | undefined>('default');
-  const [helperText, setHelperText] = React.useState('Share your thoughts.');
-
   return (
     <FormFieldGroupExpandable
       isExpanded

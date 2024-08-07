@@ -2,12 +2,11 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import './knowledge.css';
-import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { CodeIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
-import { validateFields } from '../../../utils/validation';
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
@@ -372,13 +371,6 @@ export const KnowledgeForm: React.FunctionComponent = () => {
           variant={actionGroupAlertContent.success ? 'success' : 'danger'}
           title={actionGroupAlertContent.title}
           actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
-          // actionLinks={
-          //   <>
-          //     <AlertActionLink component="a" href={successAlertLink} target="_blank" rel="noopener noreferrer">
-          //       View it here
-          //     </AlertActionLink>
-          //   </>
-          // }
         >
           {actionGroupAlertContent.message}
         </Alert>
