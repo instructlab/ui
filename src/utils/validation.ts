@@ -4,7 +4,7 @@ export const validateFields = (fields: Record<string, string>): { valid: boolean
     if (value.trim() === '') {
       return {
         valid: false,
-        message: `Please make sure all the ${key} fields are filled!`
+        message: `The ${key} field is empty. Please make sure all the fields are filled!`
       };
     }
   }
