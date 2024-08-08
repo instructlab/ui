@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
 
-const KnowledgeDescription: React.FunctionComponent = () => {
+const KnowledgeDescriptionContent: React.FunctionComponent = () => {
   return (
     <div>
       <p>
@@ -21,4 +21,4 @@ const KnowledgeDescription: React.FunctionComponent = () => {
   );
 };
 
-export default KnowledgeDescription;
+export default KnowledgeDescriptionContent;
