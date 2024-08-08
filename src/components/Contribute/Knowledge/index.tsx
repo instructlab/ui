@@ -79,8 +79,6 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   const [email, setEmail] = useState<string>('');
   const [name, setName] = useState<string>('');
 
-  const [task_description, setTaskDescription] = useState('');
-
   // Knowledge Information
   const [submissionSummary, setSubmissionSummary] = useState<string>('');
   const [domain, setDomain] = useState<string>('');
