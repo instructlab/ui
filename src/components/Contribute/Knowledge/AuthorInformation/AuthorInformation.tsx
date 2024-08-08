@@ -8,7 +8,7 @@ interface Props {
   name: string;
   setName: React.Dispatch<React.SetStateAction<string>>;
 }
-const AuthorInformation: React.FC<Props> = () => {
+const AuthorInformation: React.FC<Props> = ({ email, setEmail, name, setName }) => {
   return (
     <FormFieldGroupExpandable
       isExpanded
