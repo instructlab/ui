@@ -46,11 +46,22 @@ const EndpointsPage: React.FC = () => {
     setIsModalOpen(!isModalOpen);
   };
 
+  const removeTrailingSlash = (inputUrl: string): string => {
+    if (typeof inputUrl !== 'string') {
+      throw new Error('Invalid url');
+    }
+    if (inputUrl.slice(-1) === '/') {
+      return inputUrl.slice(0, -1);
+    }
+    return inputUrl;
+  };
+
   const handleSaveEndpoint = () => {
+    const updatedUrl = removeTrailingSlash(url);
     if (currentEndpoint) {
       const updatedEndpoint: ExtendedEndpoint = {
         id: currentEndpoint.id || uuidv4(),
-        url: url,
+        url: updatedUrl,
         modelName: modelName,
         apiKey: apiKey,
         isApiKeyVisible: false
@@ -105,6 +116,8 @@ const EndpointsPage: React.FC = () => {
   const renderApiKey = (apiKey: string, isApiKeyVisible: boolean) => {
     return isApiKeyVisible ? apiKey : '********';
   };
+
+  useEffect(() => {}, [url]);
 
   return (
     <AppLayout>
