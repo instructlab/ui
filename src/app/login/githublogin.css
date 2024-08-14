@@ -1,0 +1,52 @@
+a {
+	color: white; /* Change the text color to white */
+	text-decoration: underline; /* Ensure the text is underlined */
+}
+
+.login-page-background {
+	background-image: url('../../../public/InstructLab-Background-Image.png');
+	/* Replace with your background image URL */
+	background-size: cover;
+	background-position: center;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.login-container {
+	text-align: center;
+}
+
+.sign-in-text {
+	margin-top: 1rem;
+	color: white;
+	padding: 20px;
+	text-align: center;
+	font-size: xx-large;
+}
+
+.description-text {
+	margin-top: 1rem;
+	color: white;
+	padding-bottom: 50px;
+	font-size: x-large;
+	font-style: italic;
+	text-align: center;
+}
+
+.urls-text {
+	margin-top: 1rem;
+	color: white;
+	padding: 20px;
+	text-align: center;
+	font-size: large;
+}
+
+.policy-text {
+	margin-top: 1rem;
+	color: white;
+	padding-top: 20px;
+	text-align: center;
+	font-size: large;
+}

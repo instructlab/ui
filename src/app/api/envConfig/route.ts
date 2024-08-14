@@ -13,7 +13,8 @@ export async function GET() {
     MERLINITE_API: process.env.IL_MERLINITE_API || '',
     MERLINITE_MODEL_NAME: process.env.IL_MERLINITE_MODEL_NAME || '',
     UPSTREAM_REPO_OWNER: process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER || '',
-    UPSTREAM_REPO_NAME: process.env.NEXT_PUBLIC_TAXONOMY_REPO || ''
+    UPSTREAM_REPO_NAME: process.env.NEXT_PUBLIC_TAXONOMY_REPO || '',
+    DEPLOYMENT_TYPE: process.env.IL_UI_DEPLOYMENT || ''
   };
 
   return NextResponse.json(envConfig);
