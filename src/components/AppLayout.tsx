@@ -25,6 +25,7 @@ import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from './ThemeToggle/ThemeToggle';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
+import { TextContent, Text, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -81,8 +82,11 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       </MastheadToggle>
       <MastheadMain>
         <MastheadBrand>
-          <Brand src="/InstructLab-Logo.svg" alt="InstructLab Logo" heights={{ default: '60px' }} />
+          <Brand src="/updated-logo.png" alt="InstructLab Logo" heights={{ default: '60px' }} />
         </MastheadBrand>
+        <TextContent style={{ padding: 10 }}>
+          <Text component={TextVariants.h1}>InstructLab</Text>
+        </TextContent>
       </MastheadMain>
       <MastheadContent className="masthead-right-align" style={{ width: '100%' }}>
         <div style={{ paddingLeft: '80%' }}>
