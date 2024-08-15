@@ -26,6 +26,7 @@ import ThemeToggle from './ThemeToggle/ThemeToggle';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 import { TextContent, Text, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import HelpDropdown from './HelpDropdown/HelpDropdown';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -90,14 +91,15 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       </MastheadMain>
       <MastheadContent className="masthead-right-align" style={{ width: '100%' }}>
         <div style={{ paddingLeft: '80%' }}>
-          <ThemeToggle />
+          <HelpDropdown />
+          {/* <ThemeToggle />
           {session ? (
             <Button onClick={() => signOut()} variant="primary">
               Logout
             </Button>
           ) : (
             <Link href="/login">Login</Link>
-          )}
+          )} */}
         </div>
       </MastheadContent>
     </Masthead>
