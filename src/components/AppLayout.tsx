@@ -27,6 +27,8 @@ import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 import { TextContent, Text, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
 import HelpDropdown from './HelpDropdown/HelpDropdown';
+import UserMenu from './UserMenu/UserMenu';
+import { Flex, FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -90,17 +92,14 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         </TextContent>
       </MastheadMain>
       <MastheadContent className="masthead-right-align" style={{ width: '100%' }}>
-        <div style={{ paddingLeft: '80%' }}>
-          <HelpDropdown />
-          {/* <ThemeToggle />
-          {session ? (
-            <Button onClick={() => signOut()} variant="primary">
-              Logout
-            </Button>
-          ) : (
-            <Link href="/login">Login</Link>
-          )} */}
-        </div>
+        <Flex spaceItems={{ default: 'spaceItemsXl' }} style={{ paddingLeft: '80%' }}>
+          <FlexItem>
+            <HelpDropdown />
+          </FlexItem>
+          <FlexItem>
+            <UserMenu />
+          </FlexItem>
+        </Flex>
       </MastheadContent>
     </Masthead>
   );
