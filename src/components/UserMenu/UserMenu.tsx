@@ -4,7 +4,7 @@ import { Avatar } from '@patternfly/react-core/dist/dynamic/components/Avatar';
 import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/esm/components/Dropdown';
 import { Divider } from '@patternfly/react-core/dist/esm/components/Divider';
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/esm/components/MenuToggle';
-import { CaretDownIcon } from '@patternfly/react-icons';
+import { CaretDownIcon } from '@patternfly/react-icons/dist/dynamic/icons/caret-down-icon';
 import ThemePreference from './ThemePreference';
 import { signOut } from 'next-auth/react';
 
@@ -15,7 +15,7 @@ const UserMenu: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
-  const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
+  const onSelect = () => {
     setIsOpen(false);
   };
 
