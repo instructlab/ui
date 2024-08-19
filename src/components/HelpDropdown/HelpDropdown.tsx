@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Dropdown, DropdownItem, DropdownList, Flex, FlexItem, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
+import { Flex, FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex';
+import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/esm/components/Dropdown';
+import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/esm/components/MenuToggle';
 import { OutlinedQuestionCircleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 const HelpDropdown: React.FC = () => {

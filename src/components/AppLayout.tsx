@@ -20,15 +20,13 @@ import { PageSidebar } from '@patternfly/react-core/dist/dynamic/components/Page
 import { PageSidebarBody } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { SkipToContent } from '@patternfly/react-core/dist/dynamic/components/SkipToContent';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
-import BarsIcon from '@patternfly/react-icons/dist/dynamic/icons/bars-icon';
-import { useTheme } from '../context/ThemeContext';
-import ThemeToggle from './ThemeToggle/ThemeToggle';
-import Link from 'next/link';
-import { signOut } from 'next-auth/react';
+import { BarsIcon } from '@patternfly/react-icons/dist/dynamic/icons/bars-icon';
+import { Flex, FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex';
 import { TextContent, Text, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { useTheme } from '../context/ThemeContext';
+import Link from 'next/link';
 import HelpDropdown from './HelpDropdown/HelpDropdown';
 import UserMenu from './UserMenu/UserMenu';
-import { Flex, FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -91,8 +89,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
           <Text component={TextVariants.h1}>InstructLab</Text>
         </TextContent>
       </MastheadMain>
-      <MastheadContent className="masthead-right-align" style={{ width: '100%' }}>
-        <Flex spaceItems={{ default: 'spaceItemsXl' }} style={{ paddingLeft: '80%' }}>
+      <MastheadContent style={{ width: '100%' }}>
+        <Flex spaceItems={{ default: 'spaceItemsXl' }} style={{ paddingLeft: '80%', display: 'flex', alignItems: 'center' }}>
           <FlexItem>
             <HelpDropdown />
           </FlexItem>
