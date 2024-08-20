@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { LoginFooterItem, LoginForm, LoginMainFooterLinksItem, LoginPage } from '@patternfly/react-core/dist/dynamic/components/LoginPage';
 import { ListItem, ListVariant } from '@patternfly/react-core/dist/dynamic/components/List';
+import GithubLogin from './githublogin';
 
 const Login: React.FunctionComponent = () => {
   const [showHelperText, setShowHelperText] = useState(false);
@@ -13,6 +14,20 @@ const Login: React.FunctionComponent = () => {
   const [password, setPassword] = useState('');
   const [isValidPassword, setIsValidPassword] = useState(true);
   const [isRememberMeChecked, setIsRememberMeChecked] = useState(false);
+  const [isProd, setIsProd] = useState(true);
+
+  React.useEffect(() => {
+    const chooseLoginPage = async () => {
+      const res = await fetch('/api/envConfig');
+      const envConfig = await res.json();
+      if (envConfig.DEPLOYMENT_TYPE === 'dev') {
+        setIsProd(false);
+      } else {
+        setIsProd(true);
+      }
+    };
+    chooseLoginPage();
+  }, []);
 
   const handleUsernameChange = (event: React.FormEvent<HTMLInputElement>, value: string) => {
     setUsername(value);
@@ -88,6 +103,10 @@ const Login: React.FunctionComponent = () => {
     />
   );
 
+  if (isProd) {
+    return <GithubLogin />;
+  }
+
   return (
     <LoginPage
       footerListVariants={ListVariant.inline}
@@ -96,7 +115,7 @@ const Login: React.FunctionComponent = () => {
       backgroundImgSrc="/login-bg.svg"
       footerListItems={listItem}
       textContent="InstructLab Taxonomy Submissions"
-      loginTitle="Login Securely with Github OAuth"
+      loginTitle="Login Securely with admin username and password"
       loginSubtitle="Local Account"
       socialMediaLoginContent={socialMediaLoginContent}
       socialMediaLoginAriaLabel="Log in with GitHub"
