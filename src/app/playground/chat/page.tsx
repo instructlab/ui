@@ -171,7 +171,9 @@ const ChatPage: React.FC = () => {
 
                     setMessages((messages) => {
                       const updatedMessages = [...messages];
-                      updatedMessages[updatedMessages.length - 1].text = botMessage;
+                      if (updatedMessages.length > 1) {
+                        updatedMessages[updatedMessages.length - 1].text = botMessage;
+                      }
                       return updatedMessages;
                     });
                   }
