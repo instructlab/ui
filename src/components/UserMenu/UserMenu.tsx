@@ -22,7 +22,7 @@ const UserMenu: React.FC = () => {
       setUserName(session?.user?.name);
       setUserImage(session?.user?.image);
     }
-  }, []);
+  }, [session?.user?.name, session?.user?.image]);
 
   const onToggleClick = () => {
     setIsOpen(!isOpen);
