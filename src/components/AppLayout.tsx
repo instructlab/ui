@@ -20,11 +20,13 @@ import { PageSidebar } from '@patternfly/react-core/dist/dynamic/components/Page
 import { PageSidebarBody } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { SkipToContent } from '@patternfly/react-core/dist/dynamic/components/SkipToContent';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
-import BarsIcon from '@patternfly/react-icons/dist/dynamic/icons/bars-icon';
+import { BarsIcon } from '@patternfly/react-icons/dist/dynamic/icons/bars-icon';
+import { Flex, FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex';
+import { TextContent, Text, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { useTheme } from '../context/ThemeContext';
-import ThemeToggle from './ThemeToggle/ThemeToggle';
 import Link from 'next/link';
-import { signOut } from 'next-auth/react';
+import HelpDropdown from './HelpDropdown/HelpDropdown';
+import UserMenu from './UserMenu/UserMenu';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -81,20 +83,21 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       </MastheadToggle>
       <MastheadMain>
         <MastheadBrand>
-          <Brand src="/InstructLab-Logo.svg" alt="InstructLab Logo" heights={{ default: '60px' }} />
+          <Brand src="/updated-logo.png" alt="InstructLab Logo" heights={{ default: '60px' }} />
         </MastheadBrand>
+        <TextContent style={{ padding: 10 }}>
+          <Text component={TextVariants.h1}>InstructLab</Text>
+        </TextContent>
       </MastheadMain>
-      <MastheadContent className="masthead-right-align" style={{ width: '100%' }}>
-        <div style={{ paddingLeft: '80%' }}>
-          <ThemeToggle />
-          {session ? (
-            <Button onClick={() => signOut()} variant="primary">
-              Logout
-            </Button>
-          ) : (
-            <Link href="/login">Login</Link>
-          )}
-        </div>
+      <MastheadContent style={{ width: '100%' }}>
+        <Flex spaceItems={{ default: 'spaceItemsXl' }} style={{ paddingLeft: '80%', display: 'flex', alignItems: 'center' }}>
+          <FlexItem>
+            <HelpDropdown />
+          </FlexItem>
+          <FlexItem>
+            <UserMenu />
+          </FlexItem>
+        </Flex>
       </MastheadContent>
     </Masthead>
   );
