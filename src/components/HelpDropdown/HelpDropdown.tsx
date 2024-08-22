@@ -43,7 +43,7 @@ const HelpDropdown: React.FC = () => {
           zIndex: 1000
         }}
       >
-        <DropdownItem value={0} key="link" to="https://github.com/instructlab/instructlab/blob/main/README.md">
+        <DropdownItem value={0} key="link" target="_blank" to="https://github.com/instructlab/instructlab/blob/main/README.md">
           <Flex spaceItems={{ default: 'spaceItemsXl' }}>
             <FlexItem>Documentation</FlexItem>
             <FlexItem>
