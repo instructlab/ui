@@ -3,13 +3,13 @@
 
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { useRouter } from 'next/navigation';
 import { Chip } from '@patternfly/react-core/dist/dynamic/components/Chip';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { Table, Thead, Tr, Th, Td, Tbody, ThProps } from '@patternfly/react-table';
 import { fetchPullRequests, getGitHubUsername } from '../../utils/github';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { PullRequest } from '../../types';
 
 const Index: React.FunctionComponent = () => {
