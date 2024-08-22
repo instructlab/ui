@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Chip } from '@patternfly/react-core/dist/dynamic/components/Chip';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
-import { Table, Thead, Tr, Th, Td, Tbody } from '@patternfly/react-table';
+import { Table, Thead, Tr, Th, Td, Tbody, ThProps } from '@patternfly/react-table';
 import { fetchPullRequests, getGitHubUsername } from '../../utils/github';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { PullRequest } from '../../types';
@@ -17,6 +17,8 @@ const Index: React.FunctionComponent = () => {
   const [pullRequests, setPullRequests] = React.useState<PullRequest[]>([]);
   const [username, setUsername] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const [activeSortIndex, setActiveSortIndex] = React.useState<number | undefined>(undefined);
+  const [activeSortDirection, setActiveSortDirection] = React.useState<'asc' | 'desc' | undefined>(undefined);
   const router = useRouter();
 
   const fetchAndSetPullRequests = React.useCallback(async () => {
@@ -25,7 +27,6 @@ const Index: React.FunctionComponent = () => {
         const fetchedUsername = await getGitHubUsername(session.accessToken);
         setUsername(fetchedUsername);
         const data = await fetchPullRequests(session.accessToken);
-        // Filter PRs to include only those with 'skill' or 'knowledge' labels and owned by the logged-in user
         const filteredPRs = data.filter(
           (pr: PullRequest) => pr.user.login === fetchedUsername && pr.labels.some((label) => label.name === 'skill' || label.name === 'knowledge')
         );
@@ -42,9 +43,38 @@ const Index: React.FunctionComponent = () => {
     return () => clearInterval(intervalId);
   }, [session, fetchAndSetPullRequests]);
 
-  if (!session) {
-    return <div>Loading...</div>;
+  const getSortableRowValues = (pr: PullRequest): (string | number)[] => {
+    const labels = pr.labels.map((label) => label.name).join(', ');
+    return [pr.title, pr.user.login, pr.state, new Date(pr.created_at).getTime(), new Date(pr.updated_at).getTime(), labels];
+  };
+
+  let sortedPullRequests = pullRequests;
+  if (activeSortIndex !== undefined) {
+    sortedPullRequests = pullRequests.sort((a, b) => {
+      const aValue = getSortableRowValues(a)[activeSortIndex];
+      const bValue = getSortableRowValues(b)[activeSortIndex];
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return activeSortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+      } else if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return activeSortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+      }
+
+      return 0;
+    });
   }
+
+  const getSortParams = (columnIndex: number): ThProps['sort'] => ({
+    sortBy: {
+      index: activeSortIndex,
+      direction: activeSortDirection
+    },
+    onSort: (_event, index, direction) => {
+      setActiveSortIndex(index);
+      setActiveSortDirection(direction as 'asc' | 'desc');
+    },
+    columnIndex
+  });
 
   const handleEditClick = (pr: PullRequest) => {
     const hasKnowledgeLabel = pr.labels.some((label) => label.name === 'knowledge');
@@ -57,6 +87,10 @@ const Index: React.FunctionComponent = () => {
     }
   };
 
+  if (!session) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <PageSection>
       <Title headingLevel="h1" size="lg">
@@ -67,18 +101,18 @@ const Index: React.FunctionComponent = () => {
       <Table aria-label="Pull Requests">
         <Thead>
           <Tr>
-            <Th>Title</Th>
-            <Th>Author</Th>
-            <Th>State</Th>
-            <Th>Created At</Th>
-            <Th>Updated At</Th>
+            <Th sort={getSortParams(0)}>Title</Th>
+            <Th sort={getSortParams(1)}>Author</Th>
+            <Th sort={getSortParams(2)}>State</Th>
+            <Th sort={getSortParams(3)}>Created At</Th>
+            <Th sort={getSortParams(4)}>Updated At</Th>
             <Th>Link</Th>
-            <Th>Labels</Th>
+            <Th sort={getSortParams(5)}>Labels</Th>
             <Th>Actions</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {pullRequests.map((pr) => (
+          {sortedPullRequests.map((pr) => (
             <Tr key={pr.number}>
               <Td>{pr.title}</Td>
               <Td>{pr.user.login}</Td>
