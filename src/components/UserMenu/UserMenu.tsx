@@ -19,8 +19,8 @@ const UserMenu: React.FC = () => {
       setUserName(session?.user?.name);
       setUserImage('https://www.patternfly.org/images/668560cd.svg');
     } else {
-      setUserName(session?.user?.name);
-      setUserImage(session?.user?.image);
+      setUserName(session?.user?.name ?? '');
+      setUserImage(session?.user?.image ?? '');
     }
   }, [session?.user?.name, session?.user?.image]);
 
