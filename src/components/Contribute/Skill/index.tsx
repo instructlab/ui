@@ -16,7 +16,7 @@ import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { AttributionData, SchemaVersion, SkillYamlData } from '@/types';
-import SkillDescription from './SkillDescription/SkillDescriptionContent';
+import SkillDescription from './SkillDescription/SkillDescription';
 import { dumpYaml } from '@/utils/yamlConfig';
 import PathService from '@/components/PathService/PathService';
 
