@@ -140,7 +140,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     let validation = validateFields(infoFields);
     if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
+      setFailureAlertTitle(validation.title);
       setFailureAlertMessage(validation.message);
       setIsFailureAlertVisible(true);
       return;
@@ -148,7 +148,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     validation = validateFields(attributionFields);
     if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
+      setFailureAlertTitle(validation.title);
       setFailureAlertMessage(validation.message);
       setIsFailureAlertVisible(true);
       return;
@@ -156,7 +156,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     validation = validateEmail(email);
     if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
+      setFailureAlertTitle(validation.title);
       setFailureAlertMessage(validation.message);
       setIsFailureAlertVisible(true);
       return;
@@ -164,7 +164,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     validation = validateUniqueItems(questions, 'questions');
     if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
+      setFailureAlertTitle(validation.title);
       setFailureAlertMessage(validation.message);
       setIsFailureAlertVisible(true);
       return;
@@ -172,7 +172,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     validation = validateUniqueItems(answers, 'answers');
     if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
+      setFailureAlertTitle(validation.title);
       setFailureAlertMessage(validation.message);
       setIsFailureAlertVisible(true);
       return;
@@ -205,7 +205,15 @@ export const SkillForm: React.FunctionComponent = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ content: yamlString, attribution: attributionData, name, email, submission_summary, filePath: sanitizedFilePath })
+        body: JSON.stringify({
+          content: yamlString,
+          attribution: attributionData,
+          name,
+          email,
+          submission_summary,
+          task_description,
+          filePath: sanitizedFilePath
+        })
       });
 
       if (!response.ok) {
@@ -250,7 +258,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     let validation = validateFields(infoFields);
     if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
+      setFailureAlertTitle(validation.title);
       setFailureAlertMessage(validation.message);
       setIsFailureAlertVisible(true);
       return;
@@ -258,7 +266,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     validation = validateFields(attributionFields);
     if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
+      setFailureAlertTitle(validation.title);
       setFailureAlertMessage(validation.message);
       setIsFailureAlertVisible(true);
       return;
@@ -266,7 +274,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     validation = validateEmail(email);
     if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
+      setFailureAlertTitle(validation.title);
       setFailureAlertMessage(validation.message);
       setIsFailureAlertVisible(true);
       return;
@@ -274,7 +282,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     validation = validateUniqueItems(questions, 'questions');
     if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
+      setFailureAlertTitle(validation.title);
       setFailureAlertMessage(validation.message);
       setIsFailureAlertVisible(true);
       return;
@@ -282,7 +290,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     validation = validateUniqueItems(answers, 'answers');
     if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
+      setFailureAlertTitle(validation.title);
       setFailureAlertMessage(validation.message);
       setIsFailureAlertVisible(true);
       return;
@@ -326,7 +334,7 @@ export const SkillForm: React.FunctionComponent = () => {
 
     const validation = validateFields(attributionFields);
     if (!validation.valid) {
-      setFailureAlertTitle('Something went wrong!');
+      setFailureAlertTitle(validation.title);
       setFailureAlertMessage(validation.message);
       setIsFailureAlertVisible(true);
       return;
@@ -526,6 +534,8 @@ export const SkillForm: React.FunctionComponent = () => {
         <Alert
           variant="success"
           title={success_alert_title}
+          timeout={10000}
+          onTimeout={onCloseSuccessAlert}
           actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}
           actionLinks={
             <AlertActionLink component="a" href={success_alert_message} target="_blank" rel="noopener noreferrer">
@@ -537,7 +547,13 @@ export const SkillForm: React.FunctionComponent = () => {
         </Alert>
       )}
       {isFailureAlertVisible && (
-        <Alert variant="danger" title={failure_alert_title} actionClose={<AlertActionCloseButton onClose={onCloseFailureAlert} />}>
+        <Alert
+          variant="danger"
+          title={failure_alert_title}
+          timeout={10000}
+          onTimeout={onCloseFailureAlert}
+          actionClose={<AlertActionCloseButton onClose={onCloseFailureAlert} />}
+        >
           {failure_alert_message}
         </Alert>
       )}

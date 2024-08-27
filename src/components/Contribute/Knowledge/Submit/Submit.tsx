@@ -85,7 +85,7 @@ const Submit: React.FC<Props> = ({ knowledgeFormData, setActionGroupAlertContent
     const result = await response.json();
     const actionGroupAlertContent: ActionGroupAlertContent = {
       title: 'Knowledge contribution submitted successfully!',
-      message: `A new pull request has been created for your knowledge submission.`,
+      message: `Thank you for your contribution!`,
       url: `${result.html_url}`,
       success: true
     };

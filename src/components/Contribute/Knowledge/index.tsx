@@ -355,6 +355,26 @@ export const KnowledgeForm: React.FunctionComponent = () => {
         setCreators={setCreators}
       />
 
+      {actionGroupAlertContent && (
+        <Alert
+          variant={actionGroupAlertContent.success ? 'success' : 'danger'}
+          title={actionGroupAlertContent.title}
+          timeout={10000}
+          onTimeout={onCloseActionGroupAlert}
+          actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
+        >
+          <p>
+            {actionGroupAlertContent.message}
+            <br />
+            {actionGroupAlertContent.success && actionGroupAlertContent.url && actionGroupAlertContent.url.trim().length > 0 && (
+              <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
+                View your pull request
+              </a>
+            )}
+          </p>
+        </Alert>
+      )}
+
       <ActionGroup>
         <Submit
           knowledgeFormData={knowledgeFormData}
@@ -365,20 +385,6 @@ export const KnowledgeForm: React.FunctionComponent = () => {
         <DownloadYaml knowledgeFormData={knowledgeFormData} setActionGroupAlertContent={setActionGroupAlertContent} githubUsername={githubUsername} />
         <DownloadAttribution knowledgeFormData={knowledgeFormData} setActionGroupAlertContent={setActionGroupAlertContent} />
       </ActionGroup>
-      {actionGroupAlertContent && (
-        <Alert
-          variant={actionGroupAlertContent.success ? 'success' : 'danger'}
-          title={actionGroupAlertContent.title}
-          actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
-        >
-          <p>
-            {actionGroupAlertContent.message}{' '}
-            <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
-              {actionGroupAlertContent.url}
-            </a>
-          </p>
-        </Alert>
-      )}
     </Form>
   );
 };

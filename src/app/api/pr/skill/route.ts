@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { content, attribution, name, email, submission_summary, filePath } = body;
+    const { content, attribution, name, email, submission_summary, task_description, filePath } = body;
 
     const githubUsername = await getGitHubUsername(headers);
     console.log('GitHub Username:', githubUsername);
@@ -78,7 +78,7 @@ Creator names: ${attributionData.creator_names}
     );
 
     // Create a pull request from the user's fork to the upstream repository
-    const pr = await createPullRequest(headers, githubUsername, branchName, submission_summary);
+    const pr = await createPullRequest(headers, githubUsername, branchName, submission_summary, task_description);
 
     return NextResponse.json(pr, { status: 201 });
   } catch (error) {
@@ -253,13 +253,14 @@ async function getCommitSha(headers: HeadersInit, username: string, branchName: 
   return data.object.sha;
 }
 
-async function createPullRequest(headers: HeadersInit, username: string, branchName: string, skillSummary: string) {
+async function createPullRequest(headers: HeadersInit, username: string, branchName: string, skillSummary: string, skillDescription: string) {
   const response = await fetch(`${GITHUB_API_URL}/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls`, {
     method: 'POST',
     headers,
     body: JSON.stringify({
       title: `Skill: ${skillSummary}`,
       head: `${username}:${branchName}`,
+      body: skillDescription,
       base: BASE_BRANCH
     })
   });
