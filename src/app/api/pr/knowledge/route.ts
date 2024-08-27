@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { content, name, email, submission_summary, attribution, filePath } = body;
+    const { content, attribution, name, email, submissionSummary, documentOutline, filePath } = body;
 
     const knowledgeData: KnowledgeYamlData = yaml.load(content) as KnowledgeYamlData;
     const attributionData: AttributionData = attribution;
@@ -78,11 +78,11 @@ Creator names: ${attributionData.creator_names}
         { path: newAttributionFilePath, content: attributionContent }
       ],
       branchName,
-      `${submission_summary}\n\nSigned-off-by: ${name} <${email}>`
+      `${submissionSummary}\n\nSigned-off-by: ${name} <${email}>`
     );
 
     // Create a pull request from the user's fork to the upstream repository
-    const pr = await createPullRequest(headers, githubUsername, branchName, submission_summary);
+    const pr = await createPullRequest(headers, githubUsername, branchName, submissionSummary, documentOutline);
 
     return NextResponse.json(pr, { status: 201 });
   } catch (error) {
@@ -257,13 +257,14 @@ async function getCommitSha(headers: HeadersInit, username: string, branchName: 
   return data.object.sha;
 }
 
-async function createPullRequest(headers: HeadersInit, username: string, branchName: string, knowledgeSummary: string) {
+async function createPullRequest(headers: HeadersInit, username: string, branchName: string, knowledgeSummary: string, documentOutline: string) {
   const response = await fetch(`${GITHUB_API_URL}/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls`, {
     method: 'POST',
     headers,
     body: JSON.stringify({
       title: `Knowledge: ${knowledgeSummary}`,
       head: `${username}:${branchName}`,
+      body: documentOutline,
       base: BASE_BRANCH
     })
   });

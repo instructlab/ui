@@ -54,6 +54,7 @@ export interface KnowledgeFormData {
 export interface ActionGroupAlertContent {
   title: string;
   message: string;
+  url?: string;
   success: boolean;
 }
 
@@ -370,7 +371,12 @@ export const KnowledgeForm: React.FunctionComponent = () => {
           title={actionGroupAlertContent.title}
           actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
         >
-          {actionGroupAlertContent.message}
+          <p>
+            {actionGroupAlertContent.message}{' '}
+            <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
+              {actionGroupAlertContent.url}
+            </a>
+          </p>
         </Alert>
       )}
     </Form>
