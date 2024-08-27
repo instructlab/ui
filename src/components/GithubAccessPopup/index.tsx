@@ -44,11 +44,11 @@ const GithubAccessPopup: React.FunctionComponent = () => {
         will use your account to:
         <li>
           {' '}
-          Pull PRs from the upstream InstructLab{' '}
+          Pull PRs from the upstream{' '}
           <a href="https://github.com/instructlab/taxonomy" target={'_blank'}>
-            Taxonomy
+            InstructLab Taxonomy repo
           </a>{' '}
-          repo that you’ve opened to contribute skill and knowledge.
+          that you’ve opened to contribute skills and knowledge.
         </li>
         <li>
           {' '}
@@ -58,12 +58,13 @@ const GithubAccessPopup: React.FunctionComponent = () => {
           {' '}
           Fork the{' '}
           <a href="https://github.com/instructlab-public/taxonomy-knowledge-docs" target={'_blank'}>
-            taxonomy-knowledge-docs
+            taxonomy-knowledge-docs repo
           </a>{' '}
-          repo to your GitHub account and upload knowledge-related documents from your account.
+          to your GitHub account and upload knowledge-related documents from your account.
         </li>
         <br />
         These permissions <i>do not</i> enable InstructLab UI to access your GitHub password.
+        <br />
         <br />
         To provide InstructLab UI with the permissions necessary for managing your taxonomy submissions, select <b>accept</b>. If you do not wish to
         grant these permissions, select <b>deny</b> to sign out of InstructLab UI.
