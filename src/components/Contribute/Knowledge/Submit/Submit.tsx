@@ -55,12 +55,21 @@ const Submit: React.FC<Props> = ({ knowledgeFormData, setActionGroupAlertContent
     const name = knowledgeFormData.name;
     const email = knowledgeFormData.email;
     const submissionSummary = knowledgeFormData.submissionSummary;
+    const documentOutline = knowledgeFormData.documentOutline;
     const response = await fetch('/api/pr/knowledge', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ content: yamlString, attribution: attributionData, name, email, submissionSummary, filePath: sanitizedFilePath })
+      body: JSON.stringify({
+        content: yamlString,
+        attribution: attributionData,
+        name,
+        email,
+        submissionSummary,
+        documentOutline,
+        filePath: sanitizedFilePath
+      })
     });
 
     if (!response.ok) {
@@ -76,7 +85,8 @@ const Submit: React.FC<Props> = ({ knowledgeFormData, setActionGroupAlertContent
     const result = await response.json();
     const actionGroupAlertContent: ActionGroupAlertContent = {
       title: 'Knowledge contribution submitted successfully!',
-      message: `A new pull request has been created for your knowledge submission ${result.html_url}`,
+      message: `A new pull request has been created for your knowledge submission.`,
+      url: `${result.html_url}`,
       success: true
     };
     setActionGroupAlertContent(actionGroupAlertContent);
