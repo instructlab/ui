@@ -6,12 +6,13 @@ import { KnowledgeYamlData, SchemaVersion } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
 
 interface Props {
+  disableAction: boolean;
   knowledgeFormData: KnowledgeFormData;
   setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
   githubUsername: string | undefined;
 }
 
-const DownloadYaml: React.FC<Props> = ({ knowledgeFormData, setActionGroupAlertContent, githubUsername }) => {
+const DownloadYaml: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGroupAlertContent, githubUsername }) => {
   const handleDownloadYaml = () => {
     if (!validateFields(knowledgeFormData, setActionGroupAlertContent)) return;
 
@@ -45,7 +46,7 @@ const DownloadYaml: React.FC<Props> = ({ knowledgeFormData, setActionGroupAlertC
     document.body.removeChild(a);
   };
   return (
-    <Button variant="primary" type="button" onClick={handleDownloadYaml}>
+    <Button variant="primary" type="button" isDisabled={disableAction} onClick={handleDownloadYaml}>
       Download YAML
     </Button>
   );

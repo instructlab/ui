@@ -4,8 +4,16 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 import { UploadFile } from './../UploadFile';
 import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
+import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
+import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
+import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
+import { KnowledgeFormData } from '..';
+import { checkKnowledgeFormCompletion } from '../validation';
 
 interface Props {
+  knowledgeFormData: KnowledgeFormData;
+  setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   knowledgeDocumentRepositoryUrl: string;
   setKnowledgeDocumentRepositoryUrl: React.Dispatch<React.SetStateAction<string>>;
   knowledgeDocumentCommit: string;
@@ -17,6 +25,8 @@ interface Props {
 }
 
 const DocumentInformation: React.FC<Props> = ({
+  knowledgeFormData,
+  setDisableAction,
   knowledgeDocumentRepositoryUrl,
   setKnowledgeDocumentRepositoryUrl,
   knowledgeDocumentCommit,
@@ -34,6 +44,50 @@ const DocumentInformation: React.FC<Props> = ({
 
   const [failureAlertTitle, setFailureAlertTitle] = useState<string | undefined>();
   const [failureAlertMessage, setFailureAlertMessage] = useState<string | undefined>();
+
+  const [validRepo, setValidRepo] = useState<ValidatedOptions>();
+  const [validCommit, setValidCommit] = useState<ValidatedOptions>();
+  const [validDocumentName, setValidDocumentName] = useState<ValidatedOptions>();
+
+  const validateRepo = (repo: string) => {
+    if (repo.length === 0) {
+      setDisableAction(true);
+      setValidRepo(ValidatedOptions.error);
+      return;
+    }
+    try {
+      new URL(repo);
+      setValidRepo(ValidatedOptions.success);
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      return;
+    } catch (e) {
+      setDisableAction(true);
+      setValidRepo(ValidatedOptions.warning);
+      return;
+    }
+  };
+
+  const validateCommit = (commit: string) => {
+    if (commit.length > 0) {
+      setValidCommit(ValidatedOptions.success);
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      return;
+    }
+    setDisableAction(true);
+    setValidCommit(ValidatedOptions.error);
+    return;
+  };
+
+  const validateDocumentName = (documentName: string) => {
+    if (documentName.length > 0) {
+      setValidDocumentName(ValidatedOptions.success);
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      return;
+    }
+    setDisableAction(true);
+    setValidDocumentName(ValidatedOptions.error);
+    return;
+  };
 
   const handleFilesChange = (files: File[]) => {
     setUploadedFiles(files);
@@ -104,7 +158,17 @@ const DocumentInformation: React.FC<Props> = ({
     <FormFieldGroupExpandable
       toggleAriaLabel="Details"
       header={
-        <FormFieldGroupHeader titleText={{ text: 'Document Info', id: 'doc-info-id' }} titleDescription="Add the relevant document's information" />
+        <FormFieldGroupHeader
+          titleText={{
+            text: (
+              <p>
+                Document Info <span style={{ color: 'red' }}>*</span>
+              </p>
+            ),
+            id: 'doc-info-id'
+          }}
+          titleDescription="Add the relevant document's information"
+        />
       }
     >
       <FormGroup>
@@ -132,26 +196,69 @@ const DocumentInformation: React.FC<Props> = ({
             isRequired
             type="url"
             aria-label="repo"
+            validated={validRepo}
             placeholder="Enter repo url where document exists"
             value={knowledgeDocumentRepositoryUrl}
             onChange={(_event, value) => setKnowledgeDocumentRepositoryUrl(value)}
+            onBlur={() => validateRepo(knowledgeDocumentRepositoryUrl)}
           />
+          {validRepo === ValidatedOptions.error && (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem icon={<ExclamationCircleIcon />} variant={validRepo}>
+                  Repo URL is required.
+                </HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
+          {validRepo === ValidatedOptions.warning && (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem icon={<ExclamationCircleIcon />} variant="error">
+                  Please enter a valid URL.
+                </HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
+
           <TextInput
             isRequired
             type="text"
             aria-label="commit"
             placeholder="Enter the commit sha of the document in that repo"
             value={knowledgeDocumentCommit}
+            validated={validCommit}
             onChange={(_event, value) => setKnowledgeDocumentCommit(value)}
+            onBlur={() => validateCommit(knowledgeDocumentCommit)}
           />
+          {validCommit === ValidatedOptions.error && (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCommit}>
+                  Valid commit SHA is required.
+                </HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
           <TextInput
             isRequired
             type="text"
             aria-label="patterns"
             placeholder="Enter the documents name (comma separated)"
             value={documentName}
+            validated={validDocumentName}
             onChange={(_event, value) => setDocumentName(value)}
+            onBlur={() => validateDocumentName(documentName)}
           />
+          {validDocumentName === ValidatedOptions.error && (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem icon={<ExclamationCircleIcon />} variant={validDocumentName}>
+                  Document name is required.
+                </HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
         </FormGroup>
       ) : (
         <>
