@@ -73,20 +73,10 @@ const Index: React.FunctionComponent = () => {
               <CardTitle>{pr.title}</CardTitle>
               <CardBody>
                 <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                  <FlexItem>State: {pr.state}</FlexItem>
+                  <FlexItem>Created At: {new Date(pr.created_at).toLocaleString()}</FlexItem>
+                  <FlexItem>Updated At: {new Date(pr.updated_at).toLocaleString()}</FlexItem>
                   <FlexItem>
-                    <strong>Author:</strong> {pr.user.login}
-                  </FlexItem>
-                  <FlexItem>
-                    <strong>State:</strong> {pr.state}
-                  </FlexItem>
-                  <FlexItem>
-                    <strong>Created At:</strong> {new Date(pr.created_at).toLocaleString()}
-                  </FlexItem>
-                  <FlexItem>
-                    <strong>Updated At:</strong> {new Date(pr.updated_at).toLocaleString()}
-                  </FlexItem>
-                  <FlexItem>
-                    <strong>Labels:</strong>
                     {pr.labels.map((label) => (
                       <Label key={label.name} color="blue" style={{ marginRight: '5px' }}>
                         {label.name}
