@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
@@ -9,6 +9,7 @@ import { KnowledgeFormData } from '..';
 import { checkKnowledgeFormCompletion } from '../validation';
 
 interface Props {
+  reset: boolean;
   knowledgeFormData: KnowledgeFormData;
   setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   titleWork: string;
@@ -24,6 +25,7 @@ interface Props {
 }
 
 const AttributionInformation: React.FC<Props> = ({
+  reset,
   knowledgeFormData,
   setDisableAction,
   titleWork,
@@ -42,6 +44,14 @@ const AttributionInformation: React.FC<Props> = ({
   const [validRevision, setValidRevision] = React.useState<ValidatedOptions>();
   const [validLicense, setValidLicense] = React.useState<ValidatedOptions>();
   const [validCreators, setValidCreators] = React.useState<ValidatedOptions>();
+
+  useEffect(() => {
+    setValidTitle(ValidatedOptions.default);
+    setValidLink(ValidatedOptions.default);
+    setValidRevision(ValidatedOptions.default);
+    setValidLicense(ValidatedOptions.default);
+    setValidCreators(ValidatedOptions.default);
+  }, [reset]);
 
   const validateTitle = (title: string) => {
     if (title.length > 0) {

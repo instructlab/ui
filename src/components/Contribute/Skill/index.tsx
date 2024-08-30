@@ -534,7 +534,7 @@ export const SkillForm: React.FunctionComponent = () => {
         <Alert
           variant="success"
           title={success_alert_title}
-          timeout={10000}
+          timeout={15000}
           onTimeout={onCloseSuccessAlert}
           actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}
           actionLinks={
@@ -550,7 +550,7 @@ export const SkillForm: React.FunctionComponent = () => {
         <Alert
           variant="danger"
           title={failure_alert_title}
-          timeout={10000}
+          timeout={15000}
           onTimeout={onCloseFailureAlert}
           actionClose={<AlertActionCloseButton onClose={onCloseFailureAlert} />}
         >

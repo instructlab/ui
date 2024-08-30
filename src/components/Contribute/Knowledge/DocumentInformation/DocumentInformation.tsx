@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
@@ -12,6 +12,7 @@ import { KnowledgeFormData } from '..';
 import { checkKnowledgeFormCompletion } from '../validation';
 
 interface Props {
+  reset: boolean;
   knowledgeFormData: KnowledgeFormData;
   setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   knowledgeDocumentRepositoryUrl: string;
@@ -25,6 +26,7 @@ interface Props {
 }
 
 const DocumentInformation: React.FC<Props> = ({
+  reset,
   knowledgeFormData,
   setDisableAction,
   knowledgeDocumentRepositoryUrl,
@@ -48,6 +50,12 @@ const DocumentInformation: React.FC<Props> = ({
   const [validRepo, setValidRepo] = useState<ValidatedOptions>();
   const [validCommit, setValidCommit] = useState<ValidatedOptions>();
   const [validDocumentName, setValidDocumentName] = useState<ValidatedOptions>();
+
+  useEffect(() => {
+    setValidRepo(ValidatedOptions.default);
+    setValidCommit(ValidatedOptions.default);
+    setValidDocumentName(ValidatedOptions.default);
+  }, [reset]);
 
   const validateRepo = (repo: string) => {
     if (repo.length === 0) {

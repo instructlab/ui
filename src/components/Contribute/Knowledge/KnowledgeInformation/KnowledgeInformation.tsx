@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
@@ -10,6 +10,7 @@ import { KnowledgeFormData } from '..';
 import { checkKnowledgeFormCompletion } from '../validation';
 
 interface Props {
+  reset: boolean;
   knowledgeFormData: KnowledgeFormData;
   setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   submissionSummary: string;
@@ -21,6 +22,7 @@ interface Props {
 }
 
 const KnowledgeInformation: React.FC<Props> = ({
+  reset,
   knowledgeFormData,
   setDisableAction,
   submissionSummary,
@@ -33,6 +35,12 @@ const KnowledgeInformation: React.FC<Props> = ({
   const [validDescription, setValidDescription] = React.useState<ValidatedOptions>();
   const [validDomain, setValidDomain] = React.useState<ValidatedOptions>();
   const [validOutline, setValidOutline] = React.useState<ValidatedOptions>();
+
+  useEffect(() => {
+    setValidDescription(ValidatedOptions.default);
+    setValidDomain(ValidatedOptions.default);
+    setValidOutline(ValidatedOptions.default);
+  }, [reset]);
 
   const validateDescription = (description: string) => {
     if (description.length > 0 && description.length < 60) {

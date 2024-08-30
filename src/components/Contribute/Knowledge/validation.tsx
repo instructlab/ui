@@ -1,3 +1,4 @@
+import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { ActionGroupAlertContent, KnowledgeFormData, SeedExample } from '.';
 
 const validateEmail = (email: string): boolean => {
@@ -5,19 +6,32 @@ const validateEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-const hasDuplicateSeedExamples = (seedExamples: SeedExample[]): boolean => {
-  // Just checking contexts for duplication.
-  const contexts = new Set();
-
-  seedExamples.forEach((seedExample) => {
+const hasDuplicateSeedExamples = (seedExamples: SeedExample[]): { duplicate: boolean; index: number } => {
+  const contexts = new Set<string>();
+  for (let index = 0; index < seedExamples.length; index++) {
+    const seedExample = seedExamples[index];
     if (!contexts.has(seedExample.context)) {
       contexts.add(seedExample.context);
     } else {
-      return true;
+      return { duplicate: true, index: index };
     }
-  });
+  }
+  return { duplicate: false, index: -1 };
+};
 
-  return false;
+// Check if the question in Q&A pairs in a each seed example are unique
+const hasDuplicateQuestionAndAnswerPairs = (seedExample: SeedExample): { duplicate: boolean; index: number } => {
+  const questions = new Set<string>();
+  for (let index = 0; index < seedExample.questionAndAnswers.length; index++) {
+    const questionAndAnswerPair = seedExample.questionAndAnswers[index];
+    const question = questionAndAnswerPair.question;
+    if (!questions.has(question)) {
+      questions.add(question);
+    } else {
+      return { duplicate: true, index: index };
+    }
+  }
+  return { duplicate: false, index: -1 };
 };
 
 // Validate that the total length of all the question and answer pairs in a seed example is not more than 250 characters
@@ -70,6 +84,20 @@ export const validateFields = (
     return false;
   }
 
+  //  checking for seedExample duplication
+  const { duplicate, index } = hasDuplicateSeedExamples(knowledgeFormData.seedExamples);
+  if (duplicate) {
+    knowledgeFormData.seedExamples[index].isContextValid = ValidatedOptions.error;
+    knowledgeFormData.seedExamples[index].validationError = 'This is duplicate context, please provide unique contexts.';
+    const actionGroupAlertContent: ActionGroupAlertContent = {
+      title: `Seed example issue!`,
+      message: `Seed example ${index + 1} context is duplicate. Please provide unique contexts`,
+      success: false
+    };
+    setActionGroupAlertContent(actionGroupAlertContent);
+    return false;
+  }
+
   // Check that each seed example has at least 3 question and answer pairs
   for (let index = 0; index < knowledgeFormData.seedExamples.length; index++) {
     if (knowledgeFormData.seedExamples[index].questionAndAnswers.length < 3) {
@@ -83,16 +111,21 @@ export const validateFields = (
     }
   }
 
-  //   checking for seedExample duplication
-  if (hasDuplicateSeedExamples(knowledgeFormData.seedExamples)) {
-    console.log('duplicate seed examples');
-    const actionGroupAlertContent: ActionGroupAlertContent = {
-      title: `Seed example issue!`,
-      message: `There is duplicated context. Please provide unique contexts`,
-      success: false
-    };
-    setActionGroupAlertContent(actionGroupAlertContent);
-    return false;
+  // Check that each seed example has at least 3 question and answer pairs
+  for (let index = 0; index < knowledgeFormData.seedExamples.length; index++) {
+    const { duplicate, index: qnaIndex } = hasDuplicateQuestionAndAnswerPairs(knowledgeFormData.seedExamples[index]);
+    if (duplicate) {
+      knowledgeFormData.seedExamples[index].questionAndAnswers[qnaIndex].isQuestionValid = ValidatedOptions.error;
+      knowledgeFormData.seedExamples[index].questionAndAnswers[qnaIndex].questionValidationError =
+        'This is duplicate question, please provide unique questions.';
+      const actionGroupAlertContent: ActionGroupAlertContent = {
+        title: `Seed example ${index + 1} has an issue!`,
+        message: `Question ${qnaIndex + 1} is a duplicate in the seed example. Please provide unique questions in each seed example.`,
+        success: false
+      };
+      setActionGroupAlertContent(actionGroupAlertContent);
+      return false;
+    }
   }
 
   //  checking for question and answer pairs length
@@ -132,7 +165,6 @@ export const checkKnowledgeFormCompletion = (knowledgeFormData: KnowledgeFormDat
   // Helper function to check if a value is non-empty
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isNonEmpty = (value: any): boolean => {
-    console.log(value);
     if (Array.isArray(value)) {
       return value.every((item) => isNonEmpty(item));
     }

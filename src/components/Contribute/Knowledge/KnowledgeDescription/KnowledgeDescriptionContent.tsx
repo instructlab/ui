@@ -7,6 +7,7 @@ const KnowledgeDescriptionContent: React.FunctionComponent = () => {
     <div>
       <p>
         <b>
+          <br />
           Knowledge in InstructLab is represented by question and answer pairs that involve facts, data, or references. This knowledge is represented
           in the taxonomy tree and each node of this tree contains a qna.yaml file.
         </b>

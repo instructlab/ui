@@ -51,7 +51,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
         <FormHelperText key={seedExampleIndex * 10 + 2}>
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isContextValid}>
-              Context is required. It must be non empty and less than 500 characters.
+              {seedExample.validationError || 'Context is required. It must be non empty and less than 500 characters.'}
             </HelperTextItem>
           </HelperText>
         </FormHelperText>
@@ -98,7 +98,8 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
               <FormHelperText key={seedExampleIndex * 100 + questionAnswerIndex * 10 + 2}>
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.questionAndAnswers[questionAnswerIndex].isQuestionValid}>
-                    Question is required. Total length of all Q&A pairs should be less than 250 characters.
+                    {seedExample.questionAndAnswers[questionAnswerIndex].questionValidationError ||
+                      'Question is required. Total length of all Q&A pairs should be less than 250 characters.'}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
@@ -118,7 +119,8 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
               <FormHelperText key={seedExampleIndex * 100 + questionAnswerIndex * 10 + 4}>
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.questionAndAnswers[questionAnswerIndex].isAnswerValid}>
-                    Answer is required. Total length of all Q&A pairs should be less than 250 characters.
+                    {seedExample.questionAndAnswers[questionAnswerIndex].answerValidationError ||
+                      'Answer is required. Total length of all Q&A pairs should be less than 250 characters.'}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>

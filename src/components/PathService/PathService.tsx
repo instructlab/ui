@@ -10,11 +10,12 @@ import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/H
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
 
 interface PathServiceProps {
+  reset?: boolean;
   rootPath: string;
   handlePathChange: (value: string) => void;
 }
 
-const PathService: React.FC<PathServiceProps> = ({ rootPath, handlePathChange }) => {
+const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, handlePathChange }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [items, setItems] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
@@ -22,7 +23,6 @@ const PathService: React.FC<PathServiceProps> = ({ rootPath, handlePathChange })
   const [validPath, setValidPath] = React.useState<ValidatedOptions>();
 
   const validatePath = () => {
-    console.log('validating path' + inputValue);
     if (inputValue.length > 0) {
       setValidPath(ValidatedOptions.success);
       return;
@@ -46,7 +46,6 @@ const PathService: React.FC<PathServiceProps> = ({ rootPath, handlePathChange })
       }
 
       const result = await response.json();
-      console.log(result);
       // set items to be displayed in the dropdown
       if (result.data === null || result.data.length === 0) {
         setItems([]);
@@ -72,6 +71,11 @@ const PathService: React.FC<PathServiceProps> = ({ rootPath, handlePathChange })
   }, []);
 
   useEffect(() => {
+    setInputValue('');
+    setShowDropdown(false);
+  }, [reset]);
+
+  useEffect(() => {
     // check if input value is empty or ends with a slash
     if (inputValue.endsWith('/')) {
       fetchData(inputValue);
@@ -86,7 +90,6 @@ const PathService: React.FC<PathServiceProps> = ({ rootPath, handlePathChange })
   }, [inputValue]);
 
   const handleChange = (value: string) => {
-    console.log('handleChange: ' + value);
     setInputValue(value);
   };
 
@@ -100,13 +103,11 @@ const PathService: React.FC<PathServiceProps> = ({ rootPath, handlePathChange })
   };
 
   const handleSelect = (item: string) => {
-    console.log('handleSelect: ' + item);
     setShowDropdown(false);
     setInputValue(inputValue + item + '/');
   };
 
   const handleBlurEvent = () => {
-    console.log('handleBlurEvent');
     setShowDropdown(false);
     handlePathChange(inputValue);
     validatePath();

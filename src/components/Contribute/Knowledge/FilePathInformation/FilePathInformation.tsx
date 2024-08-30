@@ -3,10 +3,11 @@ import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup } from '@patt
 import PathService from '@/components/PathService/PathService';
 
 interface Props {
+  reset?: boolean;
   setFilePath: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const FilePathInformation: React.FC<Props> = ({ setFilePath }) => {
+const FilePathInformation: React.FC<Props> = ({ reset, setFilePath }) => {
   return (
     <FormFieldGroupExpandable
       isExpanded
@@ -26,7 +27,7 @@ const FilePathInformation: React.FC<Props> = ({ setFilePath }) => {
       }
     >
       <FormGroup isRequired key={'file-path-service-id'}>
-        <PathService rootPath="knowledge" handlePathChange={setFilePath} />
+        <PathService reset={reset} rootPath="knowledge" handlePathChange={setFilePath} />
       </FormGroup>
     </FormFieldGroupExpandable>
   );
