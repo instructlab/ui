@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
@@ -9,6 +9,7 @@ import { KnowledgeFormData } from '..';
 import { checkKnowledgeFormCompletion } from '../validation';
 
 interface Props {
+  reset: boolean;
   knowledgeFormData: KnowledgeFormData;
   setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   email: string;
@@ -16,7 +17,7 @@ interface Props {
   name: string;
   setName: React.Dispatch<React.SetStateAction<string>>;
 }
-const AuthorInformation: React.FC<Props> = ({ knowledgeFormData, setDisableAction, email, setEmail, name, setName }) => {
+const AuthorInformation: React.FC<Props> = ({ reset, knowledgeFormData, setDisableAction, email, setEmail, name, setName }) => {
   const [validEmail, setValidEmail] = useState<ValidatedOptions>();
   const [validName, setValidName] = useState<ValidatedOptions>();
 
@@ -42,6 +43,11 @@ const AuthorInformation: React.FC<Props> = ({ knowledgeFormData, setDisableActio
     setValidName(ValidatedOptions.error);
     return;
   };
+
+  useEffect(() => {
+    setValidEmail(ValidatedOptions.default);
+    setValidName(ValidatedOptions.default);
+  }, [reset]);
 
   return (
     <FormFieldGroupExpandable

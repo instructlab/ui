@@ -36,8 +36,10 @@ export interface QuestionAndAnswerPair {
   immutable: boolean;
   question: string;
   isQuestionValid: ValidatedOptions;
+  questionValidationError?: string;
   answer: string;
   isAnswerValid: ValidatedOptions;
+  answerValidationError?: string;
 }
 
 export interface SeedExample {
@@ -45,6 +47,7 @@ export interface SeedExample {
   isExpanded: boolean;
   context: string;
   isContextValid: ValidatedOptions;
+  validationError?: string;
   questionAndAnswers: QuestionAndAnswerPair[];
 }
 
@@ -76,21 +79,6 @@ export interface ActionGroupAlertContent {
 export const KnowledgeForm: React.FunctionComponent = () => {
   const { data: session } = useSession();
   const [githubUsername, setGithubUsername] = useState<string>('');
-
-  useEffect(() => {
-    const fetchUsername = async () => {
-      if (session?.accessToken) {
-        try {
-          const fetchedUsername = await getGitHubUsername(session.accessToken);
-          setGithubUsername(fetchedUsername);
-        } catch (error) {
-          console.error('Failed to fetch GitHub username:', error);
-        }
-      }
-    };
-
-    fetchUsername();
-  }, [session?.accessToken]);
   // Author Information
   const [email, setEmail] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -103,9 +91,26 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   // File Path Information
   const [filePath, setFilePath] = useState<string>('');
 
-  // Knowledge Question Answer Pairs
+  const [knowledgeDocumentRepositoryUrl, setKnowledgeDocumentRepositoryUrl] = useState<string>('');
+  const [knowledgeDocumentCommit, setKnowledgeDocumentCommit] = useState<string>('');
+  // This used to be 'patterns' but I am not totally sure what this variable actually is...
+  const [documentName, setDocumentName] = useState<string>('');
 
+  // Attribution Information
   // State
+  const [titleWork, setTitleWork] = useState<string>('');
+  const [linkWork, setLinkWork] = useState<string>('');
+  const [revision, setRevision] = useState<string>('');
+  const [licenseWork, setLicenseWork] = useState<string>('');
+  const [creators, setCreators] = useState<string>('');
+
+  const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
+
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [disableAction, setDisableAction] = useState<boolean>(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [yamlContent, setYamlContent] = useState('');
+  const [reset, setReset] = useState<boolean>(false);
 
   const emptySeedExample: SeedExample = {
     immutable: true,
@@ -144,6 +149,21 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     emptySeedExample,
     emptySeedExample
   ]);
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      if (session?.accessToken) {
+        try {
+          const fetchedUsername = await getGitHubUsername(session.accessToken);
+          setGithubUsername(fetchedUsername);
+        } catch (error) {
+          console.error('Failed to fetch GitHub username:', error);
+        }
+      }
+    };
+
+    fetchUsername();
+  }, [session?.accessToken]);
 
   // Functions
 
@@ -324,38 +344,9 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
   };
 
-  // Document Information
-  // State
-
-  const [knowledgeDocumentRepositoryUrl, setKnowledgeDocumentRepositoryUrl] = useState<string>('');
-  const [knowledgeDocumentCommit, setKnowledgeDocumentCommit] = useState<string>('');
-  // This used to be 'patterns' but I am not totally sure what this variable actually is...
-  const [documentName, setDocumentName] = useState<string>('');
-
-  // Attribution Information
-  // State
-  const [titleWork, setTitleWork] = useState<string>('');
-  const [linkWork, setLinkWork] = useState<string>('');
-  const [revision, setRevision] = useState<string>('');
-  const [licenseWork, setLicenseWork] = useState<string>('');
-  const [creators, setCreators] = useState<string>('');
-
-  const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
-
-  // functions
-
   const onCloseActionGroupAlert = () => {
     setActionGroupAlertContent(undefined);
   };
-
-  // Submit
-
-  // break
-
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [disableAction, setDisableAction] = useState<boolean>(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [yamlContent, setYamlContent] = useState('');
 
   const resetForm = (): void => {
     setEmail('');
@@ -375,6 +366,9 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setFilePath('');
     setSeedExamples([emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample]);
     setDisableAction(true);
+
+    // setReset is just reset button, value has no impact.
+    setReset(reset ? false : true);
   };
 
   const handleViewYaml = () => {
@@ -445,6 +439,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
             </div>
 
             <AuthorInformation
+              reset={reset}
               knowledgeFormData={knowledgeFormData}
               setDisableAction={setDisableAction}
               email={email}
@@ -454,6 +449,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
             />
 
             <KnowledgeInformation
+              reset={reset}
               knowledgeFormData={knowledgeFormData}
               setDisableAction={setDisableAction}
               submissionSummary={submissionSummary}
@@ -464,7 +460,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
               setDocumentOutline={setDocumentOutline}
             />
 
-            <FilePathInformation setFilePath={setFilePath} />
+            <FilePathInformation reset={reset} setFilePath={setFilePath} />
 
             <KnowledgeSeedExample
               seedExamples={seedExamples}
@@ -481,6 +477,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
             />
 
             <DocumentInformation
+              reset={reset}
               knowledgeFormData={knowledgeFormData}
               setDisableAction={setDisableAction}
               knowledgeDocumentRepositoryUrl={knowledgeDocumentRepositoryUrl}
@@ -494,6 +491,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
             />
 
             <AttributionInformation
+              reset={reset}
               knowledgeFormData={knowledgeFormData}
               setDisableAction={setDisableAction}
               titleWork={titleWork}

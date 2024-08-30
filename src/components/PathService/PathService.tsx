@@ -10,11 +10,12 @@ import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/H
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
 
 interface PathServiceProps {
+  reset?: boolean;
   rootPath: string;
   handlePathChange: (value: string) => void;
 }
 
-const PathService: React.FC<PathServiceProps> = ({ rootPath, handlePathChange }) => {
+const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, handlePathChange }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [items, setItems] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
@@ -70,6 +71,11 @@ const PathService: React.FC<PathServiceProps> = ({ rootPath, handlePathChange })
       window.removeEventListener('keydown', handleEsc);
     };
   }, []);
+
+  useEffect(() => {
+    setInputValue('');
+    setShowDropdown(false);
+  }, [reset]);
 
   useEffect(() => {
     // check if input value is empty or ends with a slash
