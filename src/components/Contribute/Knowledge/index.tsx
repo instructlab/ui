@@ -318,6 +318,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
           : seedExample
       )
     );
+    setDisableAction(true);
   };
 
   const deleteQuestionAnswerPair = (seedExampleIndex: number, questionAnswerIndex: number): void => {
@@ -331,6 +332,8 @@ export const KnowledgeForm: React.FunctionComponent = () => {
           : seedExample
       )
     );
+    console.log('seedExamples qna', seedExamples);
+    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
   };
 
   const addSeedExample = (): void => {
@@ -338,10 +341,13 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     seedExample.immutable = false;
     seedExample.isExpanded = true;
     setSeedExamples([...seedExamples, seedExample]);
+    setDisableAction(true);
   };
 
   const deleteSeedExample = (seedExampleIndex: number): void => {
     setSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
+    console.log('seedExamples', seedExamples);
+    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
   };
 
   const onCloseActionGroupAlert = () => {
@@ -413,6 +419,10 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     licenseWork: licenseWork,
     creators: creators
   };
+
+  useEffect(() => {
+    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+  }, [knowledgeFormData]);
 
   return (
     <>
