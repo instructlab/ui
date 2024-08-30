@@ -13,7 +13,14 @@ const FilePathInformation: React.FC<Props> = ({ setFilePath }) => {
       toggleAriaLabel="Details"
       header={
         <FormFieldGroupHeader
-          titleText={{ text: 'File Path Info', id: 'file-path-info-id' }}
+          titleText={{
+            text: (
+              <p>
+                File Path Info <span style={{ color: 'red' }}>*</span>
+              </p>
+            ),
+            id: 'file-path-info-id'
+          }}
           titleDescription="Specify the file path for the QnA and Attribution files."
         />
       }

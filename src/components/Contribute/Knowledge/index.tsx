@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import './knowledge.css';
 import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { ActionGroup, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { CodeIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
@@ -12,24 +12,39 @@ import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { SchemaVersion, KnowledgeYamlData } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
-import KnowledgeDescription from './KnowledgeDescription/KnowledgeDescription';
 import AuthorInformation from './AuthorInformation/AuthorInformation';
 import KnowledgeInformation from './KnowledgeInformation/KnowledgeInformation';
 import FilePathInformation from './FilePathInformation/FilePathInformation';
-import KnowledgeQuestionAnswerPairs from './KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs';
 import DocumentInformation from './DocumentInformation/DocumentInformation';
 import AttributionInformation from './AttributionInformation/AttributionInformation';
 import Submit from './Submit/Submit';
 import DownloadYaml from './DownloadYaml/DownloadYaml';
 import DownloadAttribution from './DownloadAttribution/DownloadAttribution';
+import { Breadcrumb } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
+import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
+import { PageBreadcrumb } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { PageGroup } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import KnowledgeDescriptionContent from './KnowledgeDescription/KnowledgeDescriptionContent';
+import KnowledgeSeedExample from './KnowledgeSeedExample/KnowledgeSeedExample';
+import { checkKnowledgeFormCompletion } from './validation';
+import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 
 export interface QuestionAndAnswerPair {
+  immutable: boolean;
   question: string;
+  isQuestionValid: ValidatedOptions;
   answer: string;
+  isAnswerValid: ValidatedOptions;
 }
 
 export interface SeedExample {
+  immutable: boolean;
+  isExpanded: boolean;
   context: string;
+  isContextValid: ValidatedOptions;
   questionAndAnswers: QuestionAndAnswerPair[];
 }
 
@@ -93,28 +108,73 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   // State
 
   const emptySeedExample: SeedExample = {
+    immutable: true,
+    isExpanded: false,
     context: '',
+    isContextValid: ValidatedOptions.default,
     questionAndAnswers: [
       {
+        immutable: true,
         question: '',
-        answer: ''
+        isQuestionValid: ValidatedOptions.default,
+        answer: '',
+        isAnswerValid: ValidatedOptions.default
       },
       {
+        immutable: true,
         question: '',
-        answer: ''
+        isQuestionValid: ValidatedOptions.default,
+        answer: '',
+        isAnswerValid: ValidatedOptions.default
       },
       {
+        immutable: true,
         question: '',
-        answer: ''
+        isQuestionValid: ValidatedOptions.default,
+        answer: '',
+        isAnswerValid: ValidatedOptions.default
       }
     ]
   };
 
-  const [seedExamples, setSeedExamples] = useState<SeedExample[]>([emptySeedExample]);
+  const [seedExamples, setSeedExamples] = useState<SeedExample[]>([
+    emptySeedExample,
+    emptySeedExample,
+    emptySeedExample,
+    emptySeedExample,
+    emptySeedExample
+  ]);
 
   // Functions
 
-  const handleContextInputChange = (seedExampleIndex: number, contextValue: string): undefined => {
+  const validateContext = (context: string): ValidatedOptions => {
+    if (context.length > 0 && context.length < 500) {
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      return ValidatedOptions.success;
+    }
+    setDisableAction(true);
+    return ValidatedOptions.error;
+  };
+
+  const validateQuestion = (question: string): ValidatedOptions => {
+    if (question.length > 0 && question.length < 250) {
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      return ValidatedOptions.success;
+    }
+    setDisableAction(true);
+    return ValidatedOptions.error;
+  };
+
+  const validateAnswer = (answer: string): ValidatedOptions => {
+    if (answer.length > 0 && answer.length < 250) {
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      return ValidatedOptions.success;
+    }
+    setDisableAction(true);
+    return ValidatedOptions.error;
+  };
+
+  const handleContextInputChange = (seedExampleIndex: number, contextValue: string): void => {
     setSeedExamples(
       seedExamples.map((seedExample: SeedExample, index: number) =>
         index === seedExampleIndex
@@ -127,7 +187,20 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     );
   };
 
-  const handleQuestionInputChange = (seedExampleIndex: number, questionAndAnswerIndex: number, questionValue: string): undefined => {
+  const handleContextBlur = (seedExampleIndex: number): void => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              isContextValid: validateContext(seedExample.context)
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const handleQuestionInputChange = (seedExampleIndex: number, questionAndAnswerIndex: number, questionValue: string): void => {
     setSeedExamples(
       seedExamples.map((seedExample: SeedExample, index: number) =>
         index === seedExampleIndex
@@ -147,7 +220,27 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     );
   };
 
-  const handleAnswerInputChange = (seedExampleIndex: number, questionAndAnswerIndex: number, answerValue: string): undefined => {
+  const handleQuestionBlur = (seedExampleIndex: number, questionAndAnswerIndex: number): void => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, index: number) =>
+                index === questionAndAnswerIndex
+                  ? {
+                      ...questionAndAnswerPair,
+                      isQuestionValid: validateQuestion(questionAndAnswerPair.question)
+                    }
+                  : questionAndAnswerPair
+              )
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const handleAnswerInputChange = (seedExampleIndex: number, questionAndAnswerIndex: number, answerValue: string): void => {
     setSeedExamples(
       seedExamples.map((seedExample: SeedExample, index: number) =>
         index === seedExampleIndex
@@ -167,10 +260,33 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     );
   };
 
-  const addQuestionAnswerPair = (seedExampleIndex: number): undefined => {
+  const handleAnswerBlur = (seedExampleIndex: number, questionAndAnswerIndex: number): void => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, index: number) =>
+                index === questionAndAnswerIndex
+                  ? {
+                      ...questionAndAnswerPair,
+                      isAnswerValid: validateAnswer(questionAndAnswerPair.answer)
+                    }
+                  : questionAndAnswerPair
+              )
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const addQuestionAnswerPair = (seedExampleIndex: number): void => {
     const newQuestionAnswerPair: QuestionAndAnswerPair = {
+      immutable: false,
       question: '',
-      answer: ''
+      isQuestionValid: ValidatedOptions.default,
+      answer: '',
+      isAnswerValid: ValidatedOptions.default
     };
     setSeedExamples(
       seedExamples.map((seedExample: SeedExample, index: number) =>
@@ -184,7 +300,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     );
   };
 
-  const deleteQuestionAnswerPair = (seedExampleIndex: number, questionAnswerIndex: number): undefined => {
+  const deleteQuestionAnswerPair = (seedExampleIndex: number, questionAnswerIndex: number): void => {
     setSeedExamples(
       seedExamples.map((seedExample: SeedExample, index: number) =>
         index === seedExampleIndex
@@ -197,8 +313,15 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     );
   };
 
-  const addSeedExample = (): undefined => {
-    setSeedExamples([...seedExamples, emptySeedExample]);
+  const addSeedExample = (): void => {
+    const seedExample = emptySeedExample;
+    seedExample.immutable = false;
+    seedExample.isExpanded = true;
+    setSeedExamples([...seedExamples, seedExample]);
+  };
+
+  const deleteSeedExample = (seedExampleIndex: number): void => {
+    setSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
   };
 
   // Document Information
@@ -230,11 +353,11 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   // break
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-
+  const [disableAction, setDisableAction] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [yamlContent, setYamlContent] = useState('');
 
-  const resetForm = (): undefined => {
+  const resetForm = (): void => {
     setEmail('');
     setName('');
     setDocumentOutline('');
@@ -250,7 +373,8 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setRevision('');
     setUploadedFiles([]);
     setFilePath('');
-    setSeedExamples([emptySeedExample]);
+    setSeedExamples([emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample]);
+    setDisableAction(true);
   };
 
   const handleViewYaml = () => {
@@ -297,95 +421,137 @@ export const KnowledgeForm: React.FunctionComponent = () => {
   };
 
   return (
-    <Form className="form-k">
-      <YamlCodeModal isModalOpen={isModalOpen} handleModalToggle={() => setIsModalOpen(!isModalOpen)} yamlContent={yamlContent} />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <FormFieldGroupHeader titleText={{ text: 'Knowledge Contribution Form', id: 'knowledge-contribution-form-id' }} />
-        <Button variant="plain" onClick={handleViewYaml} aria-label="View YAML">
-          <CodeIcon /> View YAML
-        </Button>
-      </div>
+    <>
+      <PageGroup>
+        <PageBreadcrumb>
+          <Breadcrumb>
+            <BreadcrumbItem to="/"> Home </BreadcrumbItem>
+            <BreadcrumbItem isActive>Knowledge Contribution</BreadcrumbItem>
+          </Breadcrumb>
+        </PageBreadcrumb>
+        <PageSection>
+          <Title headingLevel="h1" size="2xl">
+            Knowledge Contribution
+          </Title>
+          <TextContent>
+            <KnowledgeDescriptionContent />
+          </TextContent>
+          <Form className="form-k">
+            <YamlCodeModal isModalOpen={isModalOpen} handleModalToggle={() => setIsModalOpen(!isModalOpen)} yamlContent={yamlContent} />
+            <div style={{ display: 'flex', justifyContent: 'right', alignItems: 'right' }}>
+              <Button variant="link" onClick={handleViewYaml} aria-label="View YAML">
+                <CodeIcon /> View YAML
+              </Button>
+            </div>
 
-      <KnowledgeDescription />
+            <AuthorInformation
+              knowledgeFormData={knowledgeFormData}
+              setDisableAction={setDisableAction}
+              email={email}
+              setEmail={setEmail}
+              name={name}
+              setName={setName}
+            />
 
-      <AuthorInformation email={email} setEmail={setEmail} name={name} setName={setName} />
+            <KnowledgeInformation
+              knowledgeFormData={knowledgeFormData}
+              setDisableAction={setDisableAction}
+              submissionSummary={submissionSummary}
+              setSubmissionSummary={setSubmissionSummary}
+              domain={domain}
+              setDomain={setDomain}
+              documentOutline={documentOutline}
+              setDocumentOutline={setDocumentOutline}
+            />
 
-      <KnowledgeInformation
-        submissionSummary={submissionSummary}
-        setSubmissionSummary={setSubmissionSummary}
-        domain={domain}
-        setDomain={setDomain}
-        documentOutline={documentOutline}
-        setDocumentOutline={setDocumentOutline}
-      />
+            <FilePathInformation setFilePath={setFilePath} />
 
-      <FilePathInformation setFilePath={setFilePath} />
+            <KnowledgeSeedExample
+              seedExamples={seedExamples}
+              handleContextInputChange={handleContextInputChange}
+              handleContextBlur={handleContextBlur}
+              handleQuestionInputChange={handleQuestionInputChange}
+              handleQuestionBlur={handleQuestionBlur}
+              handleAnswerInputChange={handleAnswerInputChange}
+              handleAnswerBlur={handleAnswerBlur}
+              deleteQuestionAnswerPair={deleteQuestionAnswerPair}
+              addQuestionAnswerPair={addQuestionAnswerPair}
+              addSeedExample={addSeedExample}
+              deleteSeedExample={deleteSeedExample}
+            />
 
-      <KnowledgeQuestionAnswerPairs
-        seedExamples={seedExamples}
-        handleContextInputChange={handleContextInputChange}
-        handleQuestionInputChange={handleQuestionInputChange}
-        handleAnswerInputChange={handleAnswerInputChange}
-        deleteQuestionAnswerPair={deleteQuestionAnswerPair}
-        addQuestionAnswerPair={addQuestionAnswerPair}
-        addSeedExample={addSeedExample}
-      />
+            <DocumentInformation
+              knowledgeFormData={knowledgeFormData}
+              setDisableAction={setDisableAction}
+              knowledgeDocumentRepositoryUrl={knowledgeDocumentRepositoryUrl}
+              setKnowledgeDocumentRepositoryUrl={setKnowledgeDocumentRepositoryUrl}
+              knowledgeDocumentCommit={knowledgeDocumentCommit}
+              setKnowledgeDocumentCommit={setKnowledgeDocumentCommit}
+              documentName={documentName}
+              setDocumentName={setDocumentName}
+              uploadedFiles={uploadedFiles}
+              setUploadedFiles={setUploadedFiles}
+            />
 
-      <DocumentInformation
-        knowledgeDocumentRepositoryUrl={knowledgeDocumentRepositoryUrl}
-        setKnowledgeDocumentRepositoryUrl={setKnowledgeDocumentRepositoryUrl}
-        knowledgeDocumentCommit={knowledgeDocumentCommit}
-        setKnowledgeDocumentCommit={setKnowledgeDocumentCommit}
-        documentName={documentName}
-        setDocumentName={setDocumentName}
-        uploadedFiles={uploadedFiles}
-        setUploadedFiles={setUploadedFiles}
-      />
+            <AttributionInformation
+              knowledgeFormData={knowledgeFormData}
+              setDisableAction={setDisableAction}
+              titleWork={titleWork}
+              setTitleWork={setTitleWork}
+              linkWork={linkWork}
+              setLinkWork={setLinkWork}
+              revision={revision}
+              setRevision={setRevision}
+              licenseWork={licenseWork}
+              setLicenseWork={setLicenseWork}
+              creators={creators}
+              setCreators={setCreators}
+            />
 
-      <AttributionInformation
-        titleWork={titleWork}
-        setTitleWork={setTitleWork}
-        linkWork={linkWork}
-        setLinkWork={setLinkWork}
-        revision={revision}
-        setRevision={setRevision}
-        licenseWork={licenseWork}
-        setLicenseWork={setLicenseWork}
-        creators={creators}
-        setCreators={setCreators}
-      />
-
-      {actionGroupAlertContent && (
-        <Alert
-          variant={actionGroupAlertContent.success ? 'success' : 'danger'}
-          title={actionGroupAlertContent.title}
-          timeout={10000}
-          onTimeout={onCloseActionGroupAlert}
-          actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
-        >
-          <p>
-            {actionGroupAlertContent.message}
-            <br />
-            {actionGroupAlertContent.success && actionGroupAlertContent.url && actionGroupAlertContent.url.trim().length > 0 && (
-              <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
-                View your pull request
-              </a>
+            {actionGroupAlertContent && (
+              <Alert
+                variant={actionGroupAlertContent.success ? 'success' : 'danger'}
+                title={actionGroupAlertContent.title}
+                timeout={10000}
+                onTimeout={onCloseActionGroupAlert}
+                actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
+              >
+                <p>
+                  {actionGroupAlertContent.message}
+                  <br />
+                  {actionGroupAlertContent.success && actionGroupAlertContent.url && actionGroupAlertContent.url.trim().length > 0 && (
+                    <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
+                      View your pull request
+                    </a>
+                  )}
+                </p>
+              </Alert>
             )}
-          </p>
-        </Alert>
-      )}
 
-      <ActionGroup>
-        <Submit
-          knowledgeFormData={knowledgeFormData}
-          setActionGroupAlertContent={setActionGroupAlertContent}
-          githubUsername={githubUsername}
-          resetForm={resetForm}
-        />
-        <DownloadYaml knowledgeFormData={knowledgeFormData} setActionGroupAlertContent={setActionGroupAlertContent} githubUsername={githubUsername} />
-        <DownloadAttribution knowledgeFormData={knowledgeFormData} setActionGroupAlertContent={setActionGroupAlertContent} />
-      </ActionGroup>
-    </Form>
+            <ActionGroup>
+              <Submit
+                disableAction={disableAction}
+                knowledgeFormData={knowledgeFormData}
+                setActionGroupAlertContent={setActionGroupAlertContent}
+                githubUsername={githubUsername}
+                resetForm={resetForm}
+              />
+              <DownloadYaml
+                disableAction={disableAction}
+                knowledgeFormData={knowledgeFormData}
+                setActionGroupAlertContent={setActionGroupAlertContent}
+                githubUsername={githubUsername}
+              />
+              <DownloadAttribution
+                disableAction={disableAction}
+                knowledgeFormData={knowledgeFormData}
+                setActionGroupAlertContent={setActionGroupAlertContent}
+              />
+            </ActionGroup>
+          </Form>
+        </PageSection>
+      </PageGroup>
+    </>
   );
 };
 

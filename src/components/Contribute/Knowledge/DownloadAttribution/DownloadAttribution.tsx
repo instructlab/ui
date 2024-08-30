@@ -4,11 +4,12 @@ import { validateFields } from '../validation';
 import { ActionGroupAlertContent, KnowledgeFormData } from '..';
 
 interface Props {
+  disableAction: boolean;
   knowledgeFormData: KnowledgeFormData;
   setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
 }
 
-const DownloadAttribution: React.FC<Props> = ({ knowledgeFormData, setActionGroupAlertContent }) => {
+const DownloadAttribution: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGroupAlertContent }) => {
   const handleDownloadAttribution = () => {
     // Because I have overly complicated the validatedFields function all fields are being checked and not just the attribution ones here. Not ideal.
     if (!validateFields(knowledgeFormData, setActionGroupAlertContent)) return;
@@ -31,7 +32,7 @@ const DownloadAttribution: React.FC<Props> = ({ knowledgeFormData, setActionGrou
   };
 
   return (
-    <Button variant="primary" type="button" onClick={handleDownloadAttribution}>
+    <Button variant="primary" type="button" isDisabled={disableAction} onClick={handleDownloadAttribution}>
       Download Attribution
     </Button>
   );

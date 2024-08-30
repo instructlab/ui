@@ -6,15 +6,16 @@ import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '../validation';
 
 interface Props {
+  disableAction: boolean;
   knowledgeFormData: KnowledgeFormData;
   setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
   githubUsername: string | undefined;
-  resetForm: () => undefined;
+  resetForm: () => void;
 }
 
 // temporary location of these validation functions. Once the Skills form has been refactored then these can be moved out to the utils file.
 
-const Submit: React.FC<Props> = ({ knowledgeFormData, setActionGroupAlertContent, githubUsername, resetForm }) => {
+const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGroupAlertContent, githubUsername, resetForm }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!validateFields(knowledgeFormData, setActionGroupAlertContent)) return;
@@ -93,7 +94,7 @@ const Submit: React.FC<Props> = ({ knowledgeFormData, setActionGroupAlertContent
     resetForm();
   };
   return (
-    <Button variant="primary" type="submit" onClick={handleSubmit}>
+    <Button variant="primary" type="submit" isDisabled={disableAction} onClick={handleSubmit}>
       Submit Knowledge
     </Button>
   );

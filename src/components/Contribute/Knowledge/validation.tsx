@@ -20,6 +20,18 @@ const hasDuplicateSeedExamples = (seedExamples: SeedExample[]): boolean => {
   return false;
 };
 
+// Validate that the total length of all the question and answer pairs in a seed example is not more than 250 characters
+const validateQuestionAndAnswerPairs = (seedExample: SeedExample): { success: boolean; currLength: number } => {
+  const totalLength = seedExample.questionAndAnswers.reduce((acc, questionAndAnswerPair) => {
+    return acc + questionAndAnswerPair.question.length + questionAndAnswerPair.answer.length;
+  }, 0);
+
+  if (totalLength > 250) {
+    return { success: false, currLength: totalLength };
+  }
+  return { success: true, currLength: totalLength };
+};
+
 export const validateFields = (
   knowledgeFormData: KnowledgeFormData,
   setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>
@@ -38,7 +50,6 @@ export const validateFields = (
   }
 
   //   Validate email only if email has been entered
-
   if (knowledgeFormData.email && !validateEmail(knowledgeFormData.email!)) {
     const actionGroupAlertContent: ActionGroupAlertContent = {
       title: `Email address issue!`,
@@ -49,12 +60,59 @@ export const validateFields = (
     return false;
   }
 
-  //   checking for seedExample duplication
+  if (knowledgeFormData.seedExamples.length < 5) {
+    const actionGroupAlertContent: ActionGroupAlertContent = {
+      title: `Seed examples issue!`,
+      message: `Please provide at least 5 seed examples.`,
+      success: false
+    };
+    setActionGroupAlertContent(actionGroupAlertContent);
+    return false;
+  }
 
+  // Check that each seed example has at least 3 question and answer pairs
+  for (let index = 0; index < knowledgeFormData.seedExamples.length; index++) {
+    if (knowledgeFormData.seedExamples[index].questionAndAnswers.length < 3) {
+      const actionGroupAlertContent: ActionGroupAlertContent = {
+        title: `Seed example ${index + 1} has an issue!`,
+        message: `Please provide at least 3 question and answer pairs.`,
+        success: false
+      };
+      setActionGroupAlertContent(actionGroupAlertContent);
+      return false;
+    }
+  }
+
+  //   checking for seedExample duplication
   if (hasDuplicateSeedExamples(knowledgeFormData.seedExamples)) {
+    console.log('duplicate seed examples');
     const actionGroupAlertContent: ActionGroupAlertContent = {
       title: `Seed example issue!`,
       message: `There is duplicated context. Please provide unique contexts`,
+      success: false
+    };
+    setActionGroupAlertContent(actionGroupAlertContent);
+    return false;
+  }
+
+  //  checking for question and answer pairs length
+  for (let index = 0; index < knowledgeFormData.seedExamples.length; index++) {
+    const { success, currLength: length } = validateQuestionAndAnswerPairs(knowledgeFormData.seedExamples[index]);
+    if (!success) {
+      const actionGroupAlertContent: ActionGroupAlertContent = {
+        title: `Seed example ${index} has an issue!`,
+        message: `Total size of the Q&A pairs should not exceed 250 characters (current size ${length}). Please provide shorter Q&A pairs.`,
+        success: false
+      };
+      setActionGroupAlertContent(actionGroupAlertContent);
+      return false;
+    }
+  }
+
+  if (knowledgeFormData.documentOutline && knowledgeFormData.documentOutline.length < 40) {
+    const actionGroupAlertContent: ActionGroupAlertContent = {
+      title: `Document outline issue!`,
+      message: `Document outline should be at least 40 characters long.`,
       success: false
     };
     setActionGroupAlertContent(actionGroupAlertContent);
@@ -68,4 +126,34 @@ export const validateFields = (
   };
   setActionGroupAlertContent(actionGroupAlertContent);
   return true;
+};
+
+export const checkKnowledgeFormCompletion = (knowledgeFormData: KnowledgeFormData): boolean => {
+  // Helper function to check if a value is non-empty
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isNonEmpty = (value: any): boolean => {
+    console.log(value);
+    if (Array.isArray(value)) {
+      return value.every((item) => isNonEmpty(item));
+    }
+    if (typeof value === 'object') {
+      return checkObject(value);
+    }
+    return value !== undefined && value !== null && value !== '';
+  };
+
+  // Function to check if an object has all non-empty values
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const checkObject = (obj: Record<string, any>): boolean => {
+    return Object.keys(obj).every((key) => {
+      const value = obj[key];
+      if (typeof value === 'object' && !Array.isArray(value)) {
+        return checkObject(value); // Recursively check nested objects
+      } else {
+        return isNonEmpty(value);
+      }
+    });
+  };
+
+  return checkObject(knowledgeFormData);
 };
