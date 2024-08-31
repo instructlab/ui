@@ -10,6 +10,7 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/ex
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { KnowledgeFormData } from '..';
 import { checkKnowledgeFormCompletion } from '../validation';
+import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/components/Modal/Modal';
 
 interface Props {
   reset: boolean;
@@ -21,8 +22,6 @@ interface Props {
   setKnowledgeDocumentCommit: React.Dispatch<React.SetStateAction<string>>;
   documentName: string;
   setDocumentName: React.Dispatch<React.SetStateAction<string>>;
-  uploadedFiles: File[];
-  setUploadedFiles: React.Dispatch<React.SetStateAction<File[]>>;
 }
 
 const DocumentInformation: React.FC<Props> = ({
@@ -34,11 +33,12 @@ const DocumentInformation: React.FC<Props> = ({
   knowledgeDocumentCommit,
   setKnowledgeDocumentCommit,
   documentName,
-  setDocumentName,
-  uploadedFiles,
-  setUploadedFiles
+  setDocumentName
 }) => {
   const [useFileUpload, setUseFileUpload] = useState(true);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalText, setModalText] = useState<string | undefined>();
 
   const [successAlertTitle, setSuccessAlertTitle] = useState<string | undefined>();
   const [successAlertMessage, setSuccessAlertMessage] = useState<string | undefined>();
@@ -99,7 +99,6 @@ const DocumentInformation: React.FC<Props> = ({
 
   const handleFilesChange = (files: File[]) => {
     setUploadedFiles(files);
-    setDocumentName(files.map((file) => file.name).join(', ')); // Populate the patterns field
   };
 
   const handleDocumentUpload = async () => {
@@ -162,6 +161,41 @@ const DocumentInformation: React.FC<Props> = ({
     setFailureAlertMessage(undefined);
   };
 
+  const handleAutomaticUpload = () => {
+    if (knowledgeDocumentRepositoryUrl.length > 0 || knowledgeDocumentCommit.length > 0 || documentName.length > 0) {
+      console.log('Switching to automatic upload will clear the document information');
+      setModalText('Switching to automatic upload will clear the document information. Are you sure you want to continue?');
+      setIsModalOpen(true);
+    } else {
+      setUseFileUpload(true);
+    }
+  };
+
+  const handleManualUpload = () => {
+    if (uploadedFiles.length > 0) {
+      console.log('Switching to manual upload will clear the uploaded files');
+      setModalText('Switching to manual upload will clear the uploaded files. Are you sure you want to continue?');
+      setIsModalOpen(true);
+    } else {
+      setUseFileUpload(false);
+    }
+  };
+
+  const handleModalContinue = () => {
+    if (useFileUpload) {
+      setUploadedFiles([]);
+    } else {
+      setKnowledgeDocumentRepositoryUrl('');
+      setValidRepo(ValidatedOptions.default);
+      setKnowledgeDocumentCommit('');
+      setValidCommit(ValidatedOptions.default);
+      setDocumentName('');
+      setValidDocumentName(ValidatedOptions.default);
+    }
+    setUseFileUpload(!useFileUpload);
+    setIsModalOpen(false);
+  };
+
   return (
     <FormFieldGroupExpandable
       toggleAriaLabel="Details"
@@ -184,20 +218,36 @@ const DocumentInformation: React.FC<Props> = ({
           <Button
             variant={useFileUpload ? 'primary' : 'secondary'}
             className={useFileUpload ? 'button-active' : 'button-secondary'}
-            onClick={() => setUseFileUpload(true)}
+            onClick={() => handleAutomaticUpload()}
           >
             Automatically Upload Documents
           </Button>
           <Button
             variant={useFileUpload ? 'secondary' : 'primary'}
             className={!useFileUpload ? 'button-active' : 'button-secondary'}
-            onClick={() => setUseFileUpload(false)}
+            onClick={() => handleManualUpload()}
           >
             Manually Enter Document Details
           </Button>
         </div>
       </FormGroup>
-
+      <Modal
+        variant={ModalVariant.medium}
+        title="Data Loss Warning"
+        titleIconVariant="warning"
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        actions={[
+          <Button key="Continue" variant="secondary" onClick={() => handleModalContinue()}>
+            Continue
+          </Button>,
+          <Button key="cancel" variant="secondary" onClick={() => setIsModalOpen(false)}>
+            Cancel
+          </Button>
+        ]}
+      >
+        <p>{modalText}</p>
+      </Modal>
       {!useFileUpload ? (
         <FormGroup key={'doc-info-details-id'}>
           <TextInput
@@ -274,7 +324,6 @@ const DocumentInformation: React.FC<Props> = ({
           <Button variant="primary" onClick={handleDocumentUpload}>
             Submit Files
           </Button>
-          <FormHelperText></FormHelperText>
         </>
       )}
 

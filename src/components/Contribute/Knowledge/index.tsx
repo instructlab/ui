@@ -106,7 +106,6 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
   const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
 
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [yamlContent, setYamlContent] = useState('');
@@ -368,7 +367,6 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setLicenseWork('');
     setCreators('');
     setRevision('');
-    setUploadedFiles([]);
     setFilePath('');
     setSeedExamples([emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample]);
     setDisableAction(true);
@@ -496,8 +494,6 @@ export const KnowledgeForm: React.FunctionComponent = () => {
               setKnowledgeDocumentCommit={setKnowledgeDocumentCommit}
               documentName={documentName}
               setDocumentName={setDocumentName}
-              uploadedFiles={uploadedFiles}
-              setUploadedFiles={setUploadedFiles}
             />
 
             <AttributionInformation
