@@ -1,7 +1,8 @@
 import React from 'react';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { validateFields } from '../validation';
 import { ActionGroupAlertContent, KnowledgeFormData } from '..';
+import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/DropdownItem';
+import FileIcon from '@patternfly/react-icons/dist/esm/icons/file-icon';
 
 interface Props {
   disableAction: boolean;
@@ -32,9 +33,9 @@ const DownloadAttribution: React.FC<Props> = ({ disableAction, knowledgeFormData
   };
 
   return (
-    <Button variant="primary" type="button" isDisabled={disableAction} onClick={handleDownloadAttribution}>
-      Download Attribution
-    </Button>
+    <DropdownItem key="DownloadAttribution" to="#default-link6" isDisabled={disableAction} onClick={handleDownloadAttribution}>
+      <FileIcon /> Attribution File
+    </DropdownItem>
   );
 };
 
