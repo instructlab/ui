@@ -7,9 +7,8 @@ import {
   MultipleFileUpload,
   MultipleFileUploadMain
 } from '@patternfly/react-core/dist/dynamic/components/MultipleFileUpload';
-import { Modal } from '@patternfly/react-core/dist/dynamic/next/components/Modal';
+import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
 import UploadIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
-import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/dynamic/icons/exclamation-triangle-icon';
 import { FileRejection, DropEvent } from 'react-dropzone';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
@@ -88,10 +87,10 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
   const handleDropRejected = (fileRejections: FileRejection[]) => {
     console.warn('Files rejected:', fileRejections);
     if (fileRejections.length === 1) {
-      setModalText(`${fileRejections[0].file.name} is not an accepted file type`);
+      setModalText(`${fileRejections[0].file.name} is not an accepted file type. Please upload a Markdown file.`);
     } else {
       const rejectedMessages = fileRejections.reduce((acc, fileRejection) => (acc += `${fileRejection.file.name}, `), '');
-      setModalText(`${rejectedMessages} are not accepted file types`);
+      setModalText(`${rejectedMessages} are not accepted file types. Please upload Markdown files.`);
     }
   };
 
@@ -116,7 +115,6 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
         onFileDrop={handleFileDrop}
         dropzoneProps={{
           accept: {
-            'application/pdf': ['.pdf'],
             'text/markdown': ['.md']
           },
           onDropRejected: handleDropRejected
@@ -149,16 +147,21 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
         <Modal
           isOpen={!!modalText}
           title="Unsupported file"
+          titleIconVariant="warning"
           variant="small"
           aria-label="unsupported file upload attempted"
           onClose={() => setModalText('')}
+          actions={[
+            <Button key="close" variant="secondary" onClick={() => setModalText('')}>
+              Close
+            </Button>
+          ]}
         >
-          <div>
-            <ExclamationTriangleIcon /> {modalText}
-          </div>
-          <Button key="close" variant="primary" onClick={() => setModalText('')}>
-            Close
-          </Button>
+          <p>
+            <br />
+            {modalText}
+            <br />
+          </p>
         </Modal>
       </MultipleFileUpload>
     </>
