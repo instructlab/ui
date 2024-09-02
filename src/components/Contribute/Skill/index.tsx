@@ -16,7 +16,7 @@ import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import YamlCodeModal from '../../YamlCodeModal';
 import { AttributionData, SchemaVersion, SkillYamlData } from '@/types';
-import SkillDescription from './SkillDescription';
+import SkillDescription from './SkillDescription/SkillDescription';
 import { dumpYaml } from '@/utils/yamlConfig';
 import PathService from '@/components/PathService/PathService';
 
@@ -367,17 +367,7 @@ export const SkillForm: React.FunctionComponent = () => {
         </Button>
       </div>
 
-      <FormFieldGroupExpandable
-        toggleAriaLabel="Details"
-        header={
-          <FormFieldGroupHeader
-            titleText={{ text: 'Skills Description', id: 'skills-description' }}
-            titleDescription="What are InstructLab Skills?"
-          />
-        }
-      >
-        <SkillDescription />
-      </FormFieldGroupExpandable>
+      <SkillDescription />
 
       <FormFieldGroupExpandable
         isExpanded
