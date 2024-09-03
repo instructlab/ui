@@ -14,6 +14,7 @@ import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/components/
 
 interface Props {
   reset: boolean;
+  isEditForm?: boolean;
   knowledgeFormData: KnowledgeFormData;
   setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   knowledgeDocumentRepositoryUrl: string;
@@ -26,6 +27,7 @@ interface Props {
 
 const DocumentInformation: React.FC<Props> = ({
   reset,
+  isEditForm,
   knowledgeFormData,
   setDisableAction,
   knowledgeDocumentRepositoryUrl,
@@ -56,6 +58,14 @@ const DocumentInformation: React.FC<Props> = ({
     setValidCommit(ValidatedOptions.default);
     setValidDocumentName(ValidatedOptions.default);
   }, [reset]);
+
+  useEffect(() => {
+    if (isEditForm) {
+      setValidRepo(ValidatedOptions.success);
+      setValidCommit(ValidatedOptions.success);
+      setValidDocumentName(ValidatedOptions.success);
+    }
+  }, [isEditForm]);
 
   const validateRepo = (repo: string) => {
     if (repo.length === 0) {
@@ -163,7 +173,6 @@ const DocumentInformation: React.FC<Props> = ({
 
   const handleAutomaticUpload = () => {
     if (knowledgeDocumentRepositoryUrl.length > 0 || knowledgeDocumentCommit.length > 0 || documentName.length > 0) {
-      console.log('Switching to automatic upload will clear the document information');
       setModalText('Switching to automatic upload will clear the document information. Are you sure you want to continue?');
       setIsModalOpen(true);
     } else {
@@ -173,7 +182,6 @@ const DocumentInformation: React.FC<Props> = ({
 
   const handleManualUpload = () => {
     if (uploadedFiles.length > 0) {
-      console.log('Switching to manual upload will clear the uploaded files');
       setModalText('Switching to manual upload will clear the uploaded files. Are you sure you want to continue?');
       setIsModalOpen(true);
     } else {

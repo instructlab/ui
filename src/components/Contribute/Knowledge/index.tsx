@@ -1,6 +1,6 @@
 // src/components/Contribute/Knowledge/index.tsx
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './knowledge.css';
 import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
@@ -26,6 +26,10 @@ import { checkKnowledgeFormCompletion } from './validation';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { DownloadDropdown } from './DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from './ViewDropdown/ViewDropdown';
+import Update from './Update/Update';
+import { PullRequestFile } from '@/types';
+import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button';
+import { useRouter } from 'next/navigation';
 
 export interface QuestionAndAnswerPair {
   immutable: boolean;
@@ -64,6 +68,16 @@ export interface KnowledgeFormData {
   creators: string;
 }
 
+export interface KnowledgeEditFormData {
+  isEditForm: boolean;
+  knowledgeVersion: number;
+  pullRequestNumber: number;
+  branchName: string;
+  yamlFile: PullRequestFile;
+  attributionFile: PullRequestFile;
+  knowledgeFormData: KnowledgeFormData;
+}
+
 export interface ActionGroupAlertContent {
   title: string;
   message: string;
@@ -71,7 +85,11 @@ export interface ActionGroupAlertContent {
   success: boolean;
 }
 
-export const KnowledgeForm: React.FunctionComponent = () => {
+export interface KnowledgeFormProps {
+  knowledgeEditFormData?: KnowledgeEditFormData;
+}
+
+export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData }) => {
   const { data: session } = useSession();
   const [githubUsername, setGithubUsername] = useState<string>('');
   // Author Information
@@ -103,6 +121,8 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
+
+  const router = useRouter();
 
   const emptySeedExample: SeedExample = {
     immutable: true,
@@ -142,7 +162,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     emptySeedExample
   ]);
 
-  useEffect(() => {
+  useMemo(() => {
     const fetchUsername = async () => {
       if (session?.accessToken) {
         try {
@@ -157,7 +177,26 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     fetchUsername();
   }, [session?.accessToken]);
 
-  // Functions
+  useEffect(() => {
+    // Set all elements from the knowledgeFormData to the state
+    if (knowledgeEditFormData) {
+      setEmail(knowledgeEditFormData.knowledgeFormData.email);
+      setName(knowledgeEditFormData.knowledgeFormData.name);
+      setSubmissionSummary(knowledgeEditFormData.knowledgeFormData.submissionSummary);
+      setDomain(knowledgeEditFormData.knowledgeFormData.domain);
+      setDocumentOutline(knowledgeEditFormData.knowledgeFormData.documentOutline);
+      setFilePath(knowledgeEditFormData.knowledgeFormData.filePath);
+      setKnowledgeDocumentRepositoryUrl(knowledgeEditFormData.knowledgeFormData.knowledgeDocumentRepositoryUrl);
+      setKnowledgeDocumentCommit(knowledgeEditFormData.knowledgeFormData.knowledgeDocumentCommit);
+      setDocumentName(knowledgeEditFormData.knowledgeFormData.documentName);
+      setTitleWork(knowledgeEditFormData.knowledgeFormData.titleWork);
+      setLinkWork(knowledgeEditFormData.knowledgeFormData.linkWork);
+      setRevision(knowledgeEditFormData.knowledgeFormData.revision);
+      setLicenseWork(knowledgeEditFormData.knowledgeFormData.licenseWork);
+      setCreators(knowledgeEditFormData.knowledgeFormData.creators);
+      setSeedExamples(knowledgeEditFormData.knowledgeFormData.seedExamples);
+    }
+  }, [knowledgeEditFormData]);
 
   const validateContext = (context: string): ValidatedOptions => {
     if (context.length > 0 && context.length < 500) {
@@ -324,7 +363,6 @@ export const KnowledgeForm: React.FunctionComponent = () => {
           : seedExample
       )
     );
-    console.log('seedExamples qna', seedExamples);
     setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
   };
 
@@ -390,6 +428,10 @@ export const KnowledgeForm: React.FunctionComponent = () => {
     setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
   }, [knowledgeFormData]);
 
+  const handleCancel = () => {
+    router.push('/dashboard');
+  };
+
   return (
     <PageGroup>
       <PageBreadcrumb>
@@ -419,6 +461,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
           <KnowledgeInformation
             reset={reset}
+            isEditForm={knowledgeEditFormData?.isEditForm}
             knowledgeFormData={knowledgeFormData}
             setDisableAction={setDisableAction}
             submissionSummary={submissionSummary}
@@ -429,7 +472,11 @@ export const KnowledgeForm: React.FunctionComponent = () => {
             setDocumentOutline={setDocumentOutline}
           />
 
-          <FilePathInformation reset={reset} setFilePath={setFilePath} />
+          <FilePathInformation
+            reset={reset}
+            path={knowledgeEditFormData ? knowledgeEditFormData.knowledgeFormData.filePath : filePath}
+            setFilePath={setFilePath}
+          />
 
           <KnowledgeSeedExample
             seedExamples={seedExamples}
@@ -447,6 +494,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
           <DocumentInformation
             reset={reset}
+            isEditForm={knowledgeEditFormData?.isEditForm}
             knowledgeFormData={knowledgeFormData}
             setDisableAction={setDisableAction}
             knowledgeDocumentRepositoryUrl={knowledgeDocumentRepositoryUrl}
@@ -459,6 +507,7 @@ export const KnowledgeForm: React.FunctionComponent = () => {
 
           <AttributionInformation
             reset={reset}
+            isEditForm={knowledgeEditFormData?.isEditForm}
             knowledgeFormData={knowledgeFormData}
             setDisableAction={setDisableAction}
             titleWork={titleWork}
@@ -494,13 +543,26 @@ export const KnowledgeForm: React.FunctionComponent = () => {
           )}
 
           <ActionGroup>
-            <Submit
-              disableAction={disableAction}
-              knowledgeFormData={knowledgeFormData}
-              setActionGroupAlertContent={setActionGroupAlertContent}
-              githubUsername={githubUsername}
-              resetForm={resetForm}
-            />
+            {knowledgeEditFormData?.isEditForm && (
+              <Update
+                disableAction={disableAction}
+                knowledgeFormData={knowledgeFormData}
+                pullRequestNumber={knowledgeEditFormData.pullRequestNumber}
+                setActionGroupAlertContent={setActionGroupAlertContent}
+                yamlFile={knowledgeEditFormData.yamlFile}
+                attributionFile={knowledgeEditFormData.attributionFile}
+                branchName={knowledgeEditFormData.branchName}
+              />
+            )}
+            {!knowledgeEditFormData?.isEditForm && (
+              <Submit
+                disableAction={disableAction}
+                knowledgeFormData={knowledgeFormData}
+                setActionGroupAlertContent={setActionGroupAlertContent}
+                githubUsername={githubUsername}
+                resetForm={resetForm}
+              />
+            )}
             <DownloadDropdown
               disableAction={disableAction}
               knowledgeFormData={knowledgeFormData}
@@ -508,6 +570,9 @@ export const KnowledgeForm: React.FunctionComponent = () => {
               githubUsername={githubUsername}
             />
             <ViewDropdown disableAction={disableAction} knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
+            <Button variant="link" type="button" onClick={handleCancel}>
+              Cancel
+            </Button>
           </ActionGroup>
         </Form>
       </PageSection>

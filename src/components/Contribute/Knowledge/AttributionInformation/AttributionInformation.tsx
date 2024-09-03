@@ -10,6 +10,7 @@ import { checkKnowledgeFormCompletion } from '../validation';
 
 interface Props {
   reset: boolean;
+  isEditForm?: boolean;
   knowledgeFormData: KnowledgeFormData;
   setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   titleWork: string;
@@ -26,6 +27,7 @@ interface Props {
 
 const AttributionInformation: React.FC<Props> = ({
   reset,
+  isEditForm,
   knowledgeFormData,
   setDisableAction,
   titleWork,
@@ -52,6 +54,17 @@ const AttributionInformation: React.FC<Props> = ({
     setValidLicense(ValidatedOptions.default);
     setValidCreators(ValidatedOptions.default);
   }, [reset]);
+
+  useEffect(() => {
+    if (!isEditForm) {
+      return;
+    }
+    setValidTitle(ValidatedOptions.success);
+    setValidLink(ValidatedOptions.success);
+    setValidRevision(ValidatedOptions.success);
+    setValidLicense(ValidatedOptions.success);
+    setValidCreators(ValidatedOptions.success);
+  }, [isEditForm]);
 
   const validateTitle = (title: string) => {
     if (title.length > 0) {
