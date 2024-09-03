@@ -31,7 +31,6 @@ export async function fetchPullRequests(token: string) {
 
 export const fetchPullRequest = async (token: string, prNumber: number) => {
   try {
-    console.log(`Fetching PR Number: ${prNumber}`);
     const res = await fetch('/api/envConfig');
     const envConfig = await res.json();
     const response = await axios.get(
@@ -60,7 +59,6 @@ export const fetchPullRequest = async (token: string, prNumber: number) => {
 
 export const fetchPullRequestFiles = async (token: string, prNumber: number) => {
   try {
-    console.log(`Fetching files for PR Number: ${prNumber}`);
     const res = await fetch('/api/envConfig');
     const envConfig = await res.json();
     const response = await axios.get(
@@ -86,7 +84,6 @@ export const fetchPullRequestFiles = async (token: string, prNumber: number) => 
 
 export const fetchFileContent = async (token: string, filePath: string, ref: string) => {
   try {
-    console.log(`Fetching file content for path: ${filePath} with ref: ${ref}`);
     const res = await fetch('/api/envConfig');
     const envConfig = await res.json();
     const response = await axios.get(
@@ -98,7 +95,7 @@ export const fetchFileContent = async (token: string, filePath: string, ref: str
         }
       }
     );
-    console.log('Fetched file content:', response.data);
+    console.log(`Fetched file content for path: ${filePath} with ref: ${ref}:`, response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

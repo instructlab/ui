@@ -11,6 +11,7 @@ import { checkKnowledgeFormCompletion } from '../validation';
 
 interface Props {
   reset: boolean;
+  isEditForm?: boolean;
   knowledgeFormData: KnowledgeFormData;
   setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   submissionSummary: string;
@@ -23,6 +24,7 @@ interface Props {
 
 const KnowledgeInformation: React.FC<Props> = ({
   reset,
+  isEditForm,
   knowledgeFormData,
   setDisableAction,
   submissionSummary,
@@ -41,6 +43,14 @@ const KnowledgeInformation: React.FC<Props> = ({
     setValidDomain(ValidatedOptions.default);
     setValidOutline(ValidatedOptions.default);
   }, [reset]);
+
+  useEffect(() => {
+    if (isEditForm) {
+      setValidDescription(ValidatedOptions.success);
+      setValidDomain(ValidatedOptions.success);
+      setValidOutline(ValidatedOptions.success);
+    }
+  }, [isEditForm]);
 
   const validateDescription = (description: string) => {
     if (description.length > 0 && description.length < 60) {
