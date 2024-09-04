@@ -24,7 +24,7 @@ import (
 
 const (
 	repoURL         = "https://github.com/instructlab/taxonomy"
-	repoDir         = "./taxonomy"
+	repoDir         = "/tmp/taxonomy"
 	checkInterval   = 1 * time.Minute // Interval for checking updates
 	serviceLogLevel = "IL_UI_DEPLOYMENT"
 	SKILLS          = "skills/"
