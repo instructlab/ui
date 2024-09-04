@@ -1,7 +1,8 @@
 // src/types/index.ts
 
 // https://github.com/instructlab/schema/blob/main/src/instructlab/schema/
-export const SchemaVersion = 3;
+export const KnowledgeSchemaVersion = 3;
+export const SkillSchemaVersion = 3;
 
 export interface Endpoint {
   id: string;
@@ -70,8 +71,8 @@ export interface KnowledgeYamlData {
 
 export interface AttributionData {
   title_of_work: string;
-  link_to_work: string;
-  revision: string;
+  link_to_work?: string;
+  revision?: string;
   license_of_the_work: string;
   creator_names: string;
 }

@@ -7,7 +7,6 @@ import { SkillYamlData, AttributionData } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
 
 const GITHUB_API_URL = 'https://api.github.com';
-const SKILL_DIR = 'compositional_skills';
 const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
 const UPSTREAM_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_REPO!;
 const BASE_BRANCH = 'main';
@@ -31,7 +30,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { content, attribution, name, email, submission_summary, task_description, filePath } = body;
+    const { content, attribution, name, email, submissionSummary, documentOutline, filePath } = body;
 
     const githubUsername = await getGitHubUsername(headers);
     console.log('GitHub Username:', githubUsername);
@@ -43,8 +42,8 @@ export async function POST(req: NextRequest) {
     }
 
     const branchName = `skill-contribution-${Date.now()}`;
-    const newYamlFilePath = `${SKILL_DIR}/${filePath}qna.yaml`;
-    const newAttributionFilePath = `${SKILL_DIR}/${filePath}attribution.txt`;
+    const newYamlFilePath = `${filePath}qna.yaml`;
+    const newAttributionFilePath = `${filePath}attribution.txt`;
 
     const skillData = yaml.load(content) as SkillYamlData;
     const attributionData = attribution as AttributionData;
@@ -52,8 +51,6 @@ export async function POST(req: NextRequest) {
     const yamlString = dumpYaml(skillData);
 
     const attributionString = `Title of work: ${attributionData.title_of_work}
-Link to work: ${attributionData.link_to_work}
-Revision: ${attributionData.revision}
 License of the work: ${attributionData.license_of_the_work}
 Creator names: ${attributionData.creator_names}
 `;
@@ -74,11 +71,11 @@ Creator names: ${attributionData.creator_names}
         { path: newAttributionFilePath, content: attributionString }
       ],
       branchName,
-      `${submission_summary}\n\nSigned-off-by: ${name} <${email}>`
+      `${submissionSummary}\n\nSigned-off-by: ${name} <${email}>`
     );
 
     // Create a pull request from the user's fork to the upstream repository
-    const pr = await createPullRequest(headers, githubUsername, branchName, submission_summary, task_description);
+    const pr = await createPullRequest(headers, githubUsername, branchName, submissionSummary, documentOutline);
 
     return NextResponse.json(pr, { status: 201 });
   } catch (error) {
