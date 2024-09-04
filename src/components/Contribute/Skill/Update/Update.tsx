@@ -1,17 +1,16 @@
 import React from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ActionGroupAlertContent, KnowledgeFormData } from '..';
-import { AttributionData, KnowledgeYamlData, PullRequestFile, KnowledgeSchemaVersion } from '@/types';
+import { ActionGroupAlertContent, SkillFormData } from '..';
+import { AttributionData, SkillYamlData, PullRequestFile, SkillSchemaVersion } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '../validation';
 import { amendCommit, getGitHubUsername, updatePullRequest } from '@/utils/github';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
-const KNOWLEDGE_DIR = 'knowledge/';
 interface Props {
   disableAction: boolean;
-  knowledgeFormData: KnowledgeFormData;
+  skillFormData: SkillFormData;
   pullRequestNumber: number;
   yamlFile: PullRequestFile;
   attributionFile: PullRequestFile;
@@ -21,7 +20,7 @@ interface Props {
 
 const Update: React.FC<Props> = ({
   disableAction,
-  knowledgeFormData,
+  skillFormData,
   pullRequestNumber,
   yamlFile,
   attributionFile,
@@ -33,63 +32,51 @@ const Update: React.FC<Props> = ({
 
   const handleUpdate = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!validateFields(knowledgeFormData, setActionGroupAlertContent)) return;
+    if (!validateFields(skillFormData, setActionGroupAlertContent)) return;
     if (session?.accessToken) {
       try {
         console.log(`Updating PR with number: ${pullRequestNumber}`);
         await updatePullRequest(session.accessToken, pullRequestNumber, {
-          title: knowledgeFormData.submissionSummary,
-          body: knowledgeFormData.documentOutline
+          title: skillFormData.submissionSummary,
+          body: skillFormData.documentOutline
         });
 
         const githubUsername = await getGitHubUsername(session.accessToken);
         console.log(`GitHub username: ${githubUsername}`);
 
-        const knowledgeYamlData: KnowledgeYamlData = {
+        const skillYamlData: SkillYamlData = {
           created_by: githubUsername!,
-          version: KnowledgeSchemaVersion,
-          domain: knowledgeFormData.domain!,
-          document_outline: knowledgeFormData.documentOutline!,
-          seed_examples: knowledgeFormData.seedExamples.map((example) => ({
+          version: SkillSchemaVersion,
+          task_description: skillFormData.documentOutline!,
+          seed_examples: skillFormData.seedExamples.map((example) => ({
             context: example.context,
-            questions_and_answers: example.questionAndAnswers.map((questionAndAnswer) => ({
-              question: questionAndAnswer.question,
-              answer: questionAndAnswer.answer
-            }))
-          })),
-          document: {
-            repo: knowledgeFormData.knowledgeDocumentRepositoryUrl!,
-            commit: knowledgeFormData.knowledgeDocumentCommit!,
-            patterns: knowledgeFormData.documentName!.split(',').map((pattern) => pattern.trim())
-          }
+            question: example.question,
+            answer: example.answer
+          }))
         };
 
-        const yamlString = dumpYaml(knowledgeYamlData);
+        const yamlString = dumpYaml(skillYamlData);
         console.log('Updated YAML content:', yamlString);
 
         const attributionData: AttributionData = {
-          title_of_work: knowledgeFormData.titleWork!,
-          link_to_work: knowledgeFormData.linkWork!,
-          revision: knowledgeFormData.revision!,
-          license_of_the_work: knowledgeFormData.licenseWork!,
-          creator_names: knowledgeFormData.creators!
+          title_of_work: skillFormData.titleWork!,
+          license_of_the_work: skillFormData.licenseWork!,
+          creator_names: skillFormData.creators!,
+          link_to_work: '',
+          revision: ''
         };
         const attributionContent = `Title of work: ${attributionData.title_of_work}
-Link to work: ${attributionData.link_to_work}
-Revision: ${attributionData.revision}
 License of the work: ${attributionData.license_of_the_work}
 Creator names: ${attributionData.creator_names}
 `;
 
         console.log('Updated Attribution content:', attributionData);
 
-        const commitMessage = `Amend commit with updated content\n\nSigned-off-by: ${knowledgeFormData.name} <${knowledgeFormData.email}>`;
+        const commitMessage = `Amend commit with updated content\n\nSigned-off-by: ${skillFormData.name} <${skillFormData.email}>`;
 
         // Ensure proper file paths for the edit
-        const finalYamlPath = KNOWLEDGE_DIR + knowledgeFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + yamlFile.filename.split('/').pop();
-        const finalAttributionPath =
-          KNOWLEDGE_DIR + knowledgeFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + attributionFile.filename.split('/').pop();
-        console.log('finalYamlPath:', finalYamlPath);
+        const finalYamlPath = skillFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + yamlFile.filename.split('/').pop();
+        const finalAttributionPath = skillFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + attributionFile.filename.split('/').pop();
 
         const origFilePath = yamlFile.filename.split('/').slice(0, -1).join('/');
         const oldFilePath = {
@@ -120,13 +107,13 @@ Creator names: ${attributionData.creator_names}
 
         const prLink = `https://github.com/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/pull/${pullRequestNumber}`;
         const actionGroupAlertContent: ActionGroupAlertContent = {
-          title: 'Knowledge contribution updated successfully!',
+          title: 'Skill contribution updated successfully!',
           message: `Thank you for your contribution!`,
           url: `${prLink}`,
           success: true
         };
         setActionGroupAlertContent(actionGroupAlertContent);
-        // Knowledge is updated, wait for a bit and let's go back to dashboard.
+        // Skill is updated, wait for a bit and let's go back to dashboard.
         await new Promise((r) => setTimeout(r, 4000));
         router.push('/dashboard');
       } catch (error) {
@@ -142,7 +129,7 @@ Creator names: ${attributionData.creator_names}
   };
   return (
     <Button variant="primary" type="submit" isDisabled={disableAction} onClick={handleUpdate}>
-      Update Knowledge
+      Update Skill
     </Button>
   );
 };

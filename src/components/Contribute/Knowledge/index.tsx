@@ -376,7 +376,6 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
 
   const deleteSeedExample = (seedExampleIndex: number): void => {
     setSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
-    console.log('seedExamples', seedExamples);
     setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
   };
 

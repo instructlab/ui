@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
 import { AppLayout } from '../../../../components/AppLayout';
-import { AttributionData, PullRequestFile, KnowledgeYamlData, SchemaVersion } from '@/types';
+import { AttributionData, PullRequestFile, KnowledgeYamlData, KnowledgeSchemaVersion } from '@/types';
 import { fetchPullRequest, fetchFileContent, fetchPullRequestFiles } from '../../../../utils/github';
 import yaml from 'js-yaml';
 import axios from 'axios';
@@ -50,7 +50,7 @@ const EditKnowledgePage: React.FunctionComponent<{ params: { id: string } }> = (
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
             isEditForm: true,
-            knowledgeVersion: SchemaVersion,
+            knowledgeVersion: KnowledgeSchemaVersion,
             branchName: '',
             knowledgeFormData: knowledgeExistingFormData,
             pullRequestNumber: prNumber,
@@ -120,8 +120,8 @@ const EditKnowledgePage: React.FunctionComponent<{ params: { id: string } }> = (
             knowledgeEditFormData.attributionFile = foundAttributionFile;
             // Populate the form fields with attribution data
             knowledgeExistingFormData.titleWork = attributionData.title_of_work;
-            knowledgeExistingFormData.linkWork = attributionData.link_to_work;
-            knowledgeExistingFormData.revision = attributionData.revision;
+            knowledgeExistingFormData.linkWork = attributionData.link_to_work ? attributionData.link_to_work : '';
+            knowledgeExistingFormData.revision = attributionData.revision ? attributionData.revision : '';
             knowledgeExistingFormData.licenseWork = attributionData.license_of_the_work;
             knowledgeExistingFormData.creators = attributionData.creator_names;
           }

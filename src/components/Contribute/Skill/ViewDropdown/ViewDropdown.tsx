@@ -3,43 +3,35 @@ import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdow
 import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { KnowledgeFormData } from '..';
+import { SkillFormData } from '..';
 import YamlCodeModal from '@/components/YamlCodeModal';
 import CodeIcon from '@patternfly/react-icons/dist/esm/icons/code-icon';
-import { AttributionData, KnowledgeYamlData, KnowledgeSchemaVersion } from '@/types';
+import { AttributionData, SkillSchemaVersion, SkillYamlData } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
 import FileIcon from '@patternfly/react-icons/dist/dynamic/icons/file-icon';
 import EyeIcon from '@patternfly/react-icons/dist/esm/icons/eye-icon';
 
 interface Props {
   disableAction: boolean;
-  knowledgeFormData: KnowledgeFormData;
+  skillFormData: SkillFormData;
   githubUsername: string | undefined;
 }
 
-export const ViewDropdown: React.FunctionComponent<Props> = ({ disableAction, knowledgeFormData, githubUsername }) => {
+export const ViewDropdown: React.FunctionComponent<Props> = ({ disableAction, skillFormData, githubUsername }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalContent, setModalContent] = useState<string>('');
 
   const handleViewYaml = () => {
-    const yamlData: KnowledgeYamlData = {
+    const yamlData: SkillYamlData = {
       created_by: githubUsername!,
-      version: KnowledgeSchemaVersion,
-      domain: knowledgeFormData.domain!,
-      document_outline: knowledgeFormData.documentOutline!,
-      seed_examples: knowledgeFormData.seedExamples.map((example) => ({
+      version: SkillSchemaVersion,
+      task_description: skillFormData.documentOutline!,
+      seed_examples: skillFormData.seedExamples.map((example) => ({
         context: example.context,
-        questions_and_answers: example.questionAndAnswers.map((qa) => ({
-          question: qa.question,
-          answer: qa.answer
-        }))
-      })),
-      document: {
-        repo: knowledgeFormData.knowledgeDocumentRepositoryUrl!,
-        commit: knowledgeFormData.knowledgeDocumentCommit!,
-        patterns: knowledgeFormData.documentName ? knowledgeFormData.documentName!.split(',').map((pattern) => pattern.trim()) : ['']
-      }
+        question: example.question,
+        answer: example.answer
+      }))
     };
     const yamlString = dumpYaml(yamlData);
     setModalContent(yamlString);
@@ -48,12 +40,11 @@ export const ViewDropdown: React.FunctionComponent<Props> = ({ disableAction, kn
 
   const handleViewAttribution = () => {
     const attributionData: AttributionData = {
-      title_of_work: knowledgeFormData.titleWork!,
-      link_to_work: knowledgeFormData.linkWork!,
-      revision: knowledgeFormData.revision!,
-      license_of_the_work: knowledgeFormData.licenseWork!,
-      creator_names: knowledgeFormData.creators
+      title_of_work: skillFormData.titleWork!,
+      license_of_the_work: skillFormData.licenseWork!,
+      creator_names: skillFormData.creators
     };
+
     const attributionString = dumpYaml(attributionData);
     setModalContent(attributionString);
     setIsModalOpen(true);

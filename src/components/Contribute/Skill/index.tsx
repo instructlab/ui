@@ -1,30 +1,129 @@
 // src/components/Contribute/Skill/index.tsx
 'use client';
-import React, { useState, useEffect } from 'react';
-import './skill.css';
-import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { ActionGroup, FormFieldGroupExpandable, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
+import React, { useEffect, useMemo, useState } from 'react';
+import './skills.css';
+import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
-import { PlusIcon, MinusCircleIcon, CodeIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
-import { validateFields, validateEmail, validateUniqueItems } from '../../../utils/validation';
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
-import YamlCodeModal from '../../YamlCodeModal';
-import { AttributionData, SchemaVersion, SkillYamlData } from '@/types';
-import SkillDescription from './SkillDescription/SkillDescription';
-import { dumpYaml } from '@/utils/yamlConfig';
-import PathService from '@/components/PathService/PathService';
+import AuthorInformation from './AuthorInformation/AuthorInformation';
+import FilePathInformation from './FilePathInformation/FilePathInformation';
+import AttributionInformation from './AttributionInformation/AttributionInformation';
+import Submit from './Submit/Submit';
+import { Breadcrumb } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
+import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
+import { PageBreadcrumb } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { PageGroup } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { checkSkillFormCompletion } from './validation';
+import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
+import { DownloadDropdown } from './DownloadDropdown/DownloadDropdown';
+import { ViewDropdown } from './ViewDropdown/ViewDropdown';
+import Update from './Update/Update';
+import { PullRequestFile } from '@/types';
+import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button';
+import { useRouter } from 'next/navigation';
+import SkillsSeedExample from './SkillsSeedExample/SkillsSeedExample';
+import SkillsInformation from './SkillsInformation/SkillsInformation';
+import SkillsDescriptionContent from './SkillsDescription/SkillsDescriptionContent';
 
-export const SkillForm: React.FunctionComponent = () => {
+export interface SeedExample {
+  immutable: boolean;
+  isExpanded: boolean;
+  context?: string;
+  isContextValid?: ValidatedOptions;
+  validationError?: string;
+  question: string;
+  isQuestionValid: ValidatedOptions;
+  questionValidationError?: string;
+  answer: string;
+  isAnswerValid: ValidatedOptions;
+  answerValidationError?: string;
+}
+
+export interface SkillFormData {
+  email: string;
+  name: string;
+  submissionSummary: string;
+  documentOutline: string;
+  filePath: string;
+  seedExamples: SeedExample[];
+  titleWork: string;
+  licenseWork: string;
+  creators: string;
+}
+
+export interface SkillEditFormData {
+  isEditForm: boolean;
+  skillVersion: number;
+  pullRequestNumber: number;
+  branchName: string;
+  yamlFile: PullRequestFile;
+  attributionFile: PullRequestFile;
+  skillFormData: SkillFormData;
+}
+
+export interface ActionGroupAlertContent {
+  title: string;
+  message: string;
+  url?: string;
+  success: boolean;
+}
+
+export interface SkillFormProps {
+  skillEditFormData?: SkillEditFormData;
+}
+
+export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFormData }) => {
   const { data: session } = useSession();
-  const [githubUsername, setGithubUsername] = useState<string | null>(null);
+  const [githubUsername, setGithubUsername] = useState<string>('');
+  // Author Information
+  const [email, setEmail] = useState<string>('');
+  const [name, setName] = useState<string>('');
 
-  useEffect(() => {
+  // Skills Information
+  const [submissionSummary, setSubmissionSummary] = useState<string>('');
+  const [documentOutline, setDocumentOutline] = useState<string>('');
+
+  // File Path Information
+  const [filePath, setFilePath] = useState<string>('');
+
+  // Attribution Information
+  // State
+  const [titleWork, setTitleWork] = useState<string>('');
+  const [licenseWork, setLicenseWork] = useState<string>('');
+  const [creators, setCreators] = useState<string>('');
+
+  const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
+
+  const [disableAction, setDisableAction] = useState<boolean>(true);
+  const [reset, setReset] = useState<boolean>(false);
+
+  const router = useRouter();
+
+  const emptySeedExample: SeedExample = {
+    immutable: true,
+    isExpanded: false,
+    context: '',
+    isContextValid: ValidatedOptions.default,
+    question: '',
+    isQuestionValid: ValidatedOptions.default,
+    answer: '',
+    isAnswerValid: ValidatedOptions.default
+  };
+
+  const [seedExamples, setSeedExamples] = useState<SeedExample[]>([
+    emptySeedExample,
+    emptySeedExample,
+    emptySeedExample,
+    emptySeedExample,
+    emptySeedExample
+  ]);
+
+  useMemo(() => {
     const fetchUsername = async () => {
       if (session?.accessToken) {
         try {
@@ -39,525 +138,301 @@ export const SkillForm: React.FunctionComponent = () => {
     fetchUsername();
   }, [session?.accessToken]);
 
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [task_description, setTaskDescription] = useState('');
-  const [submission_summary, setSubmissionSummary] = useState('');
-  const [filePath, setFilePath] = useState('');
-
-  const [title_work, setTitleWork] = useState('');
-  const [link_work, setLinkWork] = useState('-');
-  const [license_work, setLicenseWork] = useState('');
-  const [creators, setCreators] = useState('');
-
-  const [questions, setQuestions] = useState<string[]>(new Array(5).fill(''));
-  const [contexts, setContexts] = useState<string[]>(new Array(5).fill(''));
-  const [answers, setAnswers] = useState<string[]>(new Array(5).fill(''));
-  const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
-  const [isFailureAlertVisible, setIsFailureAlertVisible] = useState(false);
-
-  const [failure_alert_title, setFailureAlertTitle] = useState('');
-  const [failure_alert_message, setFailureAlertMessage] = useState('');
-
-  const [success_alert_title, setSuccessAlertTitle] = useState('');
-  const [success_alert_message, setSuccessAlertMessage] = useState('');
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [yamlContent, setYamlContent] = useState('');
-
-  const handleInputChange = (index: number, type: string, value: string) => {
-    switch (type) {
-      case 'question':
-        setQuestions((prevQuestions) => {
-          const updatedQuestions = [...prevQuestions];
-          updatedQuestions[index] = value;
-          return updatedQuestions;
-        });
-        break;
-      case 'context':
-        setContexts((prevContexts) => {
-          const updatedContexts = [...prevContexts];
-          updatedContexts[index] = value;
-          return updatedContexts;
-        });
-        break;
-      case 'answer':
-        setAnswers((prevAnswers) => {
-          const updatedAnswers = [...prevAnswers];
-          updatedAnswers[index] = value;
-          return updatedAnswers;
-        });
-        break;
-      default:
-        break;
+  useEffect(() => {
+    // Set all elements from the skillFormData to the state
+    if (skillEditFormData) {
+      setEmail(skillEditFormData.skillFormData.email);
+      setName(skillEditFormData.skillFormData.name);
+      setSubmissionSummary(skillEditFormData.skillFormData.submissionSummary);
+      setDocumentOutline(skillEditFormData.skillFormData.documentOutline);
+      setFilePath(skillEditFormData.skillFormData.filePath);
+      setTitleWork(skillEditFormData.skillFormData.titleWork);
+      setLicenseWork(skillEditFormData.skillFormData.licenseWork);
+      setCreators(skillEditFormData.skillFormData.creators);
+      setSeedExamples(skillEditFormData.skillFormData.seedExamples);
     }
+  }, [skillEditFormData]);
+
+  const validateContext = (context: string): ValidatedOptions => {
+    // Context is optional
+    console.log('context', context);
+    return ValidatedOptions.success;
   };
 
-  const addQuestionAnswerPair = () => {
-    setQuestions([...questions, '']);
-    setContexts([...contexts, '']);
-    setAnswers([...answers, '']);
+  const validateQuestion = (question: string): ValidatedOptions => {
+    if (question.length > 0 && question.length < 250) {
+      setDisableAction(!checkSkillFormCompletion(skillFormData));
+      return ValidatedOptions.success;
+    }
+    setDisableAction(true);
+    return ValidatedOptions.error;
   };
 
-  const deleteQuestionAnswerPair = (index: number) => {
-    setQuestions(questions.filter((_, i) => i !== index));
-    setContexts(contexts.filter((_, i) => i !== index));
-    setAnswers(answers.filter((_, i) => i !== index));
+  const validateAnswer = (answer: string): ValidatedOptions => {
+    if (answer.length > 0 && answer.length < 250) {
+      setDisableAction(!checkSkillFormCompletion(skillFormData));
+      return ValidatedOptions.success;
+    }
+    setDisableAction(true);
+    return ValidatedOptions.error;
   };
 
-  const resetForm = () => {
-    setQuestions(new Array(5).fill(''));
-    setContexts(new Array(5).fill(''));
-    setAnswers(new Array(5).fill(''));
+  const handleContextInputChange = (seedExampleIndex: number, contextValue: string): void => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              context: contextValue
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const handleContextBlur = (seedExampleIndex: number): void => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              isContextValid: validateContext(seedExample.context ? seedExample.context : '')
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const handleAnswerInputChange = (seedExampleIndex: number, answerValue: string): void => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              answer: answerValue
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const handleAnswerBlur = (seedExampleIndex: number): void => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              isAnswerValid: validateAnswer(seedExample.answer)
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const handleQuestionInputChange = (seedExampleIndex: number, questionValue: string): void => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              question: questionValue
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const handleQuestionBlur = (seedExampleIndex: number): void => {
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) =>
+        index === seedExampleIndex
+          ? {
+              ...seedExample,
+              isQuestionValid: validateQuestion(seedExample.question)
+            }
+          : seedExample
+      )
+    );
+  };
+
+  const addSeedExample = (): void => {
+    const seedExample = emptySeedExample;
+    seedExample.immutable = false;
+    seedExample.isExpanded = true;
+    setSeedExamples([...seedExamples, seedExample]);
+    setDisableAction(true);
+  };
+
+  const deleteSeedExample = (seedExampleIndex: number): void => {
+    setSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
+    setDisableAction(!checkSkillFormCompletion(skillFormData));
+  };
+
+  const onCloseActionGroupAlert = () => {
+    setActionGroupAlertContent(undefined);
+  };
+
+  const resetForm = (): void => {
     setEmail('');
     setName('');
-    setTaskDescription('');
+    setDocumentOutline('');
     setSubmissionSummary('');
     setTitleWork('');
-    setLinkWork('-');
     setLicenseWork('');
     setCreators('');
     setFilePath('');
+    setSeedExamples([emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample]);
+    setDisableAction(true);
+
+    // setReset is just reset button, value has no impact.
+    setReset(reset ? false : true);
   };
 
-  const onCloseSuccessAlert = () => {
-    setIsSuccessAlertVisible(false);
+  const skillFormData: SkillFormData = {
+    email: email,
+    name: name,
+    submissionSummary: submissionSummary,
+    documentOutline: documentOutline,
+    filePath: filePath,
+    seedExamples: seedExamples,
+    titleWork: titleWork,
+    licenseWork: licenseWork,
+    creators: creators
   };
 
-  const onCloseFailureAlert = () => {
-    setIsFailureAlertVisible(false);
-  };
+  useEffect(() => {
+    setDisableAction(!checkSkillFormCompletion(skillFormData));
+  }, [skillFormData]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-
-    // Strip leading slash and ensure trailing slash in the file path
-    let sanitizedFilePath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
-    sanitizedFilePath = sanitizedFilePath.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
-
-    const infoFields = { email, name, task_description, submission_summary };
-    const attributionFields = { title_work, link_work, license_work, creators };
-
-    let validation = validateFields(infoFields);
-    if (!validation.valid) {
-      setFailureAlertTitle(validation.title);
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    validation = validateFields(attributionFields);
-    if (!validation.valid) {
-      setFailureAlertTitle(validation.title);
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    validation = validateEmail(email);
-    if (!validation.valid) {
-      setFailureAlertTitle(validation.title);
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    validation = validateUniqueItems(questions, 'questions');
-    if (!validation.valid) {
-      setFailureAlertTitle(validation.title);
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    validation = validateUniqueItems(answers, 'answers');
-    if (!validation.valid) {
-      setFailureAlertTitle(validation.title);
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    const skillData: SkillYamlData = {
-      created_by: githubUsername!,
-      version: SchemaVersion,
-      task_description,
-      seed_examples: questions.map((question, index) => ({
-        question,
-        context: contexts[index],
-        answer: answers[index]
-      }))
-    };
-
-    const yamlString = dumpYaml(skillData);
-
-    const attributionData: AttributionData = {
-      title_of_work: title_work,
-      link_to_work: '-',
-      revision: '-',
-      license_of_the_work: license_work,
-      creator_names: creators
-    };
-
-    try {
-      const response = await fetch('/api/pr/skill', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          content: yamlString,
-          attribution: attributionData,
-          name,
-          email,
-          submission_summary,
-          task_description,
-          filePath: sanitizedFilePath
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit skill data');
-      }
-
-      const result = await response.json();
-      setSuccessAlertTitle('Skill contribution submitted successfully!');
-      setSuccessAlertMessage(result.html_url);
-      setIsSuccessAlertVisible(true);
-      resetForm();
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setFailureAlertTitle('Failed to submit your Skill contribution!');
-        setFailureAlertMessage(error.message);
-        setIsFailureAlertVisible(true);
-      }
-    }
-  };
-
-  const handleViewYaml = () => {
-    const yamlData = {
-      created_by: githubUsername,
-      version: SchemaVersion,
-      task_description: task_description,
-      seed_examples: questions.map((question, index) => ({
-        question,
-        answer: answers[index],
-        context: contexts[index] || ''
-      }))
-    };
-
-    const yamlString = dumpYaml(yamlData);
-
-    setYamlContent(yamlString);
-    setIsModalOpen(true);
-  };
-
-  const handleDownloadYaml = () => {
-    const infoFields = { email, name, task_description, submission_summary };
-    const attributionFields = { title_work, link_work: '-', revision: '-', license_work, creators };
-
-    let validation = validateFields(infoFields);
-    if (!validation.valid) {
-      setFailureAlertTitle(validation.title);
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    validation = validateFields(attributionFields);
-    if (!validation.valid) {
-      setFailureAlertTitle(validation.title);
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    validation = validateEmail(email);
-    if (!validation.valid) {
-      setFailureAlertTitle(validation.title);
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    validation = validateUniqueItems(questions, 'questions');
-    if (!validation.valid) {
-      setFailureAlertTitle(validation.title);
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    validation = validateUniqueItems(answers, 'answers');
-    if (!validation.valid) {
-      setFailureAlertTitle(validation.title);
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    interface SeedExample {
-      question: string;
-      answer: string;
-      context?: string;
-    }
-
-    const yamlData = {
-      created_by: githubUsername,
-      version: SchemaVersion,
-      task_description: task_description,
-      seed_examples: questions.map((question, index) => {
-        const example: SeedExample = {
-          question,
-          answer: answers[index]
-        };
-        if (contexts[index]?.trim() !== '') {
-          example.context = contexts[index];
-        }
-        return example;
-      })
-    };
-
-    const yamlString = dumpYaml(yamlData);
-    const blob = new Blob([yamlString], { type: 'application/x-yaml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'qna.yaml';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  const handleDownloadAttribution = () => {
-    const attributionFields = { title_work, link_work: '-', revision: '-', license_work, creators };
-
-    const validation = validateFields(attributionFields);
-    if (!validation.valid) {
-      setFailureAlertTitle(validation.title);
-      setFailureAlertMessage(validation.message);
-      setIsFailureAlertVisible(true);
-      return;
-    }
-
-    const attributionContent = `Title of work: ${title_work}
-  Link to work: -
-  Revision: -
-  License of the work: ${license_work}
-  Creator names: ${creators}
-  `;
-
-    const blob = new Blob([attributionContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'attribution.txt';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const handleCancel = () => {
+    router.push('/dashboard');
   };
 
   return (
-    <Form className="form">
-      <YamlCodeModal isModalOpen={isModalOpen} handleModalToggle={() => setIsModalOpen(!isModalOpen)} yamlContent={yamlContent} />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <FormFieldGroupHeader titleText={{ text: 'Skill Contribution Form', id: 'skill-contribution-form-id' }} />
-        <Button variant="plain" onClick={handleViewYaml} aria-label="View YAML">
-          <CodeIcon /> View YAML
-        </Button>
-      </div>
+    <PageGroup>
+      <PageBreadcrumb>
+        <Breadcrumb>
+          <BreadcrumbItem to="/"> Home </BreadcrumbItem>
+          <BreadcrumbItem isActive>Skill Contribution</BreadcrumbItem>
+        </Breadcrumb>
+      </PageBreadcrumb>
 
-      <SkillDescription />
+      <PageSection style={{ backgroundColor: 'white' }}>
+        <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
+          Skill Contribution
+        </Title>
+        <TextContent>
+          <SkillsDescriptionContent />
+        </TextContent>
+        <Form className="form-s">
+          <AuthorInformation
+            reset={reset}
+            skillFormData={skillFormData}
+            setDisableAction={setDisableAction}
+            email={email}
+            setEmail={setEmail}
+            name={name}
+            setName={setName}
+          />
 
-      <FormFieldGroupExpandable
-        isExpanded
-        toggleAriaLabel="Details"
-        header={
-          <FormFieldGroupHeader
-            titleText={{ text: 'Author Info', id: 'author-info-id' }}
-            titleDescription="Provide your information required for a GitHub DCO sign-off."
+          <SkillsInformation
+            reset={reset}
+            isEditForm={skillEditFormData?.isEditForm}
+            skillFormData={skillFormData}
+            setDisableAction={setDisableAction}
+            submissionSummary={submissionSummary}
+            setSubmissionSummary={setSubmissionSummary}
+            documentOutline={documentOutline}
+            setDocumentOutline={setDocumentOutline}
           />
-        }
-      >
-        <FormGroup isRequired key={'author-info-details-id'}>
-          <TextInput
-            isRequired
-            type="email"
-            aria-label="email"
-            placeholder="Enter your email address"
-            value={email}
-            onChange={(_event, value) => setEmail(value)}
+
+          <FilePathInformation
+            reset={reset}
+            path={skillEditFormData ? skillEditFormData.skillFormData.filePath : filePath}
+            setFilePath={setFilePath}
           />
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="name"
-            placeholder="Enter your full name"
-            value={name}
-            onChange={(_event, value) => setName(value)}
+
+          <SkillsSeedExample
+            seedExamples={seedExamples}
+            handleContextInputChange={handleContextInputChange}
+            handleContextBlur={handleContextBlur}
+            handleQuestionInputChange={handleQuestionInputChange}
+            handleQuestionBlur={handleQuestionBlur}
+            handleAnswerInputChange={handleAnswerInputChange}
+            handleAnswerBlur={handleAnswerBlur}
+            addSeedExample={addSeedExample}
+            deleteSeedExample={deleteSeedExample}
           />
-        </FormGroup>
-      </FormFieldGroupExpandable>
-      <FormFieldGroupExpandable
-        isExpanded
-        toggleAriaLabel="Details"
-        header={
-          <FormFieldGroupHeader titleText={{ text: 'Skill Info', id: 'skill-info-id' }} titleDescription="Provide information about the skill." />
-        }
-      >
-        <FormGroup key={'skill-info-details-id'}>
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="submission_summary"
-            placeholder="Enter a brief description for a submission summary (60 character max)"
-            value={submission_summary}
-            onChange={(_event, value) => setSubmissionSummary(value)}
-            maxLength={60}
+
+          <AttributionInformation
+            reset={reset}
+            isEditForm={skillEditFormData?.isEditForm}
+            skillFormData={skillFormData}
+            setDisableAction={setDisableAction}
+            titleWork={titleWork}
+            setTitleWork={setTitleWork}
+            licenseWork={licenseWork}
+            setLicenseWork={setLicenseWork}
+            creators={creators}
+            setCreators={setCreators}
           />
-          <TextArea
-            isRequired
-            type="text"
-            aria-label="task_description"
-            placeholder="Enter a detailed description to improve the teacher model's responses"
-            value={task_description}
-            onChange={(_event, value) => setTaskDescription(value)}
-          />
-        </FormGroup>
-      </FormFieldGroupExpandable>
-      <FormFieldGroupExpandable
-        isExpanded
-        toggleAriaLabel="Details"
-        header={
-          <FormFieldGroupHeader
-            titleText={{ text: 'File Path Info', id: 'file-path-info-id' }}
-            titleDescription="Specify the file path for the QnA and Attribution files."
-          />
-        }
-      >
-        <FormGroup isRequired key={'file-path-service-id'}>
-          <PathService rootPath="skills" handlePathChange={setFilePath} />
-        </FormGroup>
-      </FormFieldGroupExpandable>
-      <FormFieldGroupExpandable
-        toggleAriaLabel="Details"
-        header={
-          <FormFieldGroupHeader
-            titleText={{ text: 'Skill', id: 'contrib-skill-id' }}
-            titleDescription="Contribute skill to the taxonomy repository (shift+enter for a new line)."
-          />
-        }
-      >
-        {questions.map((question, index) => (
-          <FormGroup key={index}>
-            <Text className="heading"> Example : {index + 1}</Text>
-            <TextArea
-              isRequired
-              type="text"
-              aria-label={`Question ${index + 1}`}
-              placeholder="Enter the question"
-              value={questions[index]}
-              onChange={(_event, value) => handleInputChange(index, 'question', value)}
+
+          {actionGroupAlertContent && (
+            <Alert
+              variant={actionGroupAlertContent.success ? 'success' : 'danger'}
+              title={actionGroupAlertContent.title}
+              timeout={10000}
+              onTimeout={onCloseActionGroupAlert}
+              actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
+            >
+              <p>
+                {actionGroupAlertContent.message}
+                <br />
+                {actionGroupAlertContent.success && actionGroupAlertContent.url && actionGroupAlertContent.url.trim().length > 0 && (
+                  <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
+                    View your pull request
+                  </a>
+                )}
+              </p>
+            </Alert>
+          )}
+
+          <ActionGroup>
+            {skillEditFormData?.isEditForm && (
+              <Update
+                disableAction={disableAction}
+                skillFormData={skillFormData}
+                pullRequestNumber={skillEditFormData.pullRequestNumber}
+                setActionGroupAlertContent={setActionGroupAlertContent}
+                yamlFile={skillEditFormData.yamlFile}
+                attributionFile={skillEditFormData.attributionFile}
+                branchName={skillEditFormData.branchName}
+              />
+            )}
+            {!skillEditFormData?.isEditForm && (
+              <Submit
+                disableAction={disableAction}
+                skillFormData={skillFormData}
+                setActionGroupAlertContent={setActionGroupAlertContent}
+                githubUsername={githubUsername}
+                resetForm={resetForm}
+              />
+            )}
+            <DownloadDropdown
+              disableAction={disableAction}
+              skillFormData={skillFormData}
+              setActionGroupAlertContent={setActionGroupAlertContent}
+              githubUsername={githubUsername}
             />
-            <TextArea
-              type="text"
-              aria-label={`Context ${index + 1}`}
-              placeholder="Enter the context (Optional)"
-              value={contexts[index]}
-              onChange={(_event, value) => handleInputChange(index, 'context', value)}
-            />
-            <TextArea
-              isRequired
-              type="text"
-              aria-label={`Answer ${index + 1}`}
-              placeholder="Enter the answer"
-              value={answers[index]}
-              onChange={(_event, value) => handleInputChange(index, 'answer', value)}
-            />
-            <Button variant="danger" onClick={() => deleteQuestionAnswerPair(index)}>
-              <MinusCircleIcon /> Delete
+            <ViewDropdown disableAction={disableAction} skillFormData={skillFormData} githubUsername={githubUsername} />
+            <Button variant="link" type="button" onClick={handleCancel}>
+              Cancel
             </Button>
-          </FormGroup>
-        ))}
-        <Button variant="primary" onClick={addQuestionAnswerPair}>
-          <PlusIcon /> Add Question and Answer
-        </Button>
-      </FormFieldGroupExpandable>
-
-      <FormFieldGroupExpandable
-        toggleAriaLabel="Details"
-        header={
-          <FormFieldGroupHeader
-            titleText={{ text: 'Attribution Info', id: 'attribution-info-id' }}
-            titleDescription="Provide attribution information."
-          />
-        }
-      >
-        <FormGroup isRequired key={'attribution-info-details-id'}>
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="title_work"
-            placeholder="Enter title of work"
-            value={title_work}
-            onChange={(_event, value) => setTitleWork(value)}
-          />
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="license_work"
-            placeholder="Enter license of the work"
-            value={license_work}
-            onChange={(_event, value) => setLicenseWork(value)}
-          />
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="creators"
-            placeholder="Enter creators Name"
-            value={creators}
-            onChange={(_event, value) => setCreators(value)}
-          />
-        </FormGroup>
-      </FormFieldGroupExpandable>
-      {isSuccessAlertVisible && (
-        <Alert
-          variant="success"
-          title={success_alert_title}
-          timeout={15000}
-          onTimeout={onCloseSuccessAlert}
-          actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}
-          actionLinks={
-            <AlertActionLink component="a" href={success_alert_message} target="_blank" rel="noopener noreferrer">
-              View your pull request
-            </AlertActionLink>
-          }
-        >
-          Thank you for your contribution!
-        </Alert>
-      )}
-      {isFailureAlertVisible && (
-        <Alert
-          variant="danger"
-          title={failure_alert_title}
-          timeout={15000}
-          onTimeout={onCloseFailureAlert}
-          actionClose={<AlertActionCloseButton onClose={onCloseFailureAlert} />}
-        >
-          {failure_alert_message}
-        </Alert>
-      )}
-      <ActionGroup>
-        <Button variant="primary" type="submit" onClick={handleSubmit}>
-          Submit Skill
-        </Button>
-        <Button variant="primary" type="button" onClick={handleDownloadYaml}>
-          Download YAML
-        </Button>
-        <Button variant="primary" type="button" onClick={handleDownloadAttribution}>
-          Download Attribution
-        </Button>
-      </ActionGroup>
-    </Form>
+          </ActionGroup>
+        </Form>
+      </PageSection>
+    </PageGroup>
   );
 };
+
+export default SkillForm;

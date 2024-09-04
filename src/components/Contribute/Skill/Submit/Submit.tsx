@@ -1,13 +1,13 @@
 import React from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ActionGroupAlertContent, KnowledgeFormData } from '..';
-import { AttributionData, KnowledgeYamlData, KnowledgeSchemaVersion } from '@/types';
+import { ActionGroupAlertContent, SkillFormData } from '..';
+import { AttributionData, SkillYamlData, SkillSchemaVersion } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '../validation';
 
 interface Props {
   disableAction: boolean;
-  knowledgeFormData: KnowledgeFormData;
+  skillFormData: SkillFormData;
   setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
   githubUsername: string | undefined;
   resetForm: () => void;
@@ -15,49 +15,42 @@ interface Props {
 
 // temporary location of these validation functions. Once the Skills form has been refactored then these can be moved out to the utils file.
 
-const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGroupAlertContent, githubUsername, resetForm }) => {
+const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupAlertContent, githubUsername, resetForm }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!validateFields(knowledgeFormData, setActionGroupAlertContent)) return;
+    if (!validateFields(skillFormData, setActionGroupAlertContent)) return;
 
+    console.log('skillFormData :' + skillFormData);
     // Strip leading slash and ensure trailing slash in the file path
-    let sanitizedFilePath = knowledgeFormData.filePath!.startsWith('/') ? knowledgeFormData.filePath!.slice(1) : knowledgeFormData.filePath;
+    let sanitizedFilePath = skillFormData.filePath!.startsWith('/') ? skillFormData.filePath!.slice(1) : skillFormData.filePath;
     sanitizedFilePath = sanitizedFilePath!.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
-    const knowledgeYamlData: KnowledgeYamlData = {
+    const skillYamlData: SkillYamlData = {
       created_by: githubUsername!,
-      version: KnowledgeSchemaVersion,
-      domain: knowledgeFormData.domain!,
-      document_outline: knowledgeFormData.documentOutline!,
-      seed_examples: knowledgeFormData.seedExamples.map((example) => ({
+      version: SkillSchemaVersion,
+      task_description: skillFormData.documentOutline!,
+      seed_examples: skillFormData.seedExamples.map((example) => ({
         context: example.context,
-        questions_and_answers: example.questionAndAnswers.map((questionAndAnswer) => ({
-          question: questionAndAnswer.question,
-          answer: questionAndAnswer.answer
-        }))
-      })),
-      document: {
-        repo: knowledgeFormData.knowledgeDocumentRepositoryUrl!,
-        commit: knowledgeFormData.knowledgeDocumentCommit!,
-        patterns: knowledgeFormData.documentName!.split(',').map((pattern) => pattern.trim())
-      }
+        question: example.question,
+        answer: example.answer
+      }))
     };
 
-    const yamlString = dumpYaml(knowledgeYamlData);
+    const yamlString = dumpYaml(skillYamlData);
 
     const attributionData: AttributionData = {
-      title_of_work: knowledgeFormData.titleWork!,
-      link_to_work: knowledgeFormData.linkWork!,
-      revision: knowledgeFormData.revision!,
-      license_of_the_work: knowledgeFormData.licenseWork!,
-      creator_names: knowledgeFormData.creators!
+      title_of_work: skillFormData.titleWork!,
+      license_of_the_work: skillFormData.licenseWork!,
+      creator_names: skillFormData.creators!,
+      link_to_work: '',
+      revision: ''
     };
 
-    const name = knowledgeFormData.name;
-    const email = knowledgeFormData.email;
-    const submissionSummary = knowledgeFormData.submissionSummary;
-    const documentOutline = knowledgeFormData.documentOutline;
-    const response = await fetch('/api/pr/knowledge', {
+    const name = skillFormData.name;
+    const email = skillFormData.email;
+    const submissionSummary = skillFormData.submissionSummary;
+    const documentOutline = skillFormData.documentOutline;
+    const response = await fetch('/api/pr/skill', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -85,7 +78,7 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
 
     const result = await response.json();
     const actionGroupAlertContent: ActionGroupAlertContent = {
-      title: 'Knowledge contribution submitted successfully!',
+      title: 'Skill contribution submitted successfully!',
       message: `Thank you for your contribution!`,
       url: `${result.html_url}`,
       success: true
@@ -95,7 +88,7 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
   };
   return (
     <Button variant="primary" type="submit" isDisabled={disableAction} onClick={handleSubmit}>
-      Submit Knowledge
+      Submit Skill
     </Button>
   );
 };
