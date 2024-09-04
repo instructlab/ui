@@ -13,8 +13,8 @@ FROM alpine:3.14
 # Copy the binary from the previous stage
 COPY --from=builder /go/bin/pathservice /pathservice
 
-# Expose the port 4444 to the outside world
-EXPOSE 4444
+# Expose the port 4000 to the outside world
+EXPOSE 4000
 
 # Command to run the executable
 CMD ["/pathservice"]
