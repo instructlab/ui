@@ -61,7 +61,7 @@ export const validateFields = (
   const { duplicate, index } = hasDuplicateSeedExamples(skillFormData.seedExamples);
   if (duplicate) {
     skillFormData.seedExamples[index].isQuestionValid = ValidatedOptions.error;
-    skillFormData.seedExamples[index].questionValidationError = 'This is duplicate question, please provide unique contexts.';
+    skillFormData.seedExamples[index].questionValidationError = 'This is duplicate question, please provide unique questions.';
     const actionGroupAlertContent: ActionGroupAlertContent = {
       title: `Seed example issue!`,
       message: `Seed example ${index + 1} question is duplicate. Please provide unique questions.`,

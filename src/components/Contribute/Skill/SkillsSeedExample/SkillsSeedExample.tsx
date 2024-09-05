@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { TrashIcon, PlusCircleIcon, ExclamationCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
+import { TrashIcon, PlusCircleIcon, ExclamationCircleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
 import { SeedExample } from '..';
 import { TextArea } from '@patternfly/react-core/dist/esm/components/TextArea';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
@@ -32,6 +32,7 @@ const SkillsSeedExample: React.FC<Props> = ({
 }) => {
   return (
     <FormFieldGroupExpandable
+      style={{ justifyContent: 'left' }}
       isExpanded
       toggleAriaLabel="Details"
       header={
@@ -44,7 +45,16 @@ const SkillsSeedExample: React.FC<Props> = ({
             ),
             id: 'seed-examples-id'
           }}
-          titleDescription="Add seed examples with Q&A pair and context (optional). Minimum 5 seed examples are required."
+          titleDescription={
+            <p>
+              Add seed examples with question and answer pair and related context (optional). Minimum 5 seed examples are required.{' '}
+              <a href="https://docs.instructlab.ai/taxonomy/skills/#skills-yaml-examples" target="_blank" rel="noopener noreferrer">
+                {' '}
+                Learn more about seed examples
+                <ExternalLinkAltIcon style={{ padding: '3px' }}></ExternalLinkAltIcon>
+              </a>
+            </p>
+          }
         />
       }
     >
@@ -58,12 +68,11 @@ const SkillsSeedExample: React.FC<Props> = ({
               titleText={{
                 text: (
                   <p>
-                    Skill Seed Example {seedExampleIndex + 1} {seedExample.immutable && <span style={{ color: 'red' }}>*</span>}
+                    Seed Example {seedExampleIndex + 1} {seedExample.immutable && <span style={{ color: 'red' }}>*</span>}
                   </p>
                 ),
                 id: 'nested-field-group1-titleText-id'
               }}
-              titleDescription="Please enter question and answer for the seed example. Context is recommended but not required."
               actions={
                 !seedExample.immutable && (
                   <Button variant="plain" aria-label="Remove" onClick={() => deleteSeedExample(seedExampleIndex)}>
@@ -130,9 +139,11 @@ const SkillsSeedExample: React.FC<Props> = ({
           </FormGroup>
         </FormFieldGroupExpandable>
       ))}
-      <Button variant="link" onClick={addSeedExample}>
-        <PlusCircleIcon /> Add Seed Example
-      </Button>
+      <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+        <Button variant="link" type="button" onClick={addSeedExample}>
+          <PlusCircleIcon /> Add Seed Example
+        </Button>
+      </div>
     </FormFieldGroupExpandable>
   );
 };

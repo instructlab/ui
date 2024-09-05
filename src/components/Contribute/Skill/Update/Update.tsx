@@ -8,6 +8,7 @@ import { amendCommit, getGitHubUsername, updatePullRequest } from '@/utils/githu
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
+const SKILLS_DIR = 'compositional_skills/';
 interface Props {
   disableAction: boolean;
   skillFormData: SkillFormData;
@@ -75,8 +76,9 @@ Creator names: ${attributionData.creator_names}
         const commitMessage = `Amend commit with updated content\n\nSigned-off-by: ${skillFormData.name} <${skillFormData.email}>`;
 
         // Ensure proper file paths for the edit
-        const finalYamlPath = skillFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + yamlFile.filename.split('/').pop();
-        const finalAttributionPath = skillFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + attributionFile.filename.split('/').pop();
+        const finalYamlPath = SKILLS_DIR + skillFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + yamlFile.filename.split('/').pop();
+        const finalAttributionPath =
+          SKILLS_DIR + skillFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + attributionFile.filename.split('/').pop();
 
         const origFilePath = yamlFile.filename.split('/').slice(0, -1).join('/');
         const oldFilePath = {
