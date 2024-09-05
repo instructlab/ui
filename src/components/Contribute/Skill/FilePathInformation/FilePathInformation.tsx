@@ -18,12 +18,12 @@ const FilePathInformation: React.FC<Props> = ({ reset, path, setFilePath }) => {
           titleText={{
             text: (
               <p>
-                File Path Info <span style={{ color: 'red' }}>*</span>
+                Taxonomy Directory Path <span style={{ color: 'red' }}>*</span>
               </p>
             ),
             id: 'file-path-info-id'
           }}
-          titleDescription="Specify the file path for the QnA and Attribution files."
+          titleDescription="Specify the directory location within taxonomy repository structure for the QnA Yaml and Attribution files."
         />
       }
     >

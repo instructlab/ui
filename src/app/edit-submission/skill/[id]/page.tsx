@@ -88,7 +88,7 @@ const EditSkillPage: React.FunctionComponent<{ params: { id: string } }> = ({ pa
           skillExistingFormData.seedExamples = seedExamples;
 
           // Set the file path from the current YAML file (Note: skills root directory starts from the repo root)
-          const currentFilePath = foundYamlFile.filename.split('/').slice(0, -1).join('/');
+          const currentFilePath = foundYamlFile.filename.split('/').slice(1, -1).join('/');
           skillEditFormData.skillFormData.filePath = currentFilePath + '/';
 
           // Fetch and parse attribution file if it exists

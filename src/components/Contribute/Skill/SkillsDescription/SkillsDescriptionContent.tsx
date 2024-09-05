@@ -7,14 +7,18 @@ const SkillsDescriptionContent: React.FunctionComponent = () => {
     <div>
       <b>
         <br />
-        <p>Skills in InstructLab come in two main types:</p>
         <p>
-          1) Compositional Skills - These are skills that are performative and you are teaching the model how to do tasks like &quot;write me a
-          song&quot; or &quot;summarize an email&quot;. <br />
-          2) Core Skills - Core skills are foundational like math, reasoning and coding.
-          <a href="https://github.com/instructlab/taxonomy/blob/main/docs/SKILLS_GUIDE.md" target="_blank">
+          Skills are performative. When you create a skill for the model, you are teaching it how to do something: &quot;write me a song,&quot;
+          &quot;rearrange words in a sentence&quot; or &quot;summarize an email.&quot;
+          <a href="https://docs.instructlab.ai/taxonomy/skills/skills_guide/#what-is-a-skill" target="_blank" rel="noopener noreferrer">
             <Button variant="link" aria-label="Learn more about what Skills are in InstructLab">
-              Learn More
+              Learn more about skills
+              <ExternalLinkAltIcon style={{ padding: '3px' }}></ExternalLinkAltIcon>
+            </Button>
+          </a>
+          <a href="https://docs.instructlab.ai/taxonomy/skills/" target="_blank" rel="noopener noreferrer">
+            <Button variant="link" aria-label="Learn more about what Skills are in InstructLab">
+              Getting started with skills contribution
               <ExternalLinkAltIcon style={{ padding: '3px' }}></ExternalLinkAltIcon>
             </Button>
           </a>

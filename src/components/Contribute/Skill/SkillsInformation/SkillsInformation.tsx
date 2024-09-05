@@ -76,7 +76,7 @@ const SkillsInformation: React.FC<Props> = ({
           titleText={{
             text: (
               <p>
-                Skills Info <span style={{ color: 'red' }}>*</span>
+                Skill Information <span style={{ color: 'red' }}>*</span>
               </p>
             ),
             id: 'skills-info-id'

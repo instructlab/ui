@@ -88,7 +88,7 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
   };
   return (
     <Button variant="primary" type="submit" isDisabled={disableAction} onClick={handleSubmit}>
-      Submit Skill
+      Submit
     </Button>
   );
 };

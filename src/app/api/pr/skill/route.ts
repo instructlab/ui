@@ -7,6 +7,7 @@ import { SkillYamlData, AttributionData } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
 
 const GITHUB_API_URL = 'https://api.github.com';
+const SKILLS_DIR = 'compositional_skills';
 const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
 const UPSTREAM_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_REPO!;
 const BASE_BRANCH = 'main';
@@ -42,8 +43,8 @@ export async function POST(req: NextRequest) {
     }
 
     const branchName = `skill-contribution-${Date.now()}`;
-    const newYamlFilePath = `${filePath}qna.yaml`;
-    const newAttributionFilePath = `${filePath}attribution.txt`;
+    const newYamlFilePath = `${SKILLS_DIR}/${filePath}qna.yaml`;
+    const newAttributionFilePath = `${SKILLS_DIR}/${filePath}attribution.txt`;
 
     const skillData = yaml.load(content) as SkillYamlData;
     const attributionData = attribution as AttributionData;

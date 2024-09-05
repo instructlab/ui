@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -27,7 +26,7 @@ const (
 	repoDir         = "/tmp/taxonomy"
 	checkInterval   = 1 * time.Minute // Interval for checking updates
 	serviceLogLevel = "IL_UI_DEPLOYMENT"
-	SKILLS          = "skills/"
+	SKILLS          = "compositional_skills/" // Currently, we are only supporting compositional skills
 	KNOWLEDGE       = "knowledge/"
 )
 
@@ -148,47 +147,18 @@ func (ps *PathService) checkForUpdates(ctx context.Context, wg *sync.WaitGroup, 
 
 }
 
-func (ps *PathService) skillPathHandler(w http.ResponseWriter, r *http.Request) {
-	dirName := r.URL.Query().Get("dir_name")
-
-	var subDirs []string
-	var levelOne bool
-	if dirName == "" {
-		levelOne = true
-	}
-
-	dirPath := filepath.Join(repoDir, dirName)
-	entries, err := os.ReadDir(dirPath)
-	if err != nil {
-		http.Error(w, "Directory path doesn't exist", http.StatusInternalServerError)
-		return
-	}
-
-	for _, entry := range entries {
-		if entry.IsDir() {
-			// If we are at root level, then only return directories ending with skills
-			if levelOne && !strings.HasSuffix(entry.Name(), "skills") {
-				continue
-			}
-			subDirs = append(subDirs, entry.Name())
-		}
-	}
-	response, err := json.Marshal(subDirs)
-	if err != nil {
-		http.Error(w, "Error creating response", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Write(response)
+func (ps *PathService) skillPathHandler(w http.ResponseWriter, r *http.Request){
+	ps.pathHandler(w, r, SKILLS)
 }
 
-func (ps *PathService) knowledgePathHandler(w http.ResponseWriter, r *http.Request) {
+func (ps *PathService) knowledgePathHandler(w http.ResponseWriter, r *http.Request){
+	ps.pathHandler(w, r, KNOWLEDGE)
+}
+
+func (ps *PathService) pathHandler(w http.ResponseWriter, r *http.Request, rootDir string) {
 	dirName := r.URL.Query().Get("dir_name")
 
-	// Knowledge taxonomy tree is present in the knowledge directory
-	dirName = KNOWLEDGE + dirName
+	dirName = rootDir + dirName
 	var subDirs []string
 	dirPath := filepath.Join(repoDir, dirName)
 	entries, err := os.ReadDir(dirPath)
@@ -202,7 +172,6 @@ func (ps *PathService) knowledgePathHandler(w http.ResponseWriter, r *http.Reque
 			subDirs = append(subDirs, entry.Name())
 		}
 	}
-
 	response, err := json.Marshal(subDirs)
 	if err != nil {
 		http.Error(w, "Error creating response", http.StatusInternalServerError)

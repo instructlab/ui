@@ -92,7 +92,7 @@ const AttributionInformation: React.FC<Props> = ({
           titleText={{
             text: (
               <p>
-                Attribution Info <span style={{ color: 'red' }}>*</span>
+                Attribution Information <span style={{ color: 'red' }}>*</span>
               </p>
             ),
             id: 'attribution-info-id'

@@ -106,7 +106,7 @@ const EditKnowledgePage: React.FunctionComponent<{ params: { id: string } }> = (
           });
           knowledgeExistingFormData.seedExamples = seedExamples;
 
-          // Set the file path from the current YAML file
+          // Set the file path from the current YAML file (remove the root folder name from the path)
           const currentFilePath = foundYamlFile.filename.split('/').slice(1, -1).join('/');
           knowledgeEditFormData.knowledgeFormData.filePath = currentFilePath + '/';
 
