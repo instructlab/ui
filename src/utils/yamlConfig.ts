@@ -58,20 +58,22 @@ function filterEmptyContext(data: unknown): unknown {
 function trimTrailingSpaces(yamlString: string): string {
   const hasTrailingNewline = yamlString.endsWith('\n');
   const lines = yamlString.split('\n');
-  const trimmedLines = lines.map((line, index) => {
-    if (index === lines.length - 1 && line === '' && hasTrailingNewline) {
+  const trimmedLines = lines
+    .map((line, index) => {
+      if (index === lines.length - 1 && line === '' && hasTrailingNewline) {
+        return undefined;
+      }
+      // Preserve empty lines
+      if (line.trim() === '') return '';
+      // Trim trailing spaces, preserving indentation
+      const match = line.match(/^(\s*)(.*)$/);
+      if (match) {
+        const [, indent, content] = match;
+        return indent + content.trimEnd();
+      }
       return line;
-    }
-    // Preserve empty lines
-    if (line.trim() === '') return '';
-    // Trim trailing spaces, preserving indentation
-    const match = line.match(/^(\s*)(.*)$/);
-    if (match) {
-      const [, indent, content] = match;
-      return indent + content.trimEnd();
-    }
-    return line;
-  });
+    })
+    .filter((line) => line !== undefined);
 
   return trimmedLines.join('\n');
 }
