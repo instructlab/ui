@@ -47,6 +47,11 @@ ps-image: Containerfile.ps ## Build continaer image for the pathservice
 	$(CMD_PREFIX) docker build -f Containerfile.ps -t ghcr.io/instructlab/ui/pathservice:$(TAG) .
 	$(CMD_PREFIX) docker tag ghcr.io/instructlab/ui/pathservice:$(TAG) ghcr.io/instructlab/ui/pathservice:main
 
+duckbill-image: duckbill/Containerfile ## Build continaer image for the pathservice
+	$(ECHO_PREFIX) printf "  %-12s duckbill/Containerfile\n" "[docker]"
+	$(CMD_PREFIX) docker build -f duckbill/Containerfile --platform linux/amd64 -t ghcr.io/instructlab/ui/duckbill:$(TAG) ./duckbill
+	$(CMD_PREFIX) docker tag ghcr.io/instructlab/ui/duckbill:$(TAG) quay.io/instructlab-ui/docling:main
+
 ##@ Local Dev - Run the stack (UI and PathService) on your local machine
 .PHONY: stop-dev-local
 stop-dev-local:  ## Stop the npm and pathservice local instances
