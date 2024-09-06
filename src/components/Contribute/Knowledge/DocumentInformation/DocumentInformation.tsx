@@ -212,7 +212,7 @@ const DocumentInformation: React.FC<Props> = ({
           titleText={{
             text: (
               <p>
-                Document Info <span style={{ color: 'red' }}>*</span>
+                Document Information <span style={{ color: 'red' }}>*</span>
               </p>
             ),
             id: 'doc-info-id'

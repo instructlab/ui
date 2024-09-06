@@ -1,7 +1,5 @@
 import React from 'react';
 import { FormFieldGroupExpandable, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { TrashIcon, PlusCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
 import KnowledgeQuestionAnswerPairs from '../KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs';
 import { SeedExample } from '..';
 
@@ -13,10 +11,6 @@ interface Props {
   handleQuestionBlur: (seedExampleIndex: number, questionAndAnswerIndex: number) => void;
   handleAnswerInputChange: (seedExampleIndex: number, questionAndAnswerIndex: number, answerValue: string) => void;
   handleAnswerBlur: (seedExampleIndex: number, questionAndAnswerIndex: number) => void;
-  deleteQuestionAnswerPair: (seedExampleIndex: number, questionAnswerIndex: number) => void;
-  addQuestionAnswerPair: (seedExampleIndex: number) => void;
-  addSeedExample: () => void;
-  deleteSeedExample: (seedExampleIndex: number) => void;
 }
 
 const KnowledgeSeedExample: React.FC<Props> = ({
@@ -26,11 +20,7 @@ const KnowledgeSeedExample: React.FC<Props> = ({
   handleQuestionInputChange,
   handleQuestionBlur,
   handleAnswerInputChange,
-  handleAnswerBlur,
-  deleteQuestionAnswerPair,
-  addQuestionAnswerPair,
-  addSeedExample,
-  deleteSeedExample
+  handleAnswerBlur
 }) => {
   return (
     <FormFieldGroupExpandable
@@ -66,13 +56,6 @@ const KnowledgeSeedExample: React.FC<Props> = ({
                 id: 'nested-field-group1-titleText-id'
               }}
               titleDescription="Please enter context and at least 3 Q&A pairs for the seed example."
-              actions={
-                !seedExample.immutable && (
-                  <Button variant="plain" aria-label="Remove" onClick={() => deleteSeedExample(seedExampleIndex)}>
-                    <TrashIcon />
-                  </Button>
-                )
-              }
             />
           }
         >
@@ -85,14 +68,9 @@ const KnowledgeSeedExample: React.FC<Props> = ({
             handleQuestionBlur={handleQuestionBlur}
             handleAnswerInputChange={handleAnswerInputChange}
             handleAnswerBlur={handleAnswerBlur}
-            deleteQuestionAnswerPair={deleteQuestionAnswerPair}
-            addQuestionAnswerPair={addQuestionAnswerPair}
           />
         </FormFieldGroupExpandable>
       ))}
-      <Button variant="link" onClick={addSeedExample}>
-        <PlusCircleIcon /> Add Seed Example
-      </Button>
     </FormFieldGroupExpandable>
   );
 };
