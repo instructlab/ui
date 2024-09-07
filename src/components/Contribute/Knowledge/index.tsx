@@ -331,6 +331,51 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     );
   };
 
+  // New function to handle the button click and generate Q&A pairs
+  const handleGenerateQA = async (seedExampleIndex: number) => {
+    try {
+      // Ensure seedExampleIndex is valid
+      if (seedExampleIndex < 0 || seedExampleIndex >= seedExamples.length) {
+        throw new Error('Invalid seed example index');
+      }
+
+      const context = seedExamples[seedExampleIndex].context;
+      const prompt = `Generate 3 question and answer pairs from the provided context. The output should be in the form of "Question 1" and "Answer 1" and next "Question 2" and "Answer 2" and so on. Here is the context:\n${context}`;
+
+      // Make a request to the server-side route
+      const response = await fetch('/api/pr/qnaGen', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ question: prompt, systemRole: 'user' })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate Q&A pairs');
+      }
+
+      const data = await response.json();
+
+      // Parse the response to extract Q&A pairs
+      const updatedQAPairs = seedExamples[seedExampleIndex].questionAndAnswers.map((qaPair, i) => {
+        const questionMatch = data.match(new RegExp(`Question ${i + 1}: (.*?)(?:Answer|$)`));
+        const answerMatch = data.match(new RegExp(`Answer ${i + 1}: (.*?)(?:Question|$)`));
+
+        return {
+          ...qaPair,
+          question: questionMatch ? questionMatch[1].trim() : qaPair.question,
+          answer: answerMatch ? answerMatch[1].trim() : qaPair.answer
+        };
+      });
+
+      // Update state with new Q&A pairs
+      setSeedExamples(seedExamples.map((example, i) => (i === seedExampleIndex ? { ...example, questionAndAnswers: updatedQAPairs } : example)));
+    } catch (error) {
+      console.error('Error generating Q&A pairs:', error);
+    }
+  };
+
   const onCloseActionGroupAlert = () => {
     setActionGroupAlertContent(undefined);
   };
@@ -429,15 +474,25 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             setFilePath={setFilePath}
           />
 
-          <KnowledgeSeedExample
-            seedExamples={seedExamples}
-            handleContextInputChange={handleContextInputChange}
-            handleContextBlur={handleContextBlur}
-            handleQuestionInputChange={handleQuestionInputChange}
-            handleQuestionBlur={handleQuestionBlur}
-            handleAnswerInputChange={handleAnswerInputChange}
-            handleAnswerBlur={handleAnswerBlur}
-          />
+          {/* Iterate over each seed example and display it */}
+          {seedExamples.map((seedExample, index) => (
+            <div key={index}>
+              <KnowledgeSeedExample
+                seedExamples={[seedExample]} // Pass each individual seed example
+                handleContextInputChange={(contextValue) => handleContextInputChange(index, contextValue)}
+                handleContextBlur={() => handleContextBlur(index)}
+                handleQuestionInputChange={(qaIndex, questionValue) => handleQuestionInputChange(index, qaIndex, questionValue)}
+                handleQuestionBlur={(qaIndex) => handleQuestionBlur(index, qaIndex)}
+                handleAnswerInputChange={(qaIndex, answerValue) => handleAnswerInputChange(index, qaIndex, answerValue)}
+                handleAnswerBlur={(qaIndex) => handleAnswerBlur(index, qaIndex)}
+              />
+
+              {/* New Button to Generate Q&A Pairs for each seed example */}
+              <Button variant="primary" onClick={() => handleGenerateQA(index)}>
+                Generate Q&A Pairs
+              </Button>
+            </div>
+          ))}
 
           <DocumentInformation
             reset={reset}
