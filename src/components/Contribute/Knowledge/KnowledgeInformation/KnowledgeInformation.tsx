@@ -94,7 +94,7 @@ const KnowledgeInformation: React.FC<Props> = ({
           titleText={{
             text: (
               <p>
-                Knowledge Info <span style={{ color: 'red' }}>*</span>
+                Knowledge Information <span style={{ color: 'red' }}>*</span>
               </p>
             ),
             id: 'knowledge-info-id'

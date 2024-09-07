@@ -1,8 +1,7 @@
 import React from 'react';
 import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { TrashIcon, PlusCircleIcon, ExclamationCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
+import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
 import { QuestionAndAnswerPair, SeedExample } from '..';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
@@ -17,8 +16,6 @@ interface Props {
   handleQuestionBlur: (seedExampleIndex: number, questionAndAnswerIndex: number) => void;
   handleAnswerInputChange: (seedExampleIndex: number, questionAndAnswerIndex: number, answerValue: string) => void;
   handleAnswerBlur: (seedExampleIndex: number, questionAndAnswerIndex: number) => void;
-  deleteQuestionAnswerPair: (seedExampleIndex: number, questionAnswerIndex: number) => void;
-  addQuestionAnswerPair: (seedExampleIndex: number) => void;
 }
 
 const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
@@ -29,9 +26,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
   handleQuestionInputChange,
   handleQuestionBlur,
   handleAnswerInputChange,
-  handleAnswerBlur,
-  deleteQuestionAnswerPair,
-  addQuestionAnswerPair
+  handleAnswerBlur
 }) => {
   return (
     <FormGroup key={seedExampleIndex}>
@@ -72,13 +67,6 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
                 ),
                 id: 'nested-field-group1-titleText-id'
               }}
-              actions={
-                !seedExample.questionAndAnswers[questionAnswerIndex].immutable && (
-                  <Button variant="plain" aria-label="Remove" onClick={() => deleteQuestionAnswerPair(seedExampleIndex, questionAnswerIndex)}>
-                    <TrashIcon />
-                  </Button>
-                )
-              }
             />
           }
         >
@@ -128,11 +116,6 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
           </React.Fragment>
         </FormFieldGroupExpandable>
       ))}
-      <div style={{ marginTop: '10px', marginBottom: '20px', textAlign: 'right' }}>
-        <Button variant="link" onClick={() => addQuestionAnswerPair(seedExampleIndex)}>
-          <PlusCircleIcon /> Add Q&A Pair
-        </Button>
-      </div>
     </FormGroup>
   );
 };

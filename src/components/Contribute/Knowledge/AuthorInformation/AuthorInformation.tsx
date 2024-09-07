@@ -58,7 +58,7 @@ const AuthorInformation: React.FC<Props> = ({ reset, knowledgeFormData, setDisab
           titleText={{
             text: (
               <p>
-                Author Info <span style={{ color: 'red' }}>*</span>
+                Author Information <span style={{ color: 'red' }}>*</span>
               </p>
             ),
             id: 'author-info-id'

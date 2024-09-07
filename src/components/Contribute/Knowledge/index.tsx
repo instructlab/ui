@@ -331,54 +331,6 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     );
   };
 
-  const addQuestionAnswerPair = (seedExampleIndex: number): void => {
-    const newQuestionAnswerPair: QuestionAndAnswerPair = {
-      immutable: false,
-      question: '',
-      isQuestionValid: ValidatedOptions.default,
-      answer: '',
-      isAnswerValid: ValidatedOptions.default
-    };
-    setSeedExamples(
-      seedExamples.map((seedExample: SeedExample, index: number) =>
-        index === seedExampleIndex
-          ? {
-              ...seedExample,
-              questionAndAnswers: [...seedExample.questionAndAnswers, newQuestionAnswerPair]
-            }
-          : seedExample
-      )
-    );
-    setDisableAction(true);
-  };
-
-  const deleteQuestionAnswerPair = (seedExampleIndex: number, questionAnswerIndex: number): void => {
-    setSeedExamples(
-      seedExamples.map((seedExample: SeedExample, index: number) =>
-        index === seedExampleIndex
-          ? {
-              ...seedExample,
-              questionAndAnswers: seedExample.questionAndAnswers.filter((_, i) => i !== questionAnswerIndex)
-            }
-          : seedExample
-      )
-    );
-    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
-  };
-
-  const addSeedExample = (): void => {
-    const seedExample = emptySeedExample;
-    seedExample.immutable = false;
-    seedExample.isExpanded = true;
-    setSeedExamples([...seedExamples, seedExample]);
-    setDisableAction(true);
-  };
-
-  const deleteSeedExample = (seedExampleIndex: number): void => {
-    setSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
-    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
-  };
-
   const onCloseActionGroupAlert = () => {
     setActionGroupAlertContent(undefined);
   };
@@ -485,10 +437,6 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             handleQuestionBlur={handleQuestionBlur}
             handleAnswerInputChange={handleAnswerInputChange}
             handleAnswerBlur={handleAnswerBlur}
-            deleteQuestionAnswerPair={deleteQuestionAnswerPair}
-            addQuestionAnswerPair={addQuestionAnswerPair}
-            addSeedExample={addSeedExample}
-            deleteSeedExample={deleteSeedExample}
           />
 
           <DocumentInformation
