@@ -1,8 +1,8 @@
-// src/components/Contribute/Knowledge/index.tsx
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 import './knowledge.css';
 import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Modal } from '@patternfly/react-core/dist/esm/components/Modal/Modal';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { getGitHubUsername } from '../../../utils/github';
@@ -121,7 +121,8 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
 
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
-
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState('');
   const router = useRouter();
 
   const emptySeedExample: SeedExample = {
@@ -331,48 +332,50 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     );
   };
 
-  // New function to handle the button click and generate Q&A pairs
-  const handleGenerateQA = async (seedExampleIndex: number) => {
+  const handleGenerateQAPairs = async (seedExampleIndex: number) => {
+    const context = seedExamples[seedExampleIndex].context;
+    const userContent = `Generate 3 question and answer pairs from the provided context. The output should be in the form of "Question 1" and "Answer 1" and next "Question 2" and "Answer 2" and then "Question 3" and "Answer 3". Only reply with the question and answers, no other content or commentary. Here is the context: ${context}`;
+
     try {
-      // Ensure seedExampleIndex is valid
-      if (seedExampleIndex < 0 || seedExampleIndex >= seedExamples.length) {
-        throw new Error('Invalid seed example index');
-      }
-
-      const context = seedExamples[seedExampleIndex].context;
-      const prompt = `Generate 3 question and answer pairs from the provided context. The output should be in the form of "Question 1" and "Answer 1" and next "Question 2" and "Answer 2" and so on. Here is the context:\n${context}`;
-
-      // Make a request to the server-side route
       const response = await fetch('/api/pr/qnaGen', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ question: prompt, systemRole: 'user' })
+        body: JSON.stringify({
+          question: userContent,
+          systemRole: 'user'
+        })
       });
 
       if (!response.ok) {
         throw new Error('Failed to generate Q&A pairs');
       }
 
-      const data = await response.json();
+      const result = await response.json();
+      const generatedContent = result.choices[0].message.content;
 
-      // Parse the response to extract Q&A pairs
-      const updatedQAPairs = seedExamples[seedExampleIndex].questionAndAnswers.map((qaPair, i) => {
-        const questionMatch = data.match(new RegExp(`Question ${i + 1}: (.*?)(?:Answer|$)`));
-        const answerMatch = data.match(new RegExp(`Answer ${i + 1}: (.*?)(?:Question|$)`));
+      // Parse the QNAs from the LLM response
+      const qaPairs = generatedContent.match(/(Question \d+:.*?Answer \d+:.*?)(?=Question \d+:|$)/gs);
 
-        return {
-          ...qaPair,
-          question: questionMatch ? questionMatch[1].trim() : qaPair.question,
-          answer: answerMatch ? answerMatch[1].trim() : qaPair.answer
-        };
-      });
+      if (qaPairs) {
+        // Format the QNA pairs
+        const formattedContent = qaPairs.map((pair, index) => (
+          <div key={index} style={{ marginBottom: '1rem' }}>
+            <p style={{ fontWeight: 'bold' }}>{pair.split('Answer ')[0].trim()}</p>
+            <p>{pair.split('Answer ')[1].trim()}</p>
+          </div>
+        ));
+        setModalContent(formattedContent);
+      } else {
+        setModalContent('Failed to parse the response from the model.');
+      }
 
-      // Update state with new Q&A pairs
-      setSeedExamples(seedExamples.map((example, i) => (i === seedExampleIndex ? { ...example, questionAndAnswers: updatedQAPairs } : example)));
+      setModalOpen(true);
     } catch (error) {
       console.error('Error generating Q&A pairs:', error);
+      setModalContent('Error generating Q&A pairs.');
+      setModalOpen(true);
     }
   };
 
@@ -397,8 +400,6 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     setFilePath('');
     setSeedExamples([emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample]);
     setDisableAction(true);
-
-    // setReset is just reset button, value has no impact.
     setReset(reset ? false : true);
   };
 
@@ -474,21 +475,20 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             setFilePath={setFilePath}
           />
 
-          {/* Iterate over each seed example and display it */}
-          {seedExamples.map((seedExample, index) => (
-            <div key={index}>
-              <KnowledgeSeedExample
-                seedExamples={[seedExample]} // Pass each individual seed example
-                handleContextInputChange={(contextValue) => handleContextInputChange(index, contextValue)}
-                handleContextBlur={() => handleContextBlur(index)}
-                handleQuestionInputChange={(qaIndex, questionValue) => handleQuestionInputChange(index, qaIndex, questionValue)}
-                handleQuestionBlur={(qaIndex) => handleQuestionBlur(index, qaIndex)}
-                handleAnswerInputChange={(qaIndex, answerValue) => handleAnswerInputChange(index, qaIndex, answerValue)}
-                handleAnswerBlur={(qaIndex) => handleAnswerBlur(index, qaIndex)}
-              />
+          <KnowledgeSeedExample
+            seedExamples={seedExamples}
+            handleContextInputChange={handleContextInputChange}
+            handleContextBlur={handleContextBlur}
+            handleQuestionInputChange={handleQuestionInputChange}
+            handleQuestionBlur={handleQuestionBlur}
+            handleAnswerInputChange={handleAnswerInputChange}
+            handleAnswerBlur={handleAnswerBlur}
+          />
 
-              {/* New Button to Generate Q&A Pairs for each seed example */}
-              <Button variant="primary" onClick={() => handleGenerateQA(index)}>
+          {/* Generate Q&A Button for each Seed Example, TODO: figure out how to nest the buttons under context */}
+          {seedExamples.map((_, index) => (
+            <div key={index}>
+              <Button variant="primary" onClick={() => handleGenerateQAPairs(index)}>
                 Generate Q&A Pairs
               </Button>
             </div>
@@ -578,6 +578,11 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
           </ActionGroup>
         </Form>
       </PageSection>
+
+      {/* Modal for Q&A Pair Results */}
+      <Modal title="Generated Q&A Pairs" isOpen={modalOpen} onClose={() => setModalOpen(false)} variant="small">
+        <div>{modalContent}</div>
+      </Modal>
     </PageGroup>
   );
 };

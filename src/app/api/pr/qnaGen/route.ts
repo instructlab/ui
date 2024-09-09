@@ -6,7 +6,10 @@ import https from 'https';
 
 export async function POST(req: NextRequest) {
   try {
+    console.log('Received POST request');
+
     const { question, systemRole } = await req.json();
+    console.log('Parsed request JSON:', { question, systemRole });
 
     const apiURL = 'https://granite-7b-lab-vllm-openai.apps.fmaas-backend.fmaas.res.ibm.com';
     const modelName = 'instructlab/granite-7b-lab';
@@ -22,6 +25,8 @@ export async function POST(req: NextRequest) {
       stream: false // Disable streaming
     };
 
+    console.log('Request data prepared for API call:', requestData);
+
     const agent = new https.Agent({
       rejectUnauthorized: false
     });
@@ -36,11 +41,17 @@ export async function POST(req: NextRequest) {
       agent: apiURL.startsWith('https') ? agent : undefined
     });
 
+    console.log('API call made to:', `${apiURL}/v1/chat/completions`);
+
     if (!chatResponse.ok) {
+      console.error('Failed to fetch chat response. Status:', chatResponse.status);
+      const errorText = await chatResponse.text();
+      console.error('Response text:', errorText);
       return new NextResponse('Failed to fetch chat response', { status: chatResponse.status });
     }
 
     const result = await chatResponse.json(); // Wait for the complete response
+    console.log('Received response from API:', result);
 
     return new NextResponse(JSON.stringify(result), {
       headers: {
