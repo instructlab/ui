@@ -370,7 +370,6 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
   };
 
   const autoFillForm = (): void => {
-    autoFillKnowledgeFields;
     setEmail(autoFillKnowledgeFields.email);
     setName(autoFillKnowledgeFields.name);
     setDocumentOutline(autoFillKnowledgeFields.documentOutline);
