@@ -1,131 +1,134 @@
-import { KnowledgeFormData, QuestionAndAnswerPair, SeedExample } from ".";
+import { KnowledgeFormData, QuestionAndAnswerPair, SeedExample } from '.';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 
-
-
-
 const questionAndAnswerPairs1: QuestionAndAnswerPair[] = [
-    {
-      immutable: false,
-      question: "What is the brightest star in the Phoenix constellation called?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "Alpha Phoenicis or Ankaa is the brightest star in the Phoenix Constellation.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    },
-    {
-      immutable: false,
-      question: "Where did the Phoenix constellation first appear?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "The Phoenix constellation first appeared on a 35-cm diameter celestial globe published in 1597 (or 1598) in Amsterdam by Plancius with Jodocus Hondius.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    },
-    {
-      immutable: false,
-      question: "What does 'The Bird Phoenix' symbolize?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "'The Bird Phoenix' symbolizes the phoenix of classical mythology.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    }
-  ]
+  {
+    immutable: false,
+    question: 'What is the brightest star in the Phoenix constellation called?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer: 'Alpha Phoenicis or Ankaa is the brightest star in the Phoenix Constellation.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  },
+  {
+    immutable: false,
+    question: 'Where did the Phoenix constellation first appear?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer:
+      'The Phoenix constellation first appeared on a 35-cm diameter celestial globe published in 1597 (or 1598) in Amsterdam by Plancius with Jodocus Hondius.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  },
+  {
+    immutable: false,
+    question: "What does 'The Bird Phoenix' symbolize?",
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer: "'The Bird Phoenix' symbolizes the phoenix of classical mythology.",
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  }
+];
 
-  const questionAndAnswerPairs2: QuestionAndAnswerPair[] = [
-    {
-      immutable: false,
-      question: "What are the characteristics of the Phoenix constellation?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "Phoenix is a small constellation bordered by Fornax and Sculptor to the north, Grus to the west, Tucana to the south, touching on the corner of Hydrus to the south, and Eridanus to the east and southeast. The bright star Achernar is nearby.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    },
-    {
-      immutable: false,
-      question: "When is the phoenix constellation most visible?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "Phoenix is most visible from locations such as Australia and South Africa during late Southern Hemisphere spring.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    },
-    {
-      immutable: false,
-      question: "What are the Phoenix Constellation boundaries?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "The official constellation boundaries for Phoenix, as set by Belgian astronomer Eugène Delporte in 1930, are defined by a polygon of 10 segments.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    }
-  ]
+const questionAndAnswerPairs2: QuestionAndAnswerPair[] = [
+  {
+    immutable: false,
+    question: 'What are the characteristics of the Phoenix constellation?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer:
+      'Phoenix is a small constellation bordered by Fornax and Sculptor to the north, Grus to the west, Tucana to the south, touching on the corner of Hydrus to the south, and Eridanus to the east and southeast. The bright star Achernar is nearby.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  },
+  {
+    immutable: false,
+    question: 'When is the phoenix constellation most visible?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer: 'Phoenix is most visible from locations such as Australia and South Africa during late Southern Hemisphere spring.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  },
+  {
+    immutable: false,
+    question: 'What are the Phoenix Constellation boundaries?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer:
+      'The official constellation boundaries for Phoenix, as set by Belgian astronomer Eugène Delporte in 1930, are defined by a polygon of 10 segments.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  }
+];
 
-  const questionAndAnswerPairs3: QuestionAndAnswerPair[] = [
-    {
-      immutable: false,
-      question: "In the Phoenix constellation, how many stars have planets?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "In the Phoenix constellation, ten stars have been found to have planets to date, and four planetary systems have been discovered with the SuperWASP project.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    },
-    {
-      immutable: false,
-      question: "What is HD 142?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "HD 142 is a yellow giant that has an apparent magnitude of 5.7, and has a planet (HD 142 b) 1.36 times the mass of Jupiter which orbits every 328 days.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    },
-    {
-      immutable: false,
-      question: "Are WASP-4 and WASP-5 solar-type yellow stars?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "Yes, WASP-4 and WASP-5 are solar-type yellow stars around 1000 light years distant and of 13th magnitude, each with a single planet larger than Jupiter.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    }
-  ]
+const questionAndAnswerPairs3: QuestionAndAnswerPair[] = [
+  {
+    immutable: false,
+    question: 'In the Phoenix constellation, how many stars have planets?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer:
+      'In the Phoenix constellation, ten stars have been found to have planets to date, and four planetary systems have been discovered with the SuperWASP project.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  },
+  {
+    immutable: false,
+    question: 'What is HD 142?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer:
+      'HD 142 is a yellow giant that has an apparent magnitude of 5.7, and has a planet (HD 142 b) 1.36 times the mass of Jupiter which orbits every 328 days.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  },
+  {
+    immutable: false,
+    question: 'Are WASP-4 and WASP-5 solar-type yellow stars?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer:
+      'Yes, WASP-4 and WASP-5 are solar-type yellow stars around 1000 light years distant and of 13th magnitude, each with a single planet larger than Jupiter.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  }
+];
 
-  const questionAndAnswerPairs4: QuestionAndAnswerPair[] = [
-    {
-      immutable: false,
-      question: "Is the Phoenix Constellation part of the Milky Way?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "The Phoenix constellation does not lie on the galactic plane of the Milky Way, and there are no prominent star clusters.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    },
-    {
-      immutable: false,
-      question: "How many light years away is NGC 625?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "NGC 625 is 24000 light years in diameter and is an outlying member of the Sculptor Group.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    },
-    {
-      immutable: false,
-      question: "What is Robert's Quartet composed of?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "Robert's Quartet is composed of the irregular galaxy NGC 87, and three spiral galaxies NGC 88, NGC 89 and NGC 92.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    }
-  ]
+const questionAndAnswerPairs4: QuestionAndAnswerPair[] = [
+  {
+    immutable: false,
+    question: 'Is the Phoenix Constellation part of the Milky Way?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer: 'The Phoenix constellation does not lie on the galactic plane of the Milky Way, and there are no prominent star clusters.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  },
+  {
+    immutable: false,
+    question: 'How many light years away is NGC 625?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer: 'NGC 625 is 24000 light years in diameter and is an outlying member of the Sculptor Group.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  },
+  {
+    immutable: false,
+    question: "What is Robert's Quartet composed of?",
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer: "Robert's Quartet is composed of the irregular galaxy NGC 87, and three spiral galaxies NGC 88, NGC 89 and NGC 92.",
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  }
+];
 
-
-const seedExamples: SeedExample[] = [{
+const seedExamples: SeedExample[] = [
+  {
     immutable: true,
     isExpanded: true,
     context: `**Phoenix** is a minor [constellation](constellation "wikilink") in the
@@ -142,12 +145,11 @@ const seedExamples: SeedExample[] = [{
       [Grus](Grus_(constellation) "wikilink"),
       [Pavo](Pavo_(constellation) "wikilink") and [Tucana](Tucana "wikilink"),
       are known as the Southern Birds.`,
-      isContextValid: ValidatedOptions.success,
-      validationError: '',
-      questionAndAnswers: questionAndAnswerPairs1
-
-},
-{
+    isContextValid: ValidatedOptions.success,
+    validationError: '',
+    questionAndAnswers: questionAndAnswerPairs1
+  },
+  {
     immutable: true,
     isExpanded: true,
     context: `Phoenix is a small constellation bordered by [Fornax](Fornax "wikilink")
@@ -176,11 +178,11 @@ const seedExamples: SeedExample[] = [{
       triangle of the bright stars Achernar, [Fomalhaut](Fomalhaut "wikilink")
       and [Beta Ceti](Beta_Ceti "wikilink")—Ankaa lies roughly in the centre
       of this.`,
-      isContextValid: ValidatedOptions.success,
-      validationError: '',
-      questionAndAnswers: questionAndAnswerPairs2
-},
-{
+    isContextValid: ValidatedOptions.success,
+    validationError: '',
+    questionAndAnswers: questionAndAnswerPairs2
+  },
+  {
     immutable: true,
     isExpanded: true,
     context: `Ten stars have been found to have planets to date, and four planetary
@@ -201,11 +203,11 @@ const seedExamples: SeedExample[] = [{
       dwarf of spectral type K4V and visual magnitude 11.3, which has a
       planetary companion of similar size and mass to Saturn. The planet
       completes an orbit every 3.9 days.`,
-      isContextValid: ValidatedOptions.success,
-      validationError: '',
-      questionAndAnswers: questionAndAnswerPairs3
-},
-{
+    isContextValid: ValidatedOptions.success,
+    validationError: '',
+    questionAndAnswers: questionAndAnswerPairs3
+  },
+  {
     immutable: true,
     isExpanded: true,
     context: `The constellation does not lie on the
@@ -233,28 +235,28 @@ const seedExamples: SeedExample[] = [{
       remnant of a dwarf galaxy that was absorbed in a
       [collision](Interacting_galaxy "wikilink") with ESO 243-49. Before its
       discovery, this class of black hole was only hypothesized.`,
-      isContextValid: ValidatedOptions.success,
-      validationError: '',
-      questionAndAnswers: questionAndAnswerPairs4
-},
+    isContextValid: ValidatedOptions.success,
+    validationError: '',
+    questionAndAnswers: questionAndAnswerPairs4
+  }
+];
 
-]
-
-export const autoFillKnowledgeFields: KnowledgeFormData =  {
-    email: 'helloworld@instructlab.com',
-    name: 'juliadenham',
-    submissionSummary: 'Information about the Phoenix Constellation including the history, characteristics, and features of the stars in the constellation.',
-    domain: 'astronomy',
-    documentOutline: 'Information about the Phoenix Constellation including the history, characteristics, and features of the stars in the constellation.',
-    filePath: 'science/physics/astrophysics/stars',
-    seedExamples: seedExamples,
-    knowledgeDocumentRepositoryUrl: 'https://github.com/juliadenham/Summit_knowledge',
-    knowledgeDocumentCommit: '0a1f2672b9b90582e6115333e3ed62fd628f1c0f',
-    documentName: 'phoenix_constellation.md',
-    titleWork: 'Phoenix (constellation)',
-    linkWork: 'https://en.wikipedia.org/wiki/Phoenix_(constellation)',
-    revision: 'https://en.wikipedia.org/w/index.php?title=Phoenix_(constellation)&oldid=1237187773',
-    licenseWork: 'CC-BY-SA-4.0',
-    creators: 'Wikipedia Authors'
-
-}
+export const autoFillKnowledgeFields: KnowledgeFormData = {
+  email: 'helloworld@instructlab.com',
+  name: 'juliadenham',
+  submissionSummary:
+    'Information about the Phoenix Constellation including the history, characteristics, and features of the stars in the constellation.',
+  domain: 'astronomy',
+  documentOutline:
+    'Information about the Phoenix Constellation including the history, characteristics, and features of the stars in the constellation.',
+  filePath: 'science/physics/astrophysics/stars',
+  seedExamples: seedExamples,
+  knowledgeDocumentRepositoryUrl: 'https://github.com/juliadenham/Summit_knowledge',
+  knowledgeDocumentCommit: '0a1f2672b9b90582e6115333e3ed62fd628f1c0f',
+  documentName: 'phoenix_constellation.md',
+  titleWork: 'Phoenix (constellation)',
+  linkWork: 'https://en.wikipedia.org/wiki/Phoenix_(constellation)',
+  revision: 'https://en.wikipedia.org/w/index.php?title=Phoenix_(constellation)&oldid=1237187773',
+  licenseWork: 'CC-BY-SA-4.0',
+  creators: 'Wikipedia Authors'
+};
