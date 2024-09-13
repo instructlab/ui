@@ -80,13 +80,6 @@ export const validateFields = (
     setActionGroupAlertContent(actionGroupAlertContent);
     return false;
   }
-
-  const actionGroupAlertContent: ActionGroupAlertContent = {
-    title: `Data entry success`,
-    message: `All fields completed successfully`,
-    success: true
-  };
-  setActionGroupAlertContent(actionGroupAlertContent);
   return true;
 };
 

@@ -21,7 +21,11 @@ const Index: React.FunctionComponent = () => {
   const fetchAndSetPullRequests = React.useCallback(async () => {
     if (session?.accessToken) {
       try {
-        const fetchedUsername = await getGitHubUsername(session.accessToken);
+        const header = {
+          Authorization: `Bearer ${session.accessToken}`,
+          Accept: 'application/vnd.github.v3+json'
+        };
+        const fetchedUsername = await getGitHubUsername(header);
         setUsername(fetchedUsername);
         const data = await fetchPullRequests(session.accessToken);
         const filteredPRs = data.filter(

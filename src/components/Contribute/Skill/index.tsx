@@ -29,6 +29,7 @@ import { useRouter } from 'next/navigation';
 import SkillsSeedExample from './SkillsSeedExample/SkillsSeedExample';
 import SkillsInformation from './SkillsInformation/SkillsInformation';
 import SkillsDescriptionContent from './SkillsDescription/SkillsDescriptionContent';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 
 export interface SeedExample {
   immutable: boolean;
@@ -69,8 +70,10 @@ export interface SkillEditFormData {
 export interface ActionGroupAlertContent {
   title: string;
   message: string;
+  waitAlert?: boolean;
   url?: string;
   success: boolean;
+  timeout?: number | boolean;
 }
 
 export interface SkillFormProps {
@@ -127,7 +130,13 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
     const fetchUsername = async () => {
       if (session?.accessToken) {
         try {
-          const fetchedUsername = await getGitHubUsername(session.accessToken);
+          const header = {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.accessToken}`,
+            Accept: 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+          };
+          const fetchedUsername = await getGitHubUsername(header);
           setGithubUsername(fetchedUsername);
         } catch (error) {
           console.error('Failed to fetch GitHub username:', error);
@@ -379,20 +388,24 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
 
           {actionGroupAlertContent && (
             <Alert
-              variant={actionGroupAlertContent.success ? 'success' : 'danger'}
+              variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
               title={actionGroupAlertContent.title}
-              timeout={10000}
+              timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
               onTimeout={onCloseActionGroupAlert}
               actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
             >
               <p>
+                {actionGroupAlertContent.waitAlert && <Spinner size="md" />}
                 {actionGroupAlertContent.message}
                 <br />
-                {actionGroupAlertContent.success && actionGroupAlertContent.url && actionGroupAlertContent.url.trim().length > 0 && (
-                  <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
-                    View your pull request
-                  </a>
-                )}
+                {!actionGroupAlertContent.waitAlert &&
+                  actionGroupAlertContent.success &&
+                  actionGroupAlertContent.url &&
+                  actionGroupAlertContent.url.trim().length > 0 && (
+                    <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
+                      View your pull request
+                    </a>
+                  )}
               </p>
             </Alert>
           )}
