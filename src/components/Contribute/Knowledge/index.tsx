@@ -384,7 +384,6 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     setLicenseWork(autoFillKnowledgeFields.licenseWork);
     setCreators(autoFillKnowledgeFields.creators);
     setRevision(autoFillKnowledgeFields.revision);
-    setFilePath(autoFillKnowledgeFields.filePath);
     setSeedExamples(autoFillKnowledgeFields.seedExamples);
   };
 
