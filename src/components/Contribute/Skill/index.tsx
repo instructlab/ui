@@ -29,6 +29,7 @@ import { useRouter } from 'next/navigation';
 import SkillsSeedExample from './SkillsSeedExample/SkillsSeedExample';
 import SkillsInformation from './SkillsInformation/SkillsInformation';
 import SkillsDescriptionContent from './SkillsDescription/SkillsDescriptionContent';
+import { autoFillSkillsFields } from './AutoFill';
 
 export interface SeedExample {
   immutable: boolean;
@@ -78,6 +79,17 @@ export interface SkillFormProps {
 }
 
 export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFormData }) => {
+  const [deploymentType, setDeploymentType] = useState<string | undefined>();
+
+  useEffect(() => {
+    const getEnvVariables = async () => {
+      const res = await fetch('/api/envConfig');
+      const envConfig = await res.json();
+      setDeploymentType(envConfig.DEPLOYMENT_TYPE);
+    };
+    getEnvVariables();
+  }, []);
+
   const { data: session } = useSession();
   const [githubUsername, setGithubUsername] = useState<string>('');
   // Author Information
@@ -288,6 +300,18 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
     setReset(reset ? false : true);
   };
 
+  const autoFillForm = (): void => {
+    setEmail(autoFillSkillsFields.email);
+    setName(autoFillSkillsFields.name);
+    setDocumentOutline(autoFillSkillsFields.documentOutline);
+    setSubmissionSummary(autoFillSkillsFields.submissionSummary);
+    setTitleWork(autoFillSkillsFields.titleWork);
+    setLicenseWork(autoFillSkillsFields.licenseWork);
+    setCreators(autoFillSkillsFields.creators);
+    setFilePath(autoFillSkillsFields.filePath);
+    setSeedExamples(autoFillSkillsFields.seedExamples);
+  };
+
   const skillFormData: SkillFormData = {
     email: email,
     name: name,
@@ -324,6 +348,11 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
         <TextContent>
           <SkillsDescriptionContent />
         </TextContent>
+        {deploymentType === 'dev' && (
+          <Button variant="primary" onClick={autoFillForm}>
+            Auto-Fill
+          </Button>
+        )}
         <Form className="form-s">
           <AuthorInformation
             reset={reset}

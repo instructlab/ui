@@ -74,7 +74,7 @@ export const autoFillSkillsFields: SkillFormData =  {
     email: 'helloworld@instructlab.com',
     name: 'juliadenham',
     submissionSummary: 'Teaching a model to rhyme.',
-    documentOutline: 'Teaching a model to rhyme.',
+    documentOutline: 'These provided examples demonstrate how to rhyme.',
     filePath: 'science/physics/astrophysics/stars',
     seedExamples: seedExamples,
     titleWork: 'Teaching a model to rhyme.',
