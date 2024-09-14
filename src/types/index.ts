@@ -1,9 +1,3 @@
-// src/types/index.ts
-
-// https://github.com/instructlab/schema/blob/main/src/instructlab/schema/
-export const KnowledgeSchemaVersion = 3;
-export const SkillSchemaVersion = 3;
-
 export interface Endpoint {
   id: string;
   url: string;

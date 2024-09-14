@@ -4,7 +4,8 @@
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
 import { AppLayout } from '../../../../components/AppLayout';
-import { AttributionData, PullRequestFile, SkillYamlData, SkillSchemaVersion } from '@/types';
+import { AttributionData, PullRequestFile, SkillYamlData } from '@/types';
+import { SkillSchemaVersion } from '@/types/const';
 import { fetchPullRequest, fetchFileContent, fetchPullRequestFiles } from '../../../../utils/github';
 import yaml from 'js-yaml';
 import axios from 'axios';

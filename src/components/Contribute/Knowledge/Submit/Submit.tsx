@@ -1,7 +1,8 @@
 import React from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ActionGroupAlertContent, KnowledgeFormData } from '..';
-import { AttributionData, KnowledgeYamlData, KnowledgeSchemaVersion } from '@/types';
+import { AttributionData, KnowledgeYamlData } from '@/types';
+import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '../validation';
 
@@ -52,6 +53,15 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
       license_of_the_work: knowledgeFormData.licenseWork!,
       creator_names: knowledgeFormData.creators!
     };
+
+    const waitForSubmissionAlert: ActionGroupAlertContent = {
+      title: 'Knowledge contribution submission in progress.!',
+      message: `Once the submission is successful, it will provide the link to the newly created Pull Request.`,
+      success: true,
+      waitAlert: true,
+      timeout: false
+    };
+    setActionGroupAlertContent(waitForSubmissionAlert);
 
     const name = knowledgeFormData.name;
     const email = knowledgeFormData.email;
