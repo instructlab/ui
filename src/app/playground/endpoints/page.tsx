@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Page, PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { Page, PageBreadcrumb, PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import {
   DataList,
   DataListItem,
@@ -12,7 +12,7 @@ import {
 } from '@patternfly/react-core/dist/dynamic/components/DataList';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/next/components/Modal';
-import { Modal } from '@patternfly/react-core/components/';
+import { Breadcrumb, BreadcrumbItem, Modal, TextContent } from '@patternfly/react-core/components/';
 import { Form, FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
@@ -121,8 +121,25 @@ const EndpointsPage: React.FC = () => {
 
   return (
     <AppLayout>
+      <PageBreadcrumb>
+        <Breadcrumb>
+          <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
+          <BreadcrumbItem isActive>Custom Model Endpoints</BreadcrumbItem>
+        </Breadcrumb>
+      </PageBreadcrumb>
+
+      <PageSection style={{ backgroundColor: 'white' }}>
+        <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
+          Custom Model Endpoints
+        </Title>
+        <TextContent>
+          <br />
+          Manage your own customer model endpoints. If you have a custom model that is served by an endpoint, you can add it here. This will allow you
+          to use the custom model in the playground chat.
+        </TextContent>
+      </PageSection>
       <Page>
-        <PageSection>
+        <PageSection style={{ backgroundColor: 'white' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Title headingLevel="h1">Manage Endpoints</Title>
             <Button onClick={handleAddEndpoint}>Add Endpoint</Button>

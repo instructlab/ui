@@ -397,7 +397,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     <PageGroup>
       <PageBreadcrumb>
         <Breadcrumb>
-          <BreadcrumbItem to="/"> Home </BreadcrumbItem>
+          <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
           <BreadcrumbItem isActive>Knowledge Contribution</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
