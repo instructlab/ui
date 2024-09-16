@@ -321,7 +321,7 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
     <PageGroup>
       <PageBreadcrumb>
         <Breadcrumb>
-          <BreadcrumbItem to="/"> Home </BreadcrumbItem>
+          <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
           <BreadcrumbItem isActive>Skill Contribution</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
