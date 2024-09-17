@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { PageBreadcrumb } from '@patternfly/react-core/dist/dynamic/components/Page';
@@ -27,16 +28,17 @@ import { TextContent } from '@patternfly/react-core/dist/esm/components/Text/Tex
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 import { Popover } from '@patternfly/react-core/dist/esm/components/Popover';
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
+import { Gallery } from '@patternfly/react-core';
 import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/components/Modal/Modal';
-import { useState } from 'react';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
 
 const Index: React.FunctionComponent = () => {
   const { data: session } = useSession();
   const [pullRequests, setPullRequests] = React.useState<PullRequest[]>([]);
+  const [error, setError] = React.useState<string | null>(null);
+  const [isGridView, setIsGridView] = React.useState(false);
   const [isFirstPullDone, setIsFirstPullDone] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  //const [error, setError] = React.useState<string | null>(null);
   const router = useRouter();
 
   const fetchAndSetPullRequests = React.useCallback(async () => {
@@ -57,6 +59,7 @@ const Index: React.FunctionComponent = () => {
 
         setPullRequests(sortedPRs);
       } catch (error) {
+        setError('Failed to fetch pull requests.');
         console.log('Failed to fetch pull requests.' + error);
       }
       setIsFirstPullDone(true);
@@ -79,6 +82,14 @@ const Index: React.FunctionComponent = () => {
     } else if (hasSkillLabel) {
       router.push(`/edit-submission/skill/${pr.number}`);
     }
+  };
+
+  const handleListViewClick = () => {
+    setIsGridView(false);
+  };
+
+  const handleGridViewClick = () => {
+    setIsGridView(true);
   };
 
   const handleOnClose = () => {
@@ -119,7 +130,20 @@ const Index: React.FunctionComponent = () => {
         </TextContent>
       </PageSection>
       <PageSection>
-        <div style={{ marginBottom: '20px' }} />
+        {/* Only show toggle buttons if there are pull requests */}
+        {pullRequests.length > 0 && (
+          <div style={{ marginBottom: '20px' }}>
+            <Button variant={isGridView ? 'secondary' : 'primary'} onClick={handleListViewClick} style={{ marginRight: '10px' }}>
+              List View
+            </Button>
+            <Button variant={isGridView ? 'primary' : 'secondary'} onClick={handleGridViewClick}>
+              Grid View
+            </Button>
+          </div>
+        )}
+        {/* Error message */}
+        {error && <div>{error}</div>}
+        {/* Loading modal */}
         {!isFirstPullDone && (
           <Modal variant={ModalVariant.small} title="Retrieving your submissions" isOpen={isLoading} onClose={() => handleOnClose()}>
             <div>
@@ -128,6 +152,7 @@ const Index: React.FunctionComponent = () => {
             </div>
           </Modal>
         )}
+        {/* Content when no pull requests */}
         {isFirstPullDone && pullRequests.length === 0 ? (
           <EmptyState>
             <EmptyStateHeader
@@ -172,7 +197,43 @@ const Index: React.FunctionComponent = () => {
               </EmptyStateActions>
             </EmptyStateFooter>
           </EmptyState>
+        ) : isGridView ? (
+          // Grid view
+          <Gallery hasGutter>
+            {pullRequests.map((pr) => (
+              <Card key={pr.number}>
+                <CardTitle>{pr.title}</CardTitle>
+                <CardBody>
+                  <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                    <FlexItem>State: {pr.state}</FlexItem>
+                    <FlexItem>Created At: {new Date(pr.created_at).toLocaleString()}</FlexItem>
+                    <FlexItem>Updated At: {new Date(pr.updated_at).toLocaleString()}</FlexItem>
+                    <FlexItem>
+                      {pr.labels.map((label) => (
+                        <Label key={label.name} color="blue" style={{ marginRight: '5px' }}>
+                          {label.name}
+                        </Label>
+                      ))}
+                    </FlexItem>
+                    <FlexItem alignSelf={{ default: 'alignSelfFlexEnd' }} flex={{ default: 'flexNone' }}>
+                      <Button variant="secondary" component="a" href={pr.html_url} target="_blank" rel="noopener noreferrer">
+                        View PR
+                      </Button>
+                    </FlexItem>
+                    <FlexItem alignSelf={{ default: 'alignSelfFlexEnd' }} flex={{ default: 'flexNone' }}>
+                      {pr.state === 'open' && (
+                        <Button variant="primary" onClick={() => handleEditClick(pr)}>
+                          Edit
+                        </Button>
+                      )}
+                    </FlexItem>
+                  </Flex>
+                </CardBody>
+              </Card>
+            ))}
+          </Gallery>
         ) : (
+          // List view (Stack)
           <Stack hasGutter>
             {pullRequests.map((pr) => (
               <StackItem key={pr.number}>
