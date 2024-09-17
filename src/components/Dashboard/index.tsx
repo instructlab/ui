@@ -145,7 +145,7 @@ const Index: React.FunctionComponent = () => {
                   icon={<GithubIcon />}
                   iconPosition="right"
                   component="a"
-                  href="https://github.com/your-repo"
+                  href="https://github.com/instructlab"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
