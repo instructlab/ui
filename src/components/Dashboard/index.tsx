@@ -27,10 +27,15 @@ import { TextContent } from '@patternfly/react-core/dist/esm/components/Text/Tex
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 import { Popover } from '@patternfly/react-core/dist/esm/components/Popover';
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
+import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/components/Modal/Modal';
+import { useState } from 'react';
+import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
 
 const Index: React.FunctionComponent = () => {
   const { data: session } = useSession();
   const [pullRequests, setPullRequests] = React.useState<PullRequest[]>([]);
+  const [isFirstPullDone, setIsFirstPullDone] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   //const [error, setError] = React.useState<string | null>(null);
   const router = useRouter();
 
@@ -54,6 +59,8 @@ const Index: React.FunctionComponent = () => {
       } catch (error) {
         console.log('Failed to fetch pull requests.' + error);
       }
+      setIsFirstPullDone(true);
+      setIsLoading(false);
     }
   }, [session?.accessToken]);
 
@@ -72,6 +79,10 @@ const Index: React.FunctionComponent = () => {
     } else if (hasSkillLabel) {
       router.push(`/edit-submission/skill/${pr.number}`);
     }
+  };
+
+  const handleOnClose = () => {
+    setIsLoading(false);
   };
 
   if (!session) {
@@ -109,7 +120,15 @@ const Index: React.FunctionComponent = () => {
       </PageSection>
       <PageSection>
         <div style={{ marginBottom: '20px' }} />
-        {pullRequests.length === 0 ? (
+        {!isFirstPullDone && (
+          <Modal variant={ModalVariant.small} title="Retrieving your submissions" isOpen={isLoading} onClose={() => handleOnClose()}>
+            <div>
+              <Spinner size="md" />
+              Retrieving all your skills and knowledge submissions from taxonomy repository.
+            </div>
+          </Modal>
+        )}
+        {isFirstPullDone && pullRequests.length === 0 ? (
           <EmptyState>
             <EmptyStateHeader
               titleText="Welcome to InstructLab"
