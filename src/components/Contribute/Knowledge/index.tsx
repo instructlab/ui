@@ -93,15 +93,6 @@ export interface KnowledgeFormProps {
 export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData }) => {
   const [deploymentType, setDeploymentType] = useState<string | undefined>();
 
-  useEffect(() => {
-    const getEnvVariables = async () => {
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
-      setDeploymentType(envConfig.DEPLOYMENT_TYPE);
-    };
-    getEnvVariables();
-  }, []);
-
   const { data: session } = useSession();
   const [githubUsername, setGithubUsername] = useState<string>('');
   // Author Information
@@ -173,6 +164,15 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     emptySeedExample,
     emptySeedExample
   ]);
+
+  useEffect(() => {
+    const getEnvVariables = async () => {
+      const res = await fetch('/api/envConfig');
+      const envConfig = await res.json();
+      setDeploymentType(envConfig.DEPLOYMENT_TYPE);
+    };
+    getEnvVariables();
+  }, []);
 
   useMemo(() => {
     const fetchUsername = async () => {
