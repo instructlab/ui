@@ -6,7 +6,8 @@ import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynam
 import { KnowledgeFormData } from '..';
 import YamlCodeModal from '@/components/YamlCodeModal';
 import CodeIcon from '@patternfly/react-icons/dist/esm/icons/code-icon';
-import { AttributionData, KnowledgeYamlData, KnowledgeSchemaVersion } from '@/types';
+import { AttributionData, KnowledgeYamlData } from '@/types';
+import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import FileIcon from '@patternfly/react-icons/dist/dynamic/icons/file-icon';
 import EyeIcon from '@patternfly/react-icons/dist/esm/icons/eye-icon';

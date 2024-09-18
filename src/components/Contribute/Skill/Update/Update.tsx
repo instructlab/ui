@@ -1,7 +1,8 @@
 import React from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ActionGroupAlertContent, SkillFormData } from '..';
-import { AttributionData, SkillYamlData, PullRequestFile, SkillSchemaVersion } from '@/types';
+import { AttributionData, SkillYamlData, PullRequestFile } from '@/types';
+import { SkillSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '../validation';
 import { amendCommit, getGitHubUsername, updatePullRequest } from '@/utils/github';
@@ -42,7 +43,13 @@ const Update: React.FC<Props> = ({
           body: skillFormData.documentOutline
         });
 
-        const githubUsername = await getGitHubUsername(session.accessToken);
+        const headers = {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.accessToken}`,
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28'
+        };
+        const githubUsername = await getGitHubUsername(headers);
         console.log(`GitHub username: ${githubUsername}`);
 
         const skillYamlData: SkillYamlData = {
@@ -93,6 +100,15 @@ Creator names: ${attributionData.creator_names}
 
         const res = await fetch('/api/envConfig');
         const envConfig = await res.json();
+
+        const waitForSubmissionAlert: ActionGroupAlertContent = {
+          title: 'Skill contribution update is in progress.!',
+          message: `Once the update is successful, it will provide the link to the updated Pull Request.`,
+          success: true,
+          waitAlert: true,
+          timeout: false
+        };
+        setActionGroupAlertContent(waitForSubmissionAlert);
 
         const amendedCommitResponse = await amendCommit(
           session.accessToken,

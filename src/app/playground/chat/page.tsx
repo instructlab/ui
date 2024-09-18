@@ -6,7 +6,7 @@ import { AppLayout } from '@/components/AppLayout';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { TextInput } from '@patternfly/react-core/';
+import { Breadcrumb, BreadcrumbItem, PageBreadcrumb, PageSection, TextContent, TextInput, Title } from '@patternfly/react-core/';
 import { Select } from '@patternfly/react-core/dist/dynamic/components/Select';
 import { SelectOption, SelectList } from '@patternfly/react-core/dist/dynamic/components/Select';
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
@@ -244,6 +244,24 @@ const ChatPage: React.FC = () => {
 
   return (
     <AppLayout>
+      <PageBreadcrumb>
+        <Breadcrumb>
+          <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
+          <BreadcrumbItem isActive>Chat</BreadcrumbItem>
+        </Breadcrumb>
+      </PageBreadcrumb>
+
+      <PageSection style={{ backgroundColor: 'white' }}>
+        <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
+          Chat with a Model
+        </Title>
+        <TextContent>
+          <br />
+          Chat with the served models. Currently it allows you to chat with Merlinite-7b and Granite-7B models hosted on your Cloud. Users can add
+          their own custom endpoint using the &quot;Custom Model Endpoints&quot; feature. Once the custom endpoint is configured, it will be available
+          in the model selector dropdown with the pre hosted models.
+        </TextContent>
+      </PageSection>
       <div className={styles.chatContainer}>
         <div className={styles.modelSelector}>
           <span className={styles.modelSelectorLabel}>Model Selector</span>
