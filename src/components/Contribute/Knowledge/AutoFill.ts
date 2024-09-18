@@ -127,6 +127,36 @@ const questionAndAnswerPairs4: QuestionAndAnswerPair[] = [
   }
 ];
 
+const questionAndAnswerPairs5: QuestionAndAnswerPair[] = [
+    {
+      immutable: false,
+      question: 'Do meteor showers originate from the Pheonix constellation?',
+      isQuestionValid: ValidatedOptions.success,
+      questionValidationError: undefined,
+      answer: 'Phoenix is the radiant of two annual meteor showers.',
+      isAnswerValid: ValidatedOptions.success,
+      answerValidationError: undefined
+    },
+    {
+      immutable: false,
+      question: 'When were the first Phoenicids?',
+      isQuestionValid: ValidatedOptions.success,
+      questionValidationError: undefined,
+      answer: 'The Phoenicids, also known as the December Phoenicids, were first observed on 3 December 1887.',
+      isAnswerValid: ValidatedOptions.success,
+      answerValidationError: undefined
+    },
+    {
+      immutable: false,
+      question: "When does the intensity of the Phoenicids peak?",
+      isQuestionValid: ValidatedOptions.success,
+      questionValidationError: undefined,
+      answer: "It peaks around 4–5 December, though is not seen every year.",
+      isAnswerValid: ValidatedOptions.success,
+      answerValidationError: undefined
+    }
+  ];
+
 const seedExamples: SeedExample[] = [
   {
     immutable: true,
@@ -238,7 +268,22 @@ const seedExamples: SeedExample[] = [
     isContextValid: ValidatedOptions.success,
     validationError: '',
     questionAndAnswers: questionAndAnswerPairs4
+  },
+  {
+    immutable: true,
+    isExpanded: true,
+    context: `Phoenix is the radiant of two annual meteor showers. The Phoenicids, 
+    also known as the December Phoenicids, were first observed on 3 December 1887. 
+    The shower was particularly intense in December 1956, and is thought related 
+    to the breakup of the short-period comet 289P/Blanpain. It peaks around 4–5 
+    December, though is not seen every year.[58] A very minor meteor shower peaks 
+    around July 14 with around one meteor an hour, though meteors can be seen 
+    anytime from July 3 to 18; this shower is referred to as the July Phoenicids.[59]`,
+    isContextValid: ValidatedOptions.success,
+    validationError: '',
+    questionAndAnswers: questionAndAnswerPairs5
   }
+  
 ];
 
 export const autoFillKnowledgeFields: KnowledgeFormData = {
