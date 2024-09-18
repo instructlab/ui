@@ -128,34 +128,34 @@ const questionAndAnswerPairs4: QuestionAndAnswerPair[] = [
 ];
 
 const questionAndAnswerPairs5: QuestionAndAnswerPair[] = [
-    {
-      immutable: false,
-      question: 'Do meteor showers originate from the Pheonix constellation?',
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: 'Phoenix is the radiant of two annual meteor showers.',
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    },
-    {
-      immutable: false,
-      question: 'When were the first Phoenicids?',
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: 'The Phoenicids, also known as the December Phoenicids, were first observed on 3 December 1887.',
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    },
-    {
-      immutable: false,
-      question: "When does the intensity of the Phoenicids peak?",
-      isQuestionValid: ValidatedOptions.success,
-      questionValidationError: undefined,
-      answer: "It peaks around 4–5 December, though is not seen every year.",
-      isAnswerValid: ValidatedOptions.success,
-      answerValidationError: undefined
-    }
-  ];
+  {
+    immutable: false,
+    question: 'Do meteor showers originate from the Pheonix constellation?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer: 'Phoenix is the radiant of two annual meteor showers.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  },
+  {
+    immutable: false,
+    question: 'When were the first Phoenicids?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer: 'The Phoenicids, also known as the December Phoenicids, were first observed on 3 December 1887.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  },
+  {
+    immutable: false,
+    question: 'When does the intensity of the Phoenicids peak?',
+    isQuestionValid: ValidatedOptions.success,
+    questionValidationError: undefined,
+    answer: 'It peaks around 4–5 December, though is not seen every year.',
+    isAnswerValid: ValidatedOptions.success,
+    answerValidationError: undefined
+  }
+];
 
 const seedExamples: SeedExample[] = [
   {
@@ -283,7 +283,6 @@ const seedExamples: SeedExample[] = [
     validationError: '',
     questionAndAnswers: questionAndAnswerPairs5
   }
-  
 ];
 
 export const autoFillKnowledgeFields: KnowledgeFormData = {
