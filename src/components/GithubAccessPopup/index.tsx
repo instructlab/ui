@@ -42,17 +42,20 @@ const GithubAccessPopup: React.FunctionComponent = () => {
       <p>
         To allow InstructLab UI to manage your taxonomy submissions, you must grant read and write permissions to your GitHub account. InstructLab UI
         will use your account to:
+        <br />
+        <br />
         <li>
           {' '}
           Pull PRs from the upstream{' '}
           <a href="https://github.com/instructlab/taxonomy" target={'_blank'}>
             InstructLab Taxonomy repo
           </a>{' '}
-          that you’ve opened to contribute skills and knowledge.
+          that you’ve opened to contribute skills and &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;knowledge.
         </li>
         <li>
           {' '}
-          Fork the InstructLab Taxonomy repo to your GitHub account and create PRs from this fork, which can merge into the upstream Taxonomy repo.
+          Fork the InstructLab Taxonomy repo to your GitHub account and create PRs from this fork, which can merge
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;into the upstream Taxonomy repo.
         </li>
         <li>
           {' '}
@@ -60,7 +63,7 @@ const GithubAccessPopup: React.FunctionComponent = () => {
           <a href="https://github.com/instructlab-public/taxonomy-knowledge-docs" target={'_blank'}>
             taxonomy-knowledge-docs repo
           </a>{' '}
-          to your GitHub account and upload knowledge-related documents from your account.
+          to your GitHub account and upload knowledge-related &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documents from your account.
         </li>
         <br />
         These permissions <i>do not</i> enable InstructLab UI to access your GitHub password.

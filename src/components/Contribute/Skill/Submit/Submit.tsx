@@ -1,7 +1,8 @@
 import React from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ActionGroupAlertContent, SkillFormData } from '..';
-import { AttributionData, SkillYamlData, SkillSchemaVersion } from '@/types';
+import { AttributionData, SkillYamlData } from '@/types';
+import { SkillSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '../validation';
 
@@ -45,6 +46,15 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
       link_to_work: '',
       revision: ''
     };
+
+    const waitForSubmissionAlert: ActionGroupAlertContent = {
+      title: 'Skill contribution submission in progress.!',
+      message: `Once the submission is successful, it will provide the link to the newly created Pull Request.`,
+      success: true,
+      waitAlert: true,
+      timeout: false
+    };
+    setActionGroupAlertContent(waitForSubmissionAlert);
 
     const name = skillFormData.name;
     const email = skillFormData.email;

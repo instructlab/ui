@@ -1,6 +1,7 @@
 // src/utils/github.ts
 import axios from 'axios';
 import { PullRequestUpdateData } from '@/types';
+import { BASE_BRANCH, FORK_CLONE_CHECK_RETRY_COUNT, FORK_CLONE_CHECK_RETRY_TIMEOUT, GITHUB_API_URL } from '@/types/const';
 
 export async function fetchPullRequests(token: string) {
   try {
@@ -297,23 +298,187 @@ export const amendCommit = async (
   }
 };
 
-export const getGitHubUsername = async (token: string) => {
-  try {
-    console.log('Fetching GitHub username');
-    const response = await axios.get(`https://api.github.com/user`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json'
-      }
-    });
-    console.log('Fetched GitHub username:', response.data.login);
-    return response.data.login;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('Error fetching GitHub username:', error.response ? error.response.data : error.message);
-    } else {
-      console.error('Error fetching GitHub username:', error);
-    }
-    throw error;
+export async function getGitHubUsername(headers: HeadersInit): Promise<string> {
+  const response = await fetch(`${GITHUB_API_URL}/user`, {
+    headers
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to fetch GitHub username:', response.status, errorText);
+    throw new Error('Failed to fetch GitHub username');
   }
-};
+
+  const data = await response.json();
+  return data.login;
+}
+
+export async function createFork(headers: HeadersInit, upstreamRepoOwner: string, upstreamRepoName: string, username: string) {
+  const response = await fetch(`${GITHUB_API_URL}/repos/${upstreamRepoOwner}/${upstreamRepoName}/forks`, {
+    method: 'POST',
+    headers
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to create fork:', response.status, errorText);
+    throw new Error('Failed to create fork');
+  }
+
+  const responseData = await response.json();
+
+  //Ensure the fork is not empty by calling getBaseBranchSha in loop for 5 times with 2 seconds delay
+  for (let i = 0; i < FORK_CLONE_CHECK_RETRY_COUNT; i++) {
+    await new Promise((resolve) => setTimeout(resolve, FORK_CLONE_CHECK_RETRY_TIMEOUT));
+    try {
+      const response = await fetch(`${GITHUB_API_URL}/repos/${username}/${upstreamRepoName}/git/refs/heads/${BASE_BRANCH}`, {
+        headers
+      });
+
+      if (response.ok) {
+        break;
+      } else {
+        console.log('Fork is not fully cloned yet, retrying...');
+      }
+    } catch (error) {
+      console.warn('Failed to check if the fork is fully cloned:', error);
+    }
+  }
+  console.log('Fork created successfully:', responseData);
+}
+
+export async function checkUserForkExists(headers: HeadersInit, username: string, upstreamRepoName: string): Promise<boolean> {
+  const response = await fetch(`${GITHUB_API_URL}/repos/${username}/${upstreamRepoName}`, {
+    headers
+  });
+
+  return response.ok;
+}
+
+export async function getBaseBranchSha(headers: HeadersInit, username: string, upstreamRepoName: string): Promise<string> {
+  const response = await fetch(`${GITHUB_API_URL}/repos/${username}/${upstreamRepoName}/git/refs/heads/${BASE_BRANCH}`, {
+    headers
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to get base branch SHA:', response.status, errorText);
+    throw new Error('Failed to get base branch SHA');
+  }
+
+  const data = await response.json();
+  return data.object.sha;
+}
+
+export async function createBranch(headers: HeadersInit, username: string, upstreamRepoName: string, branchName: string, baseSha: string) {
+  const body = JSON.stringify({
+    ref: `refs/heads/${branchName}`,
+    sha: baseSha
+  });
+
+  console.log(`Creating branch with body: ${body}`);
+
+  const response = await fetch(`${GITHUB_API_URL}/repos/${username}/${upstreamRepoName}/git/refs`, {
+    method: 'POST',
+    headers,
+    body
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to create branch:', response.status, errorText);
+    throw new Error('Failed to create branch');
+  }
+
+  const responseData = await response.json();
+  console.log('Branch created successfully:', responseData);
+}
+
+export async function createFilesInSingleCommit(
+  headers: HeadersInit,
+  username: string,
+  upstreamRepoName: string,
+  files: { path: string; content: string }[],
+  branchName: string,
+  commitMessage: string
+) {
+  const fileData = files.map((file) => ({
+    path: file.path,
+    mode: '100644',
+    type: 'blob',
+    content: file.content
+  }));
+
+  const response = await fetch(`${GITHUB_API_URL}/repos/${username}/${upstreamRepoName}/git/trees`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      base_tree: await getBaseTreeSha(headers, username, upstreamRepoName, branchName),
+      tree: fileData
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to create files:', response.status, errorText);
+    throw new Error('Failed to create files');
+  }
+
+  const treeData = await response.json();
+
+  const commitResponse = await fetch(`${GITHUB_API_URL}/repos/${username}/${upstreamRepoName}/git/commits`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      message: commitMessage,
+      tree: treeData.sha,
+      parents: [await getCommitSha(headers, username, upstreamRepoName, branchName)]
+    })
+  });
+
+  if (!commitResponse.ok) {
+    const errorText = await commitResponse.text();
+    console.error('Failed to create commit:', commitResponse.status, errorText);
+    throw new Error('Failed to create commit');
+  }
+
+  const commitData = await commitResponse.json();
+
+  await fetch(`${GITHUB_API_URL}/repos/${username}/${upstreamRepoName}/git/refs/heads/${branchName}`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify({
+      sha: commitData.sha
+    })
+  });
+}
+
+async function getBaseTreeSha(headers: HeadersInit, username: string, upstreamRepoName: string, branchName: string): Promise<string> {
+  const response = await fetch(`${GITHUB_API_URL}/repos/${username}/${upstreamRepoName}/git/trees/${branchName}`, {
+    headers
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to get base tree SHA:', response.status, errorText);
+    throw new Error('Failed to get base tree SHA');
+  }
+
+  const data = await response.json();
+  return data.sha;
+}
+
+async function getCommitSha(headers: HeadersInit, username: string, upstreamRepoName: string, branchName: string): Promise<string> {
+  const response = await fetch(`${GITHUB_API_URL}/repos/${username}/${upstreamRepoName}/git/refs/heads/${branchName}`, {
+    headers
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to get commit SHA:', response.status, errorText);
+    throw new Error('Failed to get commit SHA');
+  }
+
+  const data = await response.json();
+  return data.object.sha;
+}

@@ -31,6 +31,7 @@ import { PullRequestFile } from '@/types';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button';
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from './AutoFill';
+import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
 
 export interface QuestionAndAnswerPair {
   immutable: boolean;
@@ -82,8 +83,10 @@ export interface KnowledgeEditFormData {
 export interface ActionGroupAlertContent {
   title: string;
   message: string;
+  waitAlert?: boolean;
   url?: string;
   success: boolean;
+  timeout?: number | boolean;
 }
 
 export interface KnowledgeFormProps {
@@ -178,7 +181,14 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     const fetchUsername = async () => {
       if (session?.accessToken) {
         try {
-          const fetchedUsername = await getGitHubUsername(session.accessToken);
+          const headers = {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.accessToken}`,
+            Accept: 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+          };
+
+          const fetchedUsername = await getGitHubUsername(headers);
           setGithubUsername(fetchedUsername);
         } catch (error) {
           console.error('Failed to fetch GitHub username:', error);
@@ -416,7 +426,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     <PageGroup>
       <PageBreadcrumb>
         <Breadcrumb>
-          <BreadcrumbItem to="/"> Home </BreadcrumbItem>
+          <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
           <BreadcrumbItem isActive>Knowledge Contribution</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
@@ -506,20 +516,24 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
 
           {actionGroupAlertContent && (
             <Alert
-              variant={actionGroupAlertContent.success ? 'success' : 'danger'}
+              variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
               title={actionGroupAlertContent.title}
-              timeout={10000}
+              timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
               onTimeout={onCloseActionGroupAlert}
               actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
             >
               <p>
+                {actionGroupAlertContent.waitAlert && <Spinner size="md" />}
                 {actionGroupAlertContent.message}
                 <br />
-                {actionGroupAlertContent.success && actionGroupAlertContent.url && actionGroupAlertContent.url.trim().length > 0 && (
-                  <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
-                    View your pull request
-                  </a>
-                )}
+                {!actionGroupAlertContent.waitAlert &&
+                  actionGroupAlertContent.success &&
+                  actionGroupAlertContent.url &&
+                  actionGroupAlertContent.url.trim().length > 0 && (
+                    <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
+                      View your pull request
+                    </a>
+                  )}
               </p>
             </Alert>
           )}
