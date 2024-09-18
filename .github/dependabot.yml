@@ -1,0 +1,67 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    allow:
+      - dependency-type: "production"
+    target-branch: "main"
+    labels:
+      - "npm dependencies"
+      - "frontend"
+    open-pull-requests-limit: 3
+    groups:
+      typescript-eslint:
+        patterns:
+          - "@typescript-eslint/*"
+          - typescript-eslint
+        update-types:
+          - "minor"
+          - "patch"
+      react:
+        patterns:
+          - react
+          - react-dom
+        update-types:
+          - "minor"
+          - "patch"
+      patternfly:
+        patterns:
+          - "@patternfly/*"
+          - patternfly
+        update-types:
+          - "minor"
+          - "patch"
+      typescript-libraries:
+        patterns:
+          - "@types/*"
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows"
+    schedule:
+      interval: "weekly"
+    target-branch: "main"
+    labels:
+      - "github-actions"
+    open-pull-requests-limit: 3
+    groups:
+      actions-deps:
+        patterns:
+          - "*"
+  - package-ecosystem: "gomod"
+    directory: "/pathservice"
+    schedule:
+      interval: "weekly"
+    target-branch: "main"
+    labels:
+      - "go dependencies"
+    open-pull-requests-limit: 3
+  - package-ecosystem: "docker"
+    directory: "/server"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "docker dependencies"
