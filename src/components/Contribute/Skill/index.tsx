@@ -81,15 +81,6 @@ export interface SkillFormProps {
 export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFormData }) => {
   const [deploymentType, setDeploymentType] = useState<string | undefined>();
 
-  useEffect(() => {
-    const getEnvVariables = async () => {
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
-      setDeploymentType(envConfig.DEPLOYMENT_TYPE);
-    };
-    getEnvVariables();
-  }, []);
-
   const { data: session } = useSession();
   const [githubUsername, setGithubUsername] = useState<string>('');
   // Author Information
@@ -134,6 +125,15 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
     emptySeedExample,
     emptySeedExample
   ]);
+
+  useEffect(() => {
+    const getEnvVariables = async () => {
+      const res = await fetch('/api/envConfig');
+      const envConfig = await res.json();
+      setDeploymentType(envConfig.DEPLOYMENT_TYPE);
+    };
+    getEnvVariables();
+  }, []);
 
   useMemo(() => {
     const fetchUsername = async () => {
