@@ -140,10 +140,12 @@ const Index: React.FunctionComponent = () => {
               }
             />
             <EmptyStateBody>
-              InstructLab is a powerful and accessible tool for advancing generative AI through community collaboration and open-source principles. By
-              contributing your own data, you can help train and refine the language model. <br />
-              <br />
-              To get started, contribute a skill or contribute knowledge.
+              <div style={{ maxWidth: '60ch' }}>
+                InstructLab is a powerful and accessible tool for advancing generative AI through community collaboration and open-source principles.
+                By contributing your own data, you can help train and refine the language model. <br />
+                <br />
+                To get started, contribute a skill or contribute knowledge.
+              </div>
             </EmptyStateBody>
             <EmptyStateFooter>
               <EmptyStateActions>
