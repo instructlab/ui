@@ -31,7 +31,7 @@ import ExternalLinkAltIcon from '@patternfly/react-icons/dist/esm/icons/external
 const Index: React.FunctionComponent = () => {
   const { data: session } = useSession();
   const [pullRequests, setPullRequests] = React.useState<PullRequest[]>([]);
-  const [error, setError] = React.useState<string | null>(null);
+  //const [error, setError] = React.useState<string | null>(null);
   const router = useRouter();
 
   const fetchAndSetPullRequests = React.useCallback(async () => {
@@ -52,7 +52,7 @@ const Index: React.FunctionComponent = () => {
 
         setPullRequests(sortedPRs);
       } catch (error) {
-        setError('Failed to fetch pull requests.');
+        console.log('Failed to fetch pull requests.' + error);
       }
     }
   }, [session?.accessToken]);
@@ -109,7 +109,6 @@ const Index: React.FunctionComponent = () => {
       </PageSection>
       <PageSection>
         <div style={{ marginBottom: '20px' }} />
-        {error && <div>{error}</div>}
         {pullRequests.length === 0 ? (
           <EmptyState>
             <EmptyStateHeader
