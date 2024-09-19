@@ -1,0 +1,79 @@
+.modal {
+  background-size: cover !important;
+  background-position: left !important;
+}
+
+.modal > div:last-child > div {
+  display: flex;
+  flex-direction: column-reverse;
+  height: 100%;
+}
+
+.modal > div:last-child > p {
+  display: none;
+}
+
+.modalContent {
+  text-align: center;
+  height: 100% !important;
+}
+
+/* hide brand img */
+.modal img {
+  visibility: hidden;
+}
+
+.heading {
+  font-weight: 400 !important;
+}
+
+.description {
+  width: 70% !important;
+  margin: auto;
+}
+
+.joinCommunityButtonWrapper {
+  display: flex;
+  justify-content: center;
+  margin: 3rem 0;
+}
+
+.joinCommunityButton {
+  background: rgb(46, 8, 17) !important;
+  background: linear-gradient(0deg, rgba(46, 8, 17, 1) 0%, rgba(42, 0, 0, 1) 100%) !important;
+  border-radius: 100px !important;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.joinCommunityButton svg {
+  height: 2rem;
+  width: 2rem;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5ch;
+  margin-bottom: 1rem;
+}
+
+.link {
+  color: white !important;
+  font-weight: 300 !important;
+  text-decoration: underline !important;
+  border: none !important;
+}
+
+.link:not(:last-of-type)::after {
+  content: '|';
+  padding-left: 0.5ch;
+  position: static !important;
+  text-decoration: none !important;
+}
+
+.version {
+  font-weight: 300 !important;
+}
