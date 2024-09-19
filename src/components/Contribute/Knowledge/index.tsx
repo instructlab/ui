@@ -30,6 +30,7 @@ import Update from './Update/Update';
 import { PullRequestFile } from '@/types';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button';
 import { useRouter } from 'next/navigation';
+import { autoFillKnowledgeFields } from './AutoFill';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
 
 export interface QuestionAndAnswerPair {
@@ -93,6 +94,8 @@ export interface KnowledgeFormProps {
 }
 
 export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData }) => {
+  const [deploymentType, setDeploymentType] = useState<string | undefined>();
+
   const { data: session } = useSession();
   const [githubUsername, setGithubUsername] = useState<string>('');
   // Author Information
@@ -164,6 +167,15 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     emptySeedExample,
     emptySeedExample
   ]);
+
+  useEffect(() => {
+    const getEnvVariables = async () => {
+      const res = await fetch('/api/envConfig');
+      const envConfig = await res.json();
+      setDeploymentType(envConfig.DEPLOYMENT_TYPE);
+    };
+    getEnvVariables();
+  }, []);
 
   useMemo(() => {
     const fetchUsername = async () => {
@@ -367,6 +379,23 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     setReset(reset ? false : true);
   };
 
+  const autoFillForm = (): void => {
+    setEmail(autoFillKnowledgeFields.email);
+    setName(autoFillKnowledgeFields.name);
+    setDocumentOutline(autoFillKnowledgeFields.documentOutline);
+    setSubmissionSummary(autoFillKnowledgeFields.submissionSummary);
+    setDomain(autoFillKnowledgeFields.domain);
+    setKnowledgeDocumentRepositoryUrl(autoFillKnowledgeFields.knowledgeDocumentRepositoryUrl);
+    setKnowledgeDocumentCommit(autoFillKnowledgeFields.knowledgeDocumentCommit);
+    setDocumentName(autoFillKnowledgeFields.documentName);
+    setTitleWork(autoFillKnowledgeFields.titleWork);
+    setLinkWork(autoFillKnowledgeFields.linkWork);
+    setLicenseWork(autoFillKnowledgeFields.licenseWork);
+    setCreators(autoFillKnowledgeFields.creators);
+    setRevision(autoFillKnowledgeFields.revision);
+    setSeedExamples(autoFillKnowledgeFields.seedExamples);
+  };
+
   const knowledgeFormData: KnowledgeFormData = {
     email: email,
     name: name,
@@ -409,6 +438,12 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
         <TextContent>
           <KnowledgeDescriptionContent />
         </TextContent>
+        {deploymentType === 'dev' && (
+          <Button variant="primary" onClick={autoFillForm}>
+            Auto-Fill
+          </Button>
+        )}
+
         <Form className="form-k">
           <AuthorInformation
             reset={reset}
