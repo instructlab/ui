@@ -1,4 +1,5 @@
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
+import { AboutModal as PatternflyAboutModal } from '@patternfly/react-core/dist/esm/components/AboutModal';
 import { Text, TextContent, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import GithubIcon from '@patternfly/react-icons/dist/dynamic/icons/github-icon';
@@ -6,40 +7,38 @@ import InstructLabLogo from '../../../public/updated-logo.png';
 import InstructLabAboutUsBg from '../../../public/InstructLab-About-Modal-Background.svg';
 import styles from './about-modal.module.css';
 import { linksData } from './data/linksData';
-import { AboutModal } from '@patternfly/react-core/dist/esm/components/AboutModal';
 
-const AboutInstructLab = ({ isOpen, setIsOpen }: AboutModalProps) => {
+const AboutModal = ({ isOpen, setIsOpen }: AboutModalProps) => {
   const handleClose = useCallback(() => {
     setIsOpen(false);
   }, [setIsOpen]);
 
   return (
-    <AboutModal
+    <PatternflyAboutModal
       className={styles.modal}
       isOpen={isOpen}
       onClose={handleClose}
       backgroundImageSrc={InstructLabAboutUsBg.src}
       brandImageSrc={InstructLabLogo.src}
       brandImageAlt="logo"
-      aria-label="About modal describing the InstructLab project."
     >
       <div className={styles.modalContent}>
         <div>
           <TextContent>
-            <Text className={styles.aboutInstructlab}>About InstructLab</Text>
-          </TextContent>
-          <TextContent>
+            <Text component={TextVariants.h1} className={styles.heading}>
+              About InstructLab
+            </Text>
             <Text className={styles.description}>
-              InstructLab is an open source AI project that allows <br /> you to shape the future of Large Language Models.
-              <br /> Join the community to start contributing today.
+              InstructLab is an open source AI project that allows you shape the future of Large Language Models. Join the community to start
+              contributing today.
             </Text>
           </TextContent>
         </div>
-        <a className={styles.joinCommunityButtonWrapper} href="https://github.com/instructlab" target="_blank">
+        <div className={styles.joinCommunityButtonWrapper}>
           <Button variant="primary" icon={<GithubIcon />} iconPosition="left" size="lg" className={styles.joinCommunityButton}>
             Join the community
           </Button>
-        </a>
+        </div>
         <div className={styles.links}>
           {linksData.map((link) => (
             <a href={link.href} target="_blank" key={link.name} className={styles.link}>
@@ -49,20 +48,11 @@ const AboutInstructLab = ({ isOpen, setIsOpen }: AboutModalProps) => {
         </div>
         <TextContent>
           <Text className={styles.version} component={TextVariants.p}>
-            © InstructLab | Version 1.0.0 Beta
-          </Text>
-          <Text className={styles.links}>
-            <a href="https://www.redhat.com/en/about/terms-use" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
-              Terms of use
-            </a>{' '}
-            |{' '}
-            <a href="https://www.redhat.com/en/about/privacy-policy" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
-              Privacy Policy
-            </a>
+            © InstructLab | Version 1.1
           </Text>
         </TextContent>
       </div>
-    </AboutModal>
+    </PatternflyAboutModal>
   );
 };
 
@@ -71,4 +61,4 @@ type AboutModalProps = {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export default AboutInstructLab;
+export default AboutModal;

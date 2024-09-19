@@ -4,7 +4,7 @@ import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dis
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/esm/components/MenuToggle';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/outlined-question-circle-icon';
-import AboutInstructLab from '../AboutModal/AboutModal';
+import AboutModal from '../AboutModal/AboutModal';
 
 const HelpDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -14,7 +14,9 @@ const HelpDropdown: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
-  const onSelect = () => {
+  const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
+    // eslint-disable-next-line no-console
+    console.log('selected', value);
     setIsOpen(false);
   };
 
@@ -57,7 +59,7 @@ const HelpDropdown: React.FC = () => {
             </Flex>
           </DropdownItem>
 
-          <DropdownItem value={1} key="link" to="https://docs.instructlab.ai" target="_blank" rel="noopener noreferrer">
+          <DropdownItem value={1} key="link" to="#tbd">
             Help
           </DropdownItem>
           <DropdownItem value={2} key="link" to="#about" onClick={handleAboutUsModalOpen}>
@@ -65,7 +67,7 @@ const HelpDropdown: React.FC = () => {
           </DropdownItem>
         </DropdownList>
       </Dropdown>
-      <AboutInstructLab isOpen={isAboutModalOpen} setIsOpen={setIsAboutModalOpen} />
+      <AboutModal isOpen={isAboutModalOpen} setIsOpen={setIsAboutModalOpen} />
     </>
   );
 };
