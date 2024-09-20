@@ -70,3 +70,4 @@ updates:
       - "instructlab/ui-maintainers"
     labels:
       - "docker dependencies"
+
