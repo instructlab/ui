@@ -23,7 +23,7 @@
     "@patternfly/react-table": "^5.3.3",
     "axios": "^1.7.4",
     "js-yaml": "^4.1.0",
-    "next": "^14.2.6",
+    "next": "^14.2.13",
     "next-auth": "^4.24.7",
     "node-fetch": "^3.3.2",
     "react": "18.3.1",
