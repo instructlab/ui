@@ -1,16 +1,25 @@
 // src/app/page.tsx
 'use client';
 
-import * as React from 'react';
 import { GithubAccessPopup } from '@/components/GithubAccessPopup';
+import * as React from 'react';
+import { useState } from 'react';
 import { AppLayout } from '../components/AppLayout';
 import { Index } from '../components/Dashboard';
 
 const HomePage: React.FC = () => {
+  const [isWarningConditionAccepted, setIsWarningConditionAccepted] = useState<boolean>(false);
+
+  const handleWarningConditionAccepted = () => {
+    if (!isWarningConditionAccepted) {
+      setIsWarningConditionAccepted(true);
+    }
+  };
+
   return (
     <AppLayout>
-      <GithubAccessPopup />
-      <Index />
+      <GithubAccessPopup onAccept={handleWarningConditionAccepted} />
+      {isWarningConditionAccepted && <Index />}
     </AppLayout>
   );
 };

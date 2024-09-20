@@ -7,7 +7,10 @@ import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/components/Modal';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 
-const GithubAccessPopup: React.FunctionComponent = () => {
+interface Props {
+  onAccept: () => void;
+}
+const GithubAccessPopup: React.FunctionComponent<Props> = ({ onAccept }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -16,12 +19,18 @@ const GithubAccessPopup: React.FunctionComponent = () => {
       const envConfig = await res.json();
       if (envConfig.DEPLOYMENT_TYPE === 'dev') {
         setIsOpen(false);
+        onAccept();
       } else {
         setIsOpen(true);
       }
     };
     showPopupWarning();
   }, []);
+
+  const setDecisionAndClose = () => {
+    setIsOpen(false);
+    onAccept();
+  };
 
   return (
     <Modal
@@ -31,7 +40,7 @@ const GithubAccessPopup: React.FunctionComponent = () => {
       isOpen={isOpen}
       onClose={() => setIsOpen(false)}
       actions={[
-        <Button key="confirm" variant="primary" onClick={() => setIsOpen(false)}>
+        <Button key="confirm" variant="primary" onClick={() => setDecisionAndClose()}>
           Accept
         </Button>,
         <Button key="cancel" variant="secondary" onClick={() => signOut()}>
