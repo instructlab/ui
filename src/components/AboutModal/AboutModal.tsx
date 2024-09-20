@@ -29,7 +29,7 @@ const AboutModal = ({ isOpen, setIsOpen }: AboutModalProps) => {
               About InstructLab
             </Text>
             <Text className={styles.description}>
-              InstructLab is an open source AI project that allows you shape the future of Large Language Models. Join the community to start
+              InstructLab is an open source AI project that allows you to shape the future of Large Language Models. Join the community to start
               contributing today.
             </Text>
           </TextContent>
@@ -48,7 +48,7 @@ const AboutModal = ({ isOpen, setIsOpen }: AboutModalProps) => {
         </div>
         <TextContent>
           <Text className={styles.version} component={TextVariants.p}>
-            © InstructLab | Version 1.1
+            © InstructLab | Version 1.0.0
           </Text>
         </TextContent>
       </div>
