@@ -146,7 +146,7 @@ const AttributionInformation: React.FC<Props> = ({
       }
     >
       <FormGroup isRequired key={'attribution-info-details-id'}>
-      <TextInput
+        <TextInput
           isRequired
           type="url"
           aria-label="link_work"
