@@ -63,7 +63,7 @@ updates:
     labels:
       - "go dependencies"
   - package-ecosystem: "docker"
-    directory: "/server"
+    directory: "/"
     schedule:
       interval: "monthly"
     reviewers:
