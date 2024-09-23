@@ -148,26 +148,6 @@ const AttributionInformation: React.FC<Props> = ({
       <FormGroup isRequired key={'attribution-info-details-id'}>
         <TextInput
           isRequired
-          type="text"
-          aria-label="title_work"
-          placeholder="Enter title of work"
-          validated={validTitle}
-          value={titleWork}
-          onChange={(_event, value) => setTitleWork(value)}
-          onBlur={() => validateTitle(titleWork)}
-        />
-        {validTitle === ValidatedOptions.error && (
-          <FormHelperText>
-            <HelperText>
-              <HelperTextItem icon={<ExclamationCircleIcon />} variant={validTitle}>
-                Title is required.
-              </HelperTextItem>
-            </HelperText>
-          </FormHelperText>
-        )}
-
-        <TextInput
-          isRequired
           type="url"
           aria-label="link_work"
           placeholder="Enter link to work"
@@ -190,6 +170,25 @@ const AttributionInformation: React.FC<Props> = ({
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validLink}>
                 Please enter a valid URL.
+              </HelperTextItem>
+            </HelperText>
+          </FormHelperText>
+        )}
+        <TextInput
+          isRequired
+          type="text"
+          aria-label="title_work"
+          placeholder="Enter title of work"
+          validated={validTitle}
+          value={titleWork}
+          onChange={(_event, value) => setTitleWork(value)}
+          onBlur={() => validateTitle(titleWork)}
+        />
+        {validTitle === ValidatedOptions.error && (
+          <FormHelperText>
+            <HelperText>
+              <HelperTextItem icon={<ExclamationCircleIcon />} variant={validTitle}>
+                Title is required.
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
