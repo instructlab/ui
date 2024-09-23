@@ -67,7 +67,7 @@ jobs:
 
       - name: Build and push ui image to ghcr.io
         id: push-ui-ghcr
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -87,7 +87,7 @@ jobs:
 
       - name: Build and push ui image to quay.io
         id: push-ui-quay
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -151,7 +151,7 @@ jobs:
 
       - name: Build and push pathservice image to ghcr.io
         id: push-ps-ghcr
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -171,7 +171,7 @@ jobs:
 
       - name: Build and push ui image to quay.io
         id: push-ui-quay
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
