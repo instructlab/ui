@@ -6,29 +6,23 @@ const questionAndAnswerPairs1: QuestionAndAnswerPair[] = [
     immutable: false,
     question: 'What is the brightest star in the Phoenix constellation called?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer: 'Alpha Phoenicis or Ankaa is the brightest star in the Phoenix Constellation.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: 'Where did the Phoenix constellation first appear?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer:
       'The Phoenix constellation first appeared on a 35-cm diameter celestial globe published in 1597 (or 1598) in Amsterdam by Plancius with Jodocus Hondius.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: "What does 'The Bird Phoenix' symbolize?",
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer: "'The Bird Phoenix' symbolizes the phoenix of classical mythology.",
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   }
 ];
 
@@ -37,30 +31,24 @@ const questionAndAnswerPairs2: QuestionAndAnswerPair[] = [
     immutable: false,
     question: 'What are the characteristics of the Phoenix constellation?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer:
       'Phoenix is a small constellation bordered by Fornax and Sculptor to the north, Grus to the west, Tucana to the south, touching on the corner of Hydrus to the south, and Eridanus to the east and southeast. The bright star Achernar is nearby.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: 'When is the phoenix constellation most visible?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer: 'Phoenix is most visible from locations such as Australia and South Africa during late Southern Hemisphere spring.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: 'What are the Phoenix Constellation boundaries?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer:
       'The official constellation boundaries for Phoenix, as set by Belgian astronomer Eugène Delporte in 1930, are defined by a polygon of 10 segments.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   }
 ];
 
@@ -69,31 +57,25 @@ const questionAndAnswerPairs3: QuestionAndAnswerPair[] = [
     immutable: false,
     question: 'In the Phoenix constellation, how many stars have planets?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer:
       'In the Phoenix constellation, ten stars have been found to have planets to date, and four planetary systems have been discovered with the SuperWASP project.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: 'What is HD 142?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer:
       'HD 142 is a yellow giant that has an apparent magnitude of 5.7, and has a planet (HD 142 b) 1.36 times the mass of Jupiter which orbits every 328 days.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: 'Are WASP-4 and WASP-5 solar-type yellow stars?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer:
       'Yes, WASP-4 and WASP-5 are solar-type yellow stars around 1000 light years distant and of 13th magnitude, each with a single planet larger than Jupiter.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   }
 ];
 
@@ -102,28 +84,22 @@ const questionAndAnswerPairs4: QuestionAndAnswerPair[] = [
     immutable: false,
     question: 'Is the Phoenix Constellation part of the Milky Way?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer: 'The Phoenix constellation does not lie on the galactic plane of the Milky Way, and there are no prominent star clusters.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: 'How many light years away is NGC 625?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer: 'NGC 625 is 24000 light years in diameter and is an outlying member of the Sculptor Group.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: "What is Robert's Quartet composed of?",
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer: "Robert's Quartet is composed of the irregular galaxy NGC 87, and three spiral galaxies NGC 88, NGC 89 and NGC 92.",
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   }
 ];
 
@@ -132,28 +108,22 @@ const questionAndAnswerPairs5: QuestionAndAnswerPair[] = [
     immutable: false,
     question: 'Do meteor showers originate from the Pheonix constellation?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer: 'Phoenix is the radiant of two annual meteor showers.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: 'When were the first Phoenicids?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer: 'The Phoenicids, also known as the December Phoenicids, were first observed on 3 December 1887.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: 'When does the intensity of the Phoenicids peak?',
     isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
     answer: 'It peaks around 4–5 December, though is not seen every year.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    isAnswerValid: ValidatedOptions.success
   }
 ];
 
@@ -176,7 +146,6 @@ const seedExamples: SeedExample[] = [
       [Pavo](Pavo_(constellation) "wikilink") and [Tucana](Tucana "wikilink"),
       are known as the Southern Birds.`,
     isContextValid: ValidatedOptions.success,
-    validationError: '',
     questionAndAnswers: questionAndAnswerPairs1
   },
   {
@@ -209,7 +178,6 @@ const seedExamples: SeedExample[] = [
       and [Beta Ceti](Beta_Ceti "wikilink")—Ankaa lies roughly in the centre
       of this.`,
     isContextValid: ValidatedOptions.success,
-    validationError: '',
     questionAndAnswers: questionAndAnswerPairs2
   },
   {
@@ -234,7 +202,6 @@ const seedExamples: SeedExample[] = [
       planetary companion of similar size and mass to Saturn. The planet
       completes an orbit every 3.9 days.`,
     isContextValid: ValidatedOptions.success,
-    validationError: '',
     questionAndAnswers: questionAndAnswerPairs3
   },
   {
@@ -266,7 +233,6 @@ const seedExamples: SeedExample[] = [
       [collision](Interacting_galaxy "wikilink") with ESO 243-49. Before its
       discovery, this class of black hole was only hypothesized.`,
     isContextValid: ValidatedOptions.success,
-    validationError: '',
     questionAndAnswers: questionAndAnswerPairs4
   },
   {
@@ -280,7 +246,6 @@ const seedExamples: SeedExample[] = [
     around July 14 with around one meteor an hour, though meteors can be seen 
     anytime from July 3 to 18; this shower is referred to as the July Phoenicids.[59]`,
     isContextValid: ValidatedOptions.success,
-    validationError: '',
     questionAndAnswers: questionAndAnswerPairs5
   }
 ];
@@ -288,8 +253,7 @@ const seedExamples: SeedExample[] = [
 export const autoFillKnowledgeFields: KnowledgeFormData = {
   email: 'helloworld@instructlab.com',
   name: 'juliadenham',
-  submissionSummary:
-    'Information about the Phoenix Constellation including the history, characteristics, and features of the stars in the constellation.',
+  submissionSummary: 'Information about the Phoenix Constellation.',
   domain: 'astronomy',
   documentOutline:
     'Information about the Phoenix Constellation including the history, characteristics, and features of the stars in the constellation.',
