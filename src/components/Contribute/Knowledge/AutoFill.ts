@@ -7,7 +7,7 @@ const questionAndAnswerPairs1: QuestionAndAnswerPair[] = [
     question: 'What is the brightest star in the Phoenix constellation called?',
     isQuestionValid: ValidatedOptions.success,
     answer: 'Alpha Phoenicis or Ankaa is the brightest star in the Phoenix Constellation.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
@@ -15,14 +15,14 @@ const questionAndAnswerPairs1: QuestionAndAnswerPair[] = [
     isQuestionValid: ValidatedOptions.success,
     answer:
       'The Phoenix constellation first appeared on a 35-cm diameter celestial globe published in 1597 (or 1598) in Amsterdam by Plancius with Jodocus Hondius.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: "What does 'The Bird Phoenix' symbolize?",
     isQuestionValid: ValidatedOptions.success,
     answer: "'The Bird Phoenix' symbolizes the phoenix of classical mythology.",
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   }
 ];
 
@@ -33,14 +33,14 @@ const questionAndAnswerPairs2: QuestionAndAnswerPair[] = [
     isQuestionValid: ValidatedOptions.success,
     answer:
       'Phoenix is a small constellation bordered by Fornax and Sculptor to the north, Grus to the west, Tucana to the south, touching on the corner of Hydrus to the south, and Eridanus to the east and southeast. The bright star Achernar is nearby.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: 'When is the phoenix constellation most visible?',
     isQuestionValid: ValidatedOptions.success,
     answer: 'Phoenix is most visible from locations such as Australia and South Africa during late Southern Hemisphere spring.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
@@ -48,7 +48,7 @@ const questionAndAnswerPairs2: QuestionAndAnswerPair[] = [
     isQuestionValid: ValidatedOptions.success,
     answer:
       'The official constellation boundaries for Phoenix, as set by Belgian astronomer Eugène Delporte in 1930, are defined by a polygon of 10 segments.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   }
 ];
 
@@ -59,7 +59,7 @@ const questionAndAnswerPairs3: QuestionAndAnswerPair[] = [
     isQuestionValid: ValidatedOptions.success,
     answer:
       'In the Phoenix constellation, ten stars have been found to have planets to date, and four planetary systems have been discovered with the SuperWASP project.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
@@ -67,7 +67,7 @@ const questionAndAnswerPairs3: QuestionAndAnswerPair[] = [
     isQuestionValid: ValidatedOptions.success,
     answer:
       'HD 142 is a yellow giant that has an apparent magnitude of 5.7, and has a planet (HD 142 b) 1.36 times the mass of Jupiter which orbits every 328 days.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
@@ -75,7 +75,7 @@ const questionAndAnswerPairs3: QuestionAndAnswerPair[] = [
     isQuestionValid: ValidatedOptions.success,
     answer:
       'Yes, WASP-4 and WASP-5 are solar-type yellow stars around 1000 light years distant and of 13th magnitude, each with a single planet larger than Jupiter.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   }
 ];
 
@@ -85,21 +85,21 @@ const questionAndAnswerPairs4: QuestionAndAnswerPair[] = [
     question: 'Is the Phoenix Constellation part of the Milky Way?',
     isQuestionValid: ValidatedOptions.success,
     answer: 'The Phoenix constellation does not lie on the galactic plane of the Milky Way, and there are no prominent star clusters.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: 'How many light years away is NGC 625?',
     isQuestionValid: ValidatedOptions.success,
     answer: 'NGC 625 is 24000 light years in diameter and is an outlying member of the Sculptor Group.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: "What is Robert's Quartet composed of?",
     isQuestionValid: ValidatedOptions.success,
     answer: "Robert's Quartet is composed of the irregular galaxy NGC 87, and three spiral galaxies NGC 88, NGC 89 and NGC 92.",
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   }
 ];
 
@@ -109,21 +109,21 @@ const questionAndAnswerPairs5: QuestionAndAnswerPair[] = [
     question: 'Do meteor showers originate from the Pheonix constellation?',
     isQuestionValid: ValidatedOptions.success,
     answer: 'Phoenix is the radiant of two annual meteor showers.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: 'When were the first Phoenicids?',
     isQuestionValid: ValidatedOptions.success,
     answer: 'The Phoenicids, also known as the December Phoenicids, were first observed on 3 December 1887.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   },
   {
     immutable: false,
     question: 'When does the intensity of the Phoenicids peak?',
     isQuestionValid: ValidatedOptions.success,
     answer: 'It peaks around 4–5 December, though is not seen every year.',
-    isAnswerValid: ValidatedOptions.success,
+    isAnswerValid: ValidatedOptions.success
   }
 ];
 
@@ -253,8 +253,7 @@ const seedExamples: SeedExample[] = [
 export const autoFillKnowledgeFields: KnowledgeFormData = {
   email: 'helloworld@instructlab.com',
   name: 'juliadenham',
-  submissionSummary:
-    'Information about the Phoenix Constellation.',
+  submissionSummary: 'Information about the Phoenix Constellation.',
   domain: 'astronomy',
   documentOutline:
     'Information about the Phoenix Constellation including the history, characteristics, and features of the stars in the constellation.',
