@@ -1,5 +1,8 @@
 # InstructLab UI
 
+![Lint](https://github.com/instructlab/ui/actions/workflows/lint-ui.yml/badge.svg?branch=main)
+![Image](https://github.com/instructlab/ui/actions/workflows/images.yml/badge.svg?branch=main)
+
 Project aims to provide a UI based interface to the contributors and reviewers to submit and review contribution to [instructlab/taxonomy](https://github.com/instructlab/taxonomy).
 The intention is to simplify the process of contribution by providing a user friendly interface, that doesn't require the user to have a deep understanding of tools required to contribute skill and knowledge to the taxonomy. This project also aims to provide a platform for the reviewers to efficiently review the contributions and provide feedback to the contributors.
 
