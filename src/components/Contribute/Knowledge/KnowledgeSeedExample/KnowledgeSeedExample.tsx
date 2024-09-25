@@ -2,7 +2,6 @@ import React from 'react';
 import { FormFieldGroupExpandable, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
 import KnowledgeQuestionAnswerPairs from '../KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs';
 import { SeedExample } from '..';
-import ExternalLinkAltIcon from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
 
 interface Props {
   seedExamples: SeedExample[];
@@ -37,16 +36,7 @@ const KnowledgeSeedExample: React.FC<Props> = ({
             ),
             id: 'seed-examples-id'
           }}
-          titleDescription={
-            <p>
-              Add seed examples with context and minimum 3 question and answer pairs. Minimum 5 seed examples are required.{' '}
-              <a href="https://docs.instructlab.ai/taxonomy/knowledge/#knowledge-yaml-examples" target="_blank" rel="noopener noreferrer">
-                {' '}
-                Learn more about seed examples
-                <ExternalLinkAltIcon style={{ padding: '3px' }}></ExternalLinkAltIcon>
-              </a>
-            </p>
-          }
+          titleDescription="Add seed examples with context and minimum 3 question and answer pairs. Minimum 5 seed examples are required."
         />
       }
     >
