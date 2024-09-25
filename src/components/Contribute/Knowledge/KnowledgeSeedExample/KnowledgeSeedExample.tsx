@@ -36,7 +36,7 @@ const KnowledgeSeedExample: React.FC<Props> = ({
             ),
             id: 'seed-examples-id'
           }}
-          titleDescription="Add seed examples with context and Q&A pairs. Minimum 5 seed examples are required."
+          titleDescription="Add seed examples with context and minimum 3 question and answer pairs. Minimum 5 seed examples are required."
         />
       }
     >
@@ -50,12 +50,12 @@ const KnowledgeSeedExample: React.FC<Props> = ({
               titleText={{
                 text: (
                   <p>
-                    Knowledge Seed Example {seedExampleIndex + 1} {seedExample.immutable && <span style={{ color: 'red' }}>*</span>}
+                    Seed Example {seedExampleIndex + 1} {seedExample.immutable && <span style={{ color: 'red' }}>*</span>}
                   </p>
                 ),
                 id: 'nested-field-group1-titleText-id'
               }}
-              titleDescription="Please enter context and at least 3 Q&A pairs for the seed example."
+              titleDescription=""
             />
           }
         >
