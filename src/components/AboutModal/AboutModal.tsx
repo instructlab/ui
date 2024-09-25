@@ -35,11 +35,11 @@ const AboutModal = ({ isOpen, setIsOpen }: AboutModalProps) => {
             </Text>
           </TextContent>
         </div>
-        <div className={styles.joinCommunityButtonWrapper}>
+        <a className={styles.joinCommunityButtonWrapper} href="https://github.com/instructlab" target="_blank">
           <Button variant="primary" icon={<GithubIcon />} iconPosition="left" size="lg" className={styles.joinCommunityButton}>
             Join the community
           </Button>
-        </div>
+        </a>
         <div className={styles.links}>
           {linksData.map((link) => (
             <a href={link.href} target="_blank" key={link.name} className={styles.link}>
