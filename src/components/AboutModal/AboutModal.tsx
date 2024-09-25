@@ -1,5 +1,4 @@
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
-import { AboutModal as PatternflyAboutModal } from '@patternfly/react-core/dist/esm/components/AboutModal';
 import { Text, TextContent, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import GithubIcon from '@patternfly/react-icons/dist/dynamic/icons/github-icon';
@@ -7,14 +6,15 @@ import InstructLabLogo from '../../../public/updated-logo.png';
 import InstructLabAboutUsBg from '../../../public/InstructLab-About-Modal-Background.svg';
 import styles from './about-modal.module.css';
 import { linksData } from './data/linksData';
+import { AboutModal } from '@patternfly/react-core/dist/esm/components/AboutModal';
 
-const AboutModal = ({ isOpen, setIsOpen }: AboutModalProps) => {
+const AboutInstructLab = ({ isOpen, setIsOpen }: AboutModalProps) => {
   const handleClose = useCallback(() => {
     setIsOpen(false);
   }, [setIsOpen]);
 
   return (
-    <PatternflyAboutModal
+    <AboutModal
       className={styles.modal}
       isOpen={isOpen}
       onClose={handleClose}
@@ -26,12 +26,12 @@ const AboutModal = ({ isOpen, setIsOpen }: AboutModalProps) => {
       <div className={styles.modalContent}>
         <div>
           <TextContent>
-            <Text component={TextVariants.h1} className={styles.heading}>
-              About InstructLab
-            </Text>
+            <Text className={styles.aboutInstructlab}>About InstructLab</Text>
+          </TextContent>
+          <TextContent>
             <Text className={styles.description}>
-              InstructLab is an open source AI project that allows you to shape the future of Large Language Models. Join the community to start
-              contributing today.
+              InstructLab is an open source AI project that allows <br /> you to shape the future of Large Language Models.
+              <br /> Join the community to start contributing today.
             </Text>
           </TextContent>
         </div>
@@ -49,11 +49,11 @@ const AboutModal = ({ isOpen, setIsOpen }: AboutModalProps) => {
         </div>
         <TextContent>
           <Text className={styles.version} component={TextVariants.p}>
-            © InstructLab | Version 1.0.0
+            © InstructLab | Version 1.0.0 Beta
           </Text>
         </TextContent>
       </div>
-    </PatternflyAboutModal>
+    </AboutModal>
   );
 };
 
@@ -62,4 +62,4 @@ type AboutModalProps = {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export default AboutModal;
+export default AboutInstructLab;
