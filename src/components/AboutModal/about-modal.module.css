@@ -24,23 +24,29 @@
 }
 
 .heading {
-  font-weight: 400 !important;
+  font-weight: medium;
+  font-size: 28pt;
+  color: #dededd;
 }
 
 .description {
   width: 70% !important;
   margin: auto;
+  font-size: 18pt;
+  color: #ffffff;
 }
 
 .joinCommunityButtonWrapper {
   display: flex;
   justify-content: center;
   margin: 3rem 0;
+  font-size: 16pt;
+  font-weight: medium;
+  color: #ffffff;
 }
 
 .joinCommunityButton {
-  background: rgb(46, 8, 17) !important;
-  background: linear-gradient(0deg, rgba(46, 8, 17, 1) 0%, rgba(42, 0, 0, 1) 100%) !important;
+  background: #030303 !important;
   border-radius: 100px !important;
   display: flex;
   align-items: center;
@@ -62,6 +68,7 @@
 
 .link {
   color: white !important;
+  font-size: 12pt;
   font-weight: 300 !important;
   text-decoration: underline !important;
   border: none !important;
@@ -76,4 +83,5 @@
 
 .version {
   font-weight: 300 !important;
+  font-size: 14pt;
 }
