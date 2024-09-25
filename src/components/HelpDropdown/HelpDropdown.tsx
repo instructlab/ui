@@ -14,8 +14,7 @@ const HelpDropdown: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
-  const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
-    // eslint-disable-next-line no-console
+  const onSelect = () => {
     setIsOpen(false);
   };
 
