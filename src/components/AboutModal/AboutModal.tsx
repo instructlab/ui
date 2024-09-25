@@ -21,6 +21,7 @@ const AboutModal = ({ isOpen, setIsOpen }: AboutModalProps) => {
       backgroundImageSrc={InstructLabAboutUsBg.src}
       brandImageSrc={InstructLabLogo.src}
       brandImageAlt="logo"
+      aria-label="About modal describing the InstructLab project."
     >
       <div className={styles.modalContent}>
         <div>
