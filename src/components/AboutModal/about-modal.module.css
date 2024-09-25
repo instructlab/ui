@@ -9,10 +9,6 @@
   height: 100%;
 }
 
-.modal > div:last-child > p {
-  display: none;
-}
-
 .modalContent {
   text-align: center;
   height: 100% !important;
@@ -23,39 +19,43 @@
   visibility: hidden;
 }
 
-.heading {
-  font-weight: medium;
-  font-size: 28pt;
-  color: #dededd;
+.modal button {
+  background: #030303 !important;
+  border-radius: 80px !important;
+}
+
+.aboutInstructlab {
+  margin-top: 1rem;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  font-size: xx-large;
 }
 
 .description {
-  width: 70% !important;
-  margin: auto;
-  font-size: 18pt;
-  color: #ffffff;
+  margin-top: 1rem;
+  color: white;
+  padding-bottom: 50px;
+  font-size: x-large;
+  font-style: italic;
+  text-align: center;
 }
 
 .joinCommunityButtonWrapper {
   display: flex;
   justify-content: center;
   margin: 3rem 0;
-  font-size: 16pt;
-  font-weight: medium;
   color: #ffffff;
 }
 
 .joinCommunityButton {
   background: #030303 !important;
-  border-radius: 100px !important;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  border-radius: 80px !important;
 }
 
 .joinCommunityButton svg {
-  height: 2rem;
-  width: 2rem;
+  height: 1rem;
+  width: 1.5rem;
 }
 
 .links {
