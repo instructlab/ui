@@ -4,7 +4,7 @@ import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dis
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/esm/components/MenuToggle';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/outlined-question-circle-icon';
-import AboutModal from '../AboutModal/AboutModal';
+import AboutInstructLab from '../AboutModal/AboutModal';
 
 const HelpDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -57,7 +57,7 @@ const HelpDropdown: React.FC = () => {
             </Flex>
           </DropdownItem>
 
-          <DropdownItem value={1} key="link" to="#tbd">
+          <DropdownItem value={1} key="link" to="https://docs.instructlab.ai" target="_blank" rel="noopener noreferrer">
             Help
           </DropdownItem>
           <DropdownItem value={2} key="link" to="#about" onClick={handleAboutUsModalOpen}>
@@ -65,7 +65,7 @@ const HelpDropdown: React.FC = () => {
           </DropdownItem>
         </DropdownList>
       </Dropdown>
-      <AboutModal isOpen={isAboutModalOpen} setIsOpen={setIsAboutModalOpen} />
+      <AboutInstructLab isOpen={isAboutModalOpen} setIsOpen={setIsAboutModalOpen} />
     </>
   );
 };
