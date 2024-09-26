@@ -43,6 +43,14 @@ a {
   font-size: large;
 }
 
+.urls-text-medium {
+  margin-top: 1rem;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  font-size: medium;
+}
+
 .policy-text {
   margin-top: 1rem;
   color: white;
