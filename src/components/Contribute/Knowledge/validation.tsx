@@ -34,13 +34,18 @@ const hasDuplicateQuestionAndAnswerPairs = (seedExample: SeedExample): { duplica
   return { duplicate: false, index: -1 };
 };
 
-// Validate that the total length of all the question and answer pairs in a seed example is not more than 250 characters
+// Validate that the total length of all the question and answer pairs
+// and context in a seed example is not more than 750 characters.
 const validateQuestionAndAnswerPairs = (seedExample: SeedExample): { success: boolean; currLength: number } => {
-  const totalLength = seedExample.questionAndAnswers.reduce((acc, questionAndAnswerPair) => {
-    return acc + questionAndAnswerPair.question.length + questionAndAnswerPair.answer.length;
+  const totalQnAPairsTokenCount = seedExample.questionAndAnswers.reduce((acc, questionAndAnswerPair) => {
+    const questionTokens = questionAndAnswerPair.question.trim().split(/\s+/);
+    const answerTokens = questionAndAnswerPair.answer.trim().split(/\s+/);
+    return acc + questionTokens.length + answerTokens.length;
   }, 0);
 
-  if (totalLength > 250) {
+  const contextTokens = seedExample.context.trim().split(/\s+/);
+  const totalLength = totalQnAPairsTokenCount + contextTokens.length;
+  if (totalLength > 750) {
     return { success: false, currLength: totalLength };
   }
   return { success: true, currLength: totalLength };
@@ -133,8 +138,8 @@ export const validateFields = (
     const { success, currLength: length } = validateQuestionAndAnswerPairs(knowledgeFormData.seedExamples[index]);
     if (!success) {
       const actionGroupAlertContent: ActionGroupAlertContent = {
-        title: `Seed example ${index} has an issue!`,
-        message: `Total size of the Q&A pairs should not exceed 250 characters (current size ${length}). Please provide shorter Q&A pairs.`,
+        title: `Seed Example ${index + 1} has an issue!`,
+        message: `Total size of the Q&A pairs and context should not exceed 750 words (current size ${length}). Please provide shorter Q&A pairs or context.`,
         success: false
       };
       setActionGroupAlertContent(actionGroupAlertContent);
