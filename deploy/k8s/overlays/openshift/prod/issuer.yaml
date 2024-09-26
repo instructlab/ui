@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt-ui
+spec:
+  acme:
+    email: avishnoi@redhat.com
+    privateKeySecretRef:
+      name: letsencrypt-ui-key
+    server: 'https://acme-v02.api.letsencrypt.org/directory'
+    solvers:
+      - http01:
+          ingress:
+            serviceType: ClusterIP
