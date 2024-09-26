@@ -8,7 +8,7 @@ spec:
   renewBefore: 360h0m0s
   subject:
     organizations:
-      - nexodus
+      - InstructLab
   privateKey:
     algorithm: RSA
     encoding: PKCS1
