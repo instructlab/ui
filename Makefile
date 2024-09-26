@@ -89,9 +89,9 @@ stop-dev-kind: check-kind ## Stop the Kind cluster to destroy the development en
 
 .PHONY: setup-kind
 setup-kind: check-kind check-kubectl stop-dev ## Create a Kind cluster with ingress enabled
-	$(CMD_PREFIX) kind create cluster --config ./deploy/k8s/kind.yaml
+	$(CMD_PREFIX) kind create cluster --config ./deploy/k8s/overlays/kind/kind.yaml
 	$(CMD_PREFIX) kubectl cluster-info
-	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -f ./deploy/k8s/kind-ingress.yaml
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -f ./deploy/k8s/overlays/kind/kind-ingress.yaml
 
 .PHONY: wait-for-readiness
 wait-for-readiness: # Wait for operators to be ready
