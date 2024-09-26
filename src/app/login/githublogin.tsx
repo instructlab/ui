@@ -63,6 +63,15 @@ const GithubLogin: React.FC = () => {
                     Code Of Conduct
                   </a>
                 </Text>
+                <Text className="urls-text-medium">
+                  <a href="https://www.redhat.com/en/about/terms-use" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
+                    Terms of use
+                  </a>{' '}
+                  |{' '}
+                  <a href="https://www.redhat.com/en/about/privacy-policy" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
+                    Privacy Policy
+                  </a>
+                </Text>
               </TextContent>
             </div>
           </GridItem>

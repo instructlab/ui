@@ -51,6 +51,15 @@ const AboutInstructLab = ({ isOpen, setIsOpen }: AboutModalProps) => {
           <Text className={styles.version} component={TextVariants.p}>
             © InstructLab | Version 1.0.0 Beta
           </Text>
+          <Text className={styles.links}>
+            <a href="https://www.redhat.com/en/about/terms-use" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
+              Terms of use
+            </a>{' '}
+            |{' '}
+            <a href="https://www.redhat.com/en/about/privacy-policy" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
+              Privacy Policy
+            </a>
+          </Text>
         </TextContent>
       </div>
     </AboutModal>
