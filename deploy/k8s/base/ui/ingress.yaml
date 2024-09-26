@@ -4,9 +4,9 @@ metadata:
   name: ui
 spec:
   tls:
-  - hosts:
-      - localhost
-    secretName: letsencrypt-ui
+    - hosts:
+        - localhost
+      secretName: letsencrypt-ui
   rules:
     - host: localhost
       http:
