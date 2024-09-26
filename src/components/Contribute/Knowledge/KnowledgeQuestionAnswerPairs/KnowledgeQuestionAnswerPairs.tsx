@@ -35,8 +35,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
         isRequired
         type="text"
         aria-label={`Context ${seedExampleIndex + 1}`}
-        placeholder="Enter the context from which the Q&A pairs are derived. (500 character max)"
-        maxLength={500}
+        placeholder="Enter the context from which the Q&A pairs are derived. (500 words max)"
         value={seedExample.context}
         validated={seedExample.isContextValid}
         onChange={(_event, contextValue: string) => handleContextInputChange(seedExampleIndex, contextValue)}
@@ -46,7 +45,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
         <FormHelperText key={seedExampleIndex * 10 + 2}>
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isContextValid}>
-              {seedExample.validationError || 'Context is required. It must be non empty and less than 500 characters.'}
+              {seedExample.validationError ? seedExample.validationError : 'Context is required. It must be non empty and less than 500 words.'}
             </HelperTextItem>
           </HelperText>
         </FormHelperText>
@@ -87,7 +86,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.questionAndAnswers[questionAnswerIndex].isQuestionValid}>
                     {seedExample.questionAndAnswers[questionAnswerIndex].questionValidationError ||
-                      'Question is required. Total length of all Q&A pairs should be less than 250 characters.'}
+                      'Question is required. Total length of all Q&A pairs should be less than 250 words.'}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
@@ -108,7 +107,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.questionAndAnswers[questionAnswerIndex].isAnswerValid}>
                     {seedExample.questionAndAnswers[questionAnswerIndex].answerValidationError ||
-                      'Answer is required. Total length of all Q&A pairs should be less than 250 characters.'}
+                      'Answer is required. Total length of all Q&A pairs should be less than 250 words.'}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
