@@ -5,9 +5,9 @@ resources:
   - ../../base
 
 secretGenerator:
-- name: ui-config
-  envs:
-  - .env
+  - name: ui-config
+    envs:
+      - .env
 
 patches:
   - target:
@@ -40,4 +40,3 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/imagePullPolicy
         value: Always
-

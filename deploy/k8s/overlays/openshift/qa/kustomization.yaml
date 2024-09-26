@@ -2,14 +2,14 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: instructlab
 resources:
-  - ../../base
+  - ../../../base
   - issuer.yaml
   - certificate.yaml
 
 secretGenerator:
-- name: ui-config
-  envs:
-  - .env
+  - name: ui-config
+    envs:
+      - .env
 
 patches:
   - target:
@@ -46,4 +46,3 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/image
         value: quay.io/instructlab-ui/pathservice:main # Override this image if you want to use a different pathservice image
-
