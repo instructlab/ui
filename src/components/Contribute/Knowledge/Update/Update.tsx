@@ -159,7 +159,7 @@ Creator names: ${attributionData.creator_names}
   };
   return (
     <Button variant="primary" type="submit" isDisabled={disableAction} onClick={handleUpdate}>
-      Update Knowledge
+      Update
     </Button>
   );
 };
