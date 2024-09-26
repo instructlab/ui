@@ -23,7 +23,7 @@ const FilePathInformation: React.FC<Props> = ({ reset, path, setFilePath }) => {
             ),
             id: 'file-path-info-id'
           }}
-          titleDescription="Specify the file path for the QnA and Attribution files."
+          titleDescription="Specify the file path for the QnA and Attribution files. Once path is selected, please add your leaf directory name for your contribution."
         />
       }
     >
