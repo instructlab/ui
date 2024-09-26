@@ -36,6 +36,16 @@ action-lint:  ## Lint GitHub Action workflows
 	fi
 	$(CMD_PREFIX) actionlint -color
 
+.PHONY: yaml-lint
+yaml-lint: ## Lint yaml files
+	$(CMD_PREFIX) if ! which yamllint >/dev/null 2>&1; then \
+		echo "Please install yamllint." ; \
+		echo "See: https://yamllint.readthedocs.io/en/stable/quickstart.html" ; \
+		exit 1 ; \
+	fi
+	$(ECHO_PREFIX) printf "  %-12s ./...\n" "[YAML LINT]"
+	$(CMD_PREFIX) yamllint -c .yamllint.yaml deploy --strict
+
 ##@ Artifacts - Command to build and publish artifacts
 ui-image: Containerfile ## Build continaer image for the InstructLab UI
 	$(ECHO_PREFIX) printf "  %-12s Containerfile\n" "[docker]"
@@ -89,9 +99,9 @@ stop-dev-kind: check-kind ## Stop the Kind cluster to destroy the development en
 
 .PHONY: setup-kind
 setup-kind: check-kind check-kubectl stop-dev ## Create a Kind cluster with ingress enabled
-	$(CMD_PREFIX) kind create cluster --config ./deploy/k8s/kind.yaml
+	$(CMD_PREFIX) kind create cluster --config ./deploy/k8s/overlays/kind/kind.yaml
 	$(CMD_PREFIX) kubectl cluster-info
-	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -f ./deploy/k8s/kind-ingress.yaml
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -f ./deploy/k8s/overlays/kind/kind-ingress.yaml
 
 .PHONY: wait-for-readiness
 wait-for-readiness: # Wait for operators to be ready
@@ -123,24 +133,51 @@ undeploy: ## Undeploy the InstructLab UI stack from a kubernetes cluster
 .PHONY: start-dev-kind ## Run the development environment on Kind cluster
 start-dev-kind: setup-kind deploy ## Setup a Kind cluster and deploy InstructLab UI on it
 
-##@ OpenShift - UI deployment in OpenShift
-.PHONY: deploy-openshift
-deploy-openshift: ## Deploy the InstructLab UI on OpenShift
+##@ OpenShift - UI prod and qa deployment on OpenShift
+.PHONY: deploy-qa-openshift
+deploy-qa-openshift: ## Deploy QA stack of the InstructLab UI on OpenShift
 	$(CMD_PREFIX) if [ ! -f .env ]; then \
 		echo "Please create a .env file in the root of the project." ; \
 		exit 1 ; \
 	fi
 
-	$(CMD_PREFIX) yes | cp -rf .env ./deploy/k8s/overlays/openshift/.env
-	$(CMD_PREFIX) oc apply -k ./deploy/k8s/overlays/openshift
+	$(CMD_PREFIX) yes | cp -rf .env ./deploy/k8s/overlays/openshift/qa/.env
+	$(CMD_PREFIX) oc apply -k ./deploy/k8s/overlays/openshift/qa
 	$(CMD_PREFIX) oc wait --for=condition=Ready pods -n $(ILAB_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=ui --timeout=15m
 
-.PHONY: redeploy-openshift
-redeploy-openshift: deploy-openshift ## Redeploy the InstructLab UI on OpenShift
+.PHONY: redeploy-qa-openshift
+redeploy-qa-openshift: ## Redeploy QA stack of the InstructLab UI on OpenShift
+	$(CMD_PREFIX) oc -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
+	$(CMD_PREFIX) oc -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
 
-.PHONY: undeploy-openshift
-undeploy-openshift: ## Undeploy the InstructLab UI on OpenShift
-	$(CMD_PREFIX) oc delete -k ./deploy/k8s/overlays/openshift
-	$(CMD_PREFIX) if [ -f ./deploy/k8s/overlays/openshift/.env ]; then \
-		rm ./deploy/k8s/overlays/openshift/.env ; \
+
+.PHONY: undeploy-qa-openshift
+undeploy-qa-openshift: ## Undeploy QA stack of the InstructLab UI on OpenShift
+	$(CMD_PREFIX) oc delete -k ./deploy/k8s/overlays/openshift/qa
+	$(CMD_PREFIX) if [ -f ./deploy/k8s/overlays/openshift/qa/.env ]; then \
+		rm ./deploy/k8s/overlays/openshift/qa/.env ; \
+	fi
+
+.PHONY: deploy-prod-openshift
+deploy-prod-openshift: ## Deploy production stack of the InstructLab UI on OpenShift
+	$(CMD_PREFIX) if [ ! -f .env ]; then \
+		echo "Please create a .env file in the root of the project." ; \
+		exit 1 ; \
+	fi
+
+	$(CMD_PREFIX) yes | cp -rf .env ./deploy/k8s/overlays/openshift/prod/.env
+	$(CMD_PREFIX) oc apply -k ./deploy/k8s/overlays/openshift/prod
+	$(CMD_PREFIX) oc wait --for=condition=Ready pods -n $(ILAB_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=ui --timeout=15m
+
+.PHONY: redeploy-prod-openshift
+redeploy-prod-openshift: ## Redeploy production stack of the InstructLab UI on OpenShift
+	$(CMD_PREFIX) oc -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
+	$(CMD_PREFIX) oc -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
+
+
+.PHONY: undeploy-prod-openshift
+undeploy-prod-openshift: ## Undeploy production stack of the InstructLab UI on OpenShift
+	$(CMD_PREFIX) oc delete -k ./deploy/k8s/overlays/openshift/prod
+	$(CMD_PREFIX) if [ -f ./deploy/k8s/overlays/openshift/prod/.env ]; then \
+		rm ./deploy/k8s/overlays/openshift/prod/.env ; \
 	fi

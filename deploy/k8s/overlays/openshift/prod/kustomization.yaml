@@ -2,14 +2,14 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: instructlab
 resources:
-  - ../../base
+  - ../../../base
   - issuer.yaml
   - certificate.yaml
 
 secretGenerator:
-- name: ui-config
-  envs:
-  - .env
+  - name: ui-config
+    envs:
+      - .env
 
 patches:
   - target:
@@ -24,26 +24,25 @@ patches:
         value: ''
       - op: replace
         path: /spec/rules/0/host
-        value: qa.ui.instructlab.ai
+        value: ui.instructlab.ai
       - op: replace
         path: /spec/tls/0/hosts/0
-        value: qa.ui.instructlab.ai
+        value: ui.instructlab.ai
 
-  # Override the UI image for Openshift deployment
+  # Override the UI image for Openshift production deployment
   - target:
       kind: Deployment
       name: ui
     patch: |-
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: quay.io/instructlab-ui/ui:main # Override this image if you want to use a different UI image
+        value: quay.io/instructlab-ui/ui:v1.0.0-beta # Override this image if you want to use a different UI image
 
-  # Override the pathservice image for Openshift deployment
+  # Override the pathservice image for Openshift production deployment
   - target:
       kind: Deployment
       name: pathservice
     patch: |-
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: quay.io/instructlab-ui/pathservice:main # Override this image if you want to use a different pathservice image
-
+        value: quay.io/instructlab-ui/pathservice:v1.0.0-beta # Override this image if you want to use a different pathservice image
