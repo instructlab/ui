@@ -36,6 +36,16 @@ action-lint:  ## Lint GitHub Action workflows
 	fi
 	$(CMD_PREFIX) actionlint -color
 
+.PHONY: yaml-lint
+yaml-lint: ## Lint yaml files
+	$(CMD_PREFIX) if ! which yamllint >/dev/null 2>&1; then \
+		echo "Please install yamllint." ; \
+		echo "See: https://yamllint.readthedocs.io/en/stable/quickstart.html" ; \
+		exit 1 ; \
+	fi
+	$(ECHO_PREFIX) printf "  %-12s ./...\n" "[YAML LINT]"
+	$(CMD_PREFIX) yamllint -c .yamllint.yaml deploy --strict
+
 ##@ Artifacts - Command to build and publish artifacts
 ui-image: Containerfile ## Build continaer image for the InstructLab UI
 	$(ECHO_PREFIX) printf "  %-12s Containerfile\n" "[docker]"
