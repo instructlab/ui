@@ -220,51 +220,65 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     }
   }, [knowledgeEditFormData]);
 
-  const validateContext = (context: string) => {
+  const validateContext = (seedExample: SeedExample): SeedExample => {
     // Split the context into words based on spaces
-    const contextStr = context.trim();
+    const contextStr = seedExample.context.trim();
     if (contextStr.length == 0) {
       setDisableAction(true);
-      return { msg: 'Context is required', status: ValidatedOptions.error };
+      seedExample.validationError = 'Context is required';
+      seedExample.isContextValid = ValidatedOptions.error;
+      return seedExample;
     }
     const tokens = contextStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length <= 500) {
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
-      return { msg: 'Valid Input', status: ValidatedOptions.success };
+      seedExample.isContextValid = ValidatedOptions.success;
+      return seedExample;
     }
     setDisableAction(true);
-    const errorMsg = 'Context must be less than 500 words. Current word count: ' + tokens.length;
-    return { msg: errorMsg, status: ValidatedOptions.error };
+    seedExample.validationError = 'Context must be less than 500 words. Current word count: ' + tokens.length;
+    seedExample.isContextValid = ValidatedOptions.error;
+    return seedExample;
   };
 
-  const validateQuestion = (question: string) => {
-    const questionStr = question.trim();
+  const validateQuestion = (qnaPair: QuestionAndAnswerPair): QuestionAndAnswerPair => {
+    const questionStr = qnaPair.question.trim();
     if (questionStr.length == 0) {
       setDisableAction(true);
-      return { msg: 'Question is required', status: ValidatedOptions.error };
+      qnaPair.questionValidationError = 'Question is required';
+      qnaPair.isQuestionValid = ValidatedOptions.error;
+      return qnaPair;
     }
     const tokens = questionStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length < 250) {
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
-      return { msg: 'Valid input', status: ValidatedOptions.success };
+      qnaPair.isQuestionValid = ValidatedOptions.success;
+      return qnaPair;
     }
     setDisableAction(true);
-    return { msg: 'Question must be less than 250 words. Current word count: ' + tokens.length, status: ValidatedOptions.error };
+    qnaPair.questionValidationError = 'Question must be less than 250 words. Current word count: ' + tokens.length;
+    qnaPair.isQuestionValid = ValidatedOptions.error;
+    return qnaPair;
   };
 
-  const validateAnswer = (answer: string) => {
-    const answerStr = answer.trim();
+  const validateAnswer = (qnaPair: QuestionAndAnswerPair): QuestionAndAnswerPair => {
+    const answerStr = qnaPair.answer.trim();
     if (answerStr.length == 0) {
       setDisableAction(true);
-      return { msg: 'Answer is required', status: ValidatedOptions.error };
+      qnaPair.answerValidationError = 'Answer is required';
+      qnaPair.isAnswerValid = ValidatedOptions.error;
+      return qnaPair;
     }
     const tokens = answerStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length < 250) {
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
-      return { msg: 'Valid input', status: ValidatedOptions.success };
+      qnaPair.isAnswerValid = ValidatedOptions.success;
+      return qnaPair;
     }
     setDisableAction(true);
-    return { msg: 'Answer must be less than 250 words. Current word count: ' + tokens.length, status: ValidatedOptions.error };
+    qnaPair.answerValidationError = 'Answer must be less than 250 words. Current word count: ' + tokens.length;
+    qnaPair.isAnswerValid = ValidatedOptions.error;
+    return qnaPair;
   };
 
   const handleContextInputChange = (seedExampleIndex: number, contextValue: string): void => {
@@ -281,18 +295,14 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
   };
 
   const handleContextBlur = (seedExampleIndex: number): void => {
-    const updatedSeedExamples = seedExamples.map((seedExample: SeedExample, index: number): SeedExample => {
-      if (index === seedExampleIndex) {
-        const { msg, status } = validateContext(seedExample.context);
-        return {
-          ...seedExample,
-          isContextValid: status,
-          validationError: msg
-        };
-      }
-      return seedExample;
-    });
-    setSeedExamples(updatedSeedExamples);
+    setSeedExamples(
+      seedExamples.map((seedExample: SeedExample, index: number) => {
+        if (index === seedExampleIndex) {
+          return validateContext(seedExample);
+        }
+        return seedExample;
+      })
+    );
   };
 
   const handleQuestionInputChange = (seedExampleIndex: number, questionAndAnswerIndex: number, questionValue: string): void => {
@@ -323,12 +333,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
               ...seedExample,
               questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, index: number) => {
                 if (index === questionAndAnswerIndex) {
-                  const { msg, status } = validateQuestion(questionAndAnswerPair.question);
-                  return {
-                    ...questionAndAnswerPair,
-                    isQuestionValid: status,
-                    questionValidationError: msg
-                  };
+                  return validateQuestion(questionAndAnswerPair);
                 }
                 return questionAndAnswerPair;
               })
@@ -366,12 +371,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
               ...seedExample,
               questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, index: number) => {
                 if (index === questionAndAnswerIndex) {
-                  const { msg, status } = validateAnswer(questionAndAnswerPair.answer);
-                  return {
-                    ...questionAndAnswerPair,
-                    isAnswerValid: status,
-                    answerValidationError: msg
-                  };
+                  return validateAnswer(questionAndAnswerPair);
                 }
                 return questionAndAnswerPair;
               })
