@@ -1,5 +1,6 @@
 version: 2
 updates:
+  # Enable version updates for the following package ecosystems for master branch
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -68,6 +69,79 @@ updates:
       interval: "monthly"
     reviewers:
       - "instructlab/ui-maintainers"
+    target-branch: "main"
     labels:
       - "docker dependencies"
 
+  # Enable version updates for the following package ecosystems for release-1.0 branch
+    - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "instructlab/ui-maintainers"
+    allow:
+      - dependency-type: "production"
+    target-branch: "release-1.0"
+    labels:
+      - "npm dependencies"
+      - "frontend"
+    groups:
+      typescript-eslint:
+        patterns:
+          - "@typescript-eslint/*"
+          - typescript-eslint
+        update-types:
+          - "minor"
+          - "patch"
+      react:
+        patterns:
+          - react
+          - react-dom
+        update-types:
+          - "minor"
+          - "patch"
+      patternfly:
+        patterns:
+          - "@patternfly/*"
+          - patternfly
+        update-types:
+          - "minor"
+          - "patch"
+      typescript-libraries:
+        patterns:
+          - "@types/*"
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "instructlab/ui-maintainers"
+    target-branch: "release-1.0"
+    labels:
+      - "github-actions"
+    groups:
+      actions-deps:
+        patterns:
+          - "*"
+  - package-ecosystem: "gomod"
+    directory: "/pathservice"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "instructlab/ui-maintainers"
+    target-branch: "release-1.0"
+    labels:
+      - "go dependencies"
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    reviewers:
+      - "instructlab/ui-maintainers"
+    target-branch: "release-1.0"
+    labels:
+      - "docker dependencies"

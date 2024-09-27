@@ -2,9 +2,13 @@ name: linters
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+      - release-1.0
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
+      - release-1.0
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
