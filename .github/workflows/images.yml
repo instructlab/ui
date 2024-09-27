@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+      - release-1.0
+    tags:
+      - v*
 
 env:
   GHCR_REGISTRY: ghcr.io
