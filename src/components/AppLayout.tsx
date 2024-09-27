@@ -21,7 +21,6 @@ import { PageSidebarBody } from '@patternfly/react-core/dist/dynamic/components/
 import { SkipToContent } from '@patternfly/react-core/dist/dynamic/components/SkipToContent';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import { BarsIcon } from '@patternfly/react-icons/dist/dynamic/icons/bars-icon';
-import { Flex, FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex';
 import { TextContent, Text, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { useTheme } from '../context/ThemeContext';
 import Link from 'next/link';
@@ -81,7 +80,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
           <BarsIcon />
         </Button>
       </MastheadToggle>
-      <MastheadMain>
+      <MastheadMain style={{ flexShrink: 1, display: 'flex', alignItems: 'center' }}>
         <MastheadBrand>
           <Brand src="/updated-logo.png" alt="InstructLab Logo" heights={{ default: '60px' }} />
         </MastheadBrand>
@@ -89,15 +88,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
           <Text component={TextVariants.h1}>InstructLab</Text>
         </TextContent>
       </MastheadMain>
-      <MastheadContent style={{ width: '100%' }}>
-        <Flex spaceItems={{ default: 'spaceItemsXl' }} style={{ paddingLeft: '80%', display: 'flex', alignItems: 'center' }}>
-          <FlexItem>
-            <HelpDropdown />
-          </FlexItem>
-          <FlexItem>
-            <UserMenu />
-          </FlexItem>
-        </Flex>
+      <MastheadContent style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'nowrap' }}>
+        <HelpDropdown />
+        <UserMenu />
       </MastheadContent>
     </Masthead>
   );
