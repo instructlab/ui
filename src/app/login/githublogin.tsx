@@ -16,8 +16,8 @@ const GithubLogin: React.FC = () => {
   };
 
   return (
-    <Page>
-      <PageSection isFilled className="login-page-background">
+    
+      <div  className="login-page-background">
         <Grid hasGutter span={12}>
           <GridItem span={6} className="login-container">
             <div>
@@ -67,8 +67,7 @@ const GithubLogin: React.FC = () => {
             </div>
           </GridItem>
         </Grid>
-      </PageSection>
-    </Page>
+      </div>
   );
 };
 
