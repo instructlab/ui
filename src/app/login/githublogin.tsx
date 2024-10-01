@@ -16,68 +16,66 @@ const GithubLogin: React.FC = () => {
   };
 
   return (
-    <Page>
-      <PageSection isFilled className="login-page-background">
-        <Grid hasGutter span={12}>
-          <GridItem span={6} className="login-container">
-            <div>
-              <TextContent>
-                <Text className="sign-in-text">Sign in to your account</Text>
-              </TextContent>
-              <TextContent>
-                <Text className="description-text">
-                  Join the novel, community based movement to <br></br>create truly open source LLMs
-                </Text>
-              </TextContent>
-              <div className="login-container">
-                <Button
-                  variant="primary"
-                  icon={<GithubIcon />}
-                  iconPosition="left"
-                  size="lg"
-                  style={{ backgroundColor: 'black' }}
-                  onClick={handleGitHubLogin}
-                >
-                  Sign in with GitHub
-                </Button>
-              </div>
-              <TextContent>
-                <Text className="urls-text">
-                  <a href="https://github.com/instructlab/" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
-                    GitHub
-                  </a>{' '}
-                  |{' '}
-                  <a
-                    href="https://github.com/instructlab/community/blob/main/Collaboration.md"
-                    style={{ color: 'white', textDecoration: 'underline' }}
-                    target="_blank"
-                  >
-                    Collaborate
-                  </a>{' '}
-                  |{' '}
-                  <a
-                    href="https://github.com/instructlab/community/blob/main/CODE_OF_CONDUCT.md"
-                    style={{ color: 'white', textDecoration: 'underline' }}
-                    target="_blank"
-                  >
-                    Code Of Conduct
-                  </a>
-                </Text>
-                <Text className="urls-text-medium">
-                  <a href="https://www.redhat.com/en/about/terms-use" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
-                    Terms of use
-                  </a>{' '}
-                  |{' '}
-                  <a href="https://www.redhat.com/en/about/privacy-policy" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
-                    Privacy Policy
-                  </a>
-                </Text>
-              </TextContent>
+    <div className="login-page-background">
+      <Grid hasGutter span={12}>
+        <GridItem span={6} className="login-container">
+          <div>
+            <TextContent>
+              <Text className="sign-in-text">Sign in to your account</Text>
+            </TextContent>
+            <TextContent>
+              <Text className="description-text">
+                Join the novel, community based movement to <br></br>create truly open source LLMs
+              </Text>
+            </TextContent>
+            <div className="login-container">
+              <Button
+                variant="primary"
+                icon={<GithubIcon />}
+                iconPosition="left"
+                size="lg"
+                style={{ backgroundColor: 'black' }}
+                onClick={handleGitHubLogin}
+              >
+                Sign in with GitHub
+              </Button>
             </div>
-          </GridItem>
-        </Grid>
-      </PageSection>
-    </Page>
+            <TextContent>
+              <Text className="urls-text">
+                <a href="https://github.com/instructlab/" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
+                  GitHub
+                </a>{' '}
+                |{' '}
+                <a
+                  href="https://github.com/instructlab/community/blob/main/Collaboration.md"
+                  style={{ color: 'white', textDecoration: 'underline' }}
+                  target="_blank"
+                >
+                  Collaborate
+                </a>{' '}
+                |{' '}
+                <a
+                  href="https://github.com/instructlab/community/blob/main/CODE_OF_CONDUCT.md"
+                  style={{ color: 'white', textDecoration: 'underline' }}
+                  target="_blank"
+                >
+                  Code Of Conduct
+                </a>
+              </Text>
+              <Text className="urls-text-medium">
+                <a href="https://www.redhat.com/en/about/terms-use" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
+                  Terms of use
+                </a>{' '}
+                |{' '}
+                <a href="https://www.redhat.com/en/about/privacy-policy" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
+                  Privacy Policy
+                </a>
+              </Text>
+            </TextContent>
+          </div>
+        </GridItem>
+      </Grid>
+    </div>
   );
 };
 
