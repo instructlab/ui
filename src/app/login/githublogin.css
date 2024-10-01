@@ -1,29 +1,29 @@
 a {
-  color: white; 
-  text-decoration: underline; 
+  color: white;
+  text-decoration: underline;
 }
 
 .login-page-background {
   background-image: url('../../../public/InstructLab-Background-Image.png');
-  background-size: 100% 100%; 
-  background-position: center; 
-  background-repeat: no-repeat; 
-  
-  min-width: 100vh; 
-  min-height: 100vh; 
-  
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  min-width: 100vh;
+  min-height: 100vh;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  
-  overflow-y: auto; 
-  overflow-x: auto; 
+
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
 .login-container {
   text-align: center;
-  width: 100%; 
-  max-width: 1200px; 
+  width: 100%;
+  max-width: 1200px;
   padding: 20px;
 }
 
