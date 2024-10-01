@@ -1,6 +1,4 @@
 import React from 'react';
-import { Page } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
