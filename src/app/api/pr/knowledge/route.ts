@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
 
     // Fetch GitHub username
     const githubUsername = await getGitHubUsername(headers);
-    console.log('GitHub Username:', githubUsername);
+    console.log('Knowledge contribution from gitHub Username:', githubUsername);
 
     // Check if user's fork exists, if not, create it
     const forkExists = await checkUserForkExists(headers, githubUsername, UPSTREAM_REPO_NAME);

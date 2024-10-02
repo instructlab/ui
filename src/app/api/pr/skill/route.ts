@@ -14,7 +14,6 @@ const UPSTREAM_REPO_NAME = process.env.NEXT_PUBLIC_TAXONOMY_REPO!;
 
 export async function POST(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET! });
-  console.log('GitHub Token:', token);
 
   if (!token || !token.accessToken) {
     console.error('Unauthorized: Missing or invalid access token');
@@ -34,7 +33,7 @@ export async function POST(req: NextRequest) {
     const { content, attribution, name, email, submissionSummary, documentOutline, filePath } = body;
 
     const githubUsername = await getGitHubUsername(headers);
-    console.log('GitHub Username:', githubUsername);
+    console.log('Skill contribution from gitHub Username:', githubUsername);
 
     // Check if user's fork exists, if not, create it
     const forkExists = await checkUserForkExists(headers, githubUsername, UPSTREAM_REPO_NAME);
