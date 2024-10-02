@@ -1,15 +1,20 @@
 name: Cherry pick PR to release-1.0 branch
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - main
+    types: ["closed", "labeled"]
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   cherry_pick_release_1_0:
     runs-on: ubuntu-latest
     name: Cherry pick PR to release-1.0 branch
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'cherry-pick-release-1.0') && github.event.pull_request.merged == true }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'cherry-pick-release-1.0') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
