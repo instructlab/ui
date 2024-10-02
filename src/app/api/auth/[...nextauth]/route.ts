@@ -37,7 +37,7 @@ const logger = winston.createLogger({
   transports: [new winston.transports.Console(), new winston.transports.File({ filename: path.join(process.cwd(), 'auth.log') })]
 });
 
-const ORG = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
+const ORG = process.env.NEXT_PUBLIC_AUTHENTICATION_ORG!;
 
 const authOptions: NextAuthOptions = {
   providers: [
@@ -107,16 +107,16 @@ const authOptions: NextAuthOptions = {
           });
 
           if (response.status === 204) {
-            console.log(`User ${githubProfile.login} logged in successfully with GitHub`);
-            logger.info(`User ${githubProfile.login} logged in successfully with GitHub`);
+            console.log(`User ${githubProfile.login} successfully authenticated with GitHub organization - ${ORG}`);
+            logger.info(`User ${githubProfile.login} successfully authenticated with GitHub organization - ${ORG}`);
             return true;
           } else if (response.status === 404) {
             console.log(`User ${githubProfile.login} is not a member of the ${ORG} organization`);
             logger.warn(`User ${githubProfile.login} is not a member of the ${ORG} organization`);
             return `/error?error=AccessDenied`; // Redirect to custom error page
           } else {
-            console.log(`Unexpected error for user ${githubProfile.login} during organization membership verification`);
-            logger.error(`Unexpected error for user ${githubProfile.login} during organization membership verification`);
+            console.log(`Unexpected error while authenticating user ${githubProfile.login} with ${ORG} github organization.`);
+            logger.error(`Unexpected error while authenticating user ${githubProfile.login} with ${ORG} github organization.`);
             return false;
           }
         } catch (error) {
