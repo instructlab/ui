@@ -6,6 +6,10 @@ on:
       - main
     types: ["closed"]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   cherry_pick_release_1_0:
     runs-on: ubuntu-latest
