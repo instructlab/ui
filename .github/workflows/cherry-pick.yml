@@ -1,14 +1,9 @@
 name: Cherry pick PR into release-1.0 branch
 
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - main
-    types: ["closed"]
-
-permissions:
-  contents: write
-  pull-requests: write
 
 jobs:
   cherry_pick_release_1_0:
