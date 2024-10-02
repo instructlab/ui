@@ -1,3 +1,5 @@
+name: Cherry pick PR into release-1.0 branch
+
 on:
   pull_request:
     branches:
@@ -21,7 +23,7 @@ jobs:
           labels: |
             cherry-pick
           reviewers: |
-            aReviewerUser
+            instructlab/ui-maintainers
           title: '[cherry-pick] {old_title}'
           body: 'Cherry picking #{old_pull_request_id} onto this branch'
 env:
