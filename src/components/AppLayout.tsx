@@ -2,37 +2,37 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+
+import { Page, PageToggleButton } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { Text, TextContent, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { usePathname, useRouter } from 'next/navigation';
+
+import { BarsIcon } from '@patternfly/react-icons/dist/dynamic/icons/bars-icon';
 import { Brand } from '@patternfly/react-core/dist/dynamic/components/Brand';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import HelpDropdown from './HelpDropdown/HelpDropdown';
+import Link from 'next/link';
 import { Masthead } from '@patternfly/react-core/dist/dynamic/components/Masthead';
 import { MastheadBrand } from '@patternfly/react-core/dist/dynamic/components/Masthead';
+import { MastheadContent } from '@patternfly/react-core/dist/dynamic/components/Masthead';
 import { MastheadMain } from '@patternfly/react-core/dist/dynamic/components/Masthead';
 import { MastheadToggle } from '@patternfly/react-core/dist/dynamic/components/Masthead';
-import { MastheadContent } from '@patternfly/react-core/dist/dynamic/components/Masthead';
 import { Nav } from '@patternfly/react-core/dist/dynamic/components/Nav';
+import { NavExpandable } from '@patternfly/react-core/dist/dynamic/components/Nav';
 import { NavItem } from '@patternfly/react-core/dist/dynamic/components/Nav';
 import { NavList } from '@patternfly/react-core/dist/dynamic/components/Nav';
-import { NavExpandable } from '@patternfly/react-core/dist/dynamic/components/Nav';
-import { Page } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageSidebar } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageSidebarBody } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { SkipToContent } from '@patternfly/react-core/dist/dynamic/components/SkipToContent';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
-import { BarsIcon } from '@patternfly/react-icons/dist/dynamic/icons/bars-icon';
-import { TextContent, Text, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { useTheme } from '../context/ThemeContext';
-import Link from 'next/link';
-import HelpDropdown from './HelpDropdown/HelpDropdown';
 import UserMenu from './UserMenu/UserMenu';
+import { useSession } from 'next-auth/react';
+import { useTheme } from '../context/ThemeContext';
 
 interface IAppLayout {
   children: React.ReactNode;
 }
 
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const { theme } = useTheme();
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -76,9 +76,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const Header = (
     <Masthead>
       <MastheadToggle>
-        <Button variant="plain" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Global navigation">
+        <PageToggleButton variant="plain" aria-label="Global navigation">
           <BarsIcon />
-        </Button>
+        </PageToggleButton>
       </MastheadToggle>
       <MastheadMain style={{ flexShrink: 1, display: 'flex', alignItems: 'center' }}>
         <MastheadBrand>
@@ -137,7 +137,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const PageSkipToContent = <SkipToContent href={`#${pageId}`}>Skip to Content</SkipToContent>;
 
   return (
-    <Page mainContainerId={pageId} header={Header} sidebar={sidebarOpen && Sidebar} skipToContent={PageSkipToContent}>
+    <Page mainContainerId={pageId} header={Header} isManagedSidebar sidebar={Sidebar} skipToContent={PageSkipToContent}>
       {children}
     </Page>
   );
