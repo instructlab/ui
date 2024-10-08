@@ -21,6 +21,4 @@ setup('should authenticate on ui.instructlab.ai', async () => {
   // Submit the login form
   await loginButton.click();
   await page.context().storageState({ path: authFile });
-
-  await browser.close();
 });
