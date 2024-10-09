@@ -4,16 +4,15 @@ import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dro
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import DownloadYaml from '../DownloadYaml/DownloadYaml';
 import DownloadAttribution from '../DownloadAttribution/DownloadAttribution';
-import { ActionGroupAlertContent, KnowledgeFormData } from '..';
+import { KnowledgeFormData } from '..';
 import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
 
 interface Props {
   knowledgeFormData: KnowledgeFormData;
-  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
   githubUsername: string | undefined;
 }
 
-export const DownloadDropdown: React.FunctionComponent<Props> = ({ knowledgeFormData, setActionGroupAlertContent, githubUsername }) => {
+export const DownloadDropdown: React.FunctionComponent<Props> = ({ knowledgeFormData, githubUsername }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const onToggleClick = () => {
