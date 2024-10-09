@@ -13,12 +13,11 @@ import FileIcon from '@patternfly/react-icons/dist/dynamic/icons/file-icon';
 import EyeIcon from '@patternfly/react-icons/dist/esm/icons/eye-icon';
 
 interface Props {
-  disableAction: boolean;
   skillFormData: SkillFormData;
   githubUsername: string | undefined;
 }
 
-export const ViewDropdown: React.FunctionComponent<Props> = ({ disableAction, skillFormData, githubUsername }) => {
+export const ViewDropdown: React.FunctionComponent<Props> = ({ skillFormData, githubUsername }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalContent, setModalContent] = useState<string>('');
@@ -77,10 +76,10 @@ export const ViewDropdown: React.FunctionComponent<Props> = ({ disableAction, sk
         shouldFocusToggleOnSelect
       >
         <DropdownList>
-          <DropdownItem key="view yaml" isDisabled={disableAction} onClick={handleViewYaml}>
+          <DropdownItem key="view yaml" onClick={handleViewYaml}>
             <CodeIcon /> YAML Content
           </DropdownItem>
-          <DropdownItem key="view yaml" isDisabled={disableAction} onClick={handleViewAttribution}>
+          <DropdownItem key="view yaml" onClick={handleViewAttribution}>
             <FileIcon /> Attribution Content
           </DropdownItem>
         </DropdownList>
