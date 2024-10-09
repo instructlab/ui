@@ -595,12 +595,11 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
               />
             )}
             <DownloadDropdown
-              disableAction={disableAction}
               knowledgeFormData={knowledgeFormData}
               setActionGroupAlertContent={setActionGroupAlertContent}
               githubUsername={githubUsername}
             />
-            <ViewDropdown disableAction={disableAction} knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
+            <ViewDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
             <Button variant="link" type="button" onClick={handleCancel}>
               Cancel
             </Button>
