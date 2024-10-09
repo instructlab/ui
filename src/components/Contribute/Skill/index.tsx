@@ -460,13 +460,8 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
                 resetForm={resetForm}
               />
             )}
-            <DownloadDropdown
-              disableAction={disableAction}
-              skillFormData={skillFormData}
-              setActionGroupAlertContent={setActionGroupAlertContent}
-              githubUsername={githubUsername}
-            />
-            <ViewDropdown disableAction={disableAction} skillFormData={skillFormData} githubUsername={githubUsername} />
+            <DownloadDropdown skillFormData={skillFormData} setActionGroupAlertContent={setActionGroupAlertContent} githubUsername={githubUsername} />
+            <ViewDropdown skillFormData={skillFormData} githubUsername={githubUsername} />
             <Button variant="link" type="button" onClick={handleCancel}>
               Cancel
             </Button>
