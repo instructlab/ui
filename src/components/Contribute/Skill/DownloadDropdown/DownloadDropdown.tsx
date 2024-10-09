@@ -39,8 +39,8 @@ export const DownloadDropdown: React.FunctionComponent<Props> = ({ skillFormData
       shouldFocusToggleOnSelect
     >
       <DropdownList>
-        <DownloadYaml skillFormData={skillFormData} setActionGroupAlertContent={setActionGroupAlertContent} githubUsername={githubUsername} />
-        <DownloadAttribution skillFormData={skillFormData} setActionGroupAlertContent={setActionGroupAlertContent} />
+        <DownloadYaml skillFormData={skillFormData} githubUsername={githubUsername} />
+        <DownloadAttribution skillFormData={skillFormData} />
       </DropdownList>
     </Dropdown>
   );
