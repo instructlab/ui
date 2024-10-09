@@ -1,19 +1,15 @@
 import React from 'react';
-import { validateFields } from '../validation';
-import { ActionGroupAlertContent, SkillFormData } from '..';
+import { SkillFormData } from '..';
 import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/DropdownItem';
 import FileIcon from '@patternfly/react-icons/dist/esm/icons/file-icon';
 
 interface Props {
-  disableAction: boolean;
   skillFormData: SkillFormData;
-  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
 }
 
-const DownloadAttribution: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupAlertContent }) => {
+const DownloadAttribution: React.FC<Props> = ({ skillFormData }) => {
   const handleDownloadAttribution = () => {
     // Because I have overly complicated the validatedFields function all fields are being checked and not just the attribution ones here. Not ideal.
-    if (!validateFields(skillFormData, setActionGroupAlertContent)) return;
 
     const attributionContent = `Title of work: ${skillFormData.titleWork}
     License of the work: ${skillFormData.licenseWork}
@@ -31,7 +27,7 @@ const DownloadAttribution: React.FC<Props> = ({ disableAction, skillFormData, se
   };
 
   return (
-    <DropdownItem key="DownloadAttribution" to="#default-link6" isDisabled={disableAction} onClick={handleDownloadAttribution}>
+    <DropdownItem key="DownloadAttribution" to="#default-link6" onClick={handleDownloadAttribution}>
       <FileIcon /> Attribution File
     </DropdownItem>
   );
