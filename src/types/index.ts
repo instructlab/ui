@@ -14,6 +14,7 @@ export interface Model {
   name: string;
   apiURL: string;
   modelName: string;
+  apiKey: string;
 }
 
 export interface Label {
