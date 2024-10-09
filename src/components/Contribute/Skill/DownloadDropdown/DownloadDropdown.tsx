@@ -8,13 +8,12 @@ import { ActionGroupAlertContent, SkillFormData } from '..';
 import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
 
 interface Props {
-  disableAction: boolean;
   skillFormData: SkillFormData;
   setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
   githubUsername: string | undefined;
 }
 
-export const DownloadDropdown: React.FunctionComponent<Props> = ({ disableAction, skillFormData, setActionGroupAlertContent, githubUsername }) => {
+export const DownloadDropdown: React.FunctionComponent<Props> = ({ skillFormData, setActionGroupAlertContent, githubUsername }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const onToggleClick = () => {
@@ -40,13 +39,8 @@ export const DownloadDropdown: React.FunctionComponent<Props> = ({ disableAction
       shouldFocusToggleOnSelect
     >
       <DropdownList>
-        <DownloadYaml
-          disableAction={disableAction}
-          skillFormData={skillFormData}
-          setActionGroupAlertContent={setActionGroupAlertContent}
-          githubUsername={githubUsername}
-        />
-        <DownloadAttribution disableAction={disableAction} skillFormData={skillFormData} setActionGroupAlertContent={setActionGroupAlertContent} />
+        <DownloadYaml skillFormData={skillFormData} setActionGroupAlertContent={setActionGroupAlertContent} githubUsername={githubUsername} />
+        <DownloadAttribution skillFormData={skillFormData} setActionGroupAlertContent={setActionGroupAlertContent} />
       </DropdownList>
     </Dropdown>
   );
