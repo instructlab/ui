@@ -147,7 +147,7 @@ const EndpointsPage: React.FC = () => {
           <DataList aria-label="Endpoints list">
             {endpoints.map((endpoint) => (
               <DataListItem key={endpoint.id}>
-                <DataListItemRow>
+                <DataListItemRow wrapModifier="breakWord">
                   <DataListItemCells
                     dataListCells={[
                       <DataListCell key="url">
