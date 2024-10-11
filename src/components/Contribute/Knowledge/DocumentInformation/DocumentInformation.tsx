@@ -257,7 +257,8 @@ const DocumentInformation: React.FC<Props> = ({
         <p>{modalText}</p>
       </Modal>
       {!useFileUpload ? (
-        <FormGroup key={'doc-info-details-id'}>
+        <>
+        <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL">
           <TextInput
             isRequired
             type="url"
@@ -266,13 +267,12 @@ const DocumentInformation: React.FC<Props> = ({
             placeholder="Enter repo url where document exists"
             value={knowledgeDocumentRepositoryUrl}
             onChange={(_event, value) => setKnowledgeDocumentRepositoryUrl(value)}
-            onBlur={() => validateRepo(knowledgeDocumentRepositoryUrl)}
-          />
+            onBlur={() => validateRepo(knowledgeDocumentRepositoryUrl)} />
           {validRepo === ValidatedOptions.error && (
             <FormHelperText>
               <HelperText>
                 <HelperTextItem icon={<ExclamationCircleIcon />} variant={validRepo}>
-                  Repo URL is required.
+                  Required field
                 </HelperTextItem>
               </HelperText>
             </FormHelperText>
@@ -286,26 +286,27 @@ const DocumentInformation: React.FC<Props> = ({
               </HelperText>
             </FormHelperText>
           )}
-
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="commit"
-            placeholder="Enter the commit sha of the document in that repo"
-            value={knowledgeDocumentCommit}
-            validated={validCommit}
-            onChange={(_event, value) => setKnowledgeDocumentCommit(value)}
-            onBlur={() => validateCommit(knowledgeDocumentCommit)}
-          />
-          {validCommit === ValidatedOptions.error && (
-            <FormHelperText>
-              <HelperText>
-                <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCommit}>
-                  Valid commit SHA is required.
-                </HelperTextItem>
-              </HelperText>
-            </FormHelperText>
-          )}
+        </FormGroup><FormGroup isRequired key={'doc-info-details-commit_sha'} label="Commit SHA">
+            <TextInput
+              isRequired
+              type="text"
+              aria-label="commit"
+              placeholder="Enter the commit sha of the document in that repo"
+              value={knowledgeDocumentCommit}
+              validated={validCommit}
+              onChange={(_event, value) => setKnowledgeDocumentCommit(value)}
+              onBlur={() => validateCommit(knowledgeDocumentCommit)} />
+            {validCommit === ValidatedOptions.error && (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCommit}>
+                    Valid commit SHA is required.
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            )}
+          </FormGroup>
+          <FormGroup isRequired key={'doc-info-details-patterns'} label="Document names">
           <TextInput
             isRequired
             type="text"
@@ -314,18 +315,18 @@ const DocumentInformation: React.FC<Props> = ({
             value={documentName}
             validated={validDocumentName}
             onChange={(_event, value) => setDocumentName(value)}
-            onBlur={() => validateDocumentName(documentName)}
-          />
+            onBlur={() => validateDocumentName(documentName)} />
           {validDocumentName === ValidatedOptions.error && (
             <FormHelperText>
               <HelperText>
                 <HelperTextItem icon={<ExclamationCircleIcon />} variant={validDocumentName}>
-                  Document name is required.
+                  Required field
                 </HelperTextItem>
               </HelperText>
             </FormHelperText>
           )}
         </FormGroup>
+        </>
       ) : (
         <>
           <UploadFile onFilesChange={handleFilesChange} />

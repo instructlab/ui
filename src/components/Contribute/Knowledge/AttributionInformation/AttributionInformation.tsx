@@ -145,7 +145,7 @@ const AttributionInformation: React.FC<Props> = ({
         />
       }
     >
-      <FormGroup isRequired key={'attribution-info-details-id'}>
+      <FormGroup isRequired key={'attribution-info-details-work_link'} label="Work link or URL" >
         <TextInput
           isRequired
           type="url"
@@ -160,7 +160,7 @@ const AttributionInformation: React.FC<Props> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validLink}>
-                Link to title is required.
+                Required field
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
@@ -169,11 +169,13 @@ const AttributionInformation: React.FC<Props> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validLink}>
-                Please enter a valid URL.
+              Required field
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
         )}
+        </FormGroup>
+        <FormGroup isRequired key={'attribution-info-details-title_work'} label="Work title" >
         <TextInput
           isRequired
           type="text"
@@ -188,11 +190,13 @@ const AttributionInformation: React.FC<Props> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validTitle}>
-                Title is required.
+                Required field
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
         )}
+        </FormGroup>
+        <FormGroup isRequired key={'attribution-info-details-document_revision'} label="Document revision" >
         <TextInput
           isRequired
           type="text"
@@ -207,11 +211,13 @@ const AttributionInformation: React.FC<Props> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validRevision}>
-                Revision is required.
+                Required field
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
         )}
+        </FormGroup>
+        <FormGroup isRequired key={'attribution-info-details-license'} label="License" >
         <TextInput
           isRequired
           type="text"
@@ -226,11 +232,13 @@ const AttributionInformation: React.FC<Props> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validLicense}>
-                License is required.
+                Required field
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
         )}
+        </FormGroup>
+        <FormGroup isRequired key={'attribution-info-details-creators'} label="Creators name">
         <TextInput
           isRequired
           type="text"
@@ -245,7 +253,7 @@ const AttributionInformation: React.FC<Props> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCreators}>
-                Creators is required.
+                Required field
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
