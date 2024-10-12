@@ -20,16 +20,20 @@ interface Props {
 const AuthorInformation: React.FC<Props> = ({ reset, knowledgeFormData, setDisableAction, email, setEmail, name, setName }) => {
   const [validEmail, setValidEmail] = useState<ValidatedOptions>();
   const [validName, setValidName] = useState<ValidatedOptions>();
+  const [validEmailError, setValidEmailError] = useState("Required Field");
 
   const validateEmail = (email: string) => {
     const re = /\S+@\S+\.\S+/;
     if (re.test(email)) {
       setValidEmail(ValidatedOptions.success);
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setValidEmailError("");
       return;
     }
+    const errMsg = email ? "Please enter a valid email address." : "Required field";
     setDisableAction(true);
     setValidEmail(ValidatedOptions.error);
+    setValidEmailError(errMsg);
     return;
   };
 
@@ -82,7 +86,7 @@ const AuthorInformation: React.FC<Props> = ({ reset, knowledgeFormData, setDisab
           <FormHelperText>
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validEmail}>
-                Required field
+                {validEmailError}
               </HelperTextItem>
             </HelperText>
           </FormHelperText>

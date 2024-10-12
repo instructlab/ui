@@ -83,7 +83,7 @@ const SkillsSeedExample: React.FC<Props> = ({
             />
           }
         >
-          <FormGroup key={seedExampleIndex}>
+          <FormGroup isRequired key={seedExampleIndex+"-question"} label="Question">
             <TextArea
               key={seedExampleIndex * 10 + 2}
               isRequired
@@ -104,6 +104,8 @@ const SkillsSeedExample: React.FC<Props> = ({
                 </HelperText>
               </FormHelperText>
             )}
+            </FormGroup>
+            <FormGroup key={seedExampleIndex+"-context"} label="Context">
             <TextArea
               key={seedExampleIndex * 10 + 1}
               isRequired
@@ -115,7 +117,8 @@ const SkillsSeedExample: React.FC<Props> = ({
               onChange={(_event, contextValue: string) => handleContextInputChange(seedExampleIndex, contextValue)}
               onBlur={() => handleContextBlur(seedExampleIndex)}
             />
-
+            </FormGroup>
+            <FormGroup isRequired key={seedExampleIndex+"-answer"} label="Answer">
             <TextArea
               key={seedExampleIndex * 10 + 3}
               isRequired
