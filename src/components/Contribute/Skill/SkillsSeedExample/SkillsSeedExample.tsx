@@ -99,7 +99,7 @@ const SkillsSeedExample: React.FC<Props> = ({
               <FormHelperText key={seedExampleIndex * 100 + 2}>
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isQuestionValid}>
-                    {seedExample.questionValidationError || 'Question is required. '}
+                    {seedExample.questionValidationError || 'Required field '}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
@@ -131,7 +131,7 @@ const SkillsSeedExample: React.FC<Props> = ({
               <FormHelperText key={seedExampleIndex * 100 + 4}>
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isAnswerValid}>
-                    {seedExample.answerValidationError || 'Answer is required.'}
+                    {seedExample.answerValidationError || 'Required field'}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>

@@ -67,7 +67,7 @@ const AuthorInformation: React.FC<Props> = ({ reset, knowledgeFormData, setDisab
         />
       }
     >
-      <FormGroup isRequired key={'author-info-details-id'} label="Email address">
+      <FormGroup isRequired key={'author-info-details-email'} label="Email address">
         <TextInput
           isRequired
           type="email"
@@ -88,7 +88,7 @@ const AuthorInformation: React.FC<Props> = ({ reset, knowledgeFormData, setDisab
           </FormHelperText>
         )}
         </FormGroup>
-        <FormGroup isRequired key={'author-info-details-id'} label="Full name">
+        <FormGroup isRequired key={'author-info-details-name'} label="Full name">
         <TextInput
           isRequired
           type="text"
