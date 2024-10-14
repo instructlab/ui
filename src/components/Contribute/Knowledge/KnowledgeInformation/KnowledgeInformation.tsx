@@ -122,8 +122,8 @@ const KnowledgeInformation: React.FC<Props> = ({
             </HelperTextItem>
           </HelperText>
         )}
-        </FormGroup>
-        <FormGroup key={'knowledge-info-details-domain'} label="Domain">
+      </FormGroup>
+      <FormGroup key={'knowledge-info-details-domain'} label="Domain">
         <TextInput
           isRequired
           type="text"
@@ -141,8 +141,8 @@ const KnowledgeInformation: React.FC<Props> = ({
             </HelperTextItem>
           </HelperText>
         )}
-        </FormGroup>
-        <FormGroup key={'knowledge-info-details-document_outline'} label="Document outline">
+      </FormGroup>
+      <FormGroup key={'knowledge-info-details-document_outline'} label="Document outline">
         <TextArea
           isRequired
           type="text"

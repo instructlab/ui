@@ -20,18 +20,17 @@ interface Props {
 const AuthorInformation: React.FC<Props> = ({ reset, skillFormData, setDisableAction, email, setEmail, name, setName }) => {
   const [validEmail, setValidEmail] = useState<ValidatedOptions>();
   const [validName, setValidName] = useState<ValidatedOptions>();
-  const [validEmailError, setValidEmailError] = useState("Required Field");
-  
+  const [validEmailError, setValidEmailError] = useState('Required Field');
 
   const validateEmail = (email: string) => {
     const re = /\S+@\S+\.\S+/;
     if (re.test(email)) {
       setValidEmail(ValidatedOptions.success);
       setDisableAction(!checkSkillFormCompletion(skillFormData));
-      setValidEmailError("");
+      setValidEmailError('');
       return;
     }
-    const errMsg = email ? "Please enter a valid email address." : "Required field";
+    const errMsg = email ? 'Please enter a valid email address.' : 'Required field';
     setDisableAction(true);
     setValidEmail(ValidatedOptions.error);
     setValidEmailError(errMsg);
@@ -92,8 +91,8 @@ const AuthorInformation: React.FC<Props> = ({ reset, skillFormData, setDisableAc
             </HelperText>
           </FormHelperText>
         )}
-        </FormGroup>
-        <FormGroup isRequired key={'author-info-details-name'} label="Full name">
+      </FormGroup>
+      <FormGroup isRequired key={'author-info-details-name'} label="Full name">
         <TextInput
           isRequired
           type="text"

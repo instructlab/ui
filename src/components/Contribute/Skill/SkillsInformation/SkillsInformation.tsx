@@ -100,12 +100,12 @@ const SkillsInformation: React.FC<Props> = ({
         {validDescription === ValidatedOptions.error && (
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={validDescription}>
-            Required field. Must be less than 60 characters
+              Required field. Must be less than 60 characters
             </HelperTextItem>
           </HelperText>
         )}
-        </FormGroup>
-        <FormGroup key={'skills-info-details-document_outline'} label="Document Outline">
+      </FormGroup>
+      <FormGroup key={'skills-info-details-document_outline'} label="Document Outline">
         <TextArea
           isRequired
           type="text"
@@ -120,7 +120,7 @@ const SkillsInformation: React.FC<Props> = ({
         {validOutline === ValidatedOptions.error && (
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={validOutline}>
-            Required field. Must be at least 40 characters
+              Required field. Must be at least 40 characters
             </HelperTextItem>
           </HelperText>
         )}

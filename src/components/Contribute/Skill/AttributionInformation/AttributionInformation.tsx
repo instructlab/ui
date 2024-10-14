@@ -121,8 +121,8 @@ const AttributionInformation: React.FC<Props> = ({
             </HelperText>
           </FormHelperText>
         )}
-        </FormGroup>
-        <FormGroup isRequired key={'attribution-info-details-license_work'} label="Work License">
+      </FormGroup>
+      <FormGroup isRequired key={'attribution-info-details-license_work'} label="Work License">
         <TextInput
           isRequired
           type="text"
@@ -142,8 +142,8 @@ const AttributionInformation: React.FC<Props> = ({
             </HelperText>
           </FormHelperText>
         )}
-        </FormGroup>
-        <FormGroup isRequired key={'attribution-info-details-creators'} label="Creators name">
+      </FormGroup>
+      <FormGroup isRequired key={'attribution-info-details-creators'} label="Creators name">
         <TextInput
           isRequired
           type="text"
