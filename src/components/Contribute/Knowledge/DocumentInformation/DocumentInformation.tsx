@@ -67,7 +67,8 @@ const DocumentInformation: React.FC<Props> = ({
     }
   }, [isEditForm]);
 
-  const validateRepo = (repo: string) => {
+  const validateRepo = (repoStr: string) => {
+    const repo = repoStr.trim();
     if (repo.length === 0) {
       setDisableAction(true);
       setValidRepo(ValidatedOptions.error);
@@ -85,7 +86,8 @@ const DocumentInformation: React.FC<Props> = ({
     }
   };
 
-  const validateCommit = (commit: string) => {
+  const validateCommit = (commitStr: string) => {
+    const commit = commitStr.trim();
     if (commit.length > 0) {
       setValidCommit(ValidatedOptions.success);
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
@@ -96,7 +98,8 @@ const DocumentInformation: React.FC<Props> = ({
     return;
   };
 
-  const validateDocumentName = (documentName: string) => {
+  const validateDocumentName = (document: string) => {
+    const documentName = document.trim();
     if (documentName.length > 0) {
       setValidDocumentName(ValidatedOptions.success);
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
@@ -257,75 +260,80 @@ const DocumentInformation: React.FC<Props> = ({
         <p>{modalText}</p>
       </Modal>
       {!useFileUpload ? (
-        <FormGroup key={'doc-info-details-id'}>
-          <TextInput
-            isRequired
-            type="url"
-            aria-label="repo"
-            validated={validRepo}
-            placeholder="Enter repo url where document exists"
-            value={knowledgeDocumentRepositoryUrl}
-            onChange={(_event, value) => setKnowledgeDocumentRepositoryUrl(value)}
-            onBlur={() => validateRepo(knowledgeDocumentRepositoryUrl)}
-          />
-          {validRepo === ValidatedOptions.error && (
-            <FormHelperText>
-              <HelperText>
-                <HelperTextItem icon={<ExclamationCircleIcon />} variant={validRepo}>
-                  Repo URL is required.
-                </HelperTextItem>
-              </HelperText>
-            </FormHelperText>
-          )}
-          {validRepo === ValidatedOptions.warning && (
-            <FormHelperText>
-              <HelperText>
-                <HelperTextItem icon={<ExclamationCircleIcon />} variant="error">
-                  Please enter a valid URL.
-                </HelperTextItem>
-              </HelperText>
-            </FormHelperText>
-          )}
-
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="commit"
-            placeholder="Enter the commit sha of the document in that repo"
-            value={knowledgeDocumentCommit}
-            validated={validCommit}
-            onChange={(_event, value) => setKnowledgeDocumentCommit(value)}
-            onBlur={() => validateCommit(knowledgeDocumentCommit)}
-          />
-          {validCommit === ValidatedOptions.error && (
-            <FormHelperText>
-              <HelperText>
-                <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCommit}>
-                  Valid commit SHA is required.
-                </HelperTextItem>
-              </HelperText>
-            </FormHelperText>
-          )}
-          <TextInput
-            isRequired
-            type="text"
-            aria-label="patterns"
-            placeholder="Enter the documents name (comma separated)"
-            value={documentName}
-            validated={validDocumentName}
-            onChange={(_event, value) => setDocumentName(value)}
-            onBlur={() => validateDocumentName(documentName)}
-          />
-          {validDocumentName === ValidatedOptions.error && (
-            <FormHelperText>
-              <HelperText>
-                <HelperTextItem icon={<ExclamationCircleIcon />} variant={validDocumentName}>
-                  Document name is required.
-                </HelperTextItem>
-              </HelperText>
-            </FormHelperText>
-          )}
-        </FormGroup>
+        <>
+          <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL">
+            <TextInput
+              isRequired
+              type="url"
+              aria-label="repo"
+              validated={validRepo}
+              placeholder="Enter repo url where document exists"
+              value={knowledgeDocumentRepositoryUrl}
+              onChange={(_event, value) => setKnowledgeDocumentRepositoryUrl(value)}
+              onBlur={() => validateRepo(knowledgeDocumentRepositoryUrl)}
+            />
+            {validRepo === ValidatedOptions.error && (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validRepo}>
+                    Required field
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            )}
+            {validRepo === ValidatedOptions.warning && (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem icon={<ExclamationCircleIcon />} variant="error">
+                    Please enter a valid URL.
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            )}
+          </FormGroup>
+          <FormGroup isRequired key={'doc-info-details-commit_sha'} label="Commit SHA">
+            <TextInput
+              isRequired
+              type="text"
+              aria-label="commit"
+              placeholder="Enter the commit sha of the document in that repo"
+              value={knowledgeDocumentCommit}
+              validated={validCommit}
+              onChange={(_event, value) => setKnowledgeDocumentCommit(value)}
+              onBlur={() => validateCommit(knowledgeDocumentCommit)}
+            />
+            {validCommit === ValidatedOptions.error && (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCommit}>
+                    Valid commit SHA is required.
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            )}
+          </FormGroup>
+          <FormGroup isRequired key={'doc-info-details-patterns'} label="Document names">
+            <TextInput
+              isRequired
+              type="text"
+              aria-label="patterns"
+              placeholder="Enter the documents name (comma separated)"
+              value={documentName}
+              validated={validDocumentName}
+              onChange={(_event, value) => setDocumentName(value)}
+              onBlur={() => validateDocumentName(documentName)}
+            />
+            {validDocumentName === ValidatedOptions.error && (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validDocumentName}>
+                    Required field
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            )}
+          </FormGroup>
+        </>
       ) : (
         <>
           <UploadFile onFilesChange={handleFilesChange} />

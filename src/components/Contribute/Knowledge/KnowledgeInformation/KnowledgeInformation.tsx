@@ -52,8 +52,9 @@ const KnowledgeInformation: React.FC<Props> = ({
     }
   }, [isEditForm]);
 
-  const validateDescription = (description: string) => {
-    if (description.length > 0 && description.length < 60) {
+  const validateDescription = (desc: string) => {
+    const description = desc.trim();
+    if (description.length > 0 && description.length <= 60) {
       setValidDescription(ValidatedOptions.success);
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
@@ -63,7 +64,8 @@ const KnowledgeInformation: React.FC<Props> = ({
     return;
   };
 
-  const validateDomain = (domain: string) => {
+  const validateDomain = (dom: string) => {
+    const domain = dom.trim();
     if (domain.length > 0) {
       setValidDomain(ValidatedOptions.success);
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
@@ -74,8 +76,9 @@ const KnowledgeInformation: React.FC<Props> = ({
     return;
   };
 
-  const validateOutline = (outline: string) => {
-    if (outline.length > 40) {
+  const validateOutline = (ol: string) => {
+    const outline = ol.trim();
+    if (outline.length >= 40) {
       setValidOutline(ValidatedOptions.success);
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
@@ -103,7 +106,7 @@ const KnowledgeInformation: React.FC<Props> = ({
         />
       }
     >
-      <FormGroup key={'knowledge-info-details-id'}>
+      <FormGroup key={'knowledge-info-details-submission_summary'} label="Submission summary">
         <TextInput
           isRequired
           type="text"
@@ -118,11 +121,12 @@ const KnowledgeInformation: React.FC<Props> = ({
         {validDescription === ValidatedOptions.error && (
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={validDescription}>
-              Description is required and must be less than 60 characters
+              Required field and must be less than 60 characters. {60 - submissionSummary.trim().length} characters remaining
             </HelperTextItem>
           </HelperText>
         )}
-
+      </FormGroup>
+      <FormGroup key={'knowledge-info-details-domain'} label="Domain">
         <TextInput
           isRequired
           type="text"
@@ -136,11 +140,12 @@ const KnowledgeInformation: React.FC<Props> = ({
         {validDomain === ValidatedOptions.error && (
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={validDomain}>
-              Domain is required
+              Required field
             </HelperTextItem>
           </HelperText>
         )}
-
+      </FormGroup>
+      <FormGroup key={'knowledge-info-details-document_outline'} label="Document outline">
         <TextArea
           isRequired
           type="text"
@@ -155,7 +160,7 @@ const KnowledgeInformation: React.FC<Props> = ({
         {validOutline === ValidatedOptions.error && (
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={validOutline}>
-              Document outline is required and must be at least 40 characters
+              Required field and must be at least 40 characters. {40 - documentOutline.trim().length > 0 ? 40 - documentOutline.trim().length + 'more to go.' : ''} 
             </HelperTextItem>
           </HelperText>
         )}

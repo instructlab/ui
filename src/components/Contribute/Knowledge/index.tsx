@@ -233,7 +233,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     const contextStr = context.trim();
     if (contextStr.length == 0) {
       setDisableAction(true);
-      return { msg: 'Context is required', status: ValidatedOptions.error };
+      return { msg: 'Required field', status: ValidatedOptions.error };
     }
     const tokens = contextStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length <= 500) {
@@ -249,7 +249,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     const questionStr = question.trim();
     if (questionStr.length == 0) {
       setDisableAction(true);
-      return { msg: 'Question is required', status: ValidatedOptions.error };
+      return { msg: 'Required field', status: ValidatedOptions.error };
     }
     const tokens = questionStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length < 250) {
@@ -264,7 +264,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     const answerStr = answer.trim();
     if (answerStr.length == 0) {
       setDisableAction(true);
-      return { msg: 'Answer is required', status: ValidatedOptions.error };
+      return { msg: 'Required field', status: ValidatedOptions.error };
     }
     const tokens = answerStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length < 250) {
