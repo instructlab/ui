@@ -36,7 +36,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: quay.io/instructlab-ui/ui:latest #Override this image if you want to use a different UI image
+        value: quay.io/instructlab-ui/ui:latest
 
   # Override the pathservice image for Openshift production deployment
   - target:
@@ -45,4 +45,4 @@ patches:
     patch: |-
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: quay.io/instructlab-ui/pathservice:latest #Override this image if you want to use a different pathservice image
+        value: quay.io/instructlab-ui/pathservice:latest
