@@ -6,10 +6,9 @@ import https from 'https';
 import { PassThrough } from 'stream';
 
 export async function POST(req: NextRequest) {
+  const proxyURL = process.env.IL_ENDPOINT_PROXY;
   try {
-    const { question, systemRole } = await req.json();
-    const apiURL = req.nextUrl.searchParams.get('apiURL');
-    const modelName = req.nextUrl.searchParams.get('modelName');
+    const { question, systemRole, apiURL, modelName, apiKey } = await req.json();
 
     if (!apiURL || !modelName) {
       return new NextResponse('Missing API URL or Model Name', { status: 400 });
@@ -30,7 +29,15 @@ export async function POST(req: NextRequest) {
       rejectUnauthorized: false
     });
 
-    const chatResponse = await fetch(`${apiURL}/v1/chat/completions`, {
+    // define a variable to store the httpHeader
+    let url;
+    if (apiKey === 'default') {
+      url = `${apiURL}/v1/chat/completions`;
+    } else {
+      url = `${proxyURL}/endpoint?apiURL=${apiURL}&apiKey=${apiKey}`;
+    }
+
+    const chatResponse = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

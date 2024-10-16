@@ -41,8 +41,8 @@ const ChatPage: React.FC = () => {
       const envConfig = await response.json();
 
       const defaultModels: Model[] = [
-        { name: 'Granite-7b', apiURL: envConfig.GRANITE_API, modelName: envConfig.GRANITE_MODEL_NAME },
-        { name: 'Merlinite-7b', apiURL: envConfig.MERLINITE_API, modelName: envConfig.MERLINITE_MODEL_NAME }
+        { name: 'Granite-7b', apiURL: envConfig.GRANITE_API, modelName: envConfig.GRANITE_MODEL_NAME, apiKey: 'default' },
+        { name: 'Merlinite-7b', apiURL: envConfig.MERLINITE_API, modelName: envConfig.MERLINITE_MODEL_NAME, apiKey: 'default' }
       ];
 
       const storedEndpoints = localStorage.getItem('endpoints');
@@ -51,7 +51,8 @@ const ChatPage: React.FC = () => {
         ? JSON.parse(storedEndpoints).map((endpoint: Endpoint) => ({
             name: endpoint.modelName,
             apiURL: `${endpoint.url}`,
-            modelName: endpoint.modelName
+            modelName: endpoint.modelName,
+            apiKey: endpoint.apiKey
           }))
         : [];
 
@@ -111,124 +112,47 @@ const ChatPage: React.FC = () => {
 
     setIsLoading(true);
 
-    const messagesPayload = [
-      { role: 'system', content: systemRole },
-      { role: 'user', content: question }
-    ];
-
     const requestData = {
-      model: selectedModel.modelName,
-      messages: messagesPayload,
-      stream: true
+      question: question,
+      systemRole: systemRole,
+      apiURL: selectedModel.apiURL,
+      modelName: selectedModel.modelName,
+      apiKey: selectedModel.apiKey
     };
+    // Server-side fetch for default endpoints
+    const response = await fetch(`/api/playground/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestData)
+    });
 
-    if (customModels.some((model) => model.name === selectedModel.name)) {
-      // Client-side fetch if the selected model is a custom endpoint
-      try {
-        const chatResponse = await fetch(`${selectedModel.apiURL}/v1/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            accept: 'application/json'
-          },
-          body: JSON.stringify(requestData)
-        });
+    if (response.body) {
+      const reader = response.body.getReader();
+      const textDecoder = new TextDecoder('utf-8');
+      let botMessage = '';
 
-        if (!chatResponse.body) {
-          setMessages((messages) => [...messages, { text: 'Failed to fetch chat response', isUser: false }]);
-          setIsLoading(false);
-          return;
+      setMessages((messages) => [...messages, { text: '', isUser: false }]);
+
+      (async () => {
+        for (;;) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          const chunk = textDecoder.decode(value, { stream: true });
+          botMessage += chunk;
+
+          setMessages((messages) => {
+            const updatedMessages = [...messages];
+            updatedMessages[updatedMessages.length - 1].text = botMessage;
+            return updatedMessages;
+          });
         }
-
-        const reader = chatResponse.body.getReader();
-        const textDecoder = new TextDecoder('utf-8');
-        let botMessage = '';
-
-        setMessages((messages) => [...messages, { text: '', isUser: false }]);
-
-        let done = false;
-        while (!done) {
-          const { value, done: isDone } = await reader.read();
-          done = isDone;
-          if (value) {
-            const chunk = textDecoder.decode(value, { stream: true });
-            const lines = chunk.split('\n').filter((line) => line.trim() !== '');
-
-            for (const line of lines) {
-              if (line.startsWith('data: ')) {
-                const json = line.replace('data: ', '');
-                if (json === '[DONE]') {
-                  setIsLoading(false);
-                  return;
-                }
-
-                try {
-                  const parsed = JSON.parse(json);
-                  const deltaContent = parsed.choices[0].delta?.content;
-
-                  if (deltaContent) {
-                    botMessage += deltaContent;
-
-                    setMessages((messages) => {
-                      const updatedMessages = [...messages];
-                      if (updatedMessages.length > 1) {
-                        updatedMessages[updatedMessages.length - 1].text = botMessage;
-                      }
-                      return updatedMessages;
-                    });
-                  }
-                } catch (err) {
-                  console.error('Error parsing chunk:', err);
-                }
-              }
-            }
-          }
-        }
-
         setIsLoading(false);
-      } catch (error) {
-        setMessages((messages) => [...messages, { text: 'Error fetching chat response', isUser: false }]);
-        setIsLoading(false);
-      }
+      })();
     } else {
-      // Server-side fetch for default endpoints
-      const response = await fetch(
-        `/api/playground/chat?apiURL=${encodeURIComponent(selectedModel.apiURL)}&modelName=${encodeURIComponent(selectedModel.modelName)}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ question, systemRole })
-        }
-      );
-
-      if (response.body) {
-        const reader = response.body.getReader();
-        const textDecoder = new TextDecoder('utf-8');
-        let botMessage = '';
-
-        setMessages((messages) => [...messages, { text: '', isUser: false }]);
-
-        (async () => {
-          for (;;) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            const chunk = textDecoder.decode(value, { stream: true });
-            botMessage += chunk;
-
-            setMessages((messages) => {
-              const updatedMessages = [...messages];
-              updatedMessages[updatedMessages.length - 1].text = botMessage;
-              return updatedMessages;
-            });
-          }
-          setIsLoading(false);
-        })();
-      } else {
-        setMessages((messages) => [...messages, { text: 'Failed to fetch response from the server.', isUser: false }]);
-        setIsLoading(false);
-      }
+      setMessages((messages) => [...messages, { text: 'Failed to fetch response from the server.', isUser: false }]);
+      setIsLoading(false);
     }
   };
 
