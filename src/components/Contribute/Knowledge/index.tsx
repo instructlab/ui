@@ -177,6 +177,13 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     getEnvVariables();
   }, []);
 
+  useEffect(() => {
+    if (session?.user?.name && session?.user?.email) {
+      setName(session?.user?.name);
+      setEmail(session?.user?.email);
+    }
+  }, [session?.user]);
+
   useMemo(() => {
     const fetchUsername = async () => {
       if (session?.accessToken) {
@@ -587,13 +594,8 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
                 resetForm={resetForm}
               />
             )}
-            <DownloadDropdown
-              disableAction={disableAction}
-              knowledgeFormData={knowledgeFormData}
-              setActionGroupAlertContent={setActionGroupAlertContent}
-              githubUsername={githubUsername}
-            />
-            <ViewDropdown disableAction={disableAction} knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
+            <DownloadDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
+            <ViewDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
             <Button variant="link" type="button" onClick={handleCancel}>
               Cancel
             </Button>

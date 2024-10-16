@@ -4,22 +4,15 @@ import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dro
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import DownloadYaml from '../DownloadYaml/DownloadYaml';
 import DownloadAttribution from '../DownloadAttribution/DownloadAttribution';
-import { ActionGroupAlertContent, KnowledgeFormData } from '..';
+import { KnowledgeFormData } from '..';
 import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
 
 interface Props {
-  disableAction: boolean;
   knowledgeFormData: KnowledgeFormData;
-  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
   githubUsername: string | undefined;
 }
 
-export const DownloadDropdown: React.FunctionComponent<Props> = ({
-  disableAction,
-  knowledgeFormData,
-  setActionGroupAlertContent,
-  githubUsername
-}) => {
+export const DownloadDropdown: React.FunctionComponent<Props> = ({ knowledgeFormData, githubUsername }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const onToggleClick = () => {
@@ -45,17 +38,8 @@ export const DownloadDropdown: React.FunctionComponent<Props> = ({
       shouldFocusToggleOnSelect
     >
       <DropdownList>
-        <DownloadYaml
-          disableAction={disableAction}
-          knowledgeFormData={knowledgeFormData}
-          setActionGroupAlertContent={setActionGroupAlertContent}
-          githubUsername={githubUsername}
-        />
-        <DownloadAttribution
-          disableAction={disableAction}
-          knowledgeFormData={knowledgeFormData}
-          setActionGroupAlertContent={setActionGroupAlertContent}
-        />
+        <DownloadYaml knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
+        <DownloadAttribution knowledgeFormData={knowledgeFormData} />
       </DropdownList>
     </Dropdown>
   );
