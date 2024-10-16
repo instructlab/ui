@@ -12,6 +12,8 @@ import UploadIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
 import { FileRejection, DropEvent } from 'react-dropzone';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
+import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
+import './knowledge.css'
 
 interface readFile {
   fileName: string;
@@ -24,6 +26,7 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
   const [currentFiles, setCurrentFiles] = useState<File[]>([]);
   const [readFileData, setReadFileData] = useState<readFile[]>([]);
   const [showStatus, setShowStatus] = useState(false);
+  const [isUploading, setIsUploading] = useState(false)
   const [statusIcon, setStatusIcon] = useState<'inProgress' | 'success' | 'danger'>('inProgress');
   const [modalText, setModalText] = useState('');
 
@@ -53,6 +56,7 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
   };
 
   const handleFileDrop = (_event: DropEvent, droppedFiles: File[]) => {
+    setIsUploading(true)
     const currentFileNames = currentFiles.map((file) => file.name);
     const reUploads = droppedFiles.filter((file) => currentFileNames.includes(file.name));
 
@@ -70,6 +74,7 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
       if (existingFile) {
         return prevReadFiles;
       }
+      setIsUploading(false)
       return [...prevReadFiles, { data, fileName: file.name, loadResult: 'success' }];
     });
   };
@@ -126,6 +131,12 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
           titleTextSeparator="or"
           infoText="Accepted file types: Markdown"
         />
+        <p className='spinner-container'>
+          {isUploading && <><Spinner size="lg" />
+            <p>Uploading file</p>
+          </>
+          }
+        </p>
         {showStatus && (
           <MultipleFileUploadStatus
             statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
