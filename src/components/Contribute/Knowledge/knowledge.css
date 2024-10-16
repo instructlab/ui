@@ -22,3 +22,10 @@
 .button-secondary:hover {
   border-color: #45a049;
 }
+
+.spinner-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
