@@ -96,10 +96,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
   useEffect(() => {
     //Dropdown menu closed when field is clicked away from
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        componentRef.current &&
-        !componentRef.current.contains(event.target as Node)
-      ) {
+      if (componentRef.current && !componentRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
       }
     };
