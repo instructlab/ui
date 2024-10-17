@@ -21,6 +21,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
   const [items, setItems] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const componentRef = useRef<HTMLDivElement>(null); // Add a ref to the entire component
   const [validPath, setValidPath] = React.useState<ValidatedOptions>();
 
   const validatePath = () => {
@@ -30,7 +31,6 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
       return;
     }
     setValidPath(ValidatedOptions.error);
-    return;
   };
 
   const fetchData = async (subpath: string) => {
@@ -93,6 +93,23 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
     validatePath();
   }, [inputValue]);
 
+  useEffect(() => {
+    //Dropdown menu closed when field is clicked away from
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        componentRef.current &&
+        !componentRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleChange = (value: string) => {
     setInputValue(value);
   };
@@ -135,7 +152,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
   };
 
   return (
-    <div>
+    <div ref={componentRef}>
       <SearchInput
         ref={inputRef}
         placeholder="Type to find taxonomy path"
