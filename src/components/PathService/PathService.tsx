@@ -94,7 +94,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
   }, [inputValue]);
 
   useEffect(() => {
-    //dropdown menu closed when field is clicked away from
+    //Dropdown menu closed when field is clicked away from
     const handleClickOutside = (event: MouseEvent) => {
       if (
         componentRef.current &&
