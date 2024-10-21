@@ -118,7 +118,7 @@ This should run a server on port 8000
 
 ### Configuring the chat environment to use a local ilab model chat instance
 
-Return back to the root of the repo (ui) and run `npm run dev` and visit [http://localhost:3000/playground/endpoints](http://localhost:3000/playground/endpoints).
+Return to the root of the repo (ui) and run `npm run dev` and visit [http://localhost:3000/playground/endpoints](http://localhost:3000/playground/endpoints).
 
 Click the `Add Endpoint` button and a popup modal will appear.
 
@@ -139,3 +139,86 @@ Go to the chat interface [http://localhost:3000/playground/chat](http://localhos
 The chat interface should now use the server.
 
 ![enter image description here](../public/dev-local-chat-server/successful-chat.png)
+
+### How to Cherry-Pick a Merged PR to `release-1.0`
+
+Until we finish automating releases, you may be asked to cherry-pick your PR after it is merged. Here are instructions for cherry-picking a merged Pull Request to the `release-1.0` branch.
+
+Example:
+
+1. Identify the Commit Hash:
+
+- After a PR is merged, navigate to the `main` branch or the branch where the PR was merged.
+- Find the commit(s) related to the PR. You can identify the commit hash from the commit history in the GitHub UI or by using the `git log` command.
+
+   Example:
+
+   ```bash
+   git log --oneline
+   ```
+
+Copy the commit hash of the PR that you want to cherry-pick.
+
+{:start="2"}
+2. Check Out the Release Branch:
+
+- Ensure you are working on the correct release branch (`release-1.0` in this case).
+
+   ```bash
+   git checkout release-1.0
+   ```
+
+{:start="3"}
+3. Create a New Branch:
+
+- Create a new branch based on the `release-1.0` branch for your cherry-pick changes.
+
+   ```bash
+   git checkout -b cherry-pick-pr-<PR-number>-release-1.0
+   ```
+
+{:start="4"}
+4. Cherry-Pick the Commit:
+
+- Use the `git cherry-pick` command to apply the specific commit to your new branch.
+
+   ```bash
+   git cherry-pick <commit-hash>
+   ```
+
+If there are multiple commits associated with the PR, repeat this command for each commit hash, or use the commit range if they are consecutive:
+
+   ```bash
+   git cherry-pick <commit-hash-start>^..<commit-hash-end>
+   ```
+
+{:start="5"}
+5. Resolve Conflicts (If Any):
+
+- If there are conflicts, Git will pause the cherry-pick process and allow you to resolve them manually.
+- After resolving, add the resolved files and continue the cherry-pick process:
+
+   ```bash
+   git add <resolved-file>
+   git cherry-pick --continue
+   ```
+
+   If for some reason you need to abort the cherry-pick, you can use:
+
+   ```bash
+   git cherry-pick --abort
+   ```
+
+{:start="6"}
+6. Push the New Branch:
+
+- After successfully cherry-picking and resolving any conflicts, push your new branch to GitHub.
+
+   ```bash
+   git push origin cherry-pick-pr-<PR-number>-release-1.0
+   ```
+
+{:start="7"}
+7. Create a Pull Request:
+
+- Navigate to your GitHub repository and create a new Pull Request from your cherry-pick branch (`cherry-pick-pr-<PR-number>-release-1.0`) into the `release-1.0` branch.
