@@ -31,44 +31,103 @@ import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/components/
 import { useState } from 'react';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
 
+import { DashboardTable } from './PrTable';
+import { FilterAttributeSearch } from './temp-filter';
+
+const mockPR: PullRequest[] = [
+  {
+    number: 0,
+    title: 'a-test',
+    user: {
+      login: 'test0'
+    },
+    html_url: 'http://test.com/',
+    state: 'open',
+    created_at: '2024-10-09',
+    updated_at: '2024-10-09',
+    labels: [{ name: 'test' }]
+  },
+  {
+    number: 1,
+    title: 'b-test',
+    user: {
+      login: 'test1'
+    },
+    html_url: 'http://test.com/',
+    state: 'open',
+    created_at: '2024-10-10',
+    updated_at: '2024-10-10',
+    labels: [{ name: 'test' }, { name: 'hello' }, { name: 'world' }]
+  },
+  {
+    number: 2,
+    title: 'c-test',
+    user: {
+      login: 'test2'
+    },
+    html_url: 'http://test.com/',
+    state: 'open',
+    created_at: '2024-10-11',
+    updated_at: '2024-10-11',
+    labels: [{ name: 'apple' }, { name: 'blueberry' }, { name: 'cherry' }]
+  }
+];
+
 const Index: React.FunctionComponent = () => {
   const { data: session } = useSession();
-  const [pullRequests, setPullRequests] = React.useState<PullRequest[]>([]);
-  const [isFirstPullDone, setIsFirstPullDone] = React.useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [pullRequests, setPullRequests] = React.useState<PullRequest[]>(mockPR);
+  // const [isFirstPullDone, setIsFirstPullDone] = React.useState<boolean>(true);
+  // const [isLoading, setIsLoading] = useState<boolean>(false);
   //const [error, setError] = React.useState<string | null>(null);
   const router = useRouter();
 
-  const fetchAndSetPullRequests = React.useCallback(async () => {
-    if (session?.accessToken) {
-      try {
-        const header = {
-          Authorization: `Bearer ${session.accessToken}`,
-          Accept: 'application/vnd.github.v3+json'
-        };
-        const fetchedUsername = await getGitHubUsername(header);
-        const data = await fetchPullRequests(session.accessToken);
-        const filteredPRs = data.filter(
-          (pr: PullRequest) => pr.user.login === fetchedUsername && pr.labels.some((label) => label.name === 'skill' || label.name === 'knowledge')
-        );
+  //  interface PullRequest {
+  //   number: number;
+  //   title: string;
+  //   user: {
+  //     login: string;
+  //   };
+  //   html_url: string;
+  //   state: string;
+  //   created_at: string;
+  //   updated_at: string;
+  //   labels: Label[];
+  // }
 
-        // Sort by date (newest first)
-        const sortedPRs = filteredPRs.sort((a: PullRequest, b: PullRequest) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  // const fetchAndSetPullRequests = () => {
+  // setIsFirstPullDone(true);
+  // setIsLoading(false);
 
-        setPullRequests(sortedPRs);
-      } catch (error) {
-        console.log('Failed to fetch pull requests.' + error);
-      }
-      setIsFirstPullDone(true);
-      setIsLoading(false);
-    }
-  }, [session?.accessToken]);
+  // const fetchAndSetPullRequests = React.useCallback(async () => {
+  //   if (session?.accessToken) {
+  //     try {
+  //       const header = {
+  //         Authorization: `Bearer ${session.accessToken}`,
+  //         Accept: 'application/vnd.github.v3+json'
+  //       };
+  //       const fetchedUsername = await getGitHubUsername(header);
+  //       const data = await fetchPullRequests(session.accessToken);
+  //       const filteredPRs = data.filter(
+  //         (pr: PullRequest) => pr.user.login === fetchedUsername && pr.labels.some((label) => label.name === 'skill' || label.name === 'knowledge')
+  //       );
 
-  React.useEffect(() => {
-    fetchAndSetPullRequests();
-    const intervalId = setInterval(fetchAndSetPullRequests, 60000);
-    return () => clearInterval(intervalId);
-  }, [session, fetchAndSetPullRequests]);
+  //       // Sort by date (newest first)
+  //       const sortedPRs = filteredPRs.sort((a: PullRequest, b: PullRequest) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  //       setPullRequests(sortedPRs);
+  //     } catch (error) {
+  //       console.log('Failed to fetch pull requests.' + error);
+  //     }
+  //     setIsFirstPullDone(true);
+  //     setIsLoading(false);
+  //   }
+  // }, [session?.accessToken]);
+
+  // React.useEffect(() => {
+  //   fetchAndSetPullRequests();
+  //   const intervalId = setInterval(fetchAndSetPullRequests, 60000);
+  //   return () => clearInterval(intervalId);
+  // }, [session, fetchAndSetPullRequests]);
 
   const handleEditClick = (pr: PullRequest) => {
     const hasKnowledgeLabel = pr.labels.some((label) => label.name === 'knowledge');
@@ -120,15 +179,15 @@ const Index: React.FunctionComponent = () => {
       </PageSection>
       <PageSection>
         <div style={{ marginBottom: '20px' }} />
-        {!isFirstPullDone && (
+        {/* {!isFirstPullDone && (
           <Modal variant={ModalVariant.small} title="Retrieving your submissions" isOpen={isLoading} onClose={() => handleOnClose()}>
             <div>
               <Spinner size="md" />
               Retrieving all your skills and knowledge submissions from taxonomy repository.
             </div>
           </Modal>
-        )}
-        {isFirstPullDone && pullRequests.length === 0 ? (
+        )} */}
+        {pullRequests.length === 0 ? (
           <EmptyState>
             <EmptyStateHeader
               titleText="Welcome to InstructLab"
@@ -175,41 +234,46 @@ const Index: React.FunctionComponent = () => {
             </EmptyStateFooter>
           </EmptyState>
         ) : (
-          <Stack hasGutter>
-            {pullRequests.map((pr) => (
-              <StackItem key={pr.number}>
-                <Card>
-                  <CardTitle>{pr.title}</CardTitle>
-                  <CardBody>
-                    <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
-                      <FlexItem>State: {pr.state}</FlexItem>
-                      <FlexItem>Created At: {new Date(pr.created_at).toLocaleString()}</FlexItem>
-                      <FlexItem>Updated At: {new Date(pr.updated_at).toLocaleString()}</FlexItem>
-                      <FlexItem>
-                        {pr.labels.map((label) => (
-                          <Label key={label.name} color="blue" style={{ marginRight: '5px' }}>
-                            {label.name}
-                          </Label>
-                        ))}
-                      </FlexItem>
-                      <FlexItem alignSelf={{ default: 'alignSelfFlexEnd' }} flex={{ default: 'flexNone' }}>
-                        <Button variant="secondary" component="a" href={pr.html_url} target="_blank" rel="noopener noreferrer">
-                          View PR
-                        </Button>
-                      </FlexItem>
-                      <FlexItem alignSelf={{ default: 'alignSelfFlexEnd' }} flex={{ default: 'flexNone' }}>
-                        {pr.state === 'open' && (
-                          <Button variant="primary" onClick={() => handleEditClick(pr)}>
-                            Edit
-                          </Button>
-                        )}
-                      </FlexItem>
-                    </Flex>
-                  </CardBody>
-                </Card>
-              </StackItem>
-            ))}
-          </Stack>
+          <div>
+            <DashboardTable rows={mockPR} />
+            <FilterAttributeSearch rows={mockPR} />
+          </div>
+
+          // <Stack hasGutter>
+          //   {mockPR.map((pr) => (
+          //     <StackItem key={pr.number}>
+          //       <Card>
+          //         <CardTitle>{pr.title}</CardTitle>
+          //         <CardBody>
+          //           <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+          //             <FlexItem>State: {pr.state}</FlexItem>
+          //             <FlexItem>Created At: {new Date(pr.created_at).toLocaleString()}</FlexItem>
+          //             <FlexItem>Updated At: {new Date(pr.updated_at).toLocaleString()}</FlexItem>
+          //             <FlexItem>
+          //               {pr.labels.map((label) => (
+          //                 <Label key={label.name} color="blue" style={{ marginRight: '5px' }}>
+          //                   {label.name}
+          //                 </Label>
+          //               ))}
+          //             </FlexItem>
+          //             <FlexItem alignSelf={{ default: 'alignSelfFlexEnd' }} flex={{ default: 'flexNone' }}>
+          //               <Button variant="secondary" component="a" href={pr.html_url} target="_blank" rel="noopener noreferrer">
+          //                 View PR
+          //               </Button>
+          //             </FlexItem>
+          //             <FlexItem alignSelf={{ default: 'alignSelfFlexEnd' }} flex={{ default: 'flexNone' }}>
+          //               {pr.state === 'open' && (
+          //                 <Button variant="primary" onClick={() => handleEditClick(pr)}>
+          //                   Edit
+          //                 </Button>
+          //               )}
+          //             </FlexItem>
+          //           </Flex>
+          //         </CardBody>
+          //       </Card>
+          //     </StackItem>
+          //   ))}
+          // </Stack>
         )}
       </PageSection>
     </div>
