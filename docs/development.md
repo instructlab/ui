@@ -250,4 +250,4 @@ In our tests since we want to authenticate into the application, there is a shar
 
 The configuration for playwright tests is defined in `playwright.config` file and we're running these tests on Chromium, WebKit and Firefox browsers. Playwright will run all projects by default, but you can use the `--project` command line option to run a single project.
 
-If you'd like to run a specific single test, use the following command with the appropriate folder path to your test. Example: `npx playwright test tests/routing.spec.ts`. To get a detailed report of the completed tests, run `npx playwright show-report` and you'll get a detailed view. 
+If you'd like to run a specific single test, use the following command with the appropriate folder path to your test. Example: `npx playwright test tests/routing.spec.ts`. To get a detailed report of the completed tests, run `npx playwright show-report` and you'll get a detailed view.
