@@ -227,13 +227,13 @@ If there are multiple commits associated with the PR, repeat this command for ea
 
 As a developer, you can add more integration (end to end tests) after you develop your feature. We use [playwright](https://playwright.dev/) as the automation test runner for executing integration tests on our app. To execute playwright tests locally run the following command:
 
-```
+```bash
 npm run test:e2e
 ```
 
 Make sure to export `USERNAME` and `PASSWORD` on your local development environment since we authenticate into the application using the auth credentials provided by the user from process.env variables. For example:
 
-```
+```bash
 export USERNAME=foo
 export PASSWORD=***
 ```
@@ -246,7 +246,7 @@ There are some configuration options that you can use while developing tests loc
 - Use `--debug` flag to launch debugging for all tests.
 - Use `--last-failed` to run only the tests that failed in the last test run.
 
-In our tests since we want to authenticate into the application, there is a shared account that is used across the tests. This `user.json` is generated on the first test run under `playwright/.auth` folder, and is saved as an  authentication state to apply and reuse across every test as an already authenticated user. 
+In our tests since we want to authenticate into the application, there is a shared account that is used across the tests. This `user.json` is generated on the first test run under `playwright/.auth` folder, and is saved as an  authentication state to apply and reuse across every test as an already authenticated user.
 
 The configuration for playwright tests is defined in `playwright.config` file and we're running these tests on Chromium, WebKit and Firefox browsers. Playwright will run all projects by default, but you can use the `--project` command line option to run a single project.
 
