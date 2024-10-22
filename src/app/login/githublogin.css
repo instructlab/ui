@@ -4,12 +4,12 @@ a {
 }
 
 .login-page-background {
-  background-image: url('../../../public/InstructLab-Background-Image.png');
-  background-size: cover;
+  background-image: url('../../../public/InstructLab-Background-Image.svg');
+  background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
+  background-color: #454b9a;
 
-  min-width: 100vh;
   min-height: 100vh;
 
   display: flex;
