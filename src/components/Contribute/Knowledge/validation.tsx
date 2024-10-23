@@ -160,7 +160,7 @@ export const validateFields = (
   return true;
 };
 
-export const checkKnowledgeFormCompletion = (knowledgeFormData: KnowledgeFormData): boolean => {
+export const checkKnowledgeFormCompletion = (knowledgeFormData: object): boolean => {
   // Helper function to check if a value is non-empty
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isNonEmpty = (value: any): boolean => {
