@@ -23,10 +23,9 @@ const GithubLogin: React.FC = () => {
     const error = searchParams.get('error');
     if (error === 'NotOrgMember') {
       const errorMessage =
-        'You are not a member of the InstructLab Public Github Organization. \
-        To access the InstructLab UI, you need to be a member of InstructLab Public Github Organization.\
-         Please use the Send Invite button to receive an invitation to join the Organization. \
-         Once you accept the invitation please try again to access the InstructLab UI.';
+        'Join InstructLab on GitHub \
+        To access the InstructLab UI, you need to become a member of the InstructLab public GitHub organization.\
+         First, send yourself an invite on GitHub. Then, accept the invite and try accessing the InstructLab UI again.';
       setErrorMsg(errorMessage);
       setShowError(true);
     }
