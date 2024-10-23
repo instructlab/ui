@@ -7,7 +7,7 @@ import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
-import AuthorInformation from './AuthorInformation/AuthorInformation';
+import AuthorInformation, { FormType } from '../AuthorInformation';
 import KnowledgeInformation from './KnowledgeInformation/KnowledgeInformation';
 import FilePathInformation from './FilePathInformation/FilePathInformation';
 import DocumentInformation from './DocumentInformation/DocumentInformation';
@@ -481,8 +481,9 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
 
         <Form className="form-k">
           <AuthorInformation
+            formType={FormType.Knowledge}
             reset={reset}
-            knowledgeFormData={knowledgeFormData}
+            formData={knowledgeFormData}
             setDisableAction={setDisableAction}
             email={email}
             setEmail={setEmail}
