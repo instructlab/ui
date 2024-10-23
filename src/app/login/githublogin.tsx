@@ -23,9 +23,9 @@ const GithubLogin: React.FC = () => {
     const error = searchParams.get('error');
     if (error === 'NotOrgMember') {
       const errorMessage =
-        'Join InstructLab on GitHub \
-        To access the InstructLab UI, you need to become a member of the InstructLab public GitHub organization.\
-         First, send yourself an invite on GitHub. Then, accept the invite and try accessing the InstructLab UI again.';
+        'To access the InstructLab UI, you need to become a member of the \
+        InstructLab public GitHub organization. First, send yourself an invite on GitHub. \
+         Then, accept the invite and try accessing the InstructLab UI again.';
       setErrorMsg(errorMessage);
       setShowError(true);
     }
@@ -134,7 +134,7 @@ const GithubLogin: React.FC = () => {
         <div>
           <Modal
             variant={ModalVariant.medium}
-            title="Please Join The InstructLab Public Organization On GitHub"
+            title="Join InstructLab on GitHub"
             titleIconVariant="warning"
             isOpen={showError}
             onClose={() => handleOnClose()}
