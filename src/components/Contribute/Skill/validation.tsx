@@ -85,7 +85,7 @@ export const validateFields = (
 
 const optionalKeys = ['context', 'isContextValid', 'validationError', 'questionValidationError', 'answerValidationError'];
 
-export const checkSkillFormCompletion = (skillFormData: SkillFormData): boolean => {
+export const checkSkillFormCompletion = (skillFormData: object): boolean => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isObject = (value: Record<string, any>): boolean => {
     return value && typeof value === 'object' && !Array.isArray(value);
