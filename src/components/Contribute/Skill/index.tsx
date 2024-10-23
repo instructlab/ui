@@ -7,7 +7,8 @@ import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
-import AuthorInformation, { FormType } from '../AuthorInformation';
+import AuthorInformation from '../AuthorInformation';
+import { FormType } from '../AuthorInformation';
 import FilePathInformation from './FilePathInformation/FilePathInformation';
 import AttributionInformation from './AttributionInformation/AttributionInformation';
 import Submit from './Submit/Submit';
