@@ -45,7 +45,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
         <FormHelperText key={seedExampleIndex * 10 + 2}>
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isContextValid}>
-              {seedExample.validationError ? seedExample.validationError : 'Context is required. It must be non empty and less than 500 words.'}
+              {seedExample.validationError ? seedExample.validationError : 'Required field. It must be non empty and less than 500 words.'}
             </HelperTextItem>
           </HelperText>
         </FormHelperText>
@@ -86,7 +86,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.questionAndAnswers[questionAnswerIndex].isQuestionValid}>
                     {seedExample.questionAndAnswers[questionAnswerIndex].questionValidationError ||
-                      'Question is required. Total length of all Q&A pairs should be less than 250 words.'}
+                      'Required field. Total length of all Q&A pairs should be less than 250 words.'}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
@@ -107,7 +107,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.questionAndAnswers[questionAnswerIndex].isAnswerValid}>
                     {seedExample.questionAndAnswers[questionAnswerIndex].answerValidationError ||
-                      'Answer is required. Total length of all Q&A pairs should be less than 250 words.'}
+                      'Required field. Total length of all Q&A pairs should be less than 250 words.'}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>

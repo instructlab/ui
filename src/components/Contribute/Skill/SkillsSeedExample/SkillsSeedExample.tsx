@@ -83,7 +83,7 @@ const SkillsSeedExample: React.FC<Props> = ({
             />
           }
         >
-          <FormGroup key={seedExampleIndex}>
+          <FormGroup isRequired key={seedExampleIndex + '-question'} label="Question">
             <TextArea
               key={seedExampleIndex * 10 + 2}
               isRequired
@@ -99,11 +99,13 @@ const SkillsSeedExample: React.FC<Props> = ({
               <FormHelperText key={seedExampleIndex * 100 + 2}>
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isQuestionValid}>
-                    {seedExample.questionValidationError || 'Question is required. '}
+                    {seedExample.questionValidationError || 'Required field '}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
             )}
+          </FormGroup>
+          <FormGroup key={seedExampleIndex + '-context'} label="Context">
             <TextArea
               key={seedExampleIndex * 10 + 1}
               isRequired
@@ -115,7 +117,8 @@ const SkillsSeedExample: React.FC<Props> = ({
               onChange={(_event, contextValue: string) => handleContextInputChange(seedExampleIndex, contextValue)}
               onBlur={() => handleContextBlur(seedExampleIndex)}
             />
-
+          </FormGroup>
+          <FormGroup isRequired key={seedExampleIndex + '-answer'} label="Answer">
             <TextArea
               key={seedExampleIndex * 10 + 3}
               isRequired
@@ -131,7 +134,7 @@ const SkillsSeedExample: React.FC<Props> = ({
               <FormHelperText key={seedExampleIndex * 100 + 4}>
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isAnswerValid}>
-                    {seedExample.answerValidationError || 'Answer is required.'}
+                    {seedExample.answerValidationError || 'Required field'}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
