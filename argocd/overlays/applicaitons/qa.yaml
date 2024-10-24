@@ -3,11 +3,12 @@ kind: Application
 metadata:
   name: ilab-ui-stack-qa
 spec:
-  destination:
-    name: in-cluster # needs to be setup
-    namespace: instructlab
-  project: ilab # needs to be setup
+  project: default
   source:
+    repoURL: https://github.com/gregory-pereira/ui.git
     path: deploy/k8s/overlays/openshift/qa
-    repoURL: https://github.com/instructlab/ui.git
-    targetRevision: main
+    targetRevision: argocd-deployment
+  destination:
+    namespace: instructlab
+    name: in-cluster
+

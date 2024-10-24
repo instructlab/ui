@@ -1,0 +1,16 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/name: openshift-gitops-argocd-application-controller
+    app.kubernetes.io/part-of: openshift-gitops
+    app.kubernetes.io/component: openshift-gitops-argocd-application-controller
+  name: openshift-gitops-argocd-application-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: openshift-gitops-argocd-application-controller
+subjects:
+- kind: ServiceAccount
+  name: openshift-gitops-argocd-application-controller
+  namespace: openshift-gitops

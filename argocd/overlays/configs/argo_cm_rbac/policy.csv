@@ -1,0 +1,9 @@
+# Define a standard user template that has read access to argocd resources
+p, role:standard-user, certificates, get, *, allow
+p, role:standard-user, clusters, get, *, allow
+p, role:standard-user, repositories, get, *, allow
+p, role:standard-user, projects, get, *, allow
+p, role:standard-user, accounts, get, *, allow
+
+# Give Openshift group (argocd-admins) the argocd admin role with unrestricted argocd access
+g, argocd-admins, role:admin

@@ -5,12 +5,7 @@ resources:
   - ../../../base
   - issuer.yaml
   - certificate.yaml
-
-secretGenerator:
-  - name: ui-config
-    envs:
-      - .env
-
+  - qa.env.sealedsecret.yaml
 patches:
   - target:
       kind: Ingress
@@ -46,3 +41,11 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/image
         value: quay.io/instructlab-ui/pathservice:main # Override this image if you want to use a different pathservice image
+
+  - target:
+      kind: Deployment
+      name: ui
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/envFrom/0/secretRef/name
+        value: qa.env
