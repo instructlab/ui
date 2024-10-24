@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - argo_cm/envs
+  - argo_cm_rbac/policy.csv
+  - argo_cm_rbac/policy.default
+  - argo_cm_rbac/argocd_admins_group.yaml

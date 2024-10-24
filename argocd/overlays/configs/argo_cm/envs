@@ -1,0 +1,3 @@
+admin.enabled=true
+kustomize.buildOptions=--enable-alpha-plugins
+users.anonymous.enabled=false

@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ilab
+  namespace: openshift-gitops
+spec:
+  destinations:
+    - namespace: '*'
+      server: '*'
+  namespaceResourceWhitelist:
+    - group: argoproj.io
+      kind: Application
+    - group: logging.openshift.io
+      kind: ClusterLogging
+    - group: external-secrets.io
+      kind: ExternalSecret
+  roles:
+    - description: Read/Write access to this project only
+      groups:
+        - argocd-admins
+      name: project-admin
+      policies:
+        - 'p, proj:ilab:project-admin, applications, get, ilab/*, allow'
+        - 'p, proj:ilab:project-admin, applications, create, ilab/*, allow'
+        - 'p, proj:ilab:project-admin, applications, update, ilab/*, allow'
+        - 'p, proj:ilab:project-admin, applications, delete, ilab/*, allow'
+        - 'p, proj:ilab:project-admin, applications, sync, ilab/*, allow'
+        - 'p, proj:ilab:project-admin, applications, override, ilab/*, allow'
+        - 'p, proj:ilab:project-admin, applications, action/*, ilab/*, allow'
+  sourceRepos:
+    - '*'
