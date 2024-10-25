@@ -135,7 +135,9 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
           {isUploading && (
             <>
               <Spinner size="lg" />
-              <p>Uploading files to <code>taxonomy-knowledge-docs</code> repo in your github account.</p>
+              <p>
+                Uploading files to <code>taxonomy-knowledge-docs</code> repo in your github account.
+              </p>
             </>
           )}
         </p>
