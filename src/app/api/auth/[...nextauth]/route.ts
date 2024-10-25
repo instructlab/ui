@@ -113,7 +113,7 @@ const authOptions: NextAuthOptions = {
           } else if (response.status === 404) {
             console.log(`User ${githubProfile.login} is not a member of the ${ORG} organization`);
             logger.warn(`User ${githubProfile.login} is not a member of the ${ORG} organization`);
-            return `/error?error=AccessDenied`; // Redirect to custom error page
+            return `/login?error=NotOrgMember&user=${githubProfile.login}`; // Redirect to custom error page
           } else {
             console.log(`Unexpected error while authenticating user ${githubProfile.login} with ${ORG} github organization.`);
             logger.error(`Unexpected error while authenticating user ${githubProfile.login} with ${ORG} github organization.`);

@@ -138,6 +138,13 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
     getEnvVariables();
   }, []);
 
+  useEffect(() => {
+    if (session?.user?.name && session?.user?.email) {
+      setName(session?.user?.name);
+      setEmail(session?.user?.email);
+    }
+  }, [session?.user]);
+
   useMemo(() => {
     const fetchUsername = async () => {
       if (session?.accessToken) {
