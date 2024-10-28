@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ilab-ui-stack-qa
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/gregory-pereira/ui.git
+    path: deploy/k8s/overlays/openshift/qa
+    targetRevision: argocd-deployment
+  destination:
+    namespace: instructlab
+    name: in-cluster
+

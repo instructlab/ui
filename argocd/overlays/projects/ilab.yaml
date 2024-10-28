@@ -1,0 +1,101 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ilab
+  namespace: openshift-gitops
+spec:
+  destinations:
+    - namespace: '*'
+      server: '*'
+  namespaceResourceWhitelist:
+    - group: argoproj.io
+      kind: Application
+    - group: logging.openshift.io
+      kind: ClusterLogging
+    - group: external-secrets.io
+      kind: ExternalSecret
+    - group: ''
+      kind: Binding
+    - group: ''
+      kind: ConfigMap
+    - group: ''
+      kind: Endpoints
+    - group: ''
+      kind: Event
+    - group: ''
+      kind: LimitRange
+    - group: ''
+      kind: PersistentVolumeClaim
+    - group: ''
+      kind: Pod
+    - group: ''
+      kind: ReplicationController
+    - group: ''
+      kind: ResourceQuota
+    - group: ''
+      kind: Secret
+    - group: ''
+      kind: ServiceAccount
+    - group: ''
+      kind: Namespace
+    - group: ''
+      kind: Service
+    - group: ''
+      kind: "*"
+    - group: apps
+      kind: ControllerRevision
+    - group: apps
+      kind: DaemonSet
+    - group: apps
+      kind: Deployment
+    - group: apps
+      kind: ReplicaSet
+    - group: apps
+      kind: StatefulSet
+    - group: apps.openshift.io
+      kind: DeploymentConfig
+    - group: argoproj.io
+      kind: CronWorkflow
+    - group: argoproj.io
+      kind: Workflow
+    - group: argoproj.io
+      kind: WorkflowTemplate
+    - group: authorization.openshift.io
+      kind: RoleBindingRestriction
+    - group: authorization.openshift.io
+      kind: RoleBinding
+    - group: authorization.openshift.io
+      kind: Role
+    - group: autoscaling
+      kind: HorizontalPodAutoscaler
+    - group: batch
+      kind: CronJob
+    - group: batch
+      kind: Job
+    - group: build.openshift.io
+      kind: BuildConfig
+    - group: build.openshift.io
+      kind: Build
+    - group: networking.k8s.io
+      kind: Ingress
+    - group: cert-manager.io
+      kind: Issuer
+    - group: cert-manager.io
+      kind: Certificate
+    - group:  bitnami.com
+      kind: SealedSecret
+  roles:
+    - description: Read/Write access to this project only
+      groups:
+        - argocd-admins
+      name: project-admin
+      policies:
+        - 'p, proj:ilab:project-admin, applications, get, ilab/*, allow'
+        - 'p, proj:ilab:project-admin, applications, create, ilab/*, allow'
+        - 'p, proj:ilab:project-admin, applications, update, ilab/*, allow'
+        - 'p, proj:ilab:project-admin, applications, delete, ilab/*, allow'
+        - 'p, proj:ilab:project-admin, applications, sync, ilab/*, allow'
+        - 'p, proj:ilab:project-admin, applications, override, ilab/*, allow'
+        - 'p, proj:ilab:project-admin, applications, action/*, ilab/*, allow'
+  sourceRepos:
+    - '*'
