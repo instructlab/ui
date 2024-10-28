@@ -1,0 +1,23 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+      "github>platform-engineering-org/.github"
+    ],
+    "enabled": false,
+    "ignoreUnstable": false,
+    "customManagers": [
+      {
+        "customType": "regex",
+        "fileMatch": [
+          "deploy/k8s/overlays/openshift/prod/kustomization.yaml"
+        ],
+        "matchStrings": [
+          "value: quay.io/instructlab-ui/ui:(?<currentValue>.*)",
+          "value: quay.io/instructlab-ui/pathservice:(?<currentValue>.*)"
+        ],
+        "datasourceTemplate": "github-releases",
+        "depNameTemplate": "instructlab/ui",
+        "versioningTemplate": "regex:v(?<major>\\d+)\\.(?<minor>\\d+)\\-(?<patch>\\d+)"
+      }
+    ]
+}
