@@ -7,7 +7,8 @@ import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { getGitHubUsername } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
-import AuthorInformation from './AuthorInformation/AuthorInformation';
+import AuthorInformation from '../AuthorInformation';
+import { FormType } from '../AuthorInformation';
 import FilePathInformation from './FilePathInformation/FilePathInformation';
 import AttributionInformation from './AttributionInformation/AttributionInformation';
 import Submit from './Submit/Submit';
@@ -371,8 +372,9 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
         )}
         <Form className="form-s">
           <AuthorInformation
+            formType={FormType.Knowledge}
             reset={reset}
-            skillFormData={skillFormData}
+            formData={skillFormData}
             setDisableAction={setDisableAction}
             email={email}
             setEmail={setEmail}

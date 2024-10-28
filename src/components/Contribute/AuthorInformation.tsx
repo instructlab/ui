@@ -5,19 +5,25 @@ import { HelperText } from '@patternfly/react-core/dist/dynamic/components/Helpe
 import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { KnowledgeFormData } from '..';
-import { checkKnowledgeFormCompletion } from '../validation';
+import { checkSkillFormCompletion } from './Skill/validation';
+import { checkKnowledgeFormCompletion } from './Knowledge/validation';
+
+export enum FormType {
+  Knowledge,
+  Skill
+}
 
 interface Props {
+  formType: FormType;
   reset: boolean;
-  knowledgeFormData: KnowledgeFormData;
+  formData: object;
   setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   email: string;
   setEmail: React.Dispatch<React.SetStateAction<string>>;
   name: string;
   setName: React.Dispatch<React.SetStateAction<string>>;
 }
-const AuthorInformation: React.FC<Props> = ({ reset, knowledgeFormData, setDisableAction, email, setEmail, name, setName }) => {
+const AuthorInformation: React.FC<Props> = ({ formType, reset, formData, setDisableAction, email, setEmail, name, setName }) => {
   const [validEmail, setValidEmail] = useState<ValidatedOptions>();
   const [validName, setValidName] = useState<ValidatedOptions>();
 
@@ -25,7 +31,11 @@ const AuthorInformation: React.FC<Props> = ({ reset, knowledgeFormData, setDisab
     const re = /\S+@\S+\.\S+/;
     if (re.test(email)) {
       setValidEmail(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      if (formType === FormType.Knowledge) {
+        setDisableAction(!checkKnowledgeFormCompletion(formData));
+        return;
+      }
+      setDisableAction(!checkSkillFormCompletion(formData));
       return;
     }
     setDisableAction(true);
@@ -36,7 +46,11 @@ const AuthorInformation: React.FC<Props> = ({ reset, knowledgeFormData, setDisab
   const validateName = (name: string) => {
     if (name.length > 0) {
       setValidName(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      if (formType === FormType.Knowledge) {
+        setDisableAction(!checkKnowledgeFormCompletion(formData));
+        return;
+      }
+      setDisableAction(!checkSkillFormCompletion(formData));
       return;
     }
     setDisableAction(true);
