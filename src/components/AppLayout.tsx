@@ -32,6 +32,12 @@ interface IAppLayout {
   children: React.ReactNode;
 }
 
+type Route = {
+  path: string;
+  label: string;
+  children?: Route[];
+};
+
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const { theme } = useTheme();
   const { data: session, status } = useSession();
@@ -53,6 +59,14 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     return null; // Return nothing if not authenticated to avoid flicker
   }
 
+  const isExperimentalEnabled = process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES === 'true';
+
+  // Only log if experimental features are enabled
+  if (isExperimentalEnabled) {
+    console.log('Is Experimental Enabled:', isExperimentalEnabled);
+    console.log('Environment Variable:', process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES);
+  }
+
   const routes = [
     { path: '/dashboard', label: 'Dashboard' },
     {
@@ -70,8 +84,12 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         { path: '/playground/chat', label: 'Chat' },
         { path: '/playground/endpoints', label: 'Custom Model Endpoints' }
       ]
+    },
+    isExperimentalEnabled && {
+      path: '/experimental',
+      label: 'Experimental Features'
     }
-  ];
+  ].filter(Boolean) as Route[];
 
   const Header = (
     <Masthead>
@@ -95,27 +113,20 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     </Masthead>
   );
 
-  const renderNavItem = (route: { path: string; label: string }, index: number) => (
+  const renderNavItem = (route: Route, index: number) => (
     <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={route.path === pathname}>
       <Link href={route.path}>{route.label}</Link>
     </NavItem>
   );
 
-  const renderNavExpandable = (
-    route: {
-      path: string;
-      label: string;
-      children: { path: string; label: string }[];
-    },
-    index: number
-  ) => (
+  const renderNavExpandable = (route: Route, index: number) => (
     <NavExpandable
       key={`${route.label}-${index}`}
       title={route.label}
-      isActive={route.path === pathname || route.children.some((child) => child.path === pathname)}
+      isActive={route.path === pathname || route.children?.some((child) => child.path === pathname)}
       isExpanded
     >
-      {route.children.map((child, idx) => renderNavItem(child, idx))}
+      {route.children?.map((child, idx) => renderNavItem(child, idx))}
     </NavExpandable>
   );
 
