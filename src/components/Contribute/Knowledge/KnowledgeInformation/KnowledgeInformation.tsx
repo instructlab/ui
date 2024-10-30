@@ -160,7 +160,8 @@ const KnowledgeInformation: React.FC<Props> = ({
         {validOutline === ValidatedOptions.error && (
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={validOutline}>
-              Required field and must be at least 40 characters. {40 - documentOutline.trim().length > 0 ? 40 - documentOutline.trim().length + 'more to go.' : ''} 
+              Required field and must be at least 40 characters.{' '}
+              {40 - documentOutline.trim().length > 0 ? 40 - documentOutline.trim().length + 'more to go.' : ''}
             </HelperTextItem>
           </HelperText>
         )}
