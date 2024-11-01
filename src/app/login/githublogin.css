@@ -63,3 +63,7 @@ a {
   padding-top: 20px;
   font-size: large;
 }
+
+.login-label {
+  color: white;
+}
