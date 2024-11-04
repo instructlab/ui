@@ -38,6 +38,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
         placeholder="Enter the context from which the Q&A pairs are derived. (500 words max)"
         value={seedExample.context}
         validated={seedExample.isContextValid}
+        maxLength={500}
         onChange={(_event, contextValue: string) => handleContextInputChange(seedExampleIndex, contextValue)}
         onBlur={() => handleContextBlur(seedExampleIndex)}
       />
@@ -45,7 +46,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
         <FormHelperText key={seedExampleIndex * 10 + 2}>
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isContextValid}>
-              {seedExample.validationError ? seedExample.validationError : 'Context is required. It must be non empty and less than 500 words.'}
+              {seedExample.validationError ? seedExample.validationError : 'Required field. It must be non empty and less than 500 words.'}
             </HelperTextItem>
           </HelperText>
         </FormHelperText>
@@ -77,6 +78,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
               aria-label={`Question ${seedExampleIndex + 1}-${questionAnswerIndex + 1}`}
               placeholder={`Enter question ${questionAnswerIndex + 1}`}
               value={questionAndAnswerPair.question}
+              maxLength={250}
               validated={questionAndAnswerPair.isQuestionValid}
               onChange={(_event, questionValue) => handleQuestionInputChange(seedExampleIndex, questionAnswerIndex, questionValue)}
               onBlur={() => handleQuestionBlur(seedExampleIndex, questionAnswerIndex)}
@@ -86,7 +88,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.questionAndAnswers[questionAnswerIndex].isQuestionValid}>
                     {seedExample.questionAndAnswers[questionAnswerIndex].questionValidationError ||
-                      'Question is required. Total length of all Q&A pairs should be less than 250 words.'}
+                      'Required field. Total length of all Q&A pairs should be less than 250 words.'}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
@@ -98,6 +100,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
               aria-label={`Answer ${seedExampleIndex + 1}-${questionAnswerIndex + 1}`}
               placeholder={`Enter answer ${questionAnswerIndex + 1}`}
               value={questionAndAnswerPair.answer}
+              maxLength={250}
               validated={questionAndAnswerPair.isAnswerValid}
               onChange={(_event, answerValue) => handleAnswerInputChange(seedExampleIndex, questionAnswerIndex, answerValue)}
               onBlur={() => handleAnswerBlur(seedExampleIndex, questionAnswerIndex)}
@@ -107,7 +110,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.questionAndAnswers[questionAnswerIndex].isAnswerValid}>
                     {seedExample.questionAndAnswers[questionAnswerIndex].answerValidationError ||
-                      'Answer is required. Total length of all Q&A pairs should be less than 250 words.'}
+                      'Required field. Total length of all Q&A pairs should be less than 250 words.'}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>

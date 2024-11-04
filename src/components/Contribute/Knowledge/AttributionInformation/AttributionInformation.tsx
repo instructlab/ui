@@ -66,7 +66,8 @@ const AttributionInformation: React.FC<Props> = ({
     setValidCreators(ValidatedOptions.success);
   }, [isEditForm]);
 
-  const validateTitle = (title: string) => {
+  const validateTitle = (titleStr: string) => {
+    const title = titleStr.trim();
     if (title.length > 0) {
       setValidTitle(ValidatedOptions.success);
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
@@ -77,7 +78,8 @@ const AttributionInformation: React.FC<Props> = ({
     return;
   };
 
-  const validateLink = (link: string) => {
+  const validateLink = (linkStr: string) => {
+    const link = linkStr.trim();
     if (link.length === 0) {
       setDisableAction(true);
       setValidLink(ValidatedOptions.error);
@@ -95,7 +97,8 @@ const AttributionInformation: React.FC<Props> = ({
     }
   };
 
-  const validateRevision = (revision: string) => {
+  const validateRevision = (revisionStr: string) => {
+    const revision = revisionStr.trim();
     if (revision.length > 0) {
       setValidRevision(ValidatedOptions.success);
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
@@ -106,7 +109,8 @@ const AttributionInformation: React.FC<Props> = ({
     return;
   };
 
-  const validateLicense = (license: string) => {
+  const validateLicense = (licenseStr: string) => {
+    const license = licenseStr.trim();
     if (license.length > 0) {
       setValidLicense(ValidatedOptions.success);
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
@@ -117,7 +121,8 @@ const AttributionInformation: React.FC<Props> = ({
     return;
   };
 
-  const validateCreators = (creators: string) => {
+  const validateCreators = (creatorsStr: string) => {
+    const creators = creatorsStr.trim();
     if (creators.length > 0) {
       setValidCreators(ValidatedOptions.success);
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
@@ -145,7 +150,7 @@ const AttributionInformation: React.FC<Props> = ({
         />
       }
     >
-      <FormGroup isRequired key={'attribution-info-details-id'}>
+      <FormGroup isRequired key={'attribution-info-details-work_link'} label="Work link or URL">
         <TextInput
           isRequired
           type="url"
@@ -160,7 +165,7 @@ const AttributionInformation: React.FC<Props> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validLink}>
-                Link to title is required.
+                Required field
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
@@ -174,6 +179,8 @@ const AttributionInformation: React.FC<Props> = ({
             </HelperText>
           </FormHelperText>
         )}
+      </FormGroup>
+      <FormGroup isRequired key={'attribution-info-details-title_work'} label="Work title">
         <TextInput
           isRequired
           type="text"
@@ -188,11 +195,13 @@ const AttributionInformation: React.FC<Props> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validTitle}>
-                Title is required.
+                Required field
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
         )}
+      </FormGroup>
+      <FormGroup isRequired key={'attribution-info-details-document_revision'} label="Document revision">
         <TextInput
           isRequired
           type="text"
@@ -207,11 +216,13 @@ const AttributionInformation: React.FC<Props> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validRevision}>
-                Revision is required.
+                Required field
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
         )}
+      </FormGroup>
+      <FormGroup isRequired key={'attribution-info-details-license'} label="License">
         <TextInput
           isRequired
           type="text"
@@ -226,11 +237,13 @@ const AttributionInformation: React.FC<Props> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validLicense}>
-                License is required.
+                Required field
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
         )}
+      </FormGroup>
+      <FormGroup isRequired key={'attribution-info-details-creators'} label="Creators name">
         <TextInput
           isRequired
           type="text"
@@ -245,7 +258,7 @@ const AttributionInformation: React.FC<Props> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCreators}>
-                Creators is required.
+                Required field
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
