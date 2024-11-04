@@ -5,10 +5,13 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/gregory-pereira/ui.git
+    repoURL: https://github.com/instructlab/ui.git
     path: deploy/k8s/overlays/openshift/qa
-    targetRevision: argocd-deployment
+    targetRevision: main
   destination:
     namespace: instructlab
     name: in-cluster
+  syncPolicy:
+    automated:
+      selfHeal: true
 
