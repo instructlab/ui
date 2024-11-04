@@ -14,17 +14,13 @@ const Login: React.FunctionComponent = () => {
   const [password, setPassword] = useState('');
   const [isValidPassword, setIsValidPassword] = useState(true);
   const [isRememberMeChecked, setIsRememberMeChecked] = useState(false);
-  const [isProd, setIsProd] = useState(true);
+  const [isProd, setIsProd] = useState<boolean | null>(null); // Use null for initial load state
 
   React.useEffect(() => {
     const chooseLoginPage = async () => {
       const res = await fetch('/api/envConfig');
       const envConfig = await res.json();
-      if (envConfig.DEPLOYMENT_TYPE === 'dev') {
-        setIsProd(false);
-      } else {
-        setIsProd(true);
-      }
+      setIsProd(envConfig.DEPLOYMENT_TYPE !== 'dev');
     };
     chooseLoginPage();
   }, []);
@@ -103,12 +99,15 @@ const Login: React.FunctionComponent = () => {
     />
   );
 
+  if (isProd === null) return null; // Render nothing until environment is loaded
+
   if (isProd) {
     return <GithubLogin />;
   }
 
   return (
     <LoginPage
+      suppressHydrationWarning={true}
       footerListVariants={ListVariant.inline}
       brandImgSrc="/InstructLab-Logo.svg"
       brandImgAlt="InstructLab logo"

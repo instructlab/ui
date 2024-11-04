@@ -76,10 +76,10 @@ export const ViewDropdown: React.FunctionComponent<Props> = ({ skillFormData, gi
         shouldFocusToggleOnSelect
       >
         <DropdownList>
-          <DropdownItem key="view yaml" onClick={handleViewYaml}>
+          <DropdownItem key="view-yaml" onClick={handleViewYaml}>
             <CodeIcon /> YAML Content
           </DropdownItem>
-          <DropdownItem key="view yaml" onClick={handleViewAttribution}>
+          <DropdownItem key="view-attribution" onClick={handleViewAttribution}>
             <FileIcon /> Attribution Content
           </DropdownItem>
         </DropdownList>

@@ -17,10 +17,10 @@ const UserMenu: React.FC = () => {
   useEffect(() => {
     if (session?.user?.name === 'Admin') {
       setUserName(session?.user?.name);
-      setUserImage('https://www.patternfly.org/images/668560cd.svg');
+      setUserImage('/default-avatar.png');
     } else {
       setUserName(session?.user?.name ?? '');
-      setUserImage(session?.user?.image ?? '');
+      setUserImage(session?.user?.image || '');
     }
   }, [session?.user?.name, session?.user?.image]);
 
@@ -40,9 +40,7 @@ const UserMenu: React.FC = () => {
       toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
         <MenuToggle ref={toggleRef} aria-label="user menu dropdown" variant="plain" onClick={onToggleClick} isExpanded={isOpen}>
           <Flex spaceItems={{ default: 'spaceItemsSm' }} style={{ display: 'flex', alignItems: 'center' }}>
-            <FlexItem>
-              <Avatar src={userImage} alt={userName} />
-            </FlexItem>
+            <FlexItem>{userImage ? <Avatar src={userImage} alt={userName} /> : <Avatar src="/default-avatar.png" alt="Default Avatar" />}</FlexItem>
             <FlexItem> {userName}</FlexItem>
             <FlexItem>
               <CaretDownIcon />
