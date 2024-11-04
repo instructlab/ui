@@ -26,7 +26,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
 
   const validatePath = () => {
     console.log('validating path');
-    if (inputValue.length > 0) {
+    if (inputValue.trim().length > 0) {
       setValidPath(ValidatedOptions.success);
       return;
     }
@@ -163,7 +163,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
         <FormHelperText>
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={validPath}>
-              Please select a valid file path.
+              Required field and must be a valid file path.
             </HelperTextItem>
           </HelperText>
         </FormHelperText>

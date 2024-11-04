@@ -85,7 +85,7 @@ const SkillsInformation: React.FC<Props> = ({
         />
       }
     >
-      <FormGroup key={'skills-info-details-id'}>
+      <FormGroup key={'skills-info-details-submission_summary'} label="Submission summary">
         <TextInput
           isRequired
           type="text"
@@ -100,11 +100,12 @@ const SkillsInformation: React.FC<Props> = ({
         {validDescription === ValidatedOptions.error && (
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={validDescription}>
-              Description is required and must be less than 60 characters
+              Required field. Must be less than 60 characters. {60 - submissionSummary.trim().length} characters remaining
             </HelperTextItem>
           </HelperText>
         )}
-
+      </FormGroup>
+      <FormGroup key={'skills-info-details-document_outline'} label="Document Outline">
         <TextArea
           isRequired
           type="text"
@@ -119,7 +120,8 @@ const SkillsInformation: React.FC<Props> = ({
         {validOutline === ValidatedOptions.error && (
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={validOutline}>
-              Detailed description is required and must be at least 40 characters
+              Required field and must be at least 40 characters.{' '}
+              {40 - documentOutline.trim().length > 0 ? 40 - documentOutline.trim().length + 'more to go.' : ''}
             </HelperTextItem>
           </HelperText>
         )}
