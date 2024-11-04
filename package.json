@@ -41,7 +41,6 @@
     "@next/eslint-plugin-next": "^14.2.3",
     "@playwright/test": "^1.47.2",
     "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^2.0.4",
-    "@types/js-cookie": "^3.0.6",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.5.0",
     "@types/react": "18.3.1",

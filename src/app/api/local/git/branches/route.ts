@@ -16,9 +16,21 @@ export async function GET() {
 
     // List all branches in the repository
     const branches = await git.listBranches({ fs, dir: REPO_DIR });
+    const branchDetails = [];
 
-    // Return the list of branches as JSON
-    return NextResponse.json({ branches }, { status: 200 });
+    for (const branch of branches) {
+      const branchCommit = await git.resolveRef({ fs, dir: REPO_DIR, ref: branch });
+      const commitDetails = await git.readCommit({ fs, dir: REPO_DIR, oid: branchCommit });
+
+      branchDetails.push({
+        name: branch,
+        creationDate: commitDetails.commit.committer.timestamp * 1000 // Convert to milliseconds
+      });
+    }
+
+    branchDetails.sort((a, b) => b.creationDate - a.creationDate); // Sort by creation date, newest first
+
+    return NextResponse.json({ branches: branchDetails }, { status: 200 });
   } catch (error) {
     console.error('Failed to list branches:', error);
     return NextResponse.json({ error: 'Failed to list branches' }, { status: 500 });
