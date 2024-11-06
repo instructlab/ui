@@ -24,7 +24,7 @@ import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/consta
 import { DownloadDropdown } from './DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from './ViewDropdown/ViewDropdown';
 import Update from './Update/Update';
-import { PullRequestFile } from '@/types';
+import { SkillYamlData, PullRequestFile } from '@/types';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button';
 import { useRouter } from 'next/navigation';
 import SkillsSeedExample from './SkillsSeedExample/SkillsSeedExample';
@@ -331,6 +331,23 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
     setSeedExamples(autoFillSkillsFields.seedExamples);
   };
 
+  const yamlSeedExampleToFormSeedExample = (yamlSeedExamples: { question: string; context?: string | undefined; answer: string }[]) => {
+    return yamlSeedExamples.map((yamlSeedExample) => ({
+      immutable: true,
+      isExpanded: false,
+      context: yamlSeedExample.context ?? '',
+      isContextValid: ValidatedOptions.default,
+      question: yamlSeedExample.question,
+      answer: yamlSeedExample.answer
+    })) as SeedExample[];
+  };
+
+  const onYamlUploadSkillsFillForm = (data: SkillYamlData): void => {
+    setName(data.created_by ?? '');
+    setDocumentOutline(data.task_description ?? '');
+    setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
+  };
+
   const skillFormData: SkillFormData = {
     email: email,
     name: name,
@@ -372,7 +389,7 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
             Auto-Fill
           </Button>
         )}
-        <YamlFileUpload isKnowledgeForm={true} onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm} />
+        <YamlFileUpload isKnowledgeForm={true} onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm} />
 
         <Form className="form-s">
           <AuthorInformation
