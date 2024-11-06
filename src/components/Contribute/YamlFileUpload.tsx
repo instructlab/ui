@@ -6,15 +6,15 @@ import { FormHelperText } from '@patternfly/react-core/dist/dynamic/components/F
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import yaml from 'js-yaml';
-import { KnowledgeFormData } from './Knowledge';
-import { SkillFormData } from './Skill';
+import { KnowledgeYamlData, SkillYamlData } from '@/types';
 
 interface YamlFileUploadProps {
   isKnowledgeForm: boolean;
-  onYamlUploadFillForm: (data: KnowledgeFormData | SkillFormData) => void;
+  onYamlUploadKnowledgeFillForm?: (data: KnowledgeYamlData) => void;
+  onYamlUploadSkillsFillForm?: (data: SkillYamlData) => void;
 }
 
-const YamlFileUpload: React.FC<YamlFileUploadProps> = ({ isKnowledgeForm, onYamlUploadFillForm }) => {
+const YamlFileUpload: React.FC<YamlFileUploadProps> = ({ isKnowledgeForm, onYamlUploadKnowledgeFillForm, onYamlUploadSkillsFillForm }) => {
   const [value, setValue] = React.useState('');
   const [filename, setFilename] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
@@ -38,14 +38,12 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({ isKnowledgeForm, onYaml
 
       try {
         const parsedData = yaml.load(fileContent);
-
         if (isKnowledgeForm && isKnowledgeFormData(parsedData)) {
-          onYamlUploadFillForm(parsedData);
-        } else if (!isKnowledgeForm) {
-          const skillData = parsedData as SkillFormData;
-          onYamlUploadFillForm(skillData);
+          onYamlUploadKnowledgeFillForm?.(parsedData);
+        } else if (!isKnowledgeForm && isSkillFormData(parsedData)) {
+          onYamlUploadSkillsFillForm?.(parsedData);
         } else {
-          setIsRejected(true); // Set rejected if it doesn't match expected type
+          setIsRejected(true);
         }
       } catch (error) {
         console.error('Error parsing YAML file:', error);
@@ -62,8 +60,14 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({ isKnowledgeForm, onYaml
     reader.readAsText(file);
   };
 
-  const isKnowledgeFormData = (data: object): data is KnowledgeFormData => {
-    return typeof data === 'object' && 'knowledgeDocumentRepositoryUrl' in data && 'knowledgeDocumentCommit' in data;
+  // Type guard for KnowledgeFormData
+  const isKnowledgeFormData = (data: any): data is KnowledgeYamlData => {
+    return data && typeof data === 'object' && 'document' in data && 'document_outline' in data;
+  };
+
+  // Type guard for SkillFormData
+  const isSkillFormData = (data: any): data is SkillYamlData => {
+    return data && typeof data === 'object' && 'task_description' in data;
   };
 
   const handleClear = () => {
