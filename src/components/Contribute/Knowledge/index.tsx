@@ -451,14 +451,13 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
   };
 
   const onYamlUploadKnowledgeFillForm = (data: KnowledgeYamlData): void => {
-    setName(data.created_by);
-    setDocumentOutline(data.document_outline);
-    setSubmissionSummary(data.document_outline);
-    setDomain(data.domain);
-    setKnowledgeDocumentRepositoryUrl(data.document.repo);
-    setKnowledgeDocumentCommit(data.document.commit);
-    // Looks like the form accepts
-    setDocumentName(data.document.patterns.join(', '));
+    setName(data.created_by ?? '');
+    setDocumentOutline(data.document_outline ?? '');
+    setSubmissionSummary(data.document_outline ?? '');
+    setDomain(data.domain ?? '');
+    setKnowledgeDocumentRepositoryUrl(data.document.repo ?? '');
+    setKnowledgeDocumentCommit(data.document.commit ?? '');
+    setDocumentName(data.document.patterns.join(', ') ?? '');
     setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
   };
 
