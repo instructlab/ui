@@ -28,11 +28,14 @@ import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/consta
 import { DownloadDropdown } from './DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from './ViewDropdown/ViewDropdown';
 import Update from './Update/Update';
-import { PullRequestFile } from '@/types';
+import { KnowledgeYamlData, PullRequestFile } from '@/types';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button';
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from './AutoFill';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
+
+import UploadIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
+import YamlFileUpload from '../YamlFileUpload';
 
 export interface QuestionAndAnswerPair {
   immutable: boolean;
@@ -432,6 +435,18 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     setSeedExamples(autoFillKnowledgeFields.seedExamples);
   };
 
+  const onYamlUploadKnowledgeFillForm = (data: KnowledgeYamlData): void => {
+    setName(data.created_by);
+    setDocumentOutline(data.document_outline);
+    setSubmissionSummary(data.document_outline);
+    setDomain(data.domain);
+    setKnowledgeDocumentRepositoryUrl(data.document.repo);
+    setKnowledgeDocumentCommit(data.document.commit);
+    // Looks like the form accepts
+    setDocumentName(data.document.patterns.join(', '));
+    setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
+  };
+
   const knowledgeFormData: KnowledgeFormData = {
     email: email,
     name: name,
@@ -479,7 +494,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             Auto-Fill
           </Button>
         )}
-
+        <YamlFileUpload isKnowledgeForm={true} onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm} />
         <Form className="form-k">
           <AuthorInformation
             formType={FormType.Knowledge}
@@ -603,6 +618,8 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             </Button>
           </ActionGroup>
         </Form>
+
+        <button onClick={() => console.log(seedExamples)}>Test</button>
       </PageSection>
     </PageGroup>
   );
