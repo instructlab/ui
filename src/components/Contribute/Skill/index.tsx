@@ -32,6 +32,7 @@ import SkillsInformation from './SkillsInformation/SkillsInformation';
 import SkillsDescriptionContent from './SkillsDescription/SkillsDescriptionContent';
 import { autoFillSkillsFields } from './AutoFill';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import YamlFileUpload from '../YamlFileUpload';
 
 export interface SeedExample {
   immutable: boolean;
@@ -371,6 +372,8 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
             Auto-Fill
           </Button>
         )}
+        <YamlFileUpload isKnowledgeForm={true} onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm} />
+
         <Form className="form-s">
           <AuthorInformation
             formType={FormType.Knowledge}
