@@ -441,11 +441,11 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     return yamlSeedExamples.map((yamlSeedExample) => ({
       immutable: true,
       isExpanded: false,
-      context: yamlSeedExample.context,
+      context: yamlSeedExample.context ?? '',
       isContextValid: ValidatedOptions.default,
       questionAndAnswers: yamlSeedExample.questions_and_answers.map((questionAndAnswer) => ({
-        question: questionAndAnswer.question,
-        answer: questionAndAnswer.answer
+        question: questionAndAnswer.question ?? '',
+        answer: questionAndAnswer.answer ?? ''
       }))
     })) as SeedExample[];
   };
