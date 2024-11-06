@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileUpload } from '@patternfly/react-core/dist/dynamic/components/FileUpload';
-import { Form, FormFieldGroupExpandable, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { FormFieldGroupExpandable, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';

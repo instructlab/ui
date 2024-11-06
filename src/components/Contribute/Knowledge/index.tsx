@@ -33,8 +33,6 @@ import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from './AutoFill';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
-
-import UploadIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
 import YamlFileUpload from '../YamlFileUpload';
 
 export interface QuestionAndAnswerPair {
@@ -508,8 +506,9 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             Auto-Fill
           </Button>
         )}
-        <YamlFileUpload isKnowledgeForm={true} onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm} />
         <Form className="form-k">
+          <YamlFileUpload isKnowledgeForm={true} onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm} />
+
           <AuthorInformation
             formType={FormType.Knowledge}
             reset={reset}

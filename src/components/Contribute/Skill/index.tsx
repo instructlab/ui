@@ -389,9 +389,9 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
             Auto-Fill
           </Button>
         )}
-        <YamlFileUpload isKnowledgeForm={false} onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm} />
 
         <Form className="form-s">
+          <YamlFileUpload isKnowledgeForm={false} onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm} />
           <AuthorInformation
             formType={FormType.Knowledge}
             reset={reset}
