@@ -61,12 +61,14 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({ isKnowledgeForm, onYaml
   };
 
   // Type guard for KnowledgeFormData
-  const isKnowledgeFormData = (data: any): data is KnowledgeYamlData => {
+  const isKnowledgeFormData = (data: unknown): data is KnowledgeYamlData => {
+    if (!data) return false;
     return data && typeof data === 'object' && 'document' in data && 'document_outline' in data;
   };
 
   // Type guard for SkillFormData
-  const isSkillFormData = (data: any): data is SkillYamlData => {
+  const isSkillFormData = (data: unknown): data is SkillYamlData => {
+    if (!data) return false;
     return data && typeof data === 'object' && 'task_description' in data;
   };
 
