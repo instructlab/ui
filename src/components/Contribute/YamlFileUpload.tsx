@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileUpload } from '@patternfly/react-core/dist/dynamic/components/FileUpload';
-import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { Form, FormFieldGroupExpandable, FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
@@ -79,35 +79,44 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({ isKnowledgeForm, onYaml
   };
 
   return (
-    <>
-      <Form>
-        <FormGroup fieldId="text-file-with-restrictions-example">
-          <FileUpload
-            id="text-file-with-restrictions-example"
-            value={value}
-            filename={filename}
-            filenamePlaceholder="Drag and drop an existing YAML file"
-            onFileInputChange={handleFileInputChange}
-            onClearClick={handleClear}
-            isLoading={isLoading}
-            dropzoneProps={{
-              accept: { 'application/x-yaml': ['.yaml', '.yml'], 'text/yaml': ['.yaml', '.yml'] },
-              maxSize: 10000,
-              onDropRejected: () => setIsRejected(true)
-            }}
-            validated={isRejected ? 'error' : 'default'}
-            browseButtonText="Upload"
-          />
-          <FormHelperText>
-            <HelperText>
-              <HelperTextItem variant={isRejected ? 'error' : 'default'}>
-                {isRejected ? 'Invalid YAML file for this form type' : 'Upload a YAML file'}
-              </HelperTextItem>
-            </HelperText>
-          </FormHelperText>
-        </FormGroup>
-      </Form>
-    </>
+    <FormFieldGroupExpandable
+      toggleAriaLabel="Details"
+      header={
+        <FormFieldGroupHeader
+          titleText={{
+            text: <p>Load a pre-exsiting yaml file</p>,
+            id: 'author-info-id'
+          }}
+          titleDescription="If you have partially completed yaml file you can upload it!"
+        />
+      }
+    >
+      <FormGroup fieldId="text-file-with-restrictions-example">
+        <FileUpload
+          id="text-file-with-restrictions-example"
+          value={value}
+          filename={filename}
+          filenamePlaceholder="Drag and drop an existing YAML file"
+          onFileInputChange={handleFileInputChange}
+          onClearClick={handleClear}
+          isLoading={isLoading}
+          dropzoneProps={{
+            accept: { 'application/x-yaml': ['.yaml', '.yml'], 'text/yaml': ['.yaml', '.yml'] },
+            maxSize: 10000,
+            onDropRejected: () => setIsRejected(true)
+          }}
+          validated={isRejected ? 'error' : 'default'}
+          browseButtonText="Upload"
+        />
+        <FormHelperText>
+          <HelperText>
+            <HelperTextItem variant={isRejected ? 'error' : 'default'}>
+              {isRejected ? 'Invalid YAML file for this form type' : 'Upload a YAML file'}
+            </HelperTextItem>
+          </HelperText>
+        </FormHelperText>
+      </FormGroup>
+    </FormFieldGroupExpandable>
   );
 };
 
