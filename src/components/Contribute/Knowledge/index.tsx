@@ -435,6 +435,21 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     setSeedExamples(autoFillKnowledgeFields.seedExamples);
   };
 
+  const yamlSeedExampleToFormSeedExample = (
+    yamlSeedExamples: { context: string; questions_and_answers: { question: string; answer: string }[] }[]
+  ) => {
+    return yamlSeedExamples.map((yamlSeedExample) => ({
+      immutable: true,
+      isExpanded: false,
+      context: yamlSeedExample.context,
+      isContextValid: ValidatedOptions.default,
+      questionAndAnswers: yamlSeedExample.questions_and_answers.map((questionAndAnswer) => ({
+        question: questionAndAnswer.question,
+        answer: questionAndAnswer.answer
+      }))
+    })) as SeedExample[];
+  };
+
   const onYamlUploadKnowledgeFillForm = (data: KnowledgeYamlData): void => {
     setName(data.created_by);
     setDocumentOutline(data.document_outline);
