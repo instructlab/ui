@@ -3,6 +3,7 @@ version: '5.1'
 services:
   pathservice:
     image: ghcr.io/instructlab/ui/pathservice:main
+    pull_policy: always
     deploy:
       replicas: 1
       restart_policy:
@@ -19,6 +20,7 @@ services:
 
   ui:
     image: ghcr.io/instructlab/ui/ui:main
+    pull_policy: always
     env_file:
       - .env
     deploy:

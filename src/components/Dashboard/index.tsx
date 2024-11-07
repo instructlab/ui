@@ -61,6 +61,8 @@ const Index: React.FunctionComponent = () => {
       }
       setIsFirstPullDone(true);
       setIsLoading(false);
+    } else {
+      setIsLoading(false);
     }
   }, [session?.accessToken]);
 

@@ -14,7 +14,8 @@ export async function GET() {
     MERLINITE_MODEL_NAME: process.env.IL_MERLINITE_MODEL_NAME || '',
     UPSTREAM_REPO_OWNER: process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER || '',
     UPSTREAM_REPO_NAME: process.env.NEXT_PUBLIC_TAXONOMY_REPO || '',
-    DEPLOYMENT_TYPE: process.env.IL_UI_DEPLOYMENT || ''
+    DEPLOYMENT_TYPE: process.env.IL_UI_DEPLOYMENT || '',
+    EXPERIMENTAL_FEATURES: process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES || ''
   };
 
   return NextResponse.json(envConfig);
