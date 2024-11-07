@@ -441,7 +441,7 @@ export const SkillFormLocal: React.FunctionComponent<SkillFormProps> = ({ skillE
                   actionGroupAlertContent.url &&
                   actionGroupAlertContent.url.trim().length > 0 && (
                     <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
-                      View your pull request
+                      View your new branch
                     </a>
                   )}
               </p>
@@ -465,7 +465,7 @@ export const SkillFormLocal: React.FunctionComponent<SkillFormProps> = ({ skillE
                 disableAction={disableAction}
                 skillFormData={skillFormData}
                 setActionGroupAlertContent={setActionGroupAlertContent}
-                githubUsername={githubUsername}
+                email={email}
                 resetForm={resetForm}
               />
             )}

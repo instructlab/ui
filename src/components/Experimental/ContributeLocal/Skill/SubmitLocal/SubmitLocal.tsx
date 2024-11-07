@@ -10,13 +10,11 @@ interface Props {
   disableAction: boolean;
   skillFormData: SkillFormData;
   setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
-  githubUsername: string | undefined;
+  email: string;
   resetForm: () => void;
 }
 
-// temporary location of these validation functions. Once the Skills form has been refactored then these can be moved out to the utils file.
-
-const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupAlertContent, githubUsername, resetForm }) => {
+const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupAlertContent, email, resetForm }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!validateFields(skillFormData, setActionGroupAlertContent)) return;
@@ -27,7 +25,7 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
     sanitizedFilePath = sanitizedFilePath!.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
     const skillYamlData: SkillYamlData = {
-      created_by: githubUsername!,
+      created_by: email,
       version: SkillSchemaVersion,
       task_description: skillFormData.documentOutline!,
       seed_examples: skillFormData.seedExamples.map((example) => ({
@@ -48,7 +46,7 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
     };
 
     const waitForSubmissionAlert: ActionGroupAlertContent = {
-      title: 'Skill contribution submission in progress.!',
+      title: 'Skill contribution submission in progress!',
       message: `Once the submission is successful, it will provide the link to the newly created Pull Request.`,
       success: true,
       waitAlert: true,
@@ -57,7 +55,6 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
     setActionGroupAlertContent(waitForSubmissionAlert);
 
     const name = skillFormData.name;
-    const email = skillFormData.email;
     const submissionSummary = skillFormData.submissionSummary;
     const documentOutline = skillFormData.documentOutline;
     const response = await fetch('/api/local/pr/skill/', {
@@ -86,11 +83,11 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
       return;
     }
 
-    const result = await response.json();
+    await response.json();
     const actionGroupAlertContent: ActionGroupAlertContent = {
       title: 'Skill contribution submitted successfully!',
       message: `Thank you for your contribution!`,
-      url: `${result.html_url}`,
+      url: '/experimental/dashboard-local/',
       success: true
     };
     setActionGroupAlertContent(actionGroupAlertContent);

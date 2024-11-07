@@ -11,11 +11,11 @@ interface Props {
   disableAction: boolean;
   knowledgeFormData: KnowledgeFormData;
   setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
-  githubUsername: string | undefined;
+  email: string;
   resetForm: () => void;
 }
 
-const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGroupAlertContent, githubUsername, resetForm }) => {
+const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGroupAlertContent, email, resetForm }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!validateFields(knowledgeFormData, setActionGroupAlertContent)) return;
@@ -25,7 +25,7 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
     sanitizedFilePath = sanitizedFilePath!.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
     const knowledgeYamlData: KnowledgeYamlData = {
-      created_by: githubUsername!,
+      created_by: email,
       version: KnowledgeSchemaVersion,
       domain: knowledgeFormData.domain!,
       document_outline: knowledgeFormData.documentOutline!,
@@ -54,7 +54,7 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
     };
 
     const waitForSubmissionAlert: ActionGroupAlertContent = {
-      title: 'Knowledge contribution submission in progress.!',
+      title: 'Knowledge contribution submission in progress!',
       message: `Once the submission is successful, it will provide the link to the newly created Pull Request.`,
       success: true,
       waitAlert: true,
@@ -63,7 +63,6 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
     setActionGroupAlertContent(waitForSubmissionAlert);
 
     const name = knowledgeFormData.name;
-    const email = knowledgeFormData.email;
     const submissionSummary = knowledgeFormData.submissionSummary;
     const documentOutline = knowledgeFormData.documentOutline;
     const response = await fetch('/api/local/pr/knowledge', {
@@ -92,11 +91,11 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
       return;
     }
 
-    const result = await response.json();
+    await response.json();
     const actionGroupAlertContent: ActionGroupAlertContent = {
       title: 'Knowledge contribution submitted successfully!',
       message: `Thank you for your contribution!`,
-      url: `${result.html_url}`,
+      url: '/experimental/dashboard-local/',
       success: true
     };
     setActionGroupAlertContent(actionGroupAlertContent);
