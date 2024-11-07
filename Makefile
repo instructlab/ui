@@ -57,7 +57,7 @@ ps-image: Containerfile.ps ## Build continaer image for the pathservice
 	$(CMD_PREFIX) docker build -f Containerfile.ps -t ghcr.io/instructlab/ui/pathservice:$(TAG) .
 	$(CMD_PREFIX) docker tag ghcr.io/instructlab/ui/pathservice:$(TAG) ghcr.io/instructlab/ui/pathservice:main
 
-##@ Local Dev - Run the stack (UI and PathService) on your local machine
+##@ Local Dev - Local machine based deployment of the UI stack
 .PHONY: stop-dev-local
 stop-dev-local:  ## Stop the npm and pathservice local instances
 	$(CMD_PREFIX) echo "Stopping ui and pathservice..."
@@ -70,6 +70,25 @@ start-dev-local:  ## Start the npm and pathservice local instances
 	$(CMD_PREFIX) echo "Starting ui and pathservice..."
 	$(CMD_PREFIX) cd ./pathservice; go run main.go & echo $$! > ../pathservice.pid
 	$(CMD_PREFIX) npm run dev & echo $$! > ui.pid
+	$(CMD_PREFIX) echo "Development environment started."
+
+##@ Podman Dev - Podman desktop based Deployment of the UI stack
+.PHONY: stop-dev-podman
+stop-dev-podman:  ## Stop UI development stack running in podman
+	$(CMD_PREFIX) echo "Deleting UI development stack running in podman..."
+	$(CMD_PREFIX) podman-compose -f ./deploy/compose/ui-compose.yml down
+	$(CMD_PREFIX) echo "Development environment deleted."
+
+.PHONY: start-dev-podman
+start-dev-podman:  ## Start UI development stack in podman
+	$(CMD_PREFIX) echo "Deploying UI development stack using compose..."
+	$(CMD_PREFIX) if [ ! -f .env ]; then \
+		echo "Please create a .env file in the root of the project." ; \
+		exit 1 ; \
+	fi
+
+	$(CMD_PREFIX) yes | cp -rf .env ./deploy/compose/.env
+	$(CMD_PREFIX) podman-compose -f ./deploy/compose/ui-compose.yml up -d
 	$(CMD_PREFIX) echo "Development environment started."
 
 ##@ Kubernetes - Kind cluster based dev environment

@@ -27,6 +27,7 @@ import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner'
 import UserMenu from './UserMenu/UserMenu';
 import { useSession } from 'next-auth/react';
 import { useTheme } from '../context/ThemeContext';
+import { useState } from 'react';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -41,8 +42,20 @@ type Route = {
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const { theme } = useTheme();
   const { data: session, status } = useSession();
+  const [isExperimentalEnabled, setExperimental] = useState(false);
+
   const router = useRouter();
   const pathname = usePathname();
+
+  React.useEffect(() => {
+    // Fetch the experimental feature flag
+    const fetchExperimentalFeature = async () => {
+      const res = await fetch('/api/envConfig');
+      const envConfig = await res.json();
+      setExperimental(envConfig.EXPERIMENTAL_FEATURES === 'true');
+    };
+    fetchExperimentalFeature();
+  }, []);
 
   React.useEffect(() => {
     if (status === 'loading') return; // Do nothing while loading
@@ -59,7 +72,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     return null; // Return nothing if not authenticated to avoid flicker
   }
 
-  const isExperimentalEnabled = process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES === 'true';
+  //const isExperimentalEnabled = process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES === 'true';
 
   // Only log if experimental features are enabled
   if (isExperimentalEnabled) {
