@@ -1,4 +1,4 @@
-// components/PathService.tsx
+// /src/components/PathService.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { SearchInput } from '@patternfly/react-core/dist/dynamic/components/SearchInput';
 import { List } from '@patternfly/react-core/dist/dynamic/components/List';
@@ -44,7 +44,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get tree for subpath ( ' + subpath + ' ) from server.');
+        console.warn('Failed to get path service tree for subpath ( ' + subpath + ' ) from server.');
       }
 
       const result = await response.json();
@@ -55,7 +55,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
       }
       setItems(result.data.map((item: string) => item.valueOf()));
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.warn('Error fetching path service data:', error);
       setItems([]);
     }
   };
