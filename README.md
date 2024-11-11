@@ -23,26 +23,11 @@ report a bug, open an [issue](https://github.com/instructlab/ui/issues)! We'd lo
 For more, check out the [InstructLab UI Contribution Guide](CONTRIBUTING.md)
 and [InstructLab Community Guide](https://github.com/instructlab/community/blob/main/CONTRIBUTING.md).
 
-## Updating the Sealed Secrets
+## Tutorials and relevant documentation
 
-To update the sealed secret, you must communicate with the controller that lives in the `kube-system` namespace of the qa cluster.
-After signing in to the cluster, you can re-writing the secret file that you want to seal. Then you simply `cat` the secret file,
-and pipe that to the `kubeseal` binary as follows:
-
-```bash
-cat <secret_file> | kubeseal \
-     --controller-name=sealed-secrets-controller \
-     --controller-namespace=kube-system \
-     --format yaml > <sealed_secret_file>
-```
-
-This will generate the new encrypted sealed-secret manifest in the file you specified with `<sealed_secret_file>`. After this please
-BE CERTAIN to delete the un-encrypted secret file, we do not want to leak these values in `git`. Finally you can move the `sealed-secret`
-to its correct location within this repo.
-
-### Common issues
-
-- `error: cannot get sealed secret service: Unauthorized`: You must be signed in to the qa cluster to be able to communicate with the sealed secrets controller.
+- [Skill and Knowledge Contribution Guide](https://docs.instructlab.ai/taxonomy/)
+- [UI User Documentation](https://docs.instructlab.ai/user-interface/ui_overview/)
+- [Contributing Skills and Knowledge using InstructLab UI](https://developer.ibm.com/tutorials/awb-contributing-llm-granite-instructlab-ui/)
 
 ## Community Meeting
 
