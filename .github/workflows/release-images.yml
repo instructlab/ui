@@ -1,0 +1,66 @@
+# name: Deploy To Prodcution
+# on:
+#   release:
+#     types: [released]
+
+name: test-wf
+on:
+  pull_request:
+    branches:
+      - main
+env:
+  GHCR_REGISTRY: ghcr.io
+  GHCR_UI_IMAGE_NAME: ${{ github.repository }}/ui
+  QUAY_REGISTRY: quay.io
+  QUAY_UI_IMAGE_NAME: instructlab-ui/ui
+  GHCR_PATHSERVICE_IMAGE_NAME: ${{ github.repository }}/pathservice
+  QUAY_PATHSERVICE_IMAGE_NAME: instructlab-ui/pathservice
+
+jobs:
+  check_most_recent_pr_number:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Pull Request Number from Commit
+        id: get_pr_number
+        uses: actions/github-script@v6
+        with:
+          script: |
+            console.log("Repository owner:", context.repo.owner);
+            console.log("Repository name:", context.repo.repo);
+            console.log("Current commit SHA:", context.sha);
+            
+            const commits = await github.rest.repos.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              per_page: 1
+            });
+            const commitSha = commits.data[0].sha;
+            console.log("Fetched commit SHA:", commitSha);
+
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              sort: 'updated',
+              direction: 'desc'
+            });
+            console.log("Number of closed PRs fetched:", prs.data.length);
+            console.log("Most recent PR:", prs.data[0]);
+            const pr = prs.data.find(pr => pr.merge_commit_sha === commitSha);
+            if (pr) {
+              console.log("Matching PR found:", pr.number);
+              return pr.number;
+            } else {
+              console.log("No matching PR found for commit SHA:", commitSha);
+              return '';
+            }
+          result-encoding: string
+
+      - name: Build and Tag Docker Image
+        if: steps.get_pr_number.outputs.result != ''
+        env:
+          PR_NUMBER: ${{ steps.get_pr_number.outputs.result }}
+        run: |
+          echo my-image:pr-${PR_NUMBER}
+          
