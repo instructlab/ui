@@ -28,15 +28,6 @@ jobs:
             console.log("Repository owner:", context.repo.owner);
             console.log("Repository name:", context.repo.repo);
             console.log("Current commit SHA:", context.sha);
-            
-            const commits = await github.rest.repos.listCommits({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: context.sha,
-              per_page: 1
-            });
-            const commitSha = commits.data[0].sha;
-            console.log("Fetched commit SHA:", commitSha);
 
             const prs = await github.rest.pulls.list({
               owner: context.repo.owner,
@@ -46,16 +37,17 @@ jobs:
               direction: 'desc'
             });
             console.log("Number of closed PRs fetched:", prs.data.length);
-            console.log("Most recent PR:", prs.data[0]);
-            const pr = prs.data.find(pr => pr.merge_commit_sha === commitSha);
-            if (pr) {
-              console.log("Matching PR found:", pr.number);
-              return pr.number;
-            } else {
-              console.log("No matching PR found for commit SHA:", commitSha);
-              return '';
+
+            for (const pr of prs.data) {
+              console.log("Checking PR #", pr.number, "- Merged:", pr.merged);
+              if (pr.merged_at != "") {
+                console.log("Found merged PR:", pr.number);
+                return pr.number;
+              }
             }
-          result-encoding: string
+
+            console.log("No merged PR found in the recent closed PRs.");
+            return '';
 
       - name: Build and Tag Docker Image
         if: steps.get_pr_number.outputs.result != ''
