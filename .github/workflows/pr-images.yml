@@ -1,23 +1,20 @@
-name: Publish container images
+name: Publish QA Container Images
 
 on:
   push:
     branches:
       - main
-      - release-1.0
-    tags:
-      - v*
 
 env:
   GHCR_REGISTRY: ghcr.io
   GHCR_UI_IMAGE_NAME: ${{ github.repository }}/ui
   QUAY_REGISTRY: quay.io
   QUAY_UI_IMAGE_NAME: instructlab-ui/ui
-  GHCR_PATHSERVICE_IMAGE_NAME: ${{ github.repository }}/pathservice
-  QUAY_PATHSERVICE_IMAGE_NAME: instructlab-ui/pathservice
+  GHCR_PS_IMAGE_NAME: ${{ github.repository }}/pathservice
+  QUAY_PS_IMAGE_NAME: instructlab-ui/pathservice
 
 jobs:
-  build_and_publish_ui_image:
+  build_and_publish_ui_qa_image:
     name: Push UI container image to GHCR and QUAY
     runs-on: ubuntu-latest
     environment: registry-creds
@@ -56,11 +53,49 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
+      - name: Get Pull Request Number from Commit
+        id: get_pr_number
+        uses: actions/github-script@v6
+        with:
+          script: |
+            console.log("Repository owner:", context.repo.owner);
+            console.log("Repository name:", context.repo.repo);
+            console.log("Current commit SHA:", context.sha);
+
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              sort: 'updated',
+              direction: 'desc'
+            });
+            console.log("Number of closed PRs fetched:", prs.data.length);
+
+            for (const pr of prs.data) {
+              console.log("Checking PR #", pr.number, "- Merged:");
+              if (pr.merged_at != "") {
+                console.log("Found merged PR:", pr.number);
+                return pr.number;
+              }
+            }
+
+            console.log("No merged PR found in the recent closed PRs.");
+            return '';
+
       - name: Extract metadata (tags, labels) for UI image
         id: ghcr_ui_meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME }}
+
+      - name: Combine GHCR Tags with PR Tag
+        id: combined_ghcr_ui_tags
+        if: ${{ steps.get_pr_number.outputs.result }} != ""
+        run: |
+          TAGS="${{ steps.ghcr_ui_meta.outputs.tags }}"
+          PR_TAG="pr-${{ steps.get_pr_number.outputs.result }}"
+          COMBINED_TAGS="${PR_TAG},${TAGS}"
+          echo "COMBINED_TAGS=$COMBINED_TAGS" >> $GITHUB_ENV
 
       - name: Extract metadata (tags, labels) for UI image
         id: quay_ui_meta
@@ -68,13 +103,22 @@ jobs:
         with:
           images: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_UI_IMAGE_NAME }}
 
+      - name: Combine GHCR Tags with PR Tag
+        id: combined_quay_ui_tags
+        if: ${{ steps.get_pr_number.outputs.result }} != ""
+        run: |
+          TAGS="${{ steps.quay_ui_meta.outputs.tags }}"
+          PR_TAG="pr-${{ steps.get_pr_number.outputs.result }}"
+          COMBINED_TAGS="${PR_TAG},${TAGS}"
+          echo "COMBINED_TAGS=$COMBINED_TAGS" >> $GITHUB_ENV
+
       - name: Build and push ui image to ghcr.io
         id: push-ui-ghcr
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ steps.ghcr_ui_meta.outputs.tags }}
+          tags: ${{ steps.combined_ghcr_ui_tags.outputs.COMBINED_TAGS }}
           labels: ${{ steps.ghcr_ui_meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
@@ -94,14 +138,14 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.quay_ui_meta.outputs.tags }}
+          tags: ${{ steps.combined_quay_ui_tags.outputs.COMBINED_TAGS }}
           labels: ${{ steps.quay_ui_meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: Containerfile
 
-  build_and_publish_pathservice_image:
+  build_and_publish_ps_qa_image:
     name: Push pathservice container image to GHCR and QUAY
     runs-on: ubuntu-latest
     environment: registry-creds
@@ -140,17 +184,64 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
+      - name: Get Pull Request Number from Commit
+        id: get_pr_number
+        uses: actions/github-script@v6
+        with:
+          script: |
+            console.log("Repository owner:", context.repo.owner);
+            console.log("Repository name:", context.repo.repo);
+            console.log("Current commit SHA:", context.sha);
+
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              sort: 'updated',
+              direction: 'desc'
+            });
+            console.log("Number of closed PRs fetched:", prs.data.length);
+
+            for (const pr of prs.data) {
+              console.log("Checking PR #", pr.number, "- Merged:");
+              if (pr.merged_at != "") {
+                console.log("Found merged PR:", pr.number);
+                return pr.number;
+              }
+            }
+
+            console.log("No merged PR found in the recent closed PRs.");
+            return '';
+
       - name: Extract metadata (tags, labels) for pathservice image
         id: ghcr_ps_meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PATHSERVICE_IMAGE_NAME }}
+          images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PS_IMAGE_NAME }}
+
+      - name: Combine GHCR Tags with PR Tag
+        id: combined_ghcr_ps_tags
+        if: ${{ steps.get_pr_number.outputs.result }} != ""
+        run: |
+          TAGS="${{ steps.ghcr_ps_meta.outputs.tags }}"
+          PR_TAG="pr-${{ steps.get_pr_number.outputs.result }}"
+          COMBINED_TAGS="${PR_TAG},${TAGS}"
+          echo "COMBINED_TAGS=$COMBINED_TAGS" >> $GITHUB_ENV
 
       - name: Extract metadata (tags, labels) for pathservice image
         id: quay_ps_meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_PATHSERVICE_IMAGE_NAME }}
+          images: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_PS_IMAGE_NAME }}
+
+      - name: Combine GHCR Tags with PR Tag
+        id: combined_quay_ps_tags
+        if: ${{ steps.get_pr_number.outputs.result }} != ""
+        run: |
+          TAGS="${{ steps.quay_ps_meta.outputs.tags }}"
+          PR_TAG="pr-${{ steps.get_pr_number.outputs.result }}"
+          COMBINED_TAGS="${PR_TAG},${TAGS}"
+          echo "COMBINED_TAGS=$COMBINED_TAGS" >> $GITHUB_ENV
 
       - name: Build and push pathservice image to ghcr.io
         id: push-ps-ghcr
@@ -158,7 +249,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.ghcr_ps_meta.outputs.tags }}
+          tags: ${{ steps.combined_ghcr_ps_tags.outputs.COMBINED_TAGS }}
           labels: ${{ steps.ghcr_ps_meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
@@ -168,7 +259,7 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PATHSERVICE_IMAGE_NAME}}
+          subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PS_IMAGE_NAME}}
           subject-digest: ${{ steps.push-ps-ghcr.outputs.digest }}
           push-to-registry: true
 
@@ -178,9 +269,16 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.quay_ps_meta.outputs.tags }}
+          tags: ${{ steps.combined_ghcr_ps_tags.outputs.COMBINED_TAGS }}
           labels: ${{ steps.quay_ps_meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: Containerfile.ps
+      
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PS_IMAGE_NAME}}
+          subject-digest: ${{ steps.push-ps-ghcr.outputs.digest }}
+          push-to-registry: true
