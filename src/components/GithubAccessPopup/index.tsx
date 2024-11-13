@@ -3,8 +3,8 @@
 
 import * as React from 'react';
 import { signOut } from 'next-auth/react';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { ModalVariant } from '@patternfly/react-core/dist/dynamic/components/Modal';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 
 interface Props {

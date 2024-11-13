@@ -37,11 +37,7 @@ export const CopyToClipboardButton: React.FC<CopyToClipboardButtonProps> = ({ te
     }
   };
 
-  return (
-    <Button variant="plain" onClick={handleCopy} aria-label="Copy to clipboard">
-      <CopyIcon />
-    </Button>
-  );
+  return <Button icon={<CopyIcon />} variant="plain" onClick={handleCopy} aria-label="Copy to clipboard" />;
 };
 
 export default CopyToClipboardButton;

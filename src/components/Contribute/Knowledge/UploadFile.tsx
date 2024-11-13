@@ -7,7 +7,7 @@ import {
   MultipleFileUpload,
   MultipleFileUploadMain
 } from '@patternfly/react-core/dist/dynamic/components/MultipleFileUpload';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import UploadIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
 import { FileRejection, DropEvent } from 'react-dropzone';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';

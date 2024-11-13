@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+
 import { Grid } from '@patternfly/react-core/dist/dynamic/layouts/Grid';
 import { GridItem } from '@patternfly/react-core/dist/dynamic/layouts/Grid';
 import GithubIcon from '@patternfly/react-icons/dist/dynamic/icons/github-icon';
 import './githublogin.css';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/components/Modal';
+import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal';
 
 const GithubLogin: React.FC = () => {
   const searchParams = useSearchParams();
@@ -75,14 +75,16 @@ const GithubLogin: React.FC = () => {
       <Grid hasGutter span={12}>
         <GridItem span={6} className="login-container">
           <div>
-            <TextContent>
-              <Text className="sign-in-text">Sign in to your account</Text>
-            </TextContent>
-            <TextContent>
-              <Text className="description-text">
+            <Content>
+              <Content component="p" className="sign-in-text">
+                Sign in to your account
+              </Content>
+            </Content>
+            <Content>
+              <Content component="p" className="description-text">
                 Join the novel, community based movement to <br></br>create truly open source LLMs
-              </Text>
-            </TextContent>
+              </Content>
+            </Content>
             <div className="login-container">
               <Button
                 variant="primary"
@@ -95,8 +97,8 @@ const GithubLogin: React.FC = () => {
                 Sign in with GitHub
               </Button>
             </div>
-            <TextContent>
-              <Text className="urls-text">
+            <Content>
+              <Content component="p" className="urls-text">
                 <a href="https://github.com/instructlab/" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
                   GitHub
                 </a>{' '}
@@ -116,8 +118,8 @@ const GithubLogin: React.FC = () => {
                 >
                   Code Of Conduct
                 </a>
-              </Text>
-              <Text className="urls-text-medium">
+              </Content>
+              <Content component="p" className="urls-text-medium">
                 <a href="https://www.redhat.com/en/about/terms-use" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
                   Terms of use
                 </a>{' '}
@@ -125,8 +127,8 @@ const GithubLogin: React.FC = () => {
                 <a href="https://www.redhat.com/en/about/privacy-policy" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
                   Privacy Policy
                 </a>
-              </Text>
-            </TextContent>
+              </Content>
+            </Content>
           </div>
         </GridItem>
       </Grid>

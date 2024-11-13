@@ -1,11 +1,10 @@
 // src/components/Experimental/ContributeLocal/Skill/index.tsx
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './skills.css';
 import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { getGitHubUsername } from '@/utils/github';
 import { useSession } from 'next-auth/react';
 import AuthorInformation from '@/components/Contribute/AuthorInformation';
 import { FormType } from '@/components/Contribute/AuthorInformation';
@@ -17,7 +16,7 @@ import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/B
 import { PageBreadcrumb } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageGroup } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { checkSkillFormCompletion } from '@/components/Contribute/Skill/validation';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
@@ -86,7 +85,7 @@ export const SkillFormLocal: React.FunctionComponent<SkillFormProps> = ({ skillE
   const [deploymentType, setDeploymentType] = useState<string | undefined>();
 
   const { data: session } = useSession();
-  const [githubUsername, setGithubUsername] = useState<string>('');
+  const [githubUsername] = useState<string>('');
   // Author Information
   const [email, setEmail] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -145,27 +144,6 @@ export const SkillFormLocal: React.FunctionComponent<SkillFormProps> = ({ skillE
       setEmail(session?.user?.email);
     }
   }, [session?.user]);
-
-  useMemo(() => {
-    const fetchUsername = async () => {
-      if (session?.accessToken) {
-        try {
-          const header = {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.accessToken}`,
-            Accept: 'application/vnd.github+json',
-            'X-GitHub-Api-Version': '2022-11-28'
-          };
-          const fetchedUsername = await getGitHubUsername(header);
-          setGithubUsername(fetchedUsername);
-        } catch (error) {
-          console.error('Failed to fetch GitHub username:', error);
-        }
-      }
-    };
-
-    fetchUsername();
-  }, [session?.accessToken]);
 
   useEffect(() => {
     // Set all elements from the skillFormData to the state
@@ -351,20 +329,20 @@ export const SkillFormLocal: React.FunctionComponent<SkillFormProps> = ({ skillE
 
   return (
     <PageGroup>
-      <PageBreadcrumb>
+      <PageBreadcrumb hasBodyWrapper={false}>
         <Breadcrumb>
           <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
           <BreadcrumbItem isActive>Skill Contribution</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
 
-      <PageSection style={{ backgroundColor: 'white' }}>
+      <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
         <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
           Skill Contribution
         </Title>
-        <TextContent>
+        <Content>
           <SkillsDescriptionContent />
-        </TextContent>
+        </Content>
         {deploymentType === 'dev' && (
           <Button variant="primary" onClick={autoFillForm}>
             Auto-Fill

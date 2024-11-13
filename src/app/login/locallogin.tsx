@@ -1,9 +1,14 @@
 // src/app/login/LocalLogin.tsx
-// 'use client';
-
 import React, { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { Grid, GridItem, Text, TextContent, Form, FormGroup, TextInput, Button, HelperText, HelperTextItem } from '@patternfly/react-core';
+import { Grid, GridItem } from '@patternfly/react-core/dist/dynamic/layouts/Grid';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
+import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import GithubIcon from '@patternfly/react-icons/dist/dynamic/icons/github-icon';
 import './githublogin.css';
 
@@ -42,12 +47,16 @@ const LocalLogin: React.FunctionComponent = () => {
     <div className="login-page-background">
       <Grid hasGutter span={12}>
         <GridItem span={6} className="login-container">
-          <TextContent>
-            <Text className="sign-in-text">Login locally with a username and password or via GitHub OAuth</Text>
-          </TextContent>
-          <TextContent>
-            <Text className="description-text">Join the novel, community-based movement to create truly open-source LLMs</Text>
-          </TextContent>
+          <Content>
+            <Content component="p" className="sign-in-text">
+              Login locally with a username and password or via GitHub OAuth
+            </Content>
+          </Content>
+          <Content>
+            <Content component="p" className="description-text">
+              Join the novel, community-based movement to create truly open-source LLMs
+            </Content>
+          </Content>
           <div className="login-container">
             <Button
               variant="primary"
@@ -94,8 +103,8 @@ const LocalLogin: React.FunctionComponent = () => {
               </Button>
             </Form>
           </div>
-          <TextContent>
-            <Text className="urls-text">
+          <Content>
+            <Content component="p" className="urls-text">
               <a
                 href="https://github.com/instructlab/"
                 style={{ color: 'white', textDecoration: 'underline' }}
@@ -122,8 +131,8 @@ const LocalLogin: React.FunctionComponent = () => {
               >
                 Code Of Conduct
               </a>
-            </Text>
-            <Text className="urls-text-medium">
+            </Content>
+            <Content component="p" className="urls-text-medium">
               <a
                 href="https://www.redhat.com/en/about/terms-use"
                 style={{ color: 'white', textDecoration: 'underline' }}
@@ -141,8 +150,8 @@ const LocalLogin: React.FunctionComponent = () => {
               >
                 Privacy Policy
               </a>
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         </GridItem>
       </Grid>
     </div>

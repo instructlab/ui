@@ -11,8 +11,9 @@ import {
   DataListAction
 } from '@patternfly/react-core/dist/dynamic/components/DataList';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ModalVariant } from '@patternfly/react-core/dist/dynamic/next/components/Modal';
-import { Breadcrumb, BreadcrumbItem, Modal, TextContent } from '@patternfly/react-core/components/';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/components/Modal';
+import { Breadcrumb, BreadcrumbItem, Content } from '@patternfly/react-core/components/';
+import { Modal } from '@patternfly/react-core/deprecated';
 import { Form, FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
@@ -121,25 +122,25 @@ const EndpointsPage: React.FC = () => {
 
   return (
     <AppLayout>
-      <PageBreadcrumb>
+      <PageBreadcrumb hasBodyWrapper={false}>
         <Breadcrumb>
           <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
           <BreadcrumbItem isActive>Custom Model Endpoints</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
 
-      <PageSection style={{ backgroundColor: 'white' }}>
+      <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
         <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
           Custom Model Endpoints
         </Title>
-        <TextContent>
+        <Content>
           <br />
           Manage your own customer model endpoints. If you have a custom model that is served by an endpoint, you can add it here. This will allow you
           to use the custom model in the playground chat.
-        </TextContent>
+        </Content>
       </PageSection>
       <Page>
-        <PageSection style={{ backgroundColor: 'white' }}>
+        <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Title headingLevel="h1">Manage Endpoints</Title>
             <Button onClick={handleAddEndpoint}>Add Endpoint</Button>
