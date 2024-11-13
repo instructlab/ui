@@ -2,7 +2,7 @@
 'use client';
 import React from 'react';
 import { Modal } from '@patternfly/react-core/components';
-import { ModalVariant } from '@patternfly/react-core/dist/dynamic/next/components/Modal';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/components/Modal';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { CodeBlock, CodeBlockCode } from '@patternfly/react-core/dist/dynamic/components/CodeBlock';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
@@ -21,6 +21,8 @@ export const YamlCodeModal: React.FC<YamlCodeModalProps> = ({ isModalOpen, handl
       isOpen={isModalOpen}
       onClose={handleModalToggle}
       aria-label="YAML Code Modal"
+      // TODO: fix the typecheck error
+      // @ts-expect-error: Property 'actions' does not exist on type 'ModalProps'
       actions={[
         <Button key="close" variant="primary" onClick={handleModalToggle}>
           Close

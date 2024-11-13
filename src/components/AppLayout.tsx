@@ -2,20 +2,18 @@
 'use client';
 
 import * as React from 'react';
-
 import { Page, PageToggleButton } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { Text, TextContent, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content, ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { usePathname, useRouter } from 'next/navigation';
-
 import { BarsIcon } from '@patternfly/react-icons/dist/dynamic/icons/bars-icon';
 import { Brand } from '@patternfly/react-core/dist/dynamic/components/Brand';
 import HelpDropdown from './HelpDropdown/HelpDropdown';
 import Link from 'next/link';
 import { Masthead } from '@patternfly/react-core/dist/dynamic/components/Masthead';
-import { MastheadBrand } from '@patternfly/react-core/dist/dynamic/components/Masthead';
+import { MastheadLogo } from '@patternfly/react-core/dist/dynamic/components/Masthead';
 import { MastheadContent } from '@patternfly/react-core/dist/dynamic/components/Masthead';
 import { MastheadMain } from '@patternfly/react-core/dist/dynamic/components/Masthead';
-import { MastheadToggle } from '@patternfly/react-core/dist/dynamic/components/Masthead';
+import { MastheadToggle, MastheadBrand } from '@patternfly/react-core/dist/dynamic/components/Masthead';
 import { Nav } from '@patternfly/react-core/dist/dynamic/components/Nav';
 import { NavExpandable } from '@patternfly/react-core/dist/dynamic/components/Nav';
 import { NavItem } from '@patternfly/react-core/dist/dynamic/components/Nav';
@@ -26,7 +24,7 @@ import { SkipToContent } from '@patternfly/react-core/dist/dynamic/components/Sk
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import UserMenu from './UserMenu/UserMenu';
 import { useSession } from 'next-auth/react';
-import { useTheme } from '../context/ThemeContext';
+// import { useTheme } from '../context/ThemeContext';
 import { useState } from 'react';
 
 interface IAppLayout {
@@ -40,7 +38,8 @@ type Route = {
 };
 
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
-  const { theme } = useTheme();
+  // TODO: migrate to patternfly tokens
+  // const { theme } = useTheme();
   const { data: session, status } = useSession();
   const [isExperimentalEnabled, setExperimental] = useState(false);
 
@@ -112,18 +111,20 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
 
   const Header = (
     <Masthead>
-      <MastheadToggle>
-        <PageToggleButton variant="plain" aria-label="Global navigation">
-          <BarsIcon />
-        </PageToggleButton>
-      </MastheadToggle>
       <MastheadMain style={{ flexShrink: 1, display: 'flex', alignItems: 'center' }}>
-        <MastheadBrand>
-          <Brand src="/updated-logo.png" alt="InstructLab Logo" heights={{ default: '60px' }} />
+        <MastheadToggle>
+          <PageToggleButton variant="plain" aria-label="Global navigation">
+            <BarsIcon />
+          </PageToggleButton>
+        </MastheadToggle>
+        <MastheadBrand data-codemods>
+          <MastheadLogo data-codemods>
+            <Brand src="/updated-logo.png" alt="InstructLab Logo" heights={{ default: '60px' }} />
+          </MastheadLogo>
         </MastheadBrand>
-        <TextContent style={{ padding: 10 }}>
-          <Text component={TextVariants.h1}>InstructLab</Text>
-        </TextContent>
+        <Content style={{ padding: 10 }}>
+          <Content component={ContentVariants.h1}>InstructLab</Content>
+        </Content>
       </MastheadMain>
       <MastheadContent style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'nowrap' }}>
         <HelpDropdown />
@@ -150,7 +151,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   );
 
   const Navigation = (
-    <Nav id="nav-primary-simple" theme={theme}>
+    // TODO: Theme no longer works here, with patternfly v6 it now uses tokens: https://www.patternfly.org/get-started/release-highlights/
+    // <Nav id="nav-primary-simple" theme={theme}>
+    <Nav id="nav-primary-simple">
       <NavList id="nav-list-simple">
         {routes.map((route, idx) => (route.children ? renderNavExpandable(route, idx) : renderNavItem(route, idx)))}
       </NavList>
@@ -158,7 +161,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   );
 
   const Sidebar = (
-    <PageSidebar theme={theme}>
+    <PageSidebar>
       <PageSidebarBody>{Navigation}</PageSidebarBody>
     </PageSidebar>
   );
@@ -167,7 +170,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const PageSkipToContent = <SkipToContent href={`#${pageId}`}>Skip to Content</SkipToContent>;
 
   return (
-    <Page mainContainerId={pageId} header={Header} isManagedSidebar sidebar={Sidebar} skipToContent={PageSkipToContent}>
+    <Page mainContainerId={pageId} masthead={Header} isManagedSidebar sidebar={Sidebar} skipToContent={PageSkipToContent}>
       {children}
     </Page>
   );

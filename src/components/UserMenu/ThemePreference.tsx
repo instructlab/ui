@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content, ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Flex, FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex';
 import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown';
 import { Theme, useTheme } from '../../context/ThemeContext';
@@ -16,7 +16,7 @@ const ThemePreference: React.FC = () => {
   return (
     <>
       <DropdownItem isDisabled key="Theme">
-        <Text component={TextVariants.small}>Theme preference</Text>
+        <Content component={ContentVariants.small}>Theme preference</Content>
       </DropdownItem>
 
       <DropdownItem value={0} key="Light" onClick={() => handleThemeSwitch('light')}>

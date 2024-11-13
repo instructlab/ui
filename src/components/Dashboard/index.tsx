@@ -13,7 +13,6 @@ import { Flex } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateFooter } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateActions } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import GithubIcon from '@patternfly/react-icons/dist/esm/icons/github-icon';
@@ -23,13 +22,15 @@ import { useRouter } from 'next/navigation';
 import { fetchPullRequests, getGitHubUsername } from '../../utils/github';
 import { PullRequest } from '../../types';
 import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core/dist/esm/components/Breadcrumb';
-import { TextContent } from '@patternfly/react-core/dist/esm/components/Text/TextContent';
+import { Content } from '@patternfly/react-core/dist/esm/components/Content';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 import { Popover } from '@patternfly/react-core/dist/esm/components/Popover';
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
-import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/components/Modal/Modal';
+import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
 import { useState } from 'react';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
+
+const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
 const Index: React.FunctionComponent = () => {
   const { data: session } = useSession();
@@ -93,16 +94,16 @@ const Index: React.FunctionComponent = () => {
 
   return (
     <div>
-      <PageBreadcrumb>
+      <PageBreadcrumb hasBodyWrapper={false}>
         <Breadcrumb>
           <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
-      <PageSection style={{ backgroundColor: 'white' }}>
+      <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
         <Title headingLevel="h1" size="lg">
           My Submissions
         </Title>
-        <TextContent>
+        <Content>
           View and manage your taxonomy contributions.
           <Popover
             aria-label="Basic popover"
@@ -118,9 +119,9 @@ const Index: React.FunctionComponent = () => {
           >
             <OutlinedQuestionCircleIcon />
           </Popover>
-        </TextContent>
+        </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <div style={{ marginBottom: '20px' }} />
         {!isFirstPullDone && (
           <Modal variant={ModalVariant.small} title="Retrieving your submissions" isOpen={isLoading} onClose={() => handleOnClose()}>
@@ -131,16 +132,7 @@ const Index: React.FunctionComponent = () => {
           </Modal>
         )}
         {isFirstPullDone && pullRequests.length === 0 ? (
-          <EmptyState>
-            <EmptyStateHeader
-              titleText="Welcome to InstructLab"
-              headingLevel="h4"
-              icon={
-                <div>
-                  <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />
-                </div>
-              }
-            />
+          <EmptyState titleText="Welcome to InstructLab" headingLevel="h4" icon={InstructLabLogo}>
             <EmptyStateBody>
               <div style={{ maxWidth: '60ch' }}>
                 InstructLab is a powerful and accessible tool for advancing generative AI through community collaboration and open-source principles.

@@ -12,15 +12,21 @@ const KnowledgeDescriptionContent: React.FunctionComponent = () => {
           in the taxonomy tree and each node of this tree contains a qna.yaml file.
         </b>
         <a href="https://docs.instructlab.ai/taxonomy/knowledge/guide/#what-is-knowledge" target="_blank" rel="noopener noreferrer">
-          <Button variant="link" aria-label="Learn more about what Knowledge is in InstructLab">
+          <Button
+            icon={<ExternalLinkAltIcon style={{ padding: '3px' }}></ExternalLinkAltIcon>}
+            variant="link"
+            aria-label="Learn more about what Knowledge is in InstructLab"
+          >
             Learn more about knowledge
-            <ExternalLinkAltIcon style={{ padding: '3px' }}></ExternalLinkAltIcon>
           </Button>
         </a>
         <a href="https://docs.instructlab.ai/taxonomy/knowledge/" target="_blank" rel="noopener noreferrer">
-          <Button variant="link" aria-label="Getting started with InstructLab knowledge contribution">
+          <Button
+            icon={<ExternalLinkAltIcon style={{ padding: '3px' }}></ExternalLinkAltIcon>}
+            variant="link"
+            aria-label="Getting started with InstructLab knowledge contribution"
+          >
             Getting started with knowledge contribution
-            <ExternalLinkAltIcon style={{ padding: '3px' }}></ExternalLinkAltIcon>
           </Button>
         </a>
       </p>

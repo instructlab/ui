@@ -75,9 +75,7 @@ const SkillsSeedExample: React.FC<Props> = ({
               }}
               actions={
                 !seedExample.immutable && (
-                  <Button variant="plain" aria-label="Remove" onClick={() => deleteSeedExample(seedExampleIndex)}>
-                    <TrashIcon />
-                  </Button>
+                  <Button icon={<TrashIcon />} variant="plain" aria-label="Remove" onClick={() => deleteSeedExample(seedExampleIndex)} />
                 )
               }
             />
@@ -143,8 +141,8 @@ const SkillsSeedExample: React.FC<Props> = ({
         </FormFieldGroupExpandable>
       ))}
       <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-        <Button variant="link" type="button" onClick={addSeedExample}>
-          <PlusCircleIcon /> Add Seed Example
+        <Button icon={<PlusCircleIcon />} variant="link" type="button" onClick={addSeedExample}>
+          Add Seed Example
         </Button>
       </div>
     </FormFieldGroupExpandable>

@@ -6,7 +6,7 @@ import { AppLayout } from '@/components/AppLayout';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Breadcrumb, BreadcrumbItem, PageBreadcrumb, PageSection, TextContent, TextInput, Title } from '@patternfly/react-core/';
+import { Breadcrumb, BreadcrumbItem, PageBreadcrumb, PageSection, Content, Title } from '@patternfly/react-core/';
 import { Select } from '@patternfly/react-core/dist/dynamic/components/Select';
 import { SelectOption, SelectList } from '@patternfly/react-core/dist/dynamic/components/Select';
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
@@ -19,6 +19,7 @@ import Image from 'next/image';
 import styles from './chat.module.css';
 import { Endpoint, Message, Model } from '@/types';
 import CopyToClipboardButton from '@/components/CopyToClipboardButton';
+import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 
 const ChatPage: React.FC = () => {
   const [question, setQuestion] = useState('');
@@ -87,7 +88,7 @@ const ChatPage: React.FC = () => {
       </SelectOption>
     ));
 
-  const handleQuestionChange = (event: React.FormEvent<HTMLInputElement>, value: string) => {
+  const handleQuestionChange = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
     setQuestion(value);
   };
 
@@ -255,12 +256,12 @@ const ChatPage: React.FC = () => {
         <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
           Chat with a Model
         </Title>
-        <TextContent>
+        <Content>
           <br />
           Chat with the served models. Currently it allows you to chat with Merlinite-7b and Granite-7B models hosted on your Cloud. Users can add
           their own custom endpoint using the &quot;Custom Model Endpoints&quot; feature. Once the custom endpoint is configured, it will be available
           in the model selector dropdown with the pre hosted models.
-        </TextContent>
+        </Content>
       </PageSection>
       <div className={styles.chatContainer}>
         <div className={styles.modelSelector}>
@@ -276,9 +277,13 @@ const ChatPage: React.FC = () => {
           >
             <SelectList>{dropdownItems}</SelectList>
           </Select>
-          <Button variant="plain" onClick={handleCleanup} aria-label="Cleanup" style={{ marginLeft: 'auto' }}>
-            <FontAwesomeIcon icon={faBroom} />
-          </Button>
+          <Button
+            icon={<FontAwesomeIcon icon={faBroom} />}
+            variant="plain"
+            onClick={handleCleanup}
+            aria-label="Cleanup"
+            style={{ marginLeft: 'auto' }}
+          />
         </div>
         <div ref={messagesContainerRef} className={styles.messagesContainer}>
           {messages.map((msg, index) => (
@@ -299,7 +304,7 @@ const ChatPage: React.FC = () => {
         <Form onSubmit={handleSubmit} className={styles.chatForm}>
           <FormGroup fieldId="question-field">
             <TextInput
-              isRequired
+              // isRequired
               type="text"
               id="question-field"
               name="question-field"
