@@ -1,6 +1,6 @@
 // src/components/Contribute/Skill/index.tsx
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './skills.css';
 import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
@@ -17,7 +17,7 @@ import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/B
 import { PageBreadcrumb } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageGroup } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { checkSkillFormCompletion } from './validation';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
@@ -146,17 +146,18 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
     }
   }, [session?.user]);
 
-  useMemo(() => {
+  useEffect(() => {
     const fetchUsername = async () => {
       if (session?.accessToken) {
         try {
-          const header = {
+          const headers = {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session.accessToken}`,
             Accept: 'application/vnd.github+json',
             'X-GitHub-Api-Version': '2022-11-28'
           };
-          const fetchedUsername = await getGitHubUsername(header);
+
+          const fetchedUsername = await getGitHubUsername(headers);
           setGithubUsername(fetchedUsername);
         } catch (error) {
           console.error('Failed to fetch GitHub username:', error);
@@ -351,20 +352,20 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
 
   return (
     <PageGroup>
-      <PageBreadcrumb>
+      <PageBreadcrumb hasBodyWrapper={false}>
         <Breadcrumb>
           <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
           <BreadcrumbItem isActive>Skill Contribution</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
 
-      <PageSection style={{ backgroundColor: 'white' }}>
+      <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
         <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
           Skill Contribution
         </Title>
-        <TextContent>
+        <Content>
           <SkillsDescriptionContent />
-        </TextContent>
+        </Content>
         {deploymentType === 'dev' && (
           <Button variant="primary" onClick={autoFillForm}>
             Auto-Fill

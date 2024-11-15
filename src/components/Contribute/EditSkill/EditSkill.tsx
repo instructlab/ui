@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/components/Modal/Modal';
+import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
 import { useRouter } from 'next/navigation';
 import SkillForm, { SkillEditFormData, SkillFormData, SeedExample } from '@/components/Contribute/Skill';
 import { fetchPullRequest, fetchFileContent, fetchPullRequestFiles } from '@/utils/github';

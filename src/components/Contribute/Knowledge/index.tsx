@@ -1,6 +1,6 @@
 // src/components/Contribute/Knowledge/index.tsx
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './knowledge.css';
 import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
@@ -19,7 +19,7 @@ import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/B
 import { PageBreadcrumb } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageGroup } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import KnowledgeDescriptionContent from './KnowledgeDescription/KnowledgeDescriptionContent';
 import KnowledgeSeedExample from './KnowledgeSeedExample/KnowledgeSeedExample';
@@ -185,7 +185,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     }
   }, [session?.user]);
 
-  useMemo(() => {
+  useEffect(() => {
     const fetchUsername = async () => {
       if (session?.accessToken) {
         try {
@@ -460,20 +460,20 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
 
   return (
     <PageGroup>
-      <PageBreadcrumb>
+      <PageBreadcrumb hasBodyWrapper={false}>
         <Breadcrumb>
           <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
           <BreadcrumbItem isActive>Knowledge Contribution</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
 
-      <PageSection style={{ backgroundColor: 'white' }}>
+      <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
         <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
           Knowledge Contribution
         </Title>
-        <TextContent>
+        <Content>
           <KnowledgeDescriptionContent />
-        </TextContent>
+        </Content>
         {deploymentType === 'dev' && (
           <Button variant="primary" onClick={autoFillForm}>
             Auto-Fill

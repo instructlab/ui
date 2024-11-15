@@ -11,7 +11,7 @@ import axios from 'axios';
 import KnowledgeForm, { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, SeedExample } from '@/components/Contribute/Knowledge';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { useEffect, useState } from 'react';
-import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/components/Modal/Modal';
+import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
 import { useRouter } from 'next/navigation';
 
 interface EditKnowledgeClientComponentProps {

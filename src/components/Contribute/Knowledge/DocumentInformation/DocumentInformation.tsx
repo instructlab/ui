@@ -10,7 +10,7 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/ex
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { KnowledgeFormData } from '..';
 import { checkKnowledgeFormCompletion } from '../validation';
-import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/components/Modal/Modal';
+import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
 
 interface Props {
   reset: boolean;

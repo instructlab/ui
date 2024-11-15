@@ -9,17 +9,13 @@ import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core/dist/esm/comp
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Flex, FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
-import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/components/Modal';
-import {
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateFooter,
-  EmptyStateActions
-} from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal';
+import { EmptyState, EmptyStateBody, EmptyStateFooter, EmptyStateActions } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import GithubIcon from '@patternfly/react-icons/dist/esm/icons/github-icon';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+
+const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
 const DashboardLocal: React.FunctionComponent = () => {
   const [branches, setBranches] = React.useState<{ name: string; creationDate: number }[]>([]);
@@ -100,31 +96,22 @@ const DashboardLocal: React.FunctionComponent = () => {
 
   return (
     <div>
-      <PageBreadcrumb>
+      <PageBreadcrumb hasBodyWrapper={false}>
         <Breadcrumb>
           <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
-      <PageSection style={{ backgroundColor: 'white' }}>
+      <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
         <Title headingLevel="h1" size="lg">
           Local Git Repository Branches
         </Title>
       </PageSection>
 
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         {isLoading ? (
           <Spinner size="lg" />
         ) : branches.length === 0 ? (
-          <EmptyState>
-            <EmptyStateHeader
-              titleText="Welcome to InstructLab"
-              headingLevel="h4"
-              icon={
-                <div>
-                  <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />
-                </div>
-              }
-            />
+          <EmptyState headingLevel="h4" titleText="Welcome to InstructLab" icon={InstructLabLogo}>
             <EmptyStateBody>
               <div style={{ maxWidth: '60ch' }}>
                 InstructLab is a powerful and accessible tool for advancing generative AI through community collaboration and open-source principles.
@@ -192,7 +179,7 @@ const DashboardLocal: React.FunctionComponent = () => {
         )}
 
         {mergeStatus && (
-          <PageSection variant="light">
+          <PageSection hasBodyWrapper={false}>
             <p style={{ color: mergeStatus.success ? 'green' : 'red' }}>{mergeStatus.message}</p>
           </PageSection>
         )}
