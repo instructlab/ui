@@ -104,7 +104,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         { path: '/experimental/dashboard-local/', label: 'Local Dashboard' },
         { path: '/experimental/contribute-local/skill/', label: 'Local Skill' },
         { path: '/experimental/contribute-local/knowledge/', label: 'Local Knowledge' },
-        { path: '/experimental/contribute-local/configuration-local/', label: 'Local Configuration' }
+        { path: '/experimental/contribute-local/configuration-local/', label: 'Local Configuration' },
+        { path: '/experimental/ragpipeline', label: 'Custom RAG Pipelines' }
       ]
     }
   ].filter(Boolean) as Route[];
