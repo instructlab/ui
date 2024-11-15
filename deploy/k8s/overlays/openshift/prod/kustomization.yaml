@@ -24,24 +24,6 @@ patches:
         path: /spec/tls/0/hosts/0
         value: ui.instructlab.ai
 
-  # Override the UI image for Openshift production deployment
-  - target:
-      kind: Deployment
-      name: ui
-    patch: |-
-      - op: replace
-        path: /spec/template/spec/containers/0/image
-        value: quay.io/instructlab-ui/ui:latest
-
-  # Override the pathservice image for Openshift production deployment
-  - target:
-      kind: Deployment
-      name: pathservice
-    patch: |-
-      - op: replace
-        path: /spec/template/spec/containers/0/image
-        value: quay.io/instructlab-ui/pathservice:latest
-
   - target:
       kind: Deployment
       name: ui
@@ -49,3 +31,8 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/envFrom/0/secretRef/name
         value: prod.env
+images:
+  - name: quay.io/instructlab-ui/ui
+    newTag: v1.0.0-beta.3
+  - name: quay.io/instructlab-ui/pathservice
+    newTag: v1.0.0-beta.3

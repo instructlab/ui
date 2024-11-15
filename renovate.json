@@ -3,7 +3,7 @@
     "extends": [
       "github>platform-engineering-org/.github"
     ],
-    "enabled": true,
+    "enabled": false,
     "ignoreUnstable": false,
     "customManagers": [
       {
