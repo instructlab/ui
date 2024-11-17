@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
         - name: ui
-          image: quay.io/instructlab-ui/ui:main
+          image: quay.io/instructlab-ui/ui:PATCHED_FROM_OVERLAYS
           imagePullPolicy: Always
           resources:
             requests:

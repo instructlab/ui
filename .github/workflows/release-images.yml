@@ -62,16 +62,6 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: "${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME }}"
-  
-      - name: Combine GHCR Tags with PR Tag
-        id: combined_ghcr_ui_tags
-        if: ${{steps.get_release_tag.outputs.result != '' }}
-        run: |-
-          TAGS="${{ steps.ghcr_ui_meta.outputs.tags }}"
-          RELEASE_TAG="release-${{ steps.get_release_tag.outputs.RELEASE_TAG }}"
-          COMBINED_TAGS="${RELEASE_TAG},${TAGS}"
-          echo "COMBINED_TAGS=${COMBINED_TAGS}" >> "$GITHUB_ENV"
-          echo "RELEASE_TAG=${RELEASE_TAG}" >> "$GITHUB_ENV"
 
       - name: Extract metadata (tags, labels) for UI image
         id: quay_ui_meta
@@ -79,23 +69,15 @@ jobs:
         with:
           images: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_UI_IMAGE_NAME }}
 
-      - name: Combine Quay Tags with PR Tag
-        id: combined_quay_ui_tags
-        if: ${{ steps.get_release_tag.outputs.result != '' }}
-        run: |-
-          TAGS="${{ steps.quay_ui_meta.outputs.tags }}"
-          RELEASE_TAG="release-${{ steps.get_release_tag.outputs.result }}"
-          COMBINED_TAGS="${RELEASE_TAG},${TAGS}"
-          echo "COMBINED_TAGS=${COMBINED_TAGS}" >> "$GITHUB_ENV"
-          echo "RELEASE_TAG=${RELEASE_TAG}" >> "$GITHUB_ENV"
-
       - name: Build and push ui image to ghcr.io
         id: push-ui-ghcr
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ steps.combined_ghcr_ui_tags.outputs.COMBINED_TAGS }}
+          tags: |-
+            "${{ steps.ghcr_ui_meta.outputs.tags }}"
+            "${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME }}:${{ steps.get_release_tag.outputs.RELEASE_TAG }}"
           labels: ${{ steps.ghcr_ui_meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
@@ -115,7 +97,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.combined_quay_ui_tags.outputs.COMBINED_TAGS }}
+          tags: |-
+              "${{ steps.quay_ui_meta.outputs.tags }}"
+              "${{ env.QUAY_REGISTRY }}/${{ env.QUAY_UI_IMAGE_NAME }}:${{ steps.get_release_tag.outputs.RELEASE_TAG }}"
           labels: ${{ steps.quay_ui_meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
@@ -132,7 +116,7 @@ jobs:
       - name: Update Prod Quay PS image
         id: update_prod_ui_manifest_image
         env:
-          RELEASE_TAG: ${{ steps.combined_quay_ui_tags.outputs.RELEASE_TAG }}
+          RELEASE_TAG: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}
         run: |-
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
@@ -145,7 +129,7 @@ jobs:
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
           git add deploy/k8s/overlays/openshift/prod/kustomization.yaml
-          git commit -m "[CI AUTOMATION]: Bumping Prod UI image to tag: ${{ steps.combined_quay_ui_tags.outputs.RELEASE_TAG }}" -s -S
+          git commit -m "[CI AUTOMATION]: Bumping Prod UI image to tag: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}" -s -S
           git push origin main --force
 
   build_and_publish_ps_prod_image:
@@ -198,16 +182,6 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PS_IMAGE_NAME }}
-  
-      - name: Combine GHCR Tags with PR Tag
-        id: combined_ghcr_ps_tags
-        if: ${{ steps.get_release_tag.outputs.result != '' }}
-        run: |-
-          TAGS="${{ steps.ghcr_ps_meta.outputs.tags }}"
-          RELEASE_TAG="release-${{ steps.get_release_tag.outputs.RELEASE_TAG }}"
-          COMBINED_TAGS="${RELEASE_TAG},${TAGS}"
-          echo "COMBINED_TAGS=${COMBINED_TAGS}" >> "$GITHUB_ENV"
-          echo "RELEASE_TAG=${RELEASE_TAG}" >> "$GITHUB_ENV"
 
       - name: Extract metadata (tags, labels) for PS image
         id: quay_ps_meta
@@ -215,23 +189,15 @@ jobs:
         with:
           images: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_PS_IMAGE_NAME }}
 
-      - name: Combine Quay Tags with PR Tag
-        id: combined_quay_ps_tags
-        if: ${{ steps.get_release_tag.outputs.result != '' }}
-        run: |-
-          TAGS="${{ steps.quay_ps_meta.outputs.tags }}"
-          RELEASE_TAG="release-${{ steps.get_release_tag.outputs.result }}"
-          COMBINED_TAGS="${RELEASE_TAG},${TAGS}"
-          echo "COMBINED_TAGS=${COMBINED_TAGS}" >> "$GITHUB_ENV"
-          echo "RELEASE_TAG=${RELEASE_TAG}" >> "$GITHUB_ENV"
-
       - name: Build and push ps image to ghcr.io
         id: push-ps-ghcr
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ steps.combined_ghcr_ps_tags.outputs.COMBINED_TAGS }}
+          tags: |-
+            "${{ steps.ghcr_ps_meta.outputs.tags }}"
+            "${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PS_IMAGE_NAME }}:${{ steps.get_release_tag.outputs.RELEASE_TAG }}"
           labels: ${{ steps.ghcr_ps_meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
@@ -251,7 +217,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.combined_quay_ps_tags.outputs.COMBINED_TAGS }}
+          tags: |-
+            "${{ steps.quay_ps_meta.outputs.tags }}"
+            "${{ env.QUAY_REGISTRY }}/${{ env.QUAY_PS_IMAGE_NAME }}:${{ steps.get_release_tag.outputs.RELEASE_TAG }}"
           labels: ${{ steps.quay_ps_meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
@@ -268,7 +236,7 @@ jobs:
       - name: Update Prod Quay PS image
         id: update_prod_ps_manifest_image
         env:
-          RELEASE_TAG: ${{ steps.combined_quay_ps_tags.outputs.RELEASE_TAG }}
+          RELEASE_TAG: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}
         run: |-
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
@@ -281,5 +249,5 @@ jobs:
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
           git add deploy/k8s/overlays/openshift/prod/kustomization.yaml
-          git commit -m "[CI AUTOMATION]: Bumping Prod PS image to tag: ${{ steps.combined_quay_ps_tags.outputs.RELEASE_TAG }}" -s -S
+          git commit -m "[CI AUTOMATION]: Bumping Prod PS image to tag: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}" -s -S
           git push origin main --force
