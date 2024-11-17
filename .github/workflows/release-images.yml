@@ -129,7 +129,7 @@ jobs:
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
           git add deploy/k8s/overlays/openshift/prod/kustomization.yaml
-          git commit -m "[CI AUTOMATION]: Bumping Prod UI image to tag: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}" -s -S
+          git commit -m "[CI AUTOMATION]: Bumping Prod UI image to tag: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}" -s
           git push origin main --force
 
   build_and_publish_ps_prod_image:
@@ -249,5 +249,5 @@ jobs:
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
           git add deploy/k8s/overlays/openshift/prod/kustomization.yaml
-          git commit -m "[CI AUTOMATION]: Bumping Prod PS image to tag: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}" -s -S
+          git commit -m "[CI AUTOMATION]: Bumping Prod PS image to tag: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}" -s
           git push origin main --force
