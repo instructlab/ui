@@ -35,7 +35,6 @@ jobs:
             echo "Workflow triggered by previous action commit. Skipping."
             exit 1
           fi
-          exit 0
 
       - name: Log in to the GHCR container image registry
         uses: docker/login-action@v3
@@ -163,7 +162,7 @@ jobs:
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
-          git commit -m "[CI AUTOMATION]: Bumping QA UI image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s -S
+          git commit -m "[CI AUTOMATION]: Bumping QA UI image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
           git push origin main --force
 
   build_and_publish_ps_qa_image:
@@ -314,5 +313,5 @@ jobs:
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
-          git commit -m "[CI AUTOMATION]: Bumping QA PS image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s -S
+          git commit -m "[CI AUTOMATION]: Bumping QA PS image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
           git push origin main --force
