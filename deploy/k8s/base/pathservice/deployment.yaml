@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
         - name: pathservice
-          image: quay.io/instructlab-ui/pathservice:main
+          image: quay.io/instructlab-ui/pathservice:PATCHED_FROM_OVERLAYS
           imagePullPolicy: Always
           resources:
             requests:
