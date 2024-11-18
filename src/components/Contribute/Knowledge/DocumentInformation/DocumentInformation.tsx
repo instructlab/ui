@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 import { UploadFile } from './../UploadFile';
@@ -208,22 +208,18 @@ const DocumentInformation: React.FC<Props> = ({
   };
 
   return (
-    <FormFieldGroupExpandable
-      toggleAriaLabel="Details"
-      header={
-        <FormFieldGroupHeader
-          titleText={{
-            text: (
-              <p>
-                Document Information <span style={{ color: 'red' }}>*</span>
-              </p>
-            ),
-            id: 'doc-info-id'
-          }}
-          titleDescription="Add the relevant document's information"
-        />
-      }
-    >
+    <div>
+      <FormFieldGroupHeader
+        titleText={{
+          text: (
+            <p>
+              Document Information <span style={{ color: 'red' }}>*</span>
+            </p>
+          ),
+          id: 'doc-info-id'
+        }}
+        titleDescription="Add the relevant document's information"
+      />
       <FormGroup>
         <div style={{ display: 'flex', gap: '10px' }}>
           <Button
@@ -365,7 +361,7 @@ const DocumentInformation: React.FC<Props> = ({
           {failureAlertMessage}
         </Alert>
       )}
-    </FormFieldGroupExpandable>
+    </div>
   );
 };
 

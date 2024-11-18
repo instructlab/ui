@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
@@ -89,23 +89,11 @@ const KnowledgeInformation: React.FC<Props> = ({
   };
 
   return (
-    <FormFieldGroupExpandable
-      isExpanded
-      toggleAriaLabel="Details"
-      header={
-        <FormFieldGroupHeader
-          titleText={{
-            text: (
-              <p>
-                Knowledge Information <span style={{ color: 'red' }}>*</span>
-              </p>
-            ),
-            id: 'knowledge-info-id'
-          }}
-          titleDescription="Provide brief information about the knowledge."
-        />
-      }
-    >
+    <>
+      <h2>
+        Knowledge Information <span style={{ color: 'red' }}>*</span>
+      </h2>
+      <p>Provide brief information about the knowledge.</p>
       <FormGroup key={'knowledge-info-details-submission_summary'} label="Submission summary">
         <TextInput
           isRequired
@@ -166,7 +154,7 @@ const KnowledgeInformation: React.FC<Props> = ({
           </HelperText>
         )}
       </FormGroup>
-    </FormFieldGroupExpandable>
+    </>
   );
 };
 
