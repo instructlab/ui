@@ -10,7 +10,6 @@ import { Brand } from '@patternfly/react-core/dist/dynamic/components/Brand';
 import HelpDropdown from './HelpDropdown/HelpDropdown';
 import Link from 'next/link';
 import { Masthead } from '@patternfly/react-core/dist/dynamic/components/Masthead';
-import { MastheadLogo } from '@patternfly/react-core/dist/dynamic/components/Masthead';
 import { MastheadContent } from '@patternfly/react-core/dist/dynamic/components/Masthead';
 import { MastheadMain } from '@patternfly/react-core/dist/dynamic/components/Masthead';
 import { MastheadToggle, MastheadBrand } from '@patternfly/react-core/dist/dynamic/components/Masthead';
@@ -118,15 +117,24 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
           </PageToggleButton>
         </MastheadToggle>
         <MastheadBrand data-codemods>
-          <MastheadLogo data-codemods>
-            <Brand src="/updated-logo.png" alt="InstructLab Logo" heights={{ default: '60px' }} />
-          </MastheadLogo>
+          <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Brand src="/updated-logo.png" alt="InstructLab Logo" heights={{ default: '60px' }} />
+              <Content component={ContentVariants.h1} style={{ marginLeft: '10px', textDecoration: 'none', color: 'black', paddingBottom: '25px' }}>
+                InstructLab
+              </Content>
+            </div>
+          </Link>
         </MastheadBrand>
-        <Content style={{ padding: 10 }}>
-          <Content component={ContentVariants.h1}>InstructLab</Content>
-        </Content>
       </MastheadMain>
-      <MastheadContent style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'nowrap' }}>
+      <MastheadContent
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          flexWrap: 'nowrap'
+        }}
+      >
         <HelpDropdown />
         <UserMenu />
       </MastheadContent>
