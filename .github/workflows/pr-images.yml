@@ -20,7 +20,7 @@ jobs:
     environment: registry-creds
     permissions:
       packages: write
-      contents: read
+      contents: write
       attestations: write
       id-token: write
 
@@ -163,7 +163,7 @@ jobs:
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA UI image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
-          git push origin main --force
+          git push origin main
 
   build_and_publish_ps_qa_image:
     name: Push QA pathservice container image to GHCR and QUAY
@@ -171,7 +171,7 @@ jobs:
     environment: registry-creds
     permissions:
       packages: write
-      contents: read
+      contents: write
       attestations: write
       id-token: write
 
@@ -314,4 +314,4 @@ jobs:
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA PS image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
-          git push origin main --force
+          git push origin main
