@@ -20,7 +20,7 @@ jobs:
     environment: registry-creds
     permissions:
       packages: write
-      contents: read
+      contents: write
       attestations: write
       id-token: write
 
@@ -172,7 +172,7 @@ jobs:
     environment: registry-creds
     permissions:
       packages: write
-      contents: read
+      contents: write
       attestations: write
       id-token: write
 
