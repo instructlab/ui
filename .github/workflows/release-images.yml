@@ -128,9 +128,10 @@ jobs:
         run: |-
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
+          git remote add origin-push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git add deploy/k8s/overlays/openshift/prod/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping Prod UI image to tag: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}" -s
-          git push origin main --force
+          git push origin-push main
 
   build_and_publish_ps_prod_image:
     name: Push UI container image to GHCR and QUAY
@@ -248,6 +249,7 @@ jobs:
         run: |-
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
+          git remote add origin-push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git add deploy/k8s/overlays/openshift/prod/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping Prod PS image to tag: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}" -s
-          git push origin main --force
+          git push origin-push main
