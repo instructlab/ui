@@ -161,9 +161,10 @@ jobs:
         run: |-
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
+          git remote add origin-push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA UI image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
-          git push origin main --force
+          git push origin-push main
 
   build_and_publish_ps_qa_image:
     name: Push QA pathservice container image to GHCR and QUAY
@@ -312,6 +313,7 @@ jobs:
         run: |-
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
+          git remote add origin-push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA PS image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
-          git push origin main --force
+          git push origin-push main
