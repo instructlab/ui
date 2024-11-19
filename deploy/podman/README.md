@@ -4,7 +4,7 @@ To help support knowledge and skill additions as well as the capabilities to cha
 
 ## Secret
 
-A secret is required to personalize the Instructlab UI as it relates to the RHEL AI system or your development workstation.
+A secret is required to personalize the Instructlab UI.
 
 Two options exist to generate the secret, either using `kubectl` or filling in values in the `secret.yaml` provided.
 
