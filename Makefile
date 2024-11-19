@@ -47,14 +47,15 @@ yaml-lint: ## Lint yaml files
 	$(CMD_PREFIX) yamllint -c .yamllint.yaml deploy --strict
 
 ##@ Artifacts - Command to build and publish artifacts
-ui-image: Containerfile ## Build continaer image for the InstructLab UI
-	$(ECHO_PREFIX) printf "  %-12s Containerfile\n" "[docker]"
-	$(CMD_PREFIX) docker build -f Containerfile -t ghcr.io/instructlab/ui/ui:$(TAG) .
+ui-image: src/Containerfile ## Build container image for the InstructLab UI
+	$(ECHO_PREFIX) printf "  %-12s src/Containerfile\n" "[docker]"
+	$(CMD_PREFIX) docker build -f src/Containerfile -t ghcr.io/instructlab/ui/ui:$(TAG) .
 	$(CMD_PREFIX) docker tag ghcr.io/instructlab/ui/ui:$(TAG) ghcr.io/instructlab/ui/ui:main
 
-ps-image: Containerfile.ps ## Build continaer image for the pathservice
-	$(ECHO_PREFIX) printf "  %-12s Containerfile.ps\n" "[docker]"
-	$(CMD_PREFIX) docker build -f Containerfile.ps -t ghcr.io/instructlab/ui/pathservice:$(TAG) .
+
+ps-image: pathservice/Containerfile ## Build container image for the InstructLab PathService
+	$(ECHO_PREFIX) printf "  %-12s pathservice/Containerfile\n" "[docker]"
+	$(CMD_PREFIX) docker build -f pathservice/Containerfile -t ghcr.io/instructlab/ui/pathservice:$(TAG) .
 	$(CMD_PREFIX) docker tag ghcr.io/instructlab/ui/pathservice:$(TAG) ghcr.io/instructlab/ui/pathservice:main
 
 ##@ Local Dev - Local machine based deployment of the UI stack

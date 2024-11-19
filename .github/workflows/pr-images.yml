@@ -115,7 +115,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          file: Containerfile
+          file: src/Containerfile
 
       - name: Generate GHCR artifact attestation
         uses: actions/attest-build-provenance@v1
@@ -137,8 +137,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          file: Containerfile
-      
+          file: src/Containerfile
+
       - name: Generate QA UI Quay artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
@@ -266,7 +266,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          file: Containerfile.ps
+          file: pathservice/Containerfile
 
       - name: Generate QA PS GHCR artifact attestation
         uses: actions/attest-build-provenance@v1
@@ -288,8 +288,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          file: Containerfile.ps
-      
+          file: pathservice/Containerfile
+
       - name: Generate QA PS Quay artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
