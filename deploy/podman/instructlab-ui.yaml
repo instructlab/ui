@@ -1,0 +1,143 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pathservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pathservice
+  template:
+    metadata:
+      labels:
+        app: pathservice
+    spec:
+      containers:
+      - name: pathservice
+        image: ghcr.io/instructlab/ui/pathservice:main
+        resources:
+          limits:
+            cpu: "100m"
+            memory: "200Mi"
+          requests:
+            cpu: "100m"
+            memory: "200Mi"
+        ports:
+        - containerPort: 4000
+          hostPort: 4000
+        imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ui
+  template:
+    metadata:
+      labels:
+        app: ui
+    spec:
+      containers:
+      - name: ui
+        image: ghcr.io/instructlab/ui/ui:main
+        resources:
+          limits:
+            cpu: "100m"
+            memory: "200Mi"
+          requests:
+            cpu: "100m"
+            memory: "200Mi"
+        env:
+        - name: NEXTAUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXTAUTH_SECRET
+        - name: NEXTAUTH_URL
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXTAUTH_URL
+        - name: IL_UI_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_UI_ADMIN_PASSWORD
+        - name: IL_UI_DEPLOYMENT
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_UI_DEPLOYMENT
+        - name: IL_UI_ADMIN_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_UI_ADMIN_USERNAME
+        - name: OAUTH_GITHUB_ID
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: OAUTH_GITHUB_ID
+        - name: OAUTH_GITHUB_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: OAUTH_GITHUB_SECRET
+        - name: IL_GRANITE_API
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_GRANITE_API
+        - name: IL_GRANITE_MODEL_NAME
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_GRANITE_MODEL_NAME
+        - name: IL_MERLINITE_API
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_MERLINITE_API
+        - name: IL_MERLINITE_MODEL_NAME
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_MERLINITE_MODEL_NAME
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: GITHUB_TOKEN
+        - name: TAXONOMY_DOCUMENTS_REPO
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: TAXONOMY_DOCUMENTS_REPO
+        - name: NEXT_PUBLIC_AUTHENTICATION_ORG
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXT_PUBLIC_AUTHENTICATION_ORG
+        - name: NEXT_PUBLIC_TAXONOMY_REPO_OWNER
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXT_PUBLIC_TAXONOMY_REPO_OWNER
+        - name: NEXT_PUBLIC_TAXONOMY_REPO
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXT_PUBLIC_TAXONOMY_REPO
+        - name: NEXT_PUBLIC_EXPERIMENTAL_FEATURES
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXT_PUBLIC_EXPERIMENTAL_FEATURES
+        ports:
+        - containerPort: 3000
+          hostPort: 3000
+        imagePullPolicy: Always
