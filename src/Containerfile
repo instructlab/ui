@@ -3,6 +3,10 @@ FROM registry.access.redhat.com/ubi9/nodejs-22:9.5-1730543890
 WORKDIR /opt/app-root/src
 
 COPY package*.json ./
+
+USER root
+RUN chown -R default:root /opt/app-root/src/package*.json
+USER default
 RUN npm install
 COPY ./ .
 

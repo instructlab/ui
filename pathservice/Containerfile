@@ -8,7 +8,7 @@ COPY ./pathservice ./
 RUN go build -o bin/pathservice
 
 # Start a new stage from scratch
-FROM registry.redhat.io/ubi9-micro@sha256:113775a4479af632fde314af652daa6a45ab3d34b59ceb76a777616131daa6bd
+FROM registry.access.redhat.com/ubi9-micro:9.5-1731934928
 
 # Copy the binary from the previous stage
 COPY --from=builder /opt/app-root/src/bin/pathservice /pathservice
