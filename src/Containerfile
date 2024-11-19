@@ -1,6 +1,6 @@
-FROM node:22-alpine
+FROM registry.access.redhat.com/ubi9/nodejs-22:9.5-1730543890
 
-WORKDIR /app
+WORKDIR /opt/app-root/src
 
 COPY package*.json ./
 RUN npm install

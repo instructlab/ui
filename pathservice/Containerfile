@@ -1,0 +1,20 @@
+FROM registry.access.redhat.com/ubi9/go-toolset:1.22.5-1730550521 as builder
+
+WORKDIR /opt/app-root/src
+
+COPY ./pathservice ./
+
+# Build the Go app
+RUN go build -o bin/pathservice
+
+# Start a new stage from scratch
+FROM registry.redhat.io/ubi9-micro@sha256:113775a4479af632fde314af652daa6a45ab3d34b59ceb76a777616131daa6bd
+
+# Copy the binary from the previous stage
+COPY --from=builder /opt/app-root/src/bin/pathservice /pathservice
+
+# Expose the port 4000 to the outside world
+EXPOSE 4000
+
+# Command to run the executable
+CMD ["/pathservice"]
