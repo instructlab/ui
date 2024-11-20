@@ -126,9 +126,9 @@ jobs:
 
       - name: Commit and push bump to Prod UI image manifest
         run: |-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote add origin-push https://github-actions[bot]:${{ secrets.GITHUB_TOKEN }}@github.com/instructlab/ui.git
+          git config user.name "platform-engineering-bot"
+          git config user.email "platform-engineering@redhat.com"
+          git remote add origin-push https://platform-engineering-bot:${{ secrets.BOT_PAT }}@github.com/instructlab/ui.git
           git add deploy/k8s/overlays/openshift/prod/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping Prod UI image to tag: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}" -s
           git push origin-push main
@@ -247,9 +247,9 @@ jobs:
 
       - name: Commit and push bump to Prod PS image manifest
         run: |-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote add origin-push https://github-actions[bot]:${{ secrets.GITHUB_TOKEN }}@github.com/instructlab/ui.git
+          git config user.name "platform-engineering-bot"
+          git config user.email "platform-engineering@redhat.com"
+          git remote add origin-push https://platform-engineering-bot:${{ secrets.BOT_PAT }}@github.com/instructlab/ui.git
           git add deploy/k8s/overlays/openshift/prod/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping Prod PS image to tag: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}" -s
           git push origin-push main
