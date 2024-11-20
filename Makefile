@@ -98,7 +98,7 @@ stop-dev-kind: check-kind ## Stop the Kind cluster to destroy the development en
 	$(CMD_PREFIX) kind delete cluster --name $(ILAB_KUBE_CLUSTER_NAME)
 
 .PHONY: setup-kind
-setup-kind: check-kind check-kubectl stop-dev ## Create a Kind cluster with ingress enabled
+setup-kind: check-kind check-kubectl stop-dev-kind ## Create a Kind cluster with ingress enabled
 	$(CMD_PREFIX) kind create cluster --config ./deploy/k8s/overlays/kind/kind.yaml
 	$(CMD_PREFIX) kubectl cluster-info
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -f ./deploy/k8s/overlays/kind/kind-ingress.yaml
