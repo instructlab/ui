@@ -20,7 +20,7 @@ const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-Fu
 const DashboardLocal: React.FunctionComponent = () => {
   const [branches, setBranches] = React.useState<{ name: string; creationDate: number }[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
-  const [mergeStatus, setMergeStatus] = React.useState<{ branch: string; message: string; success: boolean } | null>(null);
+  const [mergeStatus] = React.useState<{ branch: string; message: string; success: boolean } | null>(null);
   const [diffData, setDiffData] = React.useState<{ branch: string; changes: { file: string; status: string }[] } | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const router = useRouter();
@@ -53,26 +53,27 @@ const DashboardLocal: React.FunctionComponent = () => {
     return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
   };
 
-  const handleMerge = async (branchName: string) => {
-    setMergeStatus(null); // Clear previous status
-    try {
-      const response = await fetch('/api/local/git/branches', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ branchName, action: 'merge' })
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setMergeStatus({ branch: branchName, message: result.message, success: true });
-      } else {
-        setMergeStatus({ branch: branchName, message: result.error, success: false });
-      }
-    } catch (error) {
-      setMergeStatus({ branch: branchName, message: 'Merge failed due to an unexpected error.', success: false });
-      console.error('Error merging branch:', error);
-    }
-  };
+  // Disabling Merge for now, leaving the code for when we re-implement the feature.
+  // const handleMerge = async (branchName: string) => {
+  //   setMergeStatus(null); // Clear previous status
+  //   try {
+  //     const response = await fetch('/api/local/git/branches', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ branchName, action: 'merge' })
+  //     });
+  //
+  //     const result = await response.json();
+  //     if (response.ok) {
+  //       setMergeStatus({ branch: branchName, message: result.message, success: true });
+  //     } else {
+  //       setMergeStatus({ branch: branchName, message: result.error, success: false });
+  //     }
+  //   } catch (error) {
+  //     setMergeStatus({ branch: branchName, message: 'Merge failed due to an unexpected error.', success: false });
+  //     console.error('Error merging branch:', error);
+  //   }
+  // };
 
   const handleShowChanges = async (branchName: string) => {
     try {
@@ -163,9 +164,9 @@ const DashboardLocal: React.FunctionComponent = () => {
                         Created on: {formatDateTime(branch.creationDate)}
                       </FlexItem>
                       <FlexItem align={{ default: 'alignRight' }}>
-                        <Button variant="primary" onClick={() => handleMerge(branch.name)} style={{ marginRight: '8px' }}>
-                          Merge into Main
-                        </Button>
+                        {/*<Button variant="primary" onClick={() => handleMerge(branch.name)} style={{ marginRight: '8px' }}>*/}
+                        {/*  Merge into Main*/}
+                        {/*</Button>*/}
                         <Button variant="secondary" onClick={() => handleShowChanges(branch.name)}>
                           Show Changes
                         </Button>
