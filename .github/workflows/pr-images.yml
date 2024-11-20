@@ -29,6 +29,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.BOT_PAT }}
+          ref: 'main'
 
       - name: Skip if triggered by GitHub Actions bot
         id: check-skip
@@ -163,11 +164,6 @@ jobs:
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
-          git config --local --list > local-git-config
-          cat local-git-config
-          git config --global --list > global-git-config
-          cat global-git-config
-          git remote -v
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA UI image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
           git push origin main
@@ -187,6 +183,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.BOT_PAT }}
+          ref: 'main'
 
       - name: Skip if triggered by GitHub Actions bot
         id: check-skip
@@ -321,11 +318,6 @@ jobs:
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
-          git config --local --list > local-git-config
-          cat local-git-config
-          git config --global --list > global-git-config
-          cat global-git-config
-          git remote -v
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA PS image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
           git push origin main
