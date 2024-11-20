@@ -159,9 +159,9 @@ jobs:
 
       - name: Commit and push bump QA UI Image manifest
         run: |-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote add origin-push https://github-actions[bot]:${{ secrets.GITHUB_TOKEN }}@github.com/instructlab/ui.git
+          git config user.name "platform-engineering-bot"
+          git config user.email "platform-engineering@redhat.com"
+          git remote add origin-push https://platform-engineering-bot:${{ secrets.BOT_PAT }}@github.com/instructlab/ui.git
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA UI image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
           git push origin-push main
@@ -311,9 +311,9 @@ jobs:
 
       - name: Commit and push bump QA PS Image manifest
         run: |-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote add origin-push https://github-actions[bot]:${{ secrets.GITHUB_TOKEN }}@github.com/instructlab/ui.git
+          git config user.name "platform-engineering-bot"
+          git config user.email "platform-engineering@redhat.com"
+          git remote add origin-push https://platform-engineering-bot:${{ secrets.BOT_PAT }}@github.com/instructlab/ui.git
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA PS image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
           git push origin-push main
