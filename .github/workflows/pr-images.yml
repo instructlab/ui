@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_PAT }}
 
       - name: Skip if triggered by GitHub Actions bot
         id: check-skip
@@ -161,10 +163,14 @@ jobs:
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
-          git remote add origin-push https://platform-engineering-bot:${{ secrets.BOT_PAT }}@github.com/instructlab/ui.git
+          git config --local --list > local-git-config
+          cat local-git-config
+          git config --global --list > global-git-config
+          cat global-git-config
+          git remote -v
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA UI image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
-          git push origin-push main
+          git push origin main
 
   build_and_publish_ps_qa_image:
     name: Push QA pathservice container image to GHCR and QUAY
@@ -179,6 +185,8 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_PAT }}
 
       - name: Skip if triggered by GitHub Actions bot
         id: check-skip
@@ -313,7 +321,11 @@ jobs:
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
-          git remote add origin-push https://platform-engineering-bot:${{ secrets.BOT_PAT }}@github.com/instructlab/ui.git
+          git config --local --list > local-git-config
+          cat local-git-config
+          git config --global --list > global-git-config
+          cat global-git-config
+          git remote -v
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA PS image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
-          git push origin-push main
+          git push origin main
