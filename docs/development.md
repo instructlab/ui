@@ -252,6 +252,22 @@ The configuration for playwright tests is defined in `playwright.config` file an
 
 If you'd like to run a specific single test, use the following command with the appropriate folder path to your test. Example: `npx playwright test tests/routing.spec.ts`. To get a detailed report of the completed tests, run `npx playwright show-report` and you'll get a detailed view.
 
+### How to use the devcontainer
+
+** NOTE: requires the `devcontainer` binary
+
+A devcontainer is provided in case you don't want to or can't install these dependencies and tools into you local enviroment.
+Additionally, make commands have been provided to make it very easy to spin the environment up or down. To get setup,
+simple use the `make cycle-dev-container` target, which will check for existing versions of the devcontainer image,
+delete their pods and the image to ensure you have a clean start, build it from scratch and start the container.
+Alternatively you can use the `make build-dev-container`, `make start-dev-container` to buildand run the container respectively.
+After simply `make enter-dev-container` to exec into it.
+
+It is compatible with both `docker` and `podman` which you can set with the `CONTAINER_ENGINE` environment variable.
+The dev container will mount your local `.env` file into the workspace as well, so you can develop without having to
+reconstruct your settings. Currently the `devcontainer` does not support intelligent port reassigment, it is pinned
+to port `3000`.
+
 ## Updating the Sealed Secrets for the ArgoCD Application
 
 To update the sealed secret, you must communicate with the controller that lives in the `kube-system` namespace of the qa cluster.

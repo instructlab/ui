@@ -224,15 +224,21 @@ start-dev-container:
 .PHONY: enter-dev-container
 enter-dev-container:
 	$(MAKE) check-dev-container-installed
-	devcontainer exec --workspace-folder=./ --docker-path=podman bash
+	devcontainer exec --workspace-folder=./ --docker-path=${CONTAINER_ENGINE} bash
 
 .PHONY: cycle-dev-container
 cycle-dev-container:
-	@image_id=$(shell ${CONTAINER_TOOL} images | grep "localhost/vsc-infrastructure-live-" | awk '{print $$3}') && \
+	@image_id=$(shell ${CONTAINER_ENGINE} images | grep "quay.io/instructlab-ui/devcontainer" | awk '{print $$3}') && \
 	if [ -n "$$image_id" ]; then \
+		CONTAINER_IDS=$(shell ${CONTAINER_ENGINE} ps -a | grep "quay.io/instructlab-ui/devcontainer" | awk '{print $$1}') && \
+		if [ -n "$$CONTAINER_IDS" ]; then \
+			for CONTAINER_ID in "$$CONTAINER_IDS"; do \
+				echo "Stopping and removing container $$CONTAINER_ID of imageid $$image_id..."; \
+				${CONTAINER_ENGINE} rm "$$CONTAINER_ID" -f; \
+			done; \
+		fi; \
 		echo "removing image with id $$image_id and all containers using that image ..."; \
-		${CONTAINER_TOOL} rmi $$image_id -f; \
+		${CONTAINER_ENGINE} rmi $$image_id -f; \
 	fi;
 	$(MAKE) build-dev-container
 	$(MAKE) start-dev-container
-	$(MAKE) enter-dev-container
