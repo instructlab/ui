@@ -164,6 +164,7 @@ jobs:
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
+          git pull --ff-only
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA UI image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
           git push origin main
@@ -318,6 +319,7 @@ jobs:
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
+          git pull --ff-only
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA PS image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
           git push origin main
