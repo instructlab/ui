@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 
@@ -71,89 +71,91 @@ const GithubLogin: React.FC = () => {
   };
 
   return (
-    <div className="login-page-background">
-      <Grid hasGutter span={12}>
-        <GridItem span={6} className="login-container">
-          <div>
-            <Content>
-              <Content component="p" className="sign-in-text">
-                Sign in to your account
+    <Suspense>
+      <div className="login-page-background">
+        <Grid hasGutter span={12}>
+          <GridItem span={6} className="login-container">
+            <div>
+              <Content>
+                <Content component="p" className="sign-in-text">
+                  Sign in to your account
+                </Content>
               </Content>
-            </Content>
-            <Content>
-              <Content component="p" className="description-text">
-                Join the novel, community based movement to <br></br>create truly open source LLMs
+              <Content>
+                <Content component="p" className="description-text">
+                  Join the novel, community based movement to <br></br>create truly open source LLMs
+                </Content>
               </Content>
-            </Content>
-            <div className="login-container">
-              <Button
-                variant="primary"
-                icon={<GithubIcon />}
-                iconPosition="left"
-                size="lg"
-                style={{ backgroundColor: 'black' }}
-                onClick={handleGitHubLogin}
-              >
-                Sign in with GitHub
-              </Button>
+              <div className="login-container">
+                <Button
+                  variant="primary"
+                  icon={<GithubIcon />}
+                  iconPosition="left"
+                  size="lg"
+                  style={{ backgroundColor: 'black' }}
+                  onClick={handleGitHubLogin}
+                >
+                  Sign in with GitHub
+                </Button>
+              </div>
+              <Content>
+                <Content component="p" className="urls-text">
+                  <a href="https://github.com/instructlab/" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
+                    GitHub
+                  </a>{' '}
+                  |{' '}
+                  <a
+                    href="https://github.com/instructlab/community/blob/main/Collaboration.md"
+                    style={{ color: 'white', textDecoration: 'underline' }}
+                    target="_blank"
+                  >
+                    Collaborate
+                  </a>{' '}
+                  |{' '}
+                  <a
+                    href="https://github.com/instructlab/community/blob/main/CODE_OF_CONDUCT.md"
+                    style={{ color: 'white', textDecoration: 'underline' }}
+                    target="_blank"
+                  >
+                    Code Of Conduct
+                  </a>
+                </Content>
+                <Content component="p" className="urls-text-medium">
+                  <a href="https://www.redhat.com/en/about/terms-use" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
+                    Terms of use
+                  </a>{' '}
+                  |{' '}
+                  <a href="https://www.redhat.com/en/about/privacy-policy" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
+                    Privacy Policy
+                  </a>
+                </Content>
+              </Content>
             </div>
-            <Content>
-              <Content component="p" className="urls-text">
-                <a href="https://github.com/instructlab/" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
-                  GitHub
-                </a>{' '}
-                |{' '}
-                <a
-                  href="https://github.com/instructlab/community/blob/main/Collaboration.md"
-                  style={{ color: 'white', textDecoration: 'underline' }}
-                  target="_blank"
-                >
-                  Collaborate
-                </a>{' '}
-                |{' '}
-                <a
-                  href="https://github.com/instructlab/community/blob/main/CODE_OF_CONDUCT.md"
-                  style={{ color: 'white', textDecoration: 'underline' }}
-                  target="_blank"
-                >
-                  Code Of Conduct
-                </a>
-              </Content>
-              <Content component="p" className="urls-text-medium">
-                <a href="https://www.redhat.com/en/about/terms-use" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
-                  Terms of use
-                </a>{' '}
-                |{' '}
-                <a href="https://www.redhat.com/en/about/privacy-policy" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
-                  Privacy Policy
-                </a>
-              </Content>
-            </Content>
+          </GridItem>
+        </Grid>
+        {showError && (
+          <div>
+            <Modal
+              variant={ModalVariant.medium}
+              title="Join InstructLab on GitHub"
+              titleIconVariant="warning"
+              isOpen={showError}
+              onClose={() => handleOnClose()}
+              actions={[
+                <Button key="confirm" variant="primary" onClick={() => sendInvite()}>
+                  Send Invite to {githubUsername}
+                </Button>,
+                <Button key="cancel" variant="secondary" onClick={() => handleOnClose()}>
+                  No, Thanks
+                </Button>
+              ]}
+            >
+              <p>{errorMsg}</p>
+            </Modal>
           </div>
-        </GridItem>
-      </Grid>
-      {showError && (
-        <div>
-          <Modal
-            variant={ModalVariant.medium}
-            title="Join InstructLab on GitHub"
-            titleIconVariant="warning"
-            isOpen={showError}
-            onClose={() => handleOnClose()}
-            actions={[
-              <Button key="confirm" variant="primary" onClick={() => sendInvite()}>
-                Send Invite to {githubUsername}
-              </Button>,
-              <Button key="cancel" variant="secondary" onClick={() => handleOnClose()}>
-                No, Thanks
-              </Button>
-            ]}
-          >
-            <p>{errorMsg}</p>
-          </Modal>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </Suspense>
   );
 };
 
