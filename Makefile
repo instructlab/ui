@@ -19,6 +19,8 @@ endif
 ILAB_KUBE_CONTEXT?=kind-instructlab-ui
 ILAB_KUBE_NAMESPACE?=instructlab
 ILAB_KUBE_CLUSTER_NAME?=instructlab-ui
+CONTAINER_ENGINE?=docker
+DEVCONTAINER_BINARY_EXISTS ?= $(shell command -v devcontainer)
 TAG=$(shell git rev-parse HEAD)
 ##@ Development - Helper commands for development
 .PHONY: md-lint
@@ -201,3 +203,42 @@ undeploy-prod-openshift: ## Undeploy production stack of the InstructLab UI on O
 	$(CMD_PREFIX) if [ -f ./deploy/k8s/overlays/openshift/prod/.env ]; then \
 		rm ./deploy/k8s/overlays/openshift/prod/.env ; \
 	fi
+
+.PHONY: check-dev-container-installed
+check-dev-container-installed:
+	@if [ -z "${DEVCONTAINER_BINARY_EXISTS}" ]; then \
+		echo "You do not have devcontainer installed, please isntall it!"; \
+		exit 1; \
+	fi;
+
+.PHONY: build-dev-container
+build-dev-container:
+	$(MAKE) check-dev-container-installed
+	devcontainer build --workspace-folder=./ --docker-path=${CONTAINER_ENGINE}
+
+.PHONY: start-dev-container
+start-dev-container:
+	$(MAKE) check-dev-container-installed
+	devcontainer up --workspace-folder=./ --docker-path=${CONTAINER_ENGINE}
+
+.PHONY: enter-dev-container
+enter-dev-container:
+	$(MAKE) check-dev-container-installed
+	devcontainer exec --workspace-folder=./ --docker-path=${CONTAINER_ENGINE} bash
+
+.PHONY: cycle-dev-container
+cycle-dev-container:
+	@image_id=$(shell ${CONTAINER_ENGINE} images | grep "quay.io/instructlab-ui/devcontainer" | awk '{print $$3}') && \
+	if [ -n "$$image_id" ]; then \
+		CONTAINER_IDS=$(shell ${CONTAINER_ENGINE} ps -a | grep "quay.io/instructlab-ui/devcontainer" | awk '{print $$1}') && \
+		if [ -n "$$CONTAINER_IDS" ]; then \
+			for CONTAINER_ID in "$$CONTAINER_IDS"; do \
+				echo "Stopping and removing container $$CONTAINER_ID of imageid $$image_id..."; \
+				${CONTAINER_ENGINE} rm "$$CONTAINER_ID" -f; \
+			done; \
+		fi; \
+		echo "removing image with id $$image_id and all containers using that image ..."; \
+		${CONTAINER_ENGINE} rmi $$image_id -f; \
+	fi;
+	$(MAKE) build-dev-container
+	$(MAKE) start-dev-container

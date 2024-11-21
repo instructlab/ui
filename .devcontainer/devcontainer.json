@@ -1,0 +1,26 @@
+{
+  "name": "instructlab-ui-devcontainer",
+  "image": "quay.io/instructlab-ui/devcontainer:latest",
+  "build": {
+    "dockerfile": "Containerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "streetsidesoftware.code-spell-checker",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "DavidAnson.vscode-markdownlint",
+        "ms-vscode-remote.remote-containers"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      }
+    }
+  },
+  "forwardPorts": [3000],
+  "mounts": [
+    "type=bind,source=${localWorkspaceFolder}/.env,target=/workspace/ui/.env,consistency=cached"
+  ],
+  "runArgs": ["-p", "3000:3000"]
+}

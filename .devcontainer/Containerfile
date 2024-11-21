@@ -1,0 +1,44 @@
+FROM registry.access.redhat.com/ubi9/nodejs-22:9.5-1730543890
+
+ARG USERNAME=default
+ARG NPM_GLOBAL=/usr/local/share/npm-global
+
+# Add NPM global to PATH.
+ENV PATH=${NPM_GLOBAL}/bin:${PATH}
+
+USER root
+
+RUN umask 0002 
+
+RUN groupadd npm && \
+    usermod -a -G npm ${USERNAME} && \
+    bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) && \
+    chown -R ${USERNAME}:npm /usr/local/ && \
+    mkdir -p /opt/app-root/src/.npm && chown -R ${USERNAME}:npm /opt/app-root/src/ && \
+    dnf install -y vim
+
+
+USER default
+
+RUN umask 0002 && \
+    mkdir -p ${NPM_GLOBAL} && \
+    touch /usr/local/etc/npmrc 
+
+USER root
+
+RUN chown ${USERNAME}:npm ${NPM_GLOBAL} /usr/local/etc/npmrc && \
+    chmod g+s ${NPM_GLOBAL}  && \
+    npm config -g set prefix ${NPM_GLOBAL} 
+
+USER default
+
+ARG NODE_MODULES="tslint-to-eslint-config typescript"
+RUN npm install -g eslint && \
+    npm install -g ${NODE_MODULES} && \
+    npm cache clean --force > /dev/null 2>&1
+
+WORKDIR /workspaces/ui
+
+ENTRYPOINT ["npm", "install"]
+
+EXPOSE 3000/tcp
