@@ -4,6 +4,7 @@ metadata:
   labels:
     app: sso
   name: instructlab-ui
+  namespace: keycloak-system
 spec:
   instanceSelector:
     matchLabels:

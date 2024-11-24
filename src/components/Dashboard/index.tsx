@@ -41,7 +41,7 @@ const Index: React.FunctionComponent = () => {
   const router = useRouter();
 
   const fetchAndSetPullRequests = React.useCallback(async () => {
-    if (session?.accessToken && session?.provider == "Github") {
+    if (session?.accessToken && session?.provider == 'Github') {
       try {
         const header = {
           Authorization: `Bearer ${session.accessToken}`,

@@ -2,7 +2,7 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import GitHubProvider from 'next-auth/providers/github';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import KeycloakProvider from "next-auth/providers/keycloak";
+import KeycloakProvider from 'next-auth/providers/keycloak';
 import axios from 'axios';
 import winston from 'winston';
 import path from 'path';
@@ -10,7 +10,7 @@ import path from 'path';
 // Extend the Session and JWT types
 declare module 'next-auth' {
   interface Session {
-    provider?: string
+    provider?: string;
     accessToken?: string;
     id?: string;
   }
@@ -45,16 +45,16 @@ const ORG = process.env.NEXT_PUBLIC_AUTHENTICATION_ORG!;
 const authOptions: NextAuthOptions = {
   providers: [
     GitHubProvider({
-      name: "Github",
+      name: 'Github',
       clientId: process.env.OAUTH_GITHUB_ID!,
       clientSecret: process.env.OAUTH_GITHUB_SECRET!,
       authorization: { params: { scope: 'public_repo' } }
     }),
     KeycloakProvider({
-      name: "Keycloak",
+      name: 'Keycloak',
       clientId: process.env.KEYCLOAK_CLIENT_ID!,
       clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
-      issuer: process.env.KEYCLOAK_ISSUER,
+      issuer: process.env.KEYCLOAK_ISSUER
     }),
     CredentialsProvider({
       name: 'Credentials',
@@ -83,7 +83,7 @@ const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       if (account) {
         token.accessToken = account.access_token!;
-        token.provider = account.provider
+        token.provider = account.provider!;
       }
       if (user) {
         token.id = user.id;
@@ -96,7 +96,7 @@ const authOptions: NextAuthOptions = {
       if (token) {
         session.accessToken = token.accessToken;
         session.id = token.id;
-        session.provider = token.provider
+        session.provider = token.provider;
       }
       // // Uncomment for session callback debugging
       // console.log('Session Callback:', session);

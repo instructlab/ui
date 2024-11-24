@@ -4,6 +4,7 @@ metadata:
   labels:
     app: sso
   name: keycloak
+  namespace: keycloak-system
 spec:
   externalAccess:
     enabled: true
