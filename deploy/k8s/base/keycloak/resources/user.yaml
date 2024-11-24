@@ -1,0 +1,21 @@
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakUser
+metadata:
+  labels:
+    app: sso
+  name: dummy
+spec:
+  realmSelector:
+    matchLabels:
+      app: sso
+  user:
+    email: dummy@redhat.com
+    enabled: true
+    emailVerified: true
+    credentials:
+      - type: "password"
+        value: "dummy"
+    firstName: dummy
+    lastName: dummy
+    username: dummy
