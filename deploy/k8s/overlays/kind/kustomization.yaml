@@ -24,10 +24,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: quay.io/instructlab-ui/ui:main # Override this image if you want to use a different UI image
-      - op: replace
-        path: /spec/template/spec/containers/0/imagePullPolicy
-        value: Always
+        value: quay.io/instructlab-ui/ui:main
 
   # Override the pathservice image for Kind deployment
   - target:
@@ -37,6 +34,3 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/image
         value: quay.io/instructlab-ui/pathservice:main # Override this image if you want to use a different pathservice image
-      - op: replace
-        path: /spec/template/spec/containers/0/imagePullPolicy
-        value: Always
