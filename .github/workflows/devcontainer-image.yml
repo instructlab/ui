@@ -1,0 +1,144 @@
+name: Publish Devcontainer Image on Push
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .devcontainer/*
+
+env:
+  GHCR_REGISTRY: ghcr.io
+  GHCR_DEV_IMAGE_NAME: "${{ github.repository }}/devcontainer"
+  QUAY_REGISTRY: quay.io
+  QUAY_DEV_IMAGE_NAME: "instructlab-ui/devcontainer"
+  
+
+jobs:
+  build_and_publish_devcontainer:
+    name: Push devcontainer image to GHCR and QUAY
+    runs-on: ubuntu-latest
+    environment: registry-creds
+    permissions:
+      packages: write
+      contents: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          ref: 'main'
+
+      - name: Log in to the GHCR container image registry
+        uses: docker/login-action@v3
+        with:
+          registry: "${{ env.GHCR_REGISTRY }}"
+          username: "${{ github.actor }}"
+          password: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Log in to the Quay container image registry
+        uses: docker/login-action@v3
+        with:
+          registry: "${{ env.QUAY_REGISTRY }}"
+          username: "${{ secrets.QUAY_USERNAME }}"
+          password: "${{ secrets.QUAY_TOKEN }}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: "${{ runner.os }}-buildx-${{ github.sha }}"
+          restore-keys: |
+            "${{ runner.os }}-buildx-"
+
+      - name: Get Pull Request Number from Commit
+        id: get_pr_number
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log("Repository owner:", context.repo.owner);
+            console.log("Repository name:", context.repo.repo);
+            console.log("Current commit SHA:", context.sha);
+
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              sort: 'updated',
+              direction: 'desc'
+            });
+            console.log("Number of closed PRs fetched:", prs.data.length);
+
+            for (const pr of prs.data) {
+              console.log("Checking PR #", pr.number, "- Merged:");
+              if (pr.merged_at != "") {
+                console.log("Found merged PR:", pr.number);
+                return pr.number;
+              }
+            }
+
+            console.log("No merged PR found in the recent closed PRs.");
+            return '';
+
+      - name: Extract GHCR metadata (tags, labels) for devcontainer image
+        id: ghcr_dev_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_DEV_IMAGE_NAME }}
+
+      - name: Extract Quay metadata (tags, labels) for devcontainer image
+        id: quay_dev_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_DEV_IMAGE_NAME }}
+
+      
+      - name: Build and push devcontainer image to ghcr.io
+        id: push-dev-ghcr
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |-
+            "${{ steps.ghcr_dev_meta.outputs.tags }}"
+            "${{ env.GHCR_REGISTRY }}/${{ env.GHCR_DEV_IMAGE_NAME }}:pr-${{ steps.get_pr_number.outputs.result }}"
+          labels: ${{ steps.ghcr_dev_meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: src/Containerfile
+
+      - name: Generate devcontainer GHCR artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_DEV_IMAGE_NAME}}
+          subject-digest: ${{ steps.push-dev-ghcr.outputs.digest }}
+          push-to-registry: true
+
+      - name: Build and push devcontainer image to quay.io
+        id: push-dev-quay
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |-
+            "${{ steps.quay_dev_meta.outputs.tags }}"
+            "${{ env.QUAY_REGISTRY }}/${{ env.QUAY_DEV_IMAGE_NAME }}:pr-${{ steps.get_pr_number.outputs.result }}"
+          labels: ${{ steps.quay_dev_meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: src/Containerfile
+
+      - name: Generate devcontainer Quay artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_DEV_IMAGE_NAME}}
+          subject-digest: ${{ steps.push-dev-quay.outputs.digest }}
+          push-to-registry: true
