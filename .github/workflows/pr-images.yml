@@ -149,6 +149,10 @@ jobs:
           subject-digest: ${{ steps.push-ui-quay.outputs.digest }}
           push-to-registry: true
 
+      - name: Update coderefs before code changes
+        run: |-
+          git pull --ff-only
+
       - name: Update QA Quay UI image
         id: update_qa_ui_manifest_image
         env:
@@ -164,7 +168,6 @@ jobs:
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
-          git pull --ff-only
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA UI image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
           git push origin main
@@ -304,6 +307,11 @@ jobs:
           subject-digest: ${{ steps.push-ps-quay.outputs.digest }}
           push-to-registry: true
 
+      
+      - name: Update coderefs before code changes
+        run: |-
+          git pull --ff-only
+
       - name: Update QA PS Quay image
         id: update_qa_ps_manifest_image
         env:
@@ -319,7 +327,6 @@ jobs:
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
-          git pull --ff-only
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA PS image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
           git push origin main
