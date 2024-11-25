@@ -35,7 +35,7 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
         - name: model-endpoint-healthcheck-sidecar
-          image: quay.io/grpereir/ilab-ui-healthcheck-sidecar:latest
+          image: quay.io/instructlab-ui/healthcheck-sidecar:PATCHED_FROM_OVERLAYS
           ports:
             - containerPort: 8080
           envFrom:
