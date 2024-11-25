@@ -26,4 +26,19 @@ spec:
           envFrom:
             - secretRef:
                 name: ui-config
+          readinessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - "/opt/app-root/src/probe.sh"
+            initialDelaySeconds: 5
+            periodSeconds: 10
+        - name: model-endpoint-healthcheck-sidecar
+          image: quay.io/grpereir/ilab-ui-healthcheck-sidecar:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: qa.env
       restartPolicy: Always
