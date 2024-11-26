@@ -1,18 +1,22 @@
-# Development
+# Healthcheck Sidecar
 
-## building
+This application is meant to be deployed alongside the ui pod.
+
+## Development
+
+### building
 
 podman build . -f Containerfile --platform linux/amd64 -t quay.io/grpereir/ilab-ui-healthcheck-sidecar:latest
 
-## running
+### running
 
 podman run --platform linux/amd64 --rm -e IL_GRANITE_API=localhost -e IL_MERLINITE_API=localhost -it quay.io/grpereir/ilab-ui-healthcheck-sidecar:latest /bin/bash
 
-## push 
+### push
 
 podman push quay.io/grpereir/ilab-ui-healthcheck-sidecar:latest
 
-# How does it work
+## How does it work
 
 the sidecar-script.py is the entrypoint to the sidecar container. Its a simple python script that grabs the env variables for `IL_GRANITE_API` and `IL_MERLINITE_API`,
 and uses those values to check the `/health` endpoint of the server. From there it aggregates the results of `curl`ing both a json object, and serves that as the

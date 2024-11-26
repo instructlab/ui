@@ -166,7 +166,7 @@ jobs:
             (.images[] | select(.name == "quay.io/instructlab-ui/healthcheck-sidecar") | .newTag) = env(PR_TAG)
           ' deploy/k8s/overlays/openshift/qa/kustomization.yaml
 
-      - name: Commit and push bump QA UI Image manifest
+      - name: Commit and push bump QA HS Image manifest
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
