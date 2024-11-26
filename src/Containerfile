@@ -3,13 +3,13 @@ FROM registry.access.redhat.com/ubi9/nodejs-22:9.5-1730543890
 WORKDIR /opt/app-root/src
 
 COPY package*.json ./
-COPY src/healthcheck-sidecar/probe.sh ./
+COPY src/healthcheck-probe.sh ./
 
 USER root
 RUN dnf install -y jq
 RUN chown -R default:root /opt/app-root/src/package*.json
-RUN chown -R default:root /opt/app-root/src/probe.sh
-RUN chmod +x /opt/app-root/src/probe.sh
+RUN chown -R default:root /opt/app-root/src/healthcheck-probe.sh
+RUN chmod +x /opt/app-root/src/healthcheck-probe.sh
 USER default
 RUN npm install
 COPY ./ .

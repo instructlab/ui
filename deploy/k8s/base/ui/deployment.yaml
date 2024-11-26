@@ -31,7 +31,7 @@ spec:
               command:
               - sh
               - -c
-              - "/opt/app-root/src/probe.sh"
+              - "/opt/app-root/src/healthcheck-probe.sh"
             initialDelaySeconds: 5
             periodSeconds: 10
         - name: model-endpoint-healthcheck-sidecar
