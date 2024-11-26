@@ -122,6 +122,10 @@ jobs:
           token: "${{ secrets.BOT_PAT }}"
           ref: "main"
 
+      - name: Update coderefs before code changes
+        run: |-
+          git pull --ff-only
+
       - name: Update Prod Quay PS image
         id: update_prod_ui_manifest_image
         env:
@@ -137,7 +141,6 @@ jobs:
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
-          git pull --ff-only
           git add deploy/k8s/overlays/openshift/prod/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping Prod UI image to tag: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}" -s
           git push origin main
@@ -251,6 +254,10 @@ jobs:
         with:
           token: "${{ secrets.BOT_PAT }}"
           ref: "main"
+
+      - name: Update coderefs before code changes
+        run: |-
+          git pull --ff-only
         
       - name: Update Prod Quay PS image
         id: update_prod_ps_manifest_image
@@ -267,7 +274,6 @@ jobs:
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
-          git pull --ff-only
           git add deploy/k8s/overlays/openshift/prod/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping Prod PS image to tag: ${{ steps.get_release_tag.outputs.RELEASE_TAG }}" -s
           git push origin main
