@@ -47,15 +47,25 @@ const Index: React.FunctionComponent = () => {
           Authorization: `Bearer ${session.accessToken}`,
           Accept: 'application/vnd.github.v3+json'
         };
+  
+        // Detect environment and block admin in development mode
+        const isDevEnvironment = process.env.NODE_ENV === 'development';
         const fetchedUsername = await getGitHubUsername(header);
+        
+        if (isDevEnvironment && fetchedUsername === 'admin') {
+          console.log('Fetching PRs is disabled for admin in development mode.');
+          setIsLoading(false);
+          return;
+        }
+  
         const data = await fetchPullRequests(session.accessToken);
         const filteredPRs = data.filter(
           (pr: PullRequest) => pr.user.login === fetchedUsername && pr.labels.some((label) => label.name === 'skill' || label.name === 'knowledge')
         );
-
+  
         // Sort by date (newest first)
         const sortedPRs = filteredPRs.sort((a: PullRequest, b: PullRequest) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
+  
         setPullRequests(sortedPRs);
       } catch (error) {
         console.log('Failed to fetch pull requests.' + error);
@@ -66,6 +76,7 @@ const Index: React.FunctionComponent = () => {
       setIsLoading(false);
     }
   }, [session?.accessToken]);
+  
 
   React.useEffect(() => {
     fetchAndSetPullRequests();
