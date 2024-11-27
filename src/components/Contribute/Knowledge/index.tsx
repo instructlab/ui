@@ -631,8 +631,6 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             </Button>
           </ActionGroup>
         </Form>
-
-        <button onClick={() => console.log(seedExamples)}>Test</button>
       </PageSection>
     </PageGroup>
   );
