@@ -34,6 +34,7 @@ import SkillsDescriptionContent from './SkillsDescription/SkillsDescriptionConte
 import { autoFillSkillsFields } from './AutoFill';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import YamlFileUpload from '../YamlFileUpload';
+import { YamlFileUploadModal } from '../YamlFileUploadModal';
 
 export interface SeedExample {
   immutable: boolean;
@@ -110,6 +111,8 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
 
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
+
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const router = useRouter();
 
@@ -386,7 +389,7 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
             </Title>
           </FlexItem>
           <FlexItem>
-            <Button variant="secondary" aria-label="User upload of pre-existing yaml file">
+            <Button variant="secondary" aria-label="User upload of pre-existing yaml file" onClick={() => setIsModalOpen(true)}>
               Upload a YAML file
             </Button>
           </FlexItem>
@@ -399,6 +402,8 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
             Auto-Fill
           </Button>
         )}
+
+        <YamlFileUploadModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
 
         <Form className="form-s">
           <YamlFileUpload isKnowledgeForm={false} onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm} />
