@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
 import { QuestionAndAnswerPair, SeedExample } from '..';
@@ -46,30 +46,24 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
         <FormHelperText key={seedExampleIndex * 10 + 2}>
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isContextValid}>
-              {seedExample.validationError ? seedExample.validationError : 'Required field. It must be non empty and less than 500 words.'}
+              {seedExample.validationError || 'Required field. It must be non-empty and less than 500 words.'}
             </HelperTextItem>
           </HelperText>
         </FormHelperText>
       )}
 
       {seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, questionAnswerIndex) => (
-        <FormFieldGroupExpandable
-          isExpanded
-          toggleAriaLabel="ContextDetails"
-          key={seedExampleIndex * 100 + questionAnswerIndex * 10 + 0}
-          header={
-            <FormFieldGroupHeader
-              titleText={{
-                text: (
-                  <p>
-                    Q&A Pair {questionAnswerIndex + 1} {questionAndAnswerPair.immutable && <span style={{ color: 'red' }}>*</span>}
-                  </p>
-                ),
-                id: 'nested-field-group1-titleText-id'
-              }}
-            />
-          }
-        >
+        <div key={seedExampleIndex * 100 + questionAnswerIndex * 10 + 0}>
+          <FormFieldGroupHeader
+            titleText={{
+              text: (
+                <p>
+                  Q&A Pair {questionAnswerIndex + 1} {questionAndAnswerPair.immutable && <span style={{ color: 'red' }}>*</span>}
+                </p>
+              ),
+              id: 'nested-field-group1-titleText-id'
+            }}
+          />
           <React.Fragment key={questionAnswerIndex}>
             <TextArea
               key={seedExampleIndex * 100 + questionAnswerIndex * 10 + 1}
@@ -116,7 +110,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
               </FormHelperText>
             )}
           </React.Fragment>
-        </FormFieldGroupExpandable>
+        </div>
       ))}
     </FormGroup>
   );

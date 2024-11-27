@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
@@ -134,22 +134,18 @@ const AttributionInformation: React.FC<Props> = ({
   };
 
   return (
-    <FormFieldGroupExpandable
-      toggleAriaLabel="Details"
-      header={
-        <FormFieldGroupHeader
-          titleText={{
-            text: (
-              <p>
-                Attribution Information <span style={{ color: 'red' }}>*</span>
-              </p>
-            ),
-            id: 'attribution-info-id'
-          }}
-          titleDescription="Provide attribution information."
-        />
-      }
-    >
+    <div>
+      <FormFieldGroupHeader
+        titleText={{
+          text: (
+            <p>
+              Attribution Information <span style={{ color: 'red' }}>*</span>
+            </p>
+          ),
+          id: 'attribution-info-id'
+        }}
+        titleDescription="Provide attribution information."
+      />
       <FormGroup isRequired key={'attribution-info-details-work_link'} label="Work link or URL">
         <TextInput
           isRequired
@@ -264,7 +260,7 @@ const AttributionInformation: React.FC<Props> = ({
           </FormHelperText>
         )}
       </FormGroup>
-    </FormFieldGroupExpandable>
+    </div>
   );
 };
 

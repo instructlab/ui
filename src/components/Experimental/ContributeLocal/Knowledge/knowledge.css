@@ -29,3 +29,11 @@
   align-items: center;
   gap: 1rem;
 }
+
+.knowledge-form .pf-c-form__group {
+  margin-bottom: 30px;
+}
+
+.knowledge-form {
+  line-height: 3;
+}

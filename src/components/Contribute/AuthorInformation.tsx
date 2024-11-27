@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
@@ -70,23 +70,11 @@ const AuthorInformation: React.FC<Props> = ({ formType, reset, formData, setDisa
   }, [reset]);
 
   return (
-    <FormFieldGroupExpandable
-      isExpanded
-      toggleAriaLabel="Details"
-      header={
-        <FormFieldGroupHeader
-          titleText={{
-            text: (
-              <p>
-                Author Information <span style={{ color: 'red' }}>*</span>
-              </p>
-            ),
-            id: 'author-info-id'
-          }}
-          titleDescription="Provide your information required for a GitHub DCO sign-off."
-        />
-      }
-    >
+    <>
+      <h2>
+        Author Information <span style={{ color: 'red' }}>*</span>
+      </h2>
+      <p>Provide your information required for a GitHub DCO sign-off.</p>
       <FormGroup isRequired key={'author-info-details-email'} label="Email address">
         <TextInput
           isRequired
@@ -129,7 +117,7 @@ const AuthorInformation: React.FC<Props> = ({ formType, reset, formData, setDisa
           </FormHelperText>
         )}
       </FormGroup>
-    </FormFieldGroupExpandable>
+    </>
   );
 };
 

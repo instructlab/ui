@@ -47,7 +47,7 @@ const SkillsSeedExample: React.FC<Props> = ({
           }}
           titleDescription={
             <p>
-              Add seed examples with question and answer pair and related context (optional). Minimum 5 seed examples are required.{' '}
+              Add seed examples with question and answer pair and related context (optional). A minimum of five seed examples are required.{' '}
               <a href="https://docs.instructlab.ai/taxonomy/skills/#skills-yaml-examples" target="_blank" rel="noopener noreferrer">
                 {' '}
                 Learn more about seed examples

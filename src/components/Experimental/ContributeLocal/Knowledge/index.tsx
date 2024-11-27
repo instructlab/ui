@@ -1,10 +1,10 @@
 // src/components/Experimental/ContributeLocal/Knowledge/index.tsx
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './knowledge.css';
 import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { getGitHubUsername } from '@/utils/github';
 import { useSession } from 'next-auth/react';
 import AuthorInformation from '@/components/Contribute/AuthorInformation';
 import { FormType } from '@/components/Contribute/AuthorInformation';
@@ -18,7 +18,6 @@ import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/B
 import { PageBreadcrumb } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageGroup } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import KnowledgeDescriptionContent from '@/components/Contribute/Knowledge/KnowledgeDescription/KnowledgeDescriptionContent';
 import KnowledgeSeedExample from '@/components/Contribute/Knowledge/KnowledgeSeedExample/KnowledgeSeedExample';
@@ -32,6 +31,9 @@ import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from '@/components/Contribute/Knowledge/AutoFill';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
+import { Wizard, WizardStep } from '@patternfly/react-core/dist/esm/components/Wizard';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+import ReviewSubmission from '@/components/Experimental/ReviewSubmission';
 
 export interface QuestionAndAnswerPair {
   immutable: boolean;
@@ -97,7 +99,7 @@ export const KnowledgeFormLocal: React.FunctionComponent<KnowledgeFormProps> = (
   const [deploymentType, setDeploymentType] = useState<string | undefined>();
 
   const { data: session } = useSession();
-  const [githubUsername] = useState<string>('');
+  const [githubUsername, setGithubUsername] = useState<string>('');
   // Author Information
   const [email, setEmail] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -129,6 +131,8 @@ export const KnowledgeFormLocal: React.FunctionComponent<KnowledgeFormProps> = (
   const [reset, setReset] = useState<boolean>(false);
 
   const router = useRouter();
+
+  const [activeStepIndex] = useState<number>(1);
 
   const emptySeedExample: SeedExample = {
     immutable: true,
@@ -183,6 +187,28 @@ export const KnowledgeFormLocal: React.FunctionComponent<KnowledgeFormProps> = (
       setEmail(session?.user?.email);
     }
   }, [session?.user]);
+
+  useMemo(() => {
+    const fetchUsername = async () => {
+      if (session?.accessToken) {
+        try {
+          const headers = {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.accessToken}`,
+            Accept: 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+          };
+
+          const fetchedUsername = await getGitHubUsername(headers);
+          setGithubUsername(fetchedUsername);
+        } catch (error) {
+          console.error('Failed to fetch GitHub username:', error);
+        }
+      }
+    };
+
+    fetchUsername();
+  }, [session?.accessToken]);
 
   useEffect(() => {
     // Set all elements from the knowledgeFormData to the state
@@ -366,6 +392,14 @@ export const KnowledgeFormLocal: React.FunctionComponent<KnowledgeFormProps> = (
     );
   };
 
+  // const toggleSeedExampleExpansion = (index: number): void => {
+  //   setSeedExamples(seedExamples.map((seedExample, idx) => (idx === index ? { ...seedExample, isExpanded: !seedExample.isExpanded } : seedExample)));
+  // };
+
+  const toggleSeedExampleExpansion = (index: number): void => {
+    setSeedExamples(seedExamples.map((seedExample, idx) => (idx === index ? { ...seedExample, isExpanded: !seedExample.isExpanded } : seedExample)));
+  };
+
   const onCloseActionGroupAlert = () => {
     setActionGroupAlertContent(undefined);
   };
@@ -435,16 +469,128 @@ export const KnowledgeFormLocal: React.FunctionComponent<KnowledgeFormProps> = (
     router.push('/dashboard');
   };
 
+  const steps = [
+    {
+      id: 'author-info',
+      name: 'Author Information',
+      component: (
+        <AuthorInformation
+          formType={FormType.Knowledge}
+          reset={reset}
+          formData={knowledgeFormData}
+          setDisableAction={setDisableAction}
+          email={email}
+          setEmail={setEmail}
+          name={name}
+          setName={setName}
+        />
+      )
+    },
+    {
+      id: 'knowledge-info',
+      name: 'Knowledge Information',
+      component: (
+        <KnowledgeInformation
+          reset={reset}
+          isEditForm={knowledgeEditFormData?.isEditForm}
+          knowledgeFormData={knowledgeFormData}
+          setDisableAction={setDisableAction}
+          submissionSummary={submissionSummary}
+          setSubmissionSummary={setSubmissionSummary}
+          domain={domain}
+          setDomain={setDomain}
+          documentOutline={documentOutline}
+          setDocumentOutline={setDocumentOutline}
+        />
+      )
+    },
+    {
+      id: 'file-path-info',
+      name: 'File Path Information',
+      component: (
+        <FilePathInformation
+          reset={reset}
+          path={knowledgeEditFormData ? knowledgeEditFormData.knowledgeFormData.filePath : filePath}
+          setFilePath={setFilePath}
+        />
+      )
+    },
+    {
+      id: 'seed-examples',
+      name: 'Seed Examples',
+      component: (
+        <KnowledgeSeedExample
+          seedExamples={seedExamples}
+          handleContextInputChange={handleContextInputChange}
+          handleContextBlur={handleContextBlur}
+          handleQuestionInputChange={handleQuestionInputChange}
+          handleQuestionBlur={handleQuestionBlur}
+          handleAnswerInputChange={handleAnswerInputChange}
+          handleAnswerBlur={handleAnswerBlur}
+          toggleSeedExampleExpansion={toggleSeedExampleExpansion}
+        />
+      )
+    },
+    {
+      id: 'document-info',
+      name: 'Document Information',
+      component: (
+        <DocumentInformation
+          reset={reset}
+          isEditForm={knowledgeEditFormData?.isEditForm}
+          knowledgeFormData={knowledgeFormData}
+          setDisableAction={setDisableAction}
+          knowledgeDocumentRepositoryUrl={knowledgeDocumentRepositoryUrl}
+          setKnowledgeDocumentRepositoryUrl={setKnowledgeDocumentRepositoryUrl}
+          knowledgeDocumentCommit={knowledgeDocumentCommit}
+          setKnowledgeDocumentCommit={setKnowledgeDocumentCommit}
+          documentName={documentName}
+          setDocumentName={setDocumentName}
+        />
+      )
+    },
+    {
+      id: 'attribution-info',
+      name: 'Attribution Information',
+      component: (
+        <AttributionInformation
+          reset={reset}
+          isEditForm={knowledgeEditFormData?.isEditForm}
+          knowledgeFormData={knowledgeFormData}
+          setDisableAction={setDisableAction}
+          titleWork={titleWork}
+          setTitleWork={setTitleWork}
+          linkWork={linkWork}
+          setLinkWork={setLinkWork}
+          revision={revision}
+          setRevision={setRevision}
+          licenseWork={licenseWork}
+          setLicenseWork={setLicenseWork}
+          creators={creators}
+          setCreators={setCreators}
+        />
+      )
+    },
+    {
+      id: 'review-submission',
+      name: 'Review Submission',
+      component: <ReviewSubmission knowledgeFormData={knowledgeFormData} />,
+      footer: {
+        isNextDisabled: true
+      }
+    }
+  ];
+
   return (
     <PageGroup>
-      <PageBreadcrumb hasBodyWrapper={false}>
+      <PageBreadcrumb>
         <Breadcrumb>
           <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
           <BreadcrumbItem isActive>Knowledge Contribution</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
 
-      <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
+      <PageSection className="knowledge-form" style={{ backgroundColor: 'white' }}>
         <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
           Knowledge Contribution
         </Title>
@@ -457,129 +603,65 @@ export const KnowledgeFormLocal: React.FunctionComponent<KnowledgeFormProps> = (
           </Button>
         )}
 
-        <Form className="form-k">
-          <AuthorInformation
-            formType={FormType.Knowledge}
-            reset={reset}
-            formData={knowledgeFormData}
-            setDisableAction={setDisableAction}
-            email={email}
-            setEmail={setEmail}
-            name={name}
-            setName={setName}
-          />
+        <Wizard startIndex={activeStepIndex} onClose={handleCancel} height={600}>
+          {steps.map((step) => (
+            <WizardStep key={step.id} id={step.id} name={step.name} footer={step.footer}>
+              {step.component}
+            </WizardStep>
+          ))}
+        </Wizard>
 
-          <KnowledgeInformation
-            reset={reset}
-            isEditForm={knowledgeEditFormData?.isEditForm}
-            knowledgeFormData={knowledgeFormData}
-            setDisableAction={setDisableAction}
-            submissionSummary={submissionSummary}
-            setSubmissionSummary={setSubmissionSummary}
-            domain={domain}
-            setDomain={setDomain}
-            documentOutline={documentOutline}
-            setDocumentOutline={setDocumentOutline}
-          />
+        {actionGroupAlertContent && (
+          <Alert
+            variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
+            title={actionGroupAlertContent.title}
+            timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
+            onTimeout={onCloseActionGroupAlert}
+            actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
+          >
+            <p>
+              {actionGroupAlertContent.waitAlert && <Spinner size="md" />}
+              {actionGroupAlertContent.message}
+              <br />
+              {!actionGroupAlertContent.waitAlert &&
+                actionGroupAlertContent.success &&
+                actionGroupAlertContent.url &&
+                actionGroupAlertContent.url.trim().length > 0 && (
+                  <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
+                    View your new branch
+                  </a>
+                )}
+            </p>
+          </Alert>
+        )}
 
-          <FilePathInformation
-            reset={reset}
-            path={knowledgeEditFormData ? knowledgeEditFormData.knowledgeFormData.filePath : filePath}
-            setFilePath={setFilePath}
-          />
-
-          <KnowledgeSeedExample
-            seedExamples={seedExamples}
-            handleContextInputChange={handleContextInputChange}
-            handleContextBlur={handleContextBlur}
-            handleQuestionInputChange={handleQuestionInputChange}
-            handleQuestionBlur={handleQuestionBlur}
-            handleAnswerInputChange={handleAnswerInputChange}
-            handleAnswerBlur={handleAnswerBlur}
-          />
-
-          <DocumentInformation
-            reset={reset}
-            isEditForm={knowledgeEditFormData?.isEditForm}
-            knowledgeFormData={knowledgeFormData}
-            setDisableAction={setDisableAction}
-            knowledgeDocumentRepositoryUrl={knowledgeDocumentRepositoryUrl}
-            setKnowledgeDocumentRepositoryUrl={setKnowledgeDocumentRepositoryUrl}
-            knowledgeDocumentCommit={knowledgeDocumentCommit}
-            setKnowledgeDocumentCommit={setKnowledgeDocumentCommit}
-            documentName={documentName}
-            setDocumentName={setDocumentName}
-          />
-
-          <AttributionInformation
-            reset={reset}
-            isEditForm={knowledgeEditFormData?.isEditForm}
-            knowledgeFormData={knowledgeFormData}
-            setDisableAction={setDisableAction}
-            titleWork={titleWork}
-            setTitleWork={setTitleWork}
-            linkWork={linkWork}
-            setLinkWork={setLinkWork}
-            revision={revision}
-            setRevision={setRevision}
-            licenseWork={licenseWork}
-            setLicenseWork={setLicenseWork}
-            creators={creators}
-            setCreators={setCreators}
-          />
-
-          {actionGroupAlertContent && (
-            <Alert
-              variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
-              title={actionGroupAlertContent.title}
-              timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
-              onTimeout={onCloseActionGroupAlert}
-              actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
-            >
-              <p>
-                {actionGroupAlertContent.waitAlert && <Spinner size="md" />}
-                {actionGroupAlertContent.message}
-                <br />
-                {!actionGroupAlertContent.waitAlert &&
-                  actionGroupAlertContent.success &&
-                  actionGroupAlertContent.url &&
-                  actionGroupAlertContent.url.trim().length > 0 && (
-                    <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
-                      View your new branch
-                    </a>
-                  )}
-              </p>
-            </Alert>
+        <ActionGroup>
+          {knowledgeEditFormData?.isEditForm && (
+            <Update
+              disableAction={disableAction}
+              knowledgeFormData={knowledgeFormData}
+              pullRequestNumber={knowledgeEditFormData.pullRequestNumber}
+              setActionGroupAlertContent={setActionGroupAlertContent}
+              yamlFile={knowledgeEditFormData.yamlFile}
+              attributionFile={knowledgeEditFormData.attributionFile}
+              branchName={knowledgeEditFormData.branchName}
+            />
           )}
-
-          <ActionGroup>
-            {knowledgeEditFormData?.isEditForm && (
-              <Update
-                disableAction={disableAction}
-                knowledgeFormData={knowledgeFormData}
-                pullRequestNumber={knowledgeEditFormData.pullRequestNumber}
-                setActionGroupAlertContent={setActionGroupAlertContent}
-                yamlFile={knowledgeEditFormData.yamlFile}
-                attributionFile={knowledgeEditFormData.attributionFile}
-                branchName={knowledgeEditFormData.branchName}
-              />
-            )}
-            {!knowledgeEditFormData?.isEditForm && (
-              <Submit
-                disableAction={disableAction}
-                knowledgeFormData={knowledgeFormData}
-                setActionGroupAlertContent={setActionGroupAlertContent}
-                email={email}
-                resetForm={resetForm}
-              />
-            )}
-            <DownloadDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
-            <ViewDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
-            <Button variant="link" type="button" onClick={handleCancel}>
-              Cancel
-            </Button>
-          </ActionGroup>
-        </Form>
+          {!knowledgeEditFormData?.isEditForm && (
+            <Submit
+              disableAction={disableAction}
+              knowledgeFormData={knowledgeFormData}
+              setActionGroupAlertContent={setActionGroupAlertContent}
+              email={email}
+              resetForm={resetForm}
+            />
+          )}
+          <DownloadDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
+          <ViewDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
+          <Button variant="link" type="button" onClick={handleCancel}>
+            Cancel
+          </Button>
+        </ActionGroup>
       </PageSection>
     </PageGroup>
   );

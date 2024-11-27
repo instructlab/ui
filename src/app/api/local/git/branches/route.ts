@@ -110,6 +110,13 @@ export async function POST(req: NextRequest) {
       },
       { status: 500 }
     );
+  } finally {
+    // Ensure switching back to 'main' branch after any operation
+    try {
+      await git.checkout({ fs, dir: REPO_DIR, ref: 'main' });
+    } catch (checkoutError) {
+      console.error('Failed to switch back to main branch:', checkoutError);
+    }
   }
 }
 
