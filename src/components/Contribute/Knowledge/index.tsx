@@ -21,6 +21,7 @@ import { PageGroup } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { Flex, FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import KnowledgeDescriptionContent from './KnowledgeDescription/KnowledgeDescriptionContent';
 import KnowledgeSeedExample from './KnowledgeSeedExample/KnowledgeSeedExample';
 import { checkKnowledgeFormCompletion } from './validation';
@@ -495,9 +496,19 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
       </PageBreadcrumb>
 
       <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
-        <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
-          Knowledge Contribution
-        </Title>
+        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+          <FlexItem>
+            <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>
+              Knowledge Contribution
+            </Title>
+          </FlexItem>
+          <FlexItem>
+            <Button variant="secondary" aria-label="User upload of pre-existing yaml file">
+              Upload a YAML file
+            </Button>
+          </FlexItem>
+        </Flex>
+
         <Content>
           <KnowledgeDescriptionContent />
         </Content>

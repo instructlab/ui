@@ -19,6 +19,7 @@ import { PageGroup } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { Flex, FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { checkSkillFormCompletion } from './validation';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { DownloadDropdown } from './DownloadDropdown/DownloadDropdown';
@@ -378,9 +379,18 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
       </PageBreadcrumb>
 
       <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
-        <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
-          Skill Contribution
-        </Title>
+        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+          <FlexItem>
+            <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>
+              Skill Contribution
+            </Title>
+          </FlexItem>
+          <FlexItem>
+            <Button variant="secondary" aria-label="User upload of pre-existing yaml file">
+              Upload a YAML file
+            </Button>
+          </FlexItem>
+        </Flex>
         <Content>
           <SkillsDescriptionContent />
         </Content>
