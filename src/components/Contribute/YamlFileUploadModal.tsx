@@ -41,14 +41,7 @@ export const YamlFileUploadModal: React.FunctionComponent<Props> = ({
             onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
           />
         </ModalBody>
-        <ModalFooter>
-          <Button key="confirm" variant="primary" onClick={handleModalToggle}>
-            Confirm
-          </Button>
-          <Button key="cancel" variant="link" onClick={handleModalToggle}>
-            Cancel
-          </Button>
-        </ModalFooter>
+        <ModalFooter></ModalFooter>
       </Modal>
     </React.Fragment>
   );
