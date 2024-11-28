@@ -1,6 +1,4 @@
 import React from 'react';
-import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import yaml from 'js-yaml';
 import { KnowledgeYamlData, SkillYamlData } from '@/types';
 import { MultipleFileUpload } from '@patternfly/react-core/dist/esm/components/MultipleFileUpload/MultipleFileUpload';
