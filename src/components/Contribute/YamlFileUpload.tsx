@@ -5,8 +5,6 @@ import yaml from 'js-yaml';
 import { KnowledgeYamlData, SkillYamlData } from '@/types';
 import { MultipleFileUpload } from '@patternfly/react-core/dist/esm/components/MultipleFileUpload/MultipleFileUpload';
 import { MultipleFileUploadMain } from '@patternfly/react-core/dist/esm/components/MultipleFileUpload/MultipleFileUploadMain';
-import { MultipleFileUploadStatus } from '@patternfly/react-core/dist/esm/components/MultipleFileUpload/MultipleFileUploadStatus';
-import { MultipleFileUploadStatusItem } from '@patternfly/react-core/dist/esm/components/MultipleFileUpload/MultipleFileUploadStatusItem';
 import { DropEvent } from '@patternfly/react-core/dist/esm/helpers/typeUtils';
 import { UploadIcon } from '@patternfly/react-icons/dist/esm/icons/upload-icon';
 
@@ -31,10 +29,10 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({
   onYamlUploadSkillsFillForm
 }) => {
   const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
-  const [showStatus, setShowStatus] = React.useState(false);
-  const [statusIcon, setStatusIcon] = React.useState('inProgress');
   const [readFileData, setReadFileData] = React.useState<readFile[]>([]);
-  const [fileUploadShouldFail, setFileUploadShouldFail] = React.useState(false);
+  // Implement a failiure condition in a future PR
+  // const [fileUploadShouldFail, setFileUploadShouldFail] = React.useState(false);
+  const fileUploadShouldFail = false;
 
   const handleFileInputChange = (file: File) => {
     if (file) {
@@ -100,7 +98,7 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({
     if (fileUploadShouldFail) {
       const corruptedFiles = files.map((file) => ({ ...file, lastModified: 'foo' as unknown as number }));
 
-      setCurrentFiles((prevFiles) => [...prevFiles, ...(corruptedFiles as any)]);
+      setCurrentFiles((prevFiles) => [...prevFiles, ...corruptedFiles]);
     } else {
       setCurrentFiles((prevFiles) => [...prevFiles, ...files]);
       const latestFile = files.at(-1);
@@ -125,29 +123,27 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({
       .then(() => updateCurrentFiles(droppedFiles));
   };
 
-  const successfullyReadFileCount = readFileData.filter((fileData) => fileData.loadResult === 'success').length;
-
   // callback called by the status item when a file is successfully read with the built-in file reader
-  const handleReadSuccess = (data: string, file: File) => {
-    setReadFileData((prevReadFiles) => [...prevReadFiles, { data, fileName: file.name, loadResult: 'success' }]);
-  };
+  // const handleReadSuccess = (data: string, file: File) => {
+  //   setReadFileData((prevReadFiles) => [...prevReadFiles, { data, fileName: file.name, loadResult: 'success' }]);
+  // };
 
-  // callback called by the status item when a file encounters an error while being read with the built-in file reader
-  const handleReadFail = (error: DOMException, file: File) => {
-    setReadFileData((prevReadFiles) => [...prevReadFiles, { loadError: error, fileName: file.name, loadResult: 'danger' }]);
-  };
+  // // callback called by the status item when a file encounters an error while being read with the built-in file reader
+  // const handleReadFail = (error: DOMException, file: File) => {
+  //   setReadFileData((prevReadFiles) => [...prevReadFiles, { loadError: error, fileName: file.name, loadResult: 'danger' }]);
+  // };
 
   // add helper text to a status item showing any error encountered during the file reading process
-  const createHelperText = (file: File) => {
-    const fileResult = readFileData.find((readFile) => readFile.fileName === file.name);
-    if (fileResult?.loadError) {
-      return (
-        <HelperText isLiveRegion>
-          <HelperTextItem variant="error">{fileResult.loadError.toString()}</HelperTextItem>
-        </HelperText>
-      );
-    }
-  };
+  // const createHelperText = (file: File) => {
+  //   const fileResult = readFileData.find((readFile) => readFile.fileName === file.name);
+  //   if (fileResult?.loadError) {
+  //     return (
+  //       <HelperText isLiveRegion>
+  //         <HelperTextItem variant="error">{fileResult.loadError.toString()}</HelperTextItem>
+  //       </HelperText>
+  //     );
+  //   }
+  // };
 
   return (
     <>
@@ -166,24 +162,6 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({
           titleTextSeparator="or"
           infoText="Accepted file types: YAML"
         />
-        {showStatus && (
-          <MultipleFileUploadStatus
-            statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
-            statusToggleIcon={statusIcon}
-            aria-label="Current uploads"
-          >
-            {currentFiles.map((file) => (
-              <MultipleFileUploadStatusItem
-                file={file}
-                key={file.name}
-                onClearClick={() => removeFiles([file.name])}
-                onReadSuccess={handleReadSuccess}
-                onReadFail={handleReadFail}
-                progressHelperText={createHelperText(file)}
-              />
-            ))}
-          </MultipleFileUploadStatus>
-        )}
       </MultipleFileUpload>
     </>
   );

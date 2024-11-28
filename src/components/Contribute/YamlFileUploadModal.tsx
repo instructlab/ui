@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant, Radio } from '@patternfly/react-core';
+import { Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core/dist/dynamic/components/Modal';
 import YamlFileUpload from './YamlFileUpload';
 import { KnowledgeYamlData, SkillYamlData } from '@/types';
 
@@ -18,7 +18,7 @@ export const YamlFileUploadModal: React.FunctionComponent<Props> = ({
   onYamlUploadKnowledgeFillForm,
   onYamlUploadSkillsFillForm
 }) => {
-  const handleModalToggle = (_event: KeyboardEvent | React.MouseEvent) => {
+  const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
   };
 

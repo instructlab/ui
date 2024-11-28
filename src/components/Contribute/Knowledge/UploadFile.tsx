@@ -111,8 +111,6 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
   };
 
   const successfullyReadFileCount = readFileData.filter((fileData) => fileData.loadResult === 'success').length;
-  console.log('Successfully read file count:', successfullyReadFileCount);
-  console.log('Current files count:', currentFiles.length);
 
   return (
     <>

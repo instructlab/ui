@@ -505,7 +505,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             </Title>
           </FlexItem>
           <FlexItem>
-            <Button variant="secondary" aria-label="User upload of pre-existing yaml file">
+            <Button variant="secondary" aria-label="User upload of pre-existing yaml file" onClick={() => setIsModalOpen(true)}>
               Upload a YAML file
             </Button>
           </FlexItem>
