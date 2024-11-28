@@ -34,7 +34,7 @@ import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from './AutoFill';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
-import YamlFileUpload from '../YamlFileUpload';
+import { YamlFileUploadModal } from '../YamlFileUploadModal';
 
 export interface QuestionAndAnswerPair {
   immutable: boolean;
@@ -130,6 +130,8 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
 
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
+
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const router = useRouter();
 
@@ -517,9 +519,15 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             Auto-Fill
           </Button>
         )}
-        <Form className="form-k">
-          <YamlFileUpload isKnowledgeForm={true} onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm} />
 
+        <YamlFileUploadModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          isKnowledgeForm={true}
+          onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
+        />
+
+        <Form className="form-k">
           <AuthorInformation
             formType={FormType.Knowledge}
             reset={reset}

@@ -1,30 +1,23 @@
 import React from 'react';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant, Radio } from '@patternfly/react-core';
+import YamlFileUpload from './YamlFileUpload';
+import { KnowledgeYamlData, SkillYamlData } from '@/types';
 
 interface Props {
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isKnowledgeForm: boolean;
+  onYamlUploadKnowledgeFillForm?: (data: KnowledgeYamlData) => void;
+  onYamlUploadSkillsFillForm?: (data: SkillYamlData) => void;
 }
 
-export const YamlFileUploadModal: React.FunctionComponent<Props> = ({ isModalOpen, setIsModalOpen }) => {
-  const [selectedVariant, setSelectedVariant] = React.useState(ModalVariant.small);
-
-  const capitalize = (input: string) => input[0].toUpperCase() + input.substring(1);
-  const formatSizeVariantName = (variant: string) => capitalize(variant);
-
-  const variantOptions = [ModalVariant.small, ModalVariant.medium, ModalVariant.large];
-
-  const renderSizeOptions = variantOptions.map((variant) => (
-    <Radio
-      id={`modal-size-${variant}-selector`}
-      label={`${formatSizeVariantName(variant)} variant`}
-      isChecked={variant === selectedVariant}
-      onChange={() => setSelectedVariant(variant)}
-      key={formatSizeVariantName(variant)}
-      name="Variant options"
-    />
-  ));
-
+export const YamlFileUploadModal: React.FunctionComponent<Props> = ({
+  isModalOpen,
+  setIsModalOpen,
+  isKnowledgeForm,
+  onYamlUploadKnowledgeFillForm,
+  onYamlUploadSkillsFillForm
+}) => {
   const handleModalToggle = (_event: KeyboardEvent | React.MouseEvent) => {
     setIsModalOpen(!isModalOpen);
   };
@@ -32,19 +25,21 @@ export const YamlFileUploadModal: React.FunctionComponent<Props> = ({ isModalOpe
   return (
     <React.Fragment>
       <Modal
-        variant={selectedVariant}
+        variant={ModalVariant.small}
         title="Variant modal"
         isOpen={isModalOpen}
         onClose={handleModalToggle}
         aria-labelledby="variant-modal-title"
         aria-describedby="modal-box-body-variant"
       >
-        <ModalHeader title="Small modal" labelId="variant-modal-title" />
+        <ModalHeader title="Upload YAML file" labelId="variant-modal-title" />
         <ModalBody id="modal-box-body-variant">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-          veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-          voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-          deserunt mollit anim id est laborum.
+          Uploading your YAML will bring in all its data and streamline the contribution process.
+          <YamlFileUpload
+            isKnowledgeForm={isKnowledgeForm}
+            onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
+            onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
+          />
         </ModalBody>
         <ModalFooter>
           <Button key="confirm" variant="primary" onClick={handleModalToggle}>

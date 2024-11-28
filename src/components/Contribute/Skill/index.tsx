@@ -403,10 +403,14 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
           </Button>
         )}
 
-        <YamlFileUploadModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+        <YamlFileUploadModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          isKnowledgeForm={false}
+          onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
+        />
 
         <Form className="form-s">
-          <YamlFileUpload isKnowledgeForm={false} onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm} />
           <AuthorInformation
             formType={FormType.Knowledge}
             reset={reset}
