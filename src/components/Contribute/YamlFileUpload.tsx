@@ -18,17 +18,18 @@ interface readFile {
 }
 
 interface YamlFileUploadProps {
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isKnowledgeForm: boolean;
   onYamlUploadKnowledgeFillForm?: (data: KnowledgeYamlData) => void;
   onYamlUploadSkillsFillForm?: (data: SkillYamlData) => void;
 }
 
-const YamlFileUpload: React.FC<YamlFileUploadProps> = ({ isKnowledgeForm, onYamlUploadKnowledgeFillForm, onYamlUploadSkillsFillForm }) => {
-  const [value, setValue] = React.useState('');
-  const [filename, setFilename] = React.useState('');
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [isRejected, setIsRejected] = React.useState(false);
-
+const YamlFileUpload: React.FC<YamlFileUploadProps> = ({
+  setIsModalOpen,
+  isKnowledgeForm,
+  onYamlUploadKnowledgeFillForm,
+  onYamlUploadSkillsFillForm
+}) => {
   const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
   const [showStatus, setShowStatus] = React.useState(false);
   const [statusIcon, setStatusIcon] = React.useState('inProgress');
@@ -36,40 +37,35 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({ isKnowledgeForm, onYaml
   const [fileUploadShouldFail, setFileUploadShouldFail] = React.useState(false);
 
   const handleFileInputChange = (file: File) => {
-    setFilename(file.name);
     if (file) {
       readFileContent(file);
     }
   };
 
   const readFileContent = (file: File) => {
-    setIsLoading(true);
     const reader = new FileReader();
 
     reader.onload = (event) => {
       const fileContent = event.target?.result as string;
-      setValue(fileContent);
-      setIsLoading(false);
 
       try {
         const parsedData = yaml.load(fileContent);
         if (isKnowledgeForm && isKnowledgeFormData(parsedData)) {
           onYamlUploadKnowledgeFillForm?.(parsedData);
+          setIsModalOpen(false);
         } else if (!isKnowledgeForm && isSkillFormData(parsedData)) {
           onYamlUploadSkillsFillForm?.(parsedData);
+          setIsModalOpen(false);
         } else {
-          setIsRejected(true);
+          console.error('This yaml file does not match the Skills or Knowledge schema');
         }
       } catch (error) {
         console.error('Error parsing YAML file:', error);
-        setIsRejected(true);
       }
     };
 
     reader.onerror = () => {
       console.error('Error reading file');
-      setIsLoading(false);
-      setIsRejected(true);
     };
 
     reader.readAsText(file);
@@ -111,7 +107,7 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({ isKnowledgeForm, onYaml
       if (latestFile) {
         handleFileInputChange(latestFile);
       } else {
-        console.log('No latest file found!');
+        console.error('No latest file found!');
       }
     }
   };

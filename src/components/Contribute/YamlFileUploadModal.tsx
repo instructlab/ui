@@ -36,6 +36,7 @@ export const YamlFileUploadModal: React.FunctionComponent<Props> = ({
         <ModalBody id="modal-box-body-variant">
           Uploading your YAML will bring in all its data and streamline the contribution process.
           <YamlFileUpload
+            setIsModalOpen={setIsModalOpen}
             isKnowledgeForm={isKnowledgeForm}
             onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
             onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
