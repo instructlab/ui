@@ -23,7 +23,7 @@
     "@patternfly/react-icons": "^6.0.0",
     "@patternfly/react-styles": "^6.0.0",
     "@patternfly/react-table": "^6.0.0",
-    "axios": "^1.7.7",
+    "axios": "^1.7.8",
     "fs": "^0.0.1-security",
     "isomorphic-git": "^1.27.1",
     "js-yaml": "^4.1.0",
