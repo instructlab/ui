@@ -5,6 +5,8 @@ import { NextRequest } from 'next/server';
 import * as git from 'isomorphic-git';
 import fs from 'fs';
 import path from 'path';
+import { dumpYaml } from '@/utils/yamlConfig';
+import { KnowledgeYamlData } from '@/types';
 import yaml from 'js-yaml';
 
 // Define paths and configuration
@@ -13,18 +15,20 @@ const KNOWLEDGE_DIR = 'knowledge';
 
 export async function POST(req: NextRequest) {
   try {
-    // Extract the QnA data from the request body TODO: what is documentOutline?
-    const { content, attribution, name, email, submissionSummary, documentOutline, filePath } = await req.json(); // eslint-disable-line @typescript-eslint/no-unused-vars
+    // Extract the data from the request body
+    const { content, attribution, name, email, submissionSummary, filePath } = await req.json();
+
+    // Parse the YAML string into an object
+    const knowledgeData = yaml.load(content) as KnowledgeYamlData;
+
+    // Convert the object to YAML
+    const yamlString = dumpYaml(knowledgeData);
 
     // Define branch name and file paths
     const branchName = `knowledge-contribution-${Date.now()}`;
     const newYamlFilePath = path.join(KNOWLEDGE_DIR, filePath, 'qna.yaml');
     const newAttributionFilePath = path.join(KNOWLEDGE_DIR, filePath, 'attribution.txt');
-
-    // Convert data to YAML and plain text formats
-    const yamlString = yaml.dump(content);
-    const attributionContent = `
-Title of work: ${attribution.title_of_work}
+    const attributionContent = `Title of work: ${attribution.title_of_work}
 Link to work: ${attribution.link_to_work}
 Revision: ${attribution.revision}
 License of the work: ${attribution.license_of_the_work}
