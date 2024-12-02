@@ -1,8 +1,8 @@
-// src/components/Contribute/Knowledge/index.tsx
 'use client';
 import React, { useEffect, useState } from 'react';
 import './knowledge.css';
 import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Modal } from '@patternfly/react-core/dist/esm/components/Modal/Modal';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { getGitHubUsername } from '../../../utils/github';
@@ -128,7 +128,8 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
 
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
-
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState('');
   const router = useRouter();
 
   const emptySeedExample: SeedExample = {
@@ -389,6 +390,53 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     );
   };
 
+  const handleGenerateQAPairs = async (seedExampleIndex: number) => {
+    const context = seedExamples[seedExampleIndex].context;
+    const userContent = `Generate 3 question and answer pairs from the provided context. The output should be in the form of "Question 1" and "Answer 1" and next "Question 2" and "Answer 2" and then "Question 3" and "Answer 3". Only reply with the question and answers, no other content or commentary. Here is the context: ${context}`;
+
+    try {
+      const response = await fetch('/api/pr/qnaGen', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          question: userContent,
+          systemRole: 'user'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate Q&A pairs');
+      }
+
+      const result = await response.json();
+      const generatedContent = result.choices[0].message.content;
+
+      // Parse the QNAs from the LLM response
+      const qaPairs = generatedContent.match(/(Question \d+:.*?Answer \d+:.*?)(?=Question \d+:|$)/gs);
+
+      if (qaPairs) {
+        // Format the QNA pairs
+        const formattedContent = qaPairs.map((pair, index) => (
+          <div key={index} style={{ marginBottom: '1rem' }}>
+            <p style={{ fontWeight: 'bold' }}>{pair.split('Answer ')[0].trim()}</p>
+            <p>{pair.split('Answer ')[1].trim()}</p>
+          </div>
+        ));
+        setModalContent(formattedContent);
+      } else {
+        setModalContent('Failed to parse the response from the model.');
+      }
+
+      setModalOpen(true);
+    } catch (error) {
+      console.error('Error generating Q&A pairs:', error);
+      setModalContent('Error generating Q&A pairs.');
+      setModalOpen(true);
+    }
+  };
+
   const onCloseActionGroupAlert = () => {
     setActionGroupAlertContent(undefined);
   };
@@ -410,8 +458,6 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     setFilePath('');
     setSeedExamples([emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample]);
     setDisableAction(true);
-
-    // setReset is just reset button, value has no impact.
     setReset(reset ? false : true);
   };
 
@@ -521,6 +567,15 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             handleAnswerBlur={handleAnswerBlur}
           />
 
+          {/* Generate Q&A Button for each Seed Example, TODO: figure out how to nest the buttons under context */}
+          {seedExamples.map((_, index) => (
+            <div key={index}>
+              <Button variant="primary" onClick={() => handleGenerateQAPairs(index)}>
+                Generate Q&A Pairs
+              </Button>
+            </div>
+          ))}
+
           <DocumentInformation
             reset={reset}
             isEditForm={knowledgeEditFormData?.isEditForm}
@@ -604,6 +659,11 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
           </ActionGroup>
         </Form>
       </PageSection>
+
+      {/* Modal for Q&A Pair Results */}
+      <Modal title="Generated Q&A Pairs" isOpen={modalOpen} onClose={() => setModalOpen(false)} variant="small">
+        <div>{modalContent}</div>
+      </Modal>
     </PageGroup>
   );
 };
