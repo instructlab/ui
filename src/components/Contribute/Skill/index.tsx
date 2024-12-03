@@ -19,12 +19,13 @@ import { PageGroup } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { Flex, FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { checkSkillFormCompletion } from './validation';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { DownloadDropdown } from './DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from './ViewDropdown/ViewDropdown';
 import Update from './Update/Update';
-import { PullRequestFile } from '@/types';
+import { SkillYamlData, PullRequestFile } from '@/types';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button';
 import { useRouter } from 'next/navigation';
 import SkillsSeedExample from './SkillsSeedExample/SkillsSeedExample';
@@ -32,6 +33,7 @@ import SkillsInformation from './SkillsInformation/SkillsInformation';
 import SkillsDescriptionContent from './SkillsDescription/SkillsDescriptionContent';
 import { autoFillSkillsFields } from './AutoFill';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { YamlFileUploadModal } from '../YamlFileUploadModal';
 
 export interface SeedExample {
   immutable: boolean;
@@ -108,6 +110,8 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
 
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
+
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const router = useRouter();
 
@@ -330,6 +334,23 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
     setSeedExamples(autoFillSkillsFields.seedExamples);
   };
 
+  const yamlSeedExampleToFormSeedExample = (yamlSeedExamples: { question: string; context?: string | undefined; answer: string }[]) => {
+    return yamlSeedExamples.map((yamlSeedExample) => ({
+      immutable: true,
+      isExpanded: false,
+      context: yamlSeedExample.context ?? '',
+      isContextValid: ValidatedOptions.default,
+      question: yamlSeedExample.question,
+      answer: yamlSeedExample.answer
+    })) as SeedExample[];
+  };
+
+  const onYamlUploadSkillsFillForm = (data: SkillYamlData): void => {
+    setName(data.created_by ?? '');
+    setDocumentOutline(data.task_description ?? '');
+    setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
+  };
+
   const skillFormData: SkillFormData = {
     email: email,
     name: name,
@@ -360,9 +381,18 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
       </PageBreadcrumb>
 
       <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
-        <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
-          Skill Contribution
-        </Title>
+        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+          <FlexItem>
+            <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>
+              Skill Contribution
+            </Title>
+          </FlexItem>
+          <FlexItem>
+            <Button variant="secondary" aria-label="User upload of pre-existing yaml file" onClick={() => setIsModalOpen(true)}>
+              Upload a YAML file
+            </Button>
+          </FlexItem>
+        </Flex>
         <Content>
           <SkillsDescriptionContent />
         </Content>
@@ -371,6 +401,14 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
             Auto-Fill
           </Button>
         )}
+
+        <YamlFileUploadModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          isKnowledgeForm={false}
+          onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
+        />
+
         <Form className="form-s">
           <AuthorInformation
             formType={FormType.Knowledge}

@@ -21,6 +21,7 @@ import { PageGroup } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { Flex, FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import KnowledgeDescriptionContent from './KnowledgeDescription/KnowledgeDescriptionContent';
 import KnowledgeSeedExample from './KnowledgeSeedExample/KnowledgeSeedExample';
 import { checkKnowledgeFormCompletion } from './validation';
@@ -28,11 +29,12 @@ import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/consta
 import { DownloadDropdown } from './DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from './ViewDropdown/ViewDropdown';
 import Update from './Update/Update';
-import { PullRequestFile } from '@/types';
+import { KnowledgeYamlData, PullRequestFile } from '@/types';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button';
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from './AutoFill';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
+import { YamlFileUploadModal } from '../YamlFileUploadModal';
 
 export interface QuestionAndAnswerPair {
   immutable: boolean;
@@ -128,6 +130,8 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
 
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
+
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const router = useRouter();
 
@@ -432,6 +436,32 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
     setSeedExamples(autoFillKnowledgeFields.seedExamples);
   };
 
+  const yamlSeedExampleToFormSeedExample = (
+    yamlSeedExamples: { context: string; questions_and_answers: { question: string; answer: string }[] }[]
+  ) => {
+    return yamlSeedExamples.map((yamlSeedExample) => ({
+      immutable: true,
+      isExpanded: false,
+      context: yamlSeedExample.context ?? '',
+      isContextValid: ValidatedOptions.default,
+      questionAndAnswers: yamlSeedExample.questions_and_answers.map((questionAndAnswer) => ({
+        question: questionAndAnswer.question ?? '',
+        answer: questionAndAnswer.answer ?? ''
+      }))
+    })) as SeedExample[];
+  };
+
+  const onYamlUploadKnowledgeFillForm = (data: KnowledgeYamlData): void => {
+    setName(data.created_by ?? '');
+    setDocumentOutline(data.document_outline ?? '');
+    setSubmissionSummary(data.document_outline ?? '');
+    setDomain(data.domain ?? '');
+    setKnowledgeDocumentRepositoryUrl(data.document.repo ?? '');
+    setKnowledgeDocumentCommit(data.document.commit ?? '');
+    setDocumentName(data.document.patterns.join(', ') ?? '');
+    setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
+  };
+
   const knowledgeFormData: KnowledgeFormData = {
     email: email,
     name: name,
@@ -468,9 +498,19 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
       </PageBreadcrumb>
 
       <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
-        <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
-          Knowledge Contribution
-        </Title>
+        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+          <FlexItem>
+            <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>
+              Knowledge Contribution
+            </Title>
+          </FlexItem>
+          <FlexItem>
+            <Button variant="secondary" aria-label="User upload of pre-existing yaml file" onClick={() => setIsModalOpen(true)}>
+              Upload a YAML file
+            </Button>
+          </FlexItem>
+        </Flex>
+
         <Content>
           <KnowledgeDescriptionContent />
         </Content>
@@ -479,6 +519,13 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             Auto-Fill
           </Button>
         )}
+
+        <YamlFileUploadModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          isKnowledgeForm={true}
+          onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
+        />
 
         <Form className="form-k">
           <AuthorInformation
