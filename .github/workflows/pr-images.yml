@@ -34,12 +34,12 @@ jobs:
       - name: Skip if triggered by GitHub Actions bot
         id: check_skip
         run: |-
-            if [[ "$(git log -1 --pretty=format:'%s')" == *"[CI AUTOMATION]:"* ]]; then
-              echo "Workflow triggered by previous action commit. Skipping."
-              echo "skip_workflow=true" >> "$GITHUB_ENV"
-            else
-              echo "skip_workflow=false" >> "$GITHUB_ENV"
-            fi
+          if [[ "$(git log -1 --pretty=format:'%s')" == *"[CI AUTOMATION]:"* ]]; then
+            echo "Workflow triggered by previous action commit. Skipping."
+            echo "skip_workflow='true'" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip_workflow='false'" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Log in to the GHCR container image registry
         if: steps.check_skip.outputs.skip_workflow == 'false'
