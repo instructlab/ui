@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: metrics-cronjob
+spec:
+  schedule: "*/5 * * * *" # Runs every 5 minutes
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: metrics-collector
+            image: your-image:tag
+            command: ["/bin/sh", "-c", "your-metrics-command"]
+            env:
+            - name: ENV_VAR
+              value: "value"
+          restartPolicy: Never
