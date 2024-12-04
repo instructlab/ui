@@ -121,9 +121,9 @@ stop-dev-kind: check-kind ## Stop the Kind cluster to destroy the development en
 
 .PHONY: setup-kind
 setup-kind: check-kind check-kubectl stop-dev-kind ## Create a Kind cluster with ingress enabled
-	$(CMD_PREFIX) kind create cluster --config ./deploy/k8s/overlays/kind/kind.yaml
+	$(CMD_PREFIX) kind create cluster --config ./deploy/k8s/overlays/kind/ui/kind.yaml
 	$(CMD_PREFIX) kubectl cluster-info
-	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -f ./deploy/k8s/overlays/kind/kind-ingress.yaml
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -f ./deploy/k8s/overlays/kind/ui/kind-ingress.yaml
 
 .PHONY: wait-for-readiness
 wait-for-readiness: # Wait for operators to be ready
@@ -136,8 +136,8 @@ deploy: wait-for-readiness ## Deploy a InstructLab UI development stack onto a k
 		echo "Please create a .env file in the root of the project." ; \
 		exit 1 ; \
 	fi
-	$(CMD_PREFIX) yes | cp -rf .env ./deploy/k8s/overlays/kind/.env
-	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -k ./deploy/k8s/overlays/kind
+	$(CMD_PREFIX) yes | cp -rf .env ./deploy/k8s/overlays/kind/ui/.env
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -k ./deploy/k8s/overlays/kind/ui
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) wait --for=condition=Ready pods -n $(ILAB_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=ui --timeout=15m
 
 .PHONY: redeploy
@@ -147,8 +147,8 @@ redeploy: ui-image load-images ## Redeploy the InstructLab UI stack onto a kuber
 
 .PHONY: undeploy
 undeploy: ## Undeploy the InstructLab UI stack from a kubernetes cluster
-	$(CMD_PREFIX) if [ -f ./deploy/k8s/overlays/kind/.env ]; then \
-		rm ./deploy/k8s/overlays/kind/.env ; \
+	$(CMD_PREFIX) if [ -f ./deploy/k8s/overlays/kind/ui/.env ]; then \
+		rm ./deploy/k8s/overlays/kind/ui/.env ; \
 	fi
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete namespace $(ILAB_KUBE_NAMESPACE)
 

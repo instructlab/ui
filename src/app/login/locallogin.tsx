@@ -10,6 +10,7 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import GithubIcon from '@patternfly/react-icons/dist/dynamic/icons/github-icon';
+import KeycloakIcon from './keycloakicon';
 import './githublogin.css';
 
 const LocalLogin: React.FunctionComponent = () => {
@@ -43,6 +44,10 @@ const LocalLogin: React.FunctionComponent = () => {
     signIn('github', { callbackUrl: '/' });
   };
 
+  const handleKeycloakLogin = () => {
+    signIn('keycloak', { callbackUrl: '/' });
+  };
+
   return (
     <div className="login-page-background">
       <Grid hasGutter span={12}>
@@ -67,6 +72,16 @@ const LocalLogin: React.FunctionComponent = () => {
               onClick={handleGitHubLogin}
             >
               Sign in with GitHub
+            </Button>
+            <Button
+              variant="primary"
+              icon={<KeycloakIcon />}
+              iconPosition="left"
+              size="lg"
+              style={{ backgroundColor: 'black' }}
+              onClick={handleKeycloakLogin}
+            >
+              Sign in with Keycloak
             </Button>
             <Form onSubmit={handleLogin}>
               <FormGroup label="Username" fieldId="username" className="login-label">

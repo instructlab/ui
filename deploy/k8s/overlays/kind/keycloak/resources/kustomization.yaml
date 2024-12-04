@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: keycloak-system
+
+resources:
+  - ../../../../base/keycloak/resources/
+  - keycloak-svc.yaml
+
+patches:
+- path: keycloak_patch.yaml
+- path: realm_patch.yaml
