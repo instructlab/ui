@@ -36,3 +36,5 @@ images:
     newTag: v1.0.0-beta.3
   - name: quay.io/instructlab-ui/pathservice
     newTag: v1.0.0-beta.3
+  - name: quay.io/instructlab-ui/healthcheck-sidecar
+    newTag: latest
