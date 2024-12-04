@@ -6,6 +6,9 @@
 Project aims to provide a UI based interface to the contributors and reviewers to submit and review contribution to [instructlab/taxonomy](https://github.com/instructlab/taxonomy).
 The intention is to simplify the process of contribution by providing a user friendly interface, that doesn't require the user to have a deep understanding of tools required to contribute skill and knowledge to the taxonomy. This project also aims to provide a platform for the reviewers to efficiently review the contributions and provide feedback to the contributors.
 
+> [!IMPORTANT]
+> InstructLab Community UI instance is currently hosted [here](https://ui.instructlab.ai). Please feel free to user the UI for contributing skills and knowledge to the taxonomy. If you have any feedback or suggestions please feel free to open an issue. See more details in the [Contributing](#contributing) section.
+
 ## Overview
 
 Current scope of the project is to work on following personas:
@@ -17,8 +20,9 @@ The technical overview and developer docs for getting started can be found [here
 
 ## Contributing
 
-If you have suggestions for how instructlab/ui could be improved, or want to
-report a bug, open an [issue](https://github.com/instructlab/ui/issues)! We'd love all and any contributions.
+If you have suggestions for how InstructLab UI can be improved, please open an [issue](https://github.com/instructlab/ui/issues) and tag it with `user suggested` label. We'd love all and any contributions.
+
+If you encounter an issue in the hosted instance of the [InstructLab UI](ui.instructlab.ai), please open an [issue](https://github.com/instructlab/ui/issues) and tag it with `production issue` label. This will help us prioritize the issues and provide a better support to the users.
 
 For more, check out the [InstructLab UI Contribution Guide](CONTRIBUTING.md)
 and [InstructLab Community Guide](https://github.com/instructlab/community/blob/main/CONTRIBUTING.md).
