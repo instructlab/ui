@@ -5,9 +5,17 @@ on:
     branches:
       - main
 
+env:
+  GHCR_REGISTRY: ghcr.io
+  GHCR_UI_IMAGE_NAME: "${{ github.repository }}/ui"
+  QUAY_REGISTRY: quay.io
+  QUAY_UI_IMAGE_NAME: instructlab-ui/ui
+  GHCR_PS_IMAGE_NAME: "${{ github.repository }}/pathservice"
+  QUAY_PS_IMAGE_NAME: instructlab-ui/pathservice
+
 jobs:
-  build_and_publish_QA_images:
-    name: Build and Push QA images 
+  build_and_publish_ui_qa_image:
+    name: Push QA UI container image to GHCR and QUAY
     runs-on: ubuntu-latest
     environment: registry-creds
     permissions:
@@ -15,30 +23,6 @@ jobs:
       contents: write
       attestations: write
       id-token: write
-    strategy:
-      matrix:
-        registry:
-          - name: "quay.io"
-            org_name: "instructlab-ui"
-            user_name_store: "secrets"
-            user_name_key: "QUAY_USERNAME"
-            password_store: "secrets"
-            password_key: "QUAY_TOKEN"
-          - name: "ghcr.io"
-            org_name: "instructlab/ui"
-            user_name_store: "github"
-            user_name_key: "actor"
-            password_store: "secrets"
-            password_key: "GITHUB_TOKEN"
-        image_info:
-          - name: "ui"
-            long_name: "User Interface"
-            image: "ui"
-            containerfile_path: "src/Containerfile"
-          - name: "ps"
-            long_name: "Pathservice"
-            image: "pathservice"
-            containerfile_path: "pathservice/Containerfile"
 
     steps:
       - name: Check out the repo
@@ -55,12 +39,19 @@ jobs:
             exit 1
           fi
 
-      - name: Log in to the ${{ matrix.registry.name }} registry
+      - name: Log in to the GHCR container image registry
         uses: docker/login-action@v3
         with:
-          registry: "${{ matrix.registry.name }}"
-          username: "${{ matrix.registry.user_name_store }}[${{matrix.registry.user_name_key}}]"
-          password: "${{ matrix.registry.password_store }}[${{matrix.registry.password_key}}]"
+          registry: "${{ env.GHCR_REGISTRY }}"
+          username: "${{ github.actor }}"
+          password: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Log in to the Quay container image registry
+        uses: docker/login-action@v3
+        with:
+          registry: "${{ env.QUAY_REGISTRY }}"
+          username: "${{ secrets.QUAY_USERNAME }}"
+          password: "${{ secrets.QUAY_TOKEN }}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -102,41 +93,68 @@ jobs:
             console.log("No merged PR found in the recent closed PRs.");
             return '';
 
-      - name: Extract ${{ matrix.registry.name }} metadata (tags, labels) for ${{ matrix.image_info.long_name }} image
-        id: extract_meta
+      - name: Extract GHCR metadata (tags, labels) for UI image
+        id: ghcr_ui_meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ matrix.registry.name }}/${{matrix.registry.org_name}}/${{ matrix.image_info.name }}
+          images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME }}
 
-      - name: Build and push ${{ matrix.image_info.long_name }} image to ${{ matrix.registry.name }}
-        id: build-and-push
+      - name: Extract Quay metadata (tags, labels) for UI image
+        id: quay_ui_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_UI_IMAGE_NAME }}
+
+      - name: Build and push ui image to ghcr.io
+        id: push-ui-ghcr
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: |-
-            "${{ steps.extract_meta.outputs.tags }}"
-            "${{ matrix.registry.name }}/${{matrix.registry.org_name}}/${{ matrix.image_info.name }}:pr-${{ steps.get_pr_number.outputs.result }}"
-          labels: ${{ steps.extract_meta.outputs.labels }}
+            "${{ steps.ghcr_ui_meta.outputs.tags }}"
+            "${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME }}:pr-${{ steps.get_pr_number.outputs.result }}"
+          labels: ${{ steps.ghcr_ui_meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          file: "${{ matrix.image_info.containerfile_path}}"
+          file: src/Containerfile
 
-      - name: Generate ${{ matrix.registry.name }} artifact attestation
+      - name: Generate GHCR artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: "${{ matrix.registry.name }}/${{matrix.registry.org_name}}/${{ matrix.image_info.name }}"
-          subject-digest: ${{ steps.build-and-push.outputs.digest }}
+          subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME}}
+          subject-digest: ${{ steps.push-ui-ghcr.outputs.digest }}
+          push-to-registry: true
+
+      - name: Build and push ui image to quay.io
+        id: push-ui-quay
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |-
+            "${{ steps.quay_ui_meta.outputs.tags }}"
+            "${{ env.QUAY_REGISTRY }}/${{ env.QUAY_UI_IMAGE_NAME }}:pr-${{ steps.get_pr_number.outputs.result }}"
+          labels: ${{ steps.quay_ui_meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: src/Containerfile
+
+      - name: Generate QA UI Quay artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_UI_IMAGE_NAME}}
+          subject-digest: ${{ steps.push-ui-quay.outputs.digest }}
           push-to-registry: true
 
       - name: Update coderefs before code changes
         run: |-
           git pull --ff-only
 
-      - name: Update QA image Manifest
-        id: update_qa_image_manifest
-        if: ${{ matrix.registry.name == 'quay.io' }} 
+      - name: Update QA Quay UI image
+        id: update_qa_ui_manifest_image
         env:
           PR_TAG:  "pr-${{ steps.get_pr_number.outputs.result }}"
         run: |-
@@ -146,11 +164,169 @@ jobs:
             (.images[] | select(.name == "quay.io/instructlab-ui/ui") | .newTag) = env(PR_TAG)
           ' deploy/k8s/overlays/openshift/qa/kustomization.yaml
 
-      - name: Commit and push bump QA ${{ matrix.image_info.long_name }} Image manifest
-        if: ${{ matrix.registry.name == 'quay.io' }} 
+      - name: Commit and push bump QA UI Image manifest
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
           git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
           git commit -m "[CI AUTOMATION]: Bumping QA UI image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
+          git push origin main
+
+  build_and_publish_ps_qa_image:
+    name: Push QA pathservice container image to GHCR and QUAY
+    runs-on: ubuntu-latest
+    environment: registry-creds
+    permissions:
+      packages: write
+      contents: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          ref: 'main'
+
+      - name: Skip if triggered by GitHub Actions bot
+        id: check-skip
+        run: |-
+          if [[ "$(git log -1 --pretty=format:'%s')" == *"[CI AUTOMATION]:"* ]]; then
+            echo "Workflow triggered by previous action commit. Skipping."
+            exit 1
+          fi
+
+      - name: Log in to the GHCR container image registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.GHCR_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to the Quay container image registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.QUAY_REGISTRY }}
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Get Pull Request Number from Commit
+        id: get_pr_number
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log("Repository owner:", context.repo.owner);
+            console.log("Repository name:", context.repo.repo);
+            console.log("Current commit SHA:", context.sha);
+
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              sort: 'updated',
+              direction: 'desc'
+            });
+            console.log("Number of closed PRs fetched:", prs.data.length);
+
+            for (const pr of prs.data) {
+              console.log("Checking PR #", pr.number, "- Merged:");
+              if (pr.merged_at != "") {
+                console.log("Found merged PR:", pr.number);
+                return pr.number;
+              }
+            }
+
+            console.log("No merged PR found in the recent closed PRs.");
+            return '';
+
+      - name: Extract metadata (tags, labels) for pathservice image
+        id: ghcr_ps_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PS_IMAGE_NAME }}
+
+      - name: Extract metadata (tags, labels) for pathservice image
+        id: quay_ps_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_PS_IMAGE_NAME }}
+
+      - name: Build and push QA PS image to ghcr.io
+        id: push-ps-ghcr
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            "${{ steps.ghcr_ps_meta.outputs.tags }}"
+            "${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PS_IMAGE_NAME }}:pr-${{ steps.get_pr_number.outputs.result }}"
+          labels: ${{ steps.ghcr_ps_meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: pathservice/Containerfile
+
+      - name: Generate QA PS GHCR artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PS_IMAGE_NAME}}
+          subject-digest: ${{ steps.push-ps-ghcr.outputs.digest }}
+          push-to-registry: true
+
+      - name: Build and push QA PS image to quay.io
+        id: push-ps-quay
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            "${{ steps.quay_ps_meta.outputs.tags }}"
+            "${{ env.QUAY_REGISTRY }}/${{ env.QUAY_PS_IMAGE_NAME }}:pr-${{ steps.get_pr_number.outputs.result }}"
+          labels: ${{ steps.quay_ps_meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: pathservice/Containerfile
+
+      - name: Generate QA PS Quay artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_PS_IMAGE_NAME}}
+          subject-digest: ${{ steps.push-ps-quay.outputs.digest }}
+          push-to-registry: true
+
+      
+      - name: Update coderefs before code changes
+        run: |-
+          git pull --ff-only
+
+      - name: Update QA PS Quay image
+        id: update_qa_ps_manifest_image
+        env:
+          PR_TAG: "pr-${{ steps.get_pr_number.outputs.result }}"
+        run: |-
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+          yq -i '
+            (.images[] | select(.name == "quay.io/instructlab-ui/ui") | .newTag) = env(PR_TAG)
+          ' deploy/k8s/overlays/openshift/qa/kustomization.yaml
+
+      - name: Commit and push bump QA PS Image manifest
+        run: |-
+          git config user.name "platform-engineering-bot"
+          git config user.email "platform-engineering@redhat.com"
+          git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
+          git commit -m "[CI AUTOMATION]: Bumping QA PS image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
           git push origin main
