@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const envConfig = {
+    ENDPOINT_PROXY: process.env.IL_ENDPOINT_PROXY || '',
     GRANITE_API: process.env.IL_GRANITE_API || '',
     GRANITE_MODEL_NAME: process.env.IL_GRANITE_MODEL_NAME || '',
     MERLINITE_API: process.env.IL_MERLINITE_API || '',
