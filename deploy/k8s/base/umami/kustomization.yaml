@@ -7,3 +7,11 @@ resources:
   - postgresql-pvc.yaml
   - postgresql-service.yaml
   - umami-service.yaml
+labels:
+  - includeSelectors: true
+    pairs:
+      app: umami
+      app.kubernetes.io/component: umami
+      app.kubernetes.io/instance: umami
+      app.kubernetes.io/name: umami
+      app.kubernetes.io/part-of: umami

@@ -4,7 +4,6 @@ kind: Service
 metadata:
   name: umami
   labels:
-    app: umami
     component: web
 spec:
   ports:

@@ -3,7 +3,6 @@ kind: Service
 metadata:
   name: umami-db
   labels:
-    app: umami
     component: db
 spec:
   ports:
