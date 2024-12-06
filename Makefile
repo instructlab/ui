@@ -22,6 +22,7 @@ ILAB_KUBE_CLUSTER_NAME?=instructlab-ui
 CONTAINER_ENGINE?=docker
 DEVCONTAINER_BINARY_EXISTS ?= $(shell command -v devcontainer)
 TAG=$(shell git rev-parse HEAD)
+UMAMI_KUBE_NAMESPACE?=umami
 ##@ Development - Helper commands for development
 .PHONY: md-lint
 md-lint: ## Lint markdown files
@@ -113,7 +114,10 @@ check-kubectl:
 
 .PHONY: load-images
 load-images: ## Load images onto Kind cluster
+	$(CMD_PREFIX) docker pull ghcr.io/instructlab/ui/ui:main
+	$(CMD_PREFIX) docker pull registry.redhat.io/rhel9/postgresql-15:9.5-1733127512
 	$(CMD_PREFIX) kind load --name $(ILAB_KUBE_CLUSTER_NAME) docker-image ghcr.io/instructlab/ui/ui:main
+	$(CMD_PREFIX) kind load --name $(ILAB_KUBE_CLUSTER_NAME) docker-image registry.redhat.io/rhel9/postgresql-15:9.5-1733127512
 
 .PHONY: stop-dev-kind
 stop-dev-kind: check-kind ## Stop the Kind cluster to destroy the development environment
@@ -140,10 +144,16 @@ deploy: wait-for-readiness ## Deploy a InstructLab UI development stack onto a k
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -k ./deploy/k8s/overlays/kind
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) wait --for=condition=Ready pods -n $(ILAB_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=ui --timeout=15m
 
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -k ./deploy/k8s/overlays/kind/umami
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) wait --for=condition=Ready pods -n $(UMAMI_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=umami --timeout=15m
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) port-forward -n $(UMAMI_KUBE_NAMESPACE) service/umami 3001:3001
+
+
 .PHONY: redeploy
 redeploy: ui-image load-images ## Redeploy the InstructLab UI stack onto a kubernetes cluster
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n $(UMAMI_KUBE_NAMESPACE) rollout restart deploy/umami
 
 .PHONY: undeploy
 undeploy: ## Undeploy the InstructLab UI stack from a kubernetes cluster
@@ -151,9 +161,10 @@ undeploy: ## Undeploy the InstructLab UI stack from a kubernetes cluster
 		rm ./deploy/k8s/overlays/kind/.env ; \
 	fi
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete namespace $(ILAB_KUBE_NAMESPACE)
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete namespace $(UMAMI_KUBE_NAMESPACE)
 
 .PHONY: start-dev-kind ## Run the development environment on Kind cluster
-start-dev-kind: setup-kind deploy ## Setup a Kind cluster and deploy InstructLab UI on it
+start-dev-kind: setup-kind load-images deploy ## Setup a Kind cluster and deploy InstructLab UI on it
 
 ##@ OpenShift - UI prod and qa deployment on OpenShift
 .PHONY: deploy-qa-openshift

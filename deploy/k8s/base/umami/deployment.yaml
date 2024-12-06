@@ -2,17 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: umami
-  labels:
-    app: umami
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      app: umami
+  strategy:
+    type: RollingUpdate
   template:
-    metadata:
-      labels:
-        app: umami
     spec:
       containers:
         - name: postgresql
@@ -64,15 +58,11 @@ spec:
                 secretKeyRef:
                   name: umami-secret
                   key: APP_SECRET
-            - name: HASH_SALT
-              valueFrom:
-                secretKeyRef:
-                  name: umami-secret
-                  key: HASH_SALT
             - name: PORT
               value: "3001"
           ports:
             - containerPort: 3001
+      restartPolicy: Always
       volumes:
         - name: db-data
           persistentVolumeClaim:
