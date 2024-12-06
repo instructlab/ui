@@ -1,0 +1,8 @@
+# Umami will be deployed on the QA cluster but host metrics for both prod and QA
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: umami
+resources:
+  - ../../../base/umami
+  - umami.sealedsecret.yaml
+  - umami-route.yaml

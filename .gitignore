@@ -4,6 +4,7 @@ npm-debug.log
 !mock-cert.pem
 .env
 *.env
+!example.umami-secret.env
 coverage
 lib
 taxonomy
