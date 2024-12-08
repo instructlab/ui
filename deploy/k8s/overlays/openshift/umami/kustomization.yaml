@@ -4,5 +4,4 @@ kind: Kustomization
 namespace: umami
 resources:
   - ../../../base/umami
-  - umami.sealedsecret.yaml
   - umami-route.yaml

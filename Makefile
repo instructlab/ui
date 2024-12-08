@@ -115,8 +115,8 @@ check-kubectl:
 .PHONY: load-images
 load-images: ## Load images onto Kind cluster
 	$(CMD_PREFIX) docker pull ghcr.io/instructlab/ui/ui:main
-	$(CMD_PREFIX) docker pull registry.redhat.io/rhel9/postgresql-15:9.5-1733127512
 	$(CMD_PREFIX) kind load --name $(ILAB_KUBE_CLUSTER_NAME) docker-image ghcr.io/instructlab/ui/ui:main
+	$(CMD_PREFIX) docker pull registry.redhat.io/rhel9/postgresql-15:9.5-1733127512
 	$(CMD_PREFIX) kind load --name $(ILAB_KUBE_CLUSTER_NAME) docker-image registry.redhat.io/rhel9/postgresql-15:9.5-1733127512
 
 .PHONY: stop-dev-kind
@@ -163,6 +163,28 @@ undeploy: ## Undeploy the InstructLab UI stack from a kubernetes cluster
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete namespace $(ILAB_KUBE_NAMESPACE)
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete namespace $(UMAMI_KUBE_NAMESPACE)
 
+.PHONY: deploy-umami-kind
+deploy-umami-kind: wait-for-readiness load-images
+	$(CMD_PREFIX) if [ ! -f .env ]; then \
+		echo "Please create a .env file in the root of the project." ; \
+		exit 1 ; \
+	fi
+	$(CMD_PREFIX) bash -c "source .env && \
+		deploy/k8s/base/umami/deploy-umami-openshift-env-secret-conversion.sh KIND $(UMAMI_KUBE_NAMESPACE)"
+
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) create namespace $(UMAMI_KUBE_NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
+	$(CMD_PREFIX) kubectl create -f ./deploy/k8s/overlays/kind/umami/umami-secret.yaml
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -k ./deploy/k8s/overlays/kind/umami
+
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) wait --for=condition=Ready pods -n $(UMAMI_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=umami --timeout=15m
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) port-forward -n $(UMAMI_KUBE_NAMESPACE) service/umami 3001:3001
+
+.PHONY: undeploy-umami-kind
+undeploy-umami-kind:
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete -f ./deploy/k8s/overlays/kind/umami/umami-secret.yaml
+	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete -k ./deploy/k8s/overlays/kind/umami	
+
 .PHONY: start-dev-kind ## Run the development environment on Kind cluster
 start-dev-kind: setup-kind load-images deploy ## Setup a Kind cluster and deploy InstructLab UI on it
 
@@ -173,7 +195,6 @@ deploy-qa-openshift: ## Deploy QA stack of the InstructLab UI on OpenShift
 		echo "Please create a .env file in the root of the project." ; \
 		exit 1 ; \
 	fi
-
 	$(CMD_PREFIX) yes | cp -rf .env ./deploy/k8s/overlays/openshift/qa/.env
 	$(CMD_PREFIX) oc apply -k ./deploy/k8s/overlays/openshift/qa
 	$(CMD_PREFIX) oc wait --for=condition=Ready pods -n $(ILAB_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=ui --timeout=15m
@@ -183,13 +204,32 @@ redeploy-qa-openshift: ## Redeploy QA stack of the InstructLab UI on OpenShift
 	$(CMD_PREFIX) oc -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
 	$(CMD_PREFIX) oc -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
 
-
 .PHONY: undeploy-qa-openshift
 undeploy-qa-openshift: ## Undeploy QA stack of the InstructLab UI on OpenShift
 	$(CMD_PREFIX) oc delete -k ./deploy/k8s/overlays/openshift/qa
 	$(CMD_PREFIX) if [ -f ./deploy/k8s/overlays/openshift/qa/.env ]; then \
 		rm ./deploy/k8s/overlays/openshift/qa/.env ; \
 	fi
+
+.PHONY: deploy-umami-qa-openshift
+deploy-umami-qa-openshift:
+	$(CMD_PREFIX) if [ ! -f .env ]; then \
+		echo "Please create a .env file in the root of the project." ; \
+		exit 1 ; \
+	fi
+	$(CMD_PREFIX) source .env && \
+		deploy/k8s/base/umami/deploy-umami-openshift-env-secret-conversion.sh OPENSHIFT $(UMAMI_KUBE_NAMESPACE)
+	$(CMD_PREFIX) oc create namespace $(UMAMI_KUBE_NAMESPACE) --dry-run=client -o yaml | oc apply -f -
+	$(CMD_PREFIX) oc apply -f ./deploy/k8s/overlays/openshift/umami/umami-secret.yaml
+
+	$(CMD_PREFIX) oc apply -k ./deploy/k8s/overlays/openshift/umami
+	$(CMD_PREFIX) oc wait --for=condition=Ready pods -n $(UMAMI_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=umami --timeout=15m
+
+.PHONY: undeploy-umami-qa-openshift
+undeploy-umami-qa-openshift:
+	$(CMD_PREFIX) oc scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
+	$(CMD_PREFIX) oc delete -f ./deploy/k8s/overlays/openshift/umami/umami-secret.yaml
+	$(CMD_PREFIX) oc delete -k ./deploy/k8s/overlays/openshift/umami
 
 .PHONY: deploy-prod-openshift
 deploy-prod-openshift: ## Deploy production stack of the InstructLab UI on OpenShift
@@ -214,6 +254,28 @@ undeploy-prod-openshift: ## Undeploy production stack of the InstructLab UI on O
 	$(CMD_PREFIX) if [ -f ./deploy/k8s/overlays/openshift/prod/.env ]; then \
 		rm ./deploy/k8s/overlays/openshift/prod/.env ; \
 	fi
+
+.PHONY: deploy-umami-prod-openshift
+deploy-umami-prod-openshift: check-kubeseal
+	$(CMD_PREFIX) if [ ! -f .env ]; then \
+		echo "Please create a .env file in the root of the project." ; \
+		exit 1 ; \
+	fi
+	$(CMD_PREFIX) source .env && \
+		deploy/k8s/base/umami/deploy-umami-openshift-env-secret-conversion.sh "OPENSHIFT" $(UMAMI_KUBE_NAMESPACE)
+	$(CMD_PREFIX) cat deploy/k8s/overlays/openshift/umami/umami-secret.yaml | kubeseal \
+		--controller-name=sealed-secrets-controller \
+		--controller-namespace=kube-system \
+		--format yaml > ./deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml
+	$(CMD_PREFIX) oc create namespace $(UMAMI_KUBE_NAMESPACE) --dry-run=client -o yaml | oc apply -f -
+	$(CMD_PREFIX) oc apply -f deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml
+	$(CMD_PREFIX) oc apply -k deploy/k8s/overlays/openshift/umami
+
+.PHONY: undeploy-umami-prod-openshift
+undeploy-umami-prod-openshift:
+	$(CMD_PREFIX) oc scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
+	$(CMD_PREFIX) oc delete -f ./deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml
+	$(CMD_PREFIX) oc delete -k ./deploy/k8s/overlays/openshift/umami
 
 .PHONY: check-dev-container-installed
 check-dev-container-installed:
