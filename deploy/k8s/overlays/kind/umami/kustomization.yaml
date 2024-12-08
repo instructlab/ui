@@ -4,4 +4,3 @@ namespace: umami
 resources:
   - ../../../base/umami
   - umami-ingress.yaml
-  - example.umami-secret.yaml

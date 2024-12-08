@@ -8,7 +8,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: umami.local
+    - host: umami.localhost
       http:
         paths:
           - path: /
