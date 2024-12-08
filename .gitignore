@@ -26,5 +26,6 @@ pathservice.pid
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-
 playwright/.auth
+deploy/k8s/overlays/kind/umami/umami-secret.yaml
+deploy/k8s/overlays/openshift/umami/umami-secret.yaml
