@@ -20,7 +20,8 @@ ILAB_KUBE_CONTEXT?=kind-instructlab-ui
 ILAB_KUBE_NAMESPACE?=instructlab
 ILAB_KUBE_CLUSTER_NAME?=instructlab-ui
 CONTAINER_ENGINE?=docker
-DEVCONTAINER_BINARY_EXISTS ?= $(shell command -v devcontainer)
+DEVCONTAINER_BINARY_EXISTS?=$(shell command -v devcontainer)
+DEVCONTAINER_DEFAULT_SHELL?=zsh
 TAG=$(shell git rev-parse HEAD)
 ##@ Development - Helper commands for development
 .PHONY: md-lint
@@ -31,7 +32,7 @@ md-lint: ## Lint markdown files
 .PHONY: action-lint
 action-lint:  ## Lint GitHub Action workflows
 	$(ECHO_PREFIX) printf "  %-12s .github/...\n" "[ACTION LINT]"
-	$(CMD_PREFIX) if ! which actionlint $(PIPE_DEV_NULL) ; then \
+	$(CMD_PREFIX) if ! command -v actionlint $(PIPE_DEV_NULL) ; then \
 		echo "Please install actionlint." ; \
 		echo "go install github.com/rhysd/actionlint/cmd/actionlint@latest" ; \
 		exit 1 ; \
@@ -40,7 +41,7 @@ action-lint:  ## Lint GitHub Action workflows
 
 .PHONY: yaml-lint
 yaml-lint: ## Lint yaml files
-	$(CMD_PREFIX) if ! which yamllint >/dev/null 2>&1; then \
+	$(CMD_PREFIX) if ! command -v yamllint >/dev/null 2>&1; then \
 		echo "Please install yamllint." ; \
 		echo "See: https://yamllint.readthedocs.io/en/stable/quickstart.html" ; \
 		exit 1 ; \
@@ -97,7 +98,7 @@ start-dev-podman:  ## Start UI development stack in podman
 ##@ Kubernetes - Kind cluster based dev environment
 .PHONY: check-kind
 check-kind:
-	$(CMD_PREFIX) if [ -z "$(shell which kind)" ]; then \
+	$(CMD_PREFIX) if [ -z "$(shell command -v kind)" ]; then \
 		echo "Please install kind and then start the kind dev environment." ; \
 		echo "https://kind.sigs.k8s.io/" ; \
 		exit 1 ; \
@@ -105,9 +106,17 @@ check-kind:
 
 .PHONY: check-kubectl
 check-kubectl:
-	$(CMD_PREFIX) if [ -z "$(shell which kubectl)" ]; then \
+	$(CMD_PREFIX) if [ -z "$(shell command -v kubectl)" ]; then \
 		echo "Please install kubectl" ; \
 		echo "https://kubernetes.io/docs/tasks/tools/#kubectl" ; \
+		exit 1 ; \
+	fi
+
+.PHONY: check-kubeseal
+check-kubeseal:
+	$(CMD_PREFIX) if [ -z "$(shell command -v kubeseal)" ]; then \
+		echo "Please install kubeseal" ; \
+		echo "https://github.com/bitnami-labs/sealed-secrets?tab=readme-ov-file#kubeseal" ; \
 		exit 1 ; \
 	fi
 
@@ -130,8 +139,8 @@ wait-for-readiness: # Wait for operators to be ready
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n ingress-nginx rollout restart deployment ingress-nginx-controller
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n ingress-nginx rollout status deployment ingress-nginx-controller --timeout=10m
 
-.PHONY: deploy
-deploy: wait-for-readiness ## Deploy a InstructLab UI development stack onto a kubernetes cluster
+.PHONY: deploy-kind
+deploy-kind: wait-for-readiness ## Deploy a InstructLab UI development stack onto a kubernetes cluster
 	$(CMD_PREFIX) if [ ! -f .env ]; then \
 		echo "Please create a .env file in the root of the project." ; \
 		exit 1 ; \
@@ -140,20 +149,20 @@ deploy: wait-for-readiness ## Deploy a InstructLab UI development stack onto a k
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -k ./deploy/k8s/overlays/kind
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) wait --for=condition=Ready pods -n $(ILAB_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=ui --timeout=15m
 
-.PHONY: redeploy
-redeploy: ui-image load-images ## Redeploy the InstructLab UI stack onto a kubernetes cluster
+.PHONY: redeploy-kind
+redeploy-kind: ui-image load-images ## Redeploy the InstructLab UI stack onto a kubernetes cluster
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
 
-.PHONY: undeploy
-undeploy: ## Undeploy the InstructLab UI stack from a kubernetes cluster
+.PHONY: undeploy-kind
+undeploy-kind: ## Undeploy the InstructLab UI stack from a kubernetes cluster
 	$(CMD_PREFIX) if [ -f ./deploy/k8s/overlays/kind/.env ]; then \
 		rm ./deploy/k8s/overlays/kind/.env ; \
 	fi
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete namespace $(ILAB_KUBE_NAMESPACE)
 
 .PHONY: start-dev-kind ## Run the development environment on Kind cluster
-start-dev-kind: setup-kind deploy ## Setup a Kind cluster and deploy InstructLab UI on it
+start-dev-kind: setup-kind load-images deploy-kind ## Setup a Kind cluster and deploy InstructLab UI on it
 
 ##@ OpenShift - UI prod and qa deployment on OpenShift
 .PHONY: deploy-qa-openshift
@@ -162,7 +171,6 @@ deploy-qa-openshift: ## Deploy QA stack of the InstructLab UI on OpenShift
 		echo "Please create a .env file in the root of the project." ; \
 		exit 1 ; \
 	fi
-
 	$(CMD_PREFIX) yes | cp -rf .env ./deploy/k8s/overlays/openshift/qa/.env
 	$(CMD_PREFIX) oc apply -k ./deploy/k8s/overlays/openshift/qa
 	$(CMD_PREFIX) oc wait --for=condition=Ready pods -n $(ILAB_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=ui --timeout=15m
@@ -171,7 +179,6 @@ deploy-qa-openshift: ## Deploy QA stack of the InstructLab UI on OpenShift
 redeploy-qa-openshift: ## Redeploy QA stack of the InstructLab UI on OpenShift
 	$(CMD_PREFIX) oc -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
 	$(CMD_PREFIX) oc -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
-
 
 .PHONY: undeploy-qa-openshift
 undeploy-qa-openshift: ## Undeploy QA stack of the InstructLab UI on OpenShift
@@ -224,7 +231,7 @@ start-dev-container:
 .PHONY: enter-dev-container
 enter-dev-container:
 	$(MAKE) check-dev-container-installed
-	devcontainer exec --workspace-folder=./ --docker-path=${CONTAINER_ENGINE} bash
+	devcontainer exec --workspace-folder=./ --docker-path=${CONTAINER_ENGINE} ${DEVCONTAINER_DEFAULT_SHELL}
 
 .PHONY: cycle-dev-container
 cycle-dev-container:
@@ -240,5 +247,4 @@ cycle-dev-container:
 		echo "removing image with id $$image_id and all containers using that image ..."; \
 		${CONTAINER_ENGINE} rmi $$image_id -f; \
 	fi;
-	$(MAKE) build-dev-container
 	$(MAKE) start-dev-container

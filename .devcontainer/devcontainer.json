@@ -11,16 +11,20 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "DavidAnson.vscode-markdownlint",
-        "ms-vscode-remote.remote-containers"
+        "ms-vscode-remote.remote-containers",
+        "foxundermoon.shell-format",
+        "timonwong.shellcheck"
       ],
       "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash"
+        "terminal.integrated.shell.linux": "/bin/zsh"
       }
     }
   },
-  "forwardPorts": [3000],
+  "forwardPorts": [3000, 6443],
   "mounts": [
-    "type=bind,source=${localWorkspaceFolder}/.env,target=/workspace/ui/.env,consistency=cached"
+    "type=bind,source=${localWorkspaceFolder}/.env,target=/workspace/ui/.env,consistency=cached",
+    "source=${env:HOME}/.kube,target=/opt/app-root/src/.kube,type=bind,consistency=cached",
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
   "runArgs": ["-p", "3000:3000"]
 }
