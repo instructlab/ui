@@ -1,0 +1,17 @@
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakRealm
+metadata:
+  labels:
+    app: sso
+  name: instructlab-ui
+  namespace: keycloak-system
+spec:
+  instanceSelector:
+    matchLabels:
+      app: sso
+  realm:
+    displayName: Instructlab-UI
+    enabled: true
+    id: instructlab-ui
+    realm: instructlab-ui
+    sslRequired: none

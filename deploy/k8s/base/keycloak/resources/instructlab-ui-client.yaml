@@ -1,0 +1,54 @@
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  labels:
+    app: sso
+  name: instructlab-ui
+  namespace: keycloak-system
+spec:
+  client:
+    clientAuthenticatorType: client-secret
+    clientId: instructlab-ui
+    defaultClientScopes:
+    - profile
+    - email
+    description: Client for Instructlab-UI authentication
+    directAccessGrantsEnabled: true
+    implicitFlowEnabled: false
+    name: instructlab-ui
+    protocol: openid-connect
+    protocolMappers:
+    - config:
+        claim.name: email
+        id.token.claim: "true"
+        jsonType.label: String
+        user.attribute: email
+        userinfo.token.claim: "true"
+      name: email
+      protocol: openid-connect
+      protocolMapper: oidc-usermodel-property-mapper
+    - config:
+        claim.name: email-verified
+        id.token.claim: "true"
+        user.attribute: emailVerified
+        userinfo.token.claim: "true"
+      name: email-verified
+      protocol: openid-connect
+      protocolMapper: oidc-usermodel-property-mapper
+    - config:
+        access.token.claim: "true"
+        claim.name: aud
+        claim.value: instructlab-ui
+        id.token.claim: "true"
+        userinfo.token.claim: "true"
+      name: audience
+      protocol: openid-connect
+      protocolMapper: oidc-hardcoded-claim-mapper
+    publicClient: false
+    redirectUris:
+    - '*'
+    standardFlowEnabled: true
+  realmSelector:
+    matchLabels:
+      app: sso
+  scopeMappings: {}
