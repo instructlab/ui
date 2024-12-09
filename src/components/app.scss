@@ -1,0 +1,276 @@
+.chatbot-ui-page {
+  background-color: #f0f0f0;
+  font-family: 'Inter', sans-serif;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  //align-items: flex-start;
+
+  .pf-c-page__main {
+    padding: 0;
+    background-color: transparent;
+  }
+
+  // Chat Container
+  .pf-chatbot {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 600px;
+    width: 100%;
+    margin: 1rem auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    // Header: Similar to ChatGPT's top bar
+    &__header {
+      background: #ffffff;
+      border-bottom: 1px solid #ddd;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      // Hide the default title if you prefer a minimal look
+      .pf-chatbot__header-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+      }
+
+      .pf-chatbot__header-actions {
+        display: flex;
+        gap: 0.5rem;
+
+        button {
+          background: transparent;
+          border: none;
+          box-shadow: none;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #f5f5f5;
+          }
+        }
+      }
+    }
+
+    // Content Area
+    &__content {
+      background: #fafafa;
+      padding: 1.5rem;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    // Messages Container
+    .pf-chatbot__message {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+
+      &--user {
+        .pf-chatbot__message-contents {
+          background: #dcf0d9;
+          color: #333;
+          align-self: flex-end;
+        }
+      }
+
+      &--bot {
+        .pf-chatbot__message-contents {
+          background: #ffffff;
+          color: #333;
+        }
+      }
+
+      .pf-chatbot__message-contents {
+        max-width: 90%;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+        .pf-chatbot__message-name {
+          font-weight: bold;
+          margin-bottom: 0.25rem;
+          font-size: 0.9rem;
+          color: #555;
+        }
+
+        .pf-chatbot__message-response {
+          font-size: 1rem;
+          line-height: 1.5;
+
+          p, li {
+            margin: 0.5rem 0;
+          }
+
+          code {
+            background: #f5f5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: Consolas, Monaco, 'Courier New', monospace;
+          }
+        }
+
+        // Quick responses styling
+        .pf-chatbot__message-quick-response {
+          margin-top: 0.5rem;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+
+          .pf-c-label {
+            background: #e8f4fd;
+            border: 1px solid #b3d7f2;
+            cursor: pointer;
+            &:hover {
+              background: #d9edf9;
+            }
+          }
+        }
+
+        // Attachments styling
+        .pf-chatbot__message-attachments-container {
+          margin-top: 0.5rem;
+          .pf-chatbot__message-attachment {
+            background: #f5f5f5;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+          }
+        }
+      }
+
+      // Avatar styling
+      .pf-c-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+    }
+
+    // Footer (Message Bar)
+    &__footer {
+      background: #ffffff;
+      border-top: 1px solid #ddd;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .pf-chatbot__message-bar {
+        display: flex;
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 999px;
+        padding: 0.5rem 1rem;
+        gap: 0.5rem;
+
+        &:focus-within {
+          box-shadow: 0 0 0 2px #cce5ff;
+        }
+
+        .pf-chatbot__message-bar-input {
+          flex: 1;
+          position: relative;
+          display: flex;
+          align-items: center;
+
+          .pf-chatbot__message-bar-placeholder {
+            position: absolute;
+            pointer-events: none;
+            color: #aaa;
+            font-style: italic;
+          }
+
+          .pf-chatbot__message-textarea {
+            width: 100%;
+            outline: none;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            color: #333;
+            min-height: 24px;
+          }
+        }
+
+        .pf-chatbot__message-bar-actions {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+
+            &:hover {
+              background: #f5f5f5;
+            }
+
+            svg {
+              width: 20px;
+              height: 20px;
+              fill: #666;
+            }
+          }
+        }
+      }
+
+      .pf-chatbot__footnote {
+        text-align: center;
+        font-size: 0.75rem;
+        color: #666;
+      }
+    }
+
+    // Scrollbar styling (optional)
+    &__content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &__content::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 3px;
+    }
+
+    &__content::-webkit-scrollbar-track {
+      background: #f2f2f2;
+    }
+  }
+}
+
+.chatbot-ui-page {
+  .pf-v6-c-page__main {
+    overflow: hidden;
+  }
+  @media screen and (max-width: 900px) {
+    --pf-v6-c-page__main-container--MaxHeight: 100%;
+  }
+  .pf-v6-c-page__main-container {
+    @media screen and (min-width: 1024px) {
+      border-top: 0px;
+    }
+    @media screen and (max-width: 900px) {
+      --pf-v6-c-page__main-container--MarginInlineStart: 0;
+      --pf-v6-c-page__main-container--MarginInlineEnd: 0;
+      --pf-v6-c-page__main-container--BorderWidth: 0;
+      --pf-v6-c-page__main-container--BorderColor: initial;
+      --pf-v6-c-page__main-container--BorderRadius: none;
+    }
+  }
+}
+
+.pf-chatbot--embedded .pf-chatbot__messagebox {
+  width: 100%;
+}
