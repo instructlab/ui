@@ -3,6 +3,8 @@
 
 # Helper script to filter out `.env`` values related to umami deployment, and generate the secret manifest from that
 
+# Requires: kubectl, yq
+
 source .env
 
 if [ "$#" -ne 2 ]; then
@@ -45,6 +47,8 @@ if [[ ${#missing_vars[@]} -gt 0 ]]; then
   exit 1
 fi
 
+cluster_domain=$(kubectl cluster-info | grep 'Kubernetes control plane' | awk -F// '{print $2}' | awk -F: '{print $1}')
+
 # Note: `.env` value  UMAMI_APP_SECRET is re-routed to APP_SECRET intentionally
 kubectl create secret generic umami-secret \
   --from-literal DATABASE_TYPE=${DATABASE_TYPE} \
@@ -56,5 +60,7 @@ kubectl create secret generic umami-secret \
   --namespace ${NAMESPACE} \
   --dry-run=client \
   -o yaml > ${UMAMI_SECRET_FILE_PATH}
+
+yq eval ".metadata.labels.cluster_domain = \"${cluster_domain}\"" -i ${UMAMI_SECRET_FILE_PATH}
 
 echo "Secret manifest has been created: ${UMAMI_SECRET_FILE_PATH}."

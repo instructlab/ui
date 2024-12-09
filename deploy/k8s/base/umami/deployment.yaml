@@ -35,11 +35,6 @@ spec:
               command: ["pg_isready"]
             initialDelaySeconds: 5
             periodSeconds: 10
-          readinessProbe:
-            exec:
-              command: ["pg_isready"]
-            initialDelaySeconds: 5
-            periodSeconds: 10
           volumeMounts:
             - name: db-data
               mountPath: /var/lib/postgresql/data
