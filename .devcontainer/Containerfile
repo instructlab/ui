@@ -12,62 +12,82 @@ USER root
 
 RUN umask 0002 
 
-# install zsh and oh-my-zsh
+# DEVX: install zsh, oh-my-zsh, vim, jq
 RUN dnf install -y zsh && \
-    bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash && \
+    sed -i '/^default:/s|:/bin/bash|:/bin/zsh|' /etc/passwd && \
+    dnf install -y vim jq
 
+ENV ZSH_DISABLE_COMPFIX="true"
+
+# npm configs + perms
 RUN groupadd npm && \
     usermod -a -G npm ${USERNAME} && \
-    bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) && \
+    usermod -a -G npm root && \
     chown -R ${USERNAME}:npm /usr/local/ && \
-    mkdir -p /opt/app-root/src/.npm && chown -R ${USERNAME}:npm /opt/app-root/src/ && \
-    dnf install -y vim jq
+    mkdir -p /opt/app-root/src/.npm && chown -R ${USERNAME}:npm /opt/app-root/src/ 
 
 # install kubectl
 ADD install-kubectl.sh /tmp
 RUN /tmp/install-kubectl.sh; \
     rm /tmp/install-kubectl.sh
     
-# install kubseal
-ADD install-kubeseal.sh /tmp
-RUN /tmp/install-kubeseal.sh; \
-    rm /tmp/install-kubeseal.sh
+# # install kubseal
+# ADD install-kubeseal.sh /tmp
+# RUN /tmp/install-kubeseal.sh; \
+#     rm /tmp/install-kubeseal.sh
 
-# install docker as a dependency of kind
-# only need the CLI and runtime, binding to host docker socket for access to host docker context
-RUN dnf -y install dnf-plugins-core; \
-    dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo; \
-    dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+# # # install docker as a dependency of kind
+# # # only need the CLI and runtime, binding to host docker socket for access to host docker context
+# RUN dnf -y install dnf-plugins-core; \
+#     dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo; \
+#     dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# install kind
-ADD install-kind.sh /tmp
-RUN /tmp/install-kind.sh; \
-    rm /tmp/install-kind.sh
+# # install kind
+# ADD install-kind.sh /tmp
+# RUN /tmp/install-kind.sh; \
+#     rm /tmp/install-kind.sh
 
-# symlink oc because cannot install stable stream without RH auth
-RUN ln -sf /usr/local/bin/kubectl /usr/local/bin/oc 
+# # symlink oc because cannot install stable stream without RH auth
+# RUN ln -sf /usr/local/bin/kubectl /usr/local/bin/oc 
 
-USER default
+# USER default
 
-RUN umask 0002 && \
-    mkdir -p ${NPM_GLOBAL} && \
-    touch /usr/local/etc/npmrc 
+# ADD shell-completions.sh /tmp
+# RUN /tmp/shell-completions.sh && \
+#     zsh -c "source ~/.zshrc"
 
-USER root
+# RUN umask 0002 && \
+#     mkdir -p ${NPM_GLOBAL} && \
+#     touch /usr/local/etc/npmrc 
 
-RUN chown ${USERNAME}:npm ${NPM_GLOBAL} /usr/local/etc/npmrc && \
-    chmod g+s ${NPM_GLOBAL}  && \
-    npm config -g set prefix ${NPM_GLOBAL} 
+# USER root
 
-USER default
+# RUN chown ${USERNAME}:npm ${NPM_GLOBAL} /usr/local/etc/npmrc && \
+#     chmod g+s ${NPM_GLOBAL}  && \
+#     npm config -g set prefix ${NPM_GLOBAL} 
 
-ARG NODE_MODULES="tslint-to-eslint-config typescript"
-RUN npm install -g eslint && \
-    npm install -g ${NODE_MODULES} && \
-    npm cache clean --force > /dev/null 2>&1
+# # install linting tools
+# RUN dnf install -y python3-pip
 
-WORKDIR /workspaces/ui
+# RUN bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) && \
+#     mv /opt/app-root/src/actionlint /usr/local/bin
 
-ENTRYPOINT ["npm", "install"]
+# USER default
 
-EXPOSE 3000/tcp
+# RUN pip install yamllint
+
+# ARG NODE_MODULES="tslint-to-eslint-config typescript"
+# RUN npm install -g eslint && \
+#     npm install -g markdownlint-cli2 && \
+#     npm install -g ${NODE_MODULES} && \
+#     npm cache clean --force > /dev/null 2>&1
+
+# WORKDIR /workspaces/ui
+
+# # ENTRYPOINT ["/tmp/shell-completions.sh", "&&", "source /opt/app-root/.zshrc", "&&", "npm", "install"]
+# # ENTRYPOINT ["source /opt/app-root/.zshrc", "&&", "npm", "install"]
+# ENTRYPOINT ["npm", "install"]
+
+# EXPOSE 3000/tcp
+# EXPOSE 6443/tcp

@@ -25,6 +25,8 @@ if [ -z "$KUBESEAL_VERSION" ]; then
 fi
 
 curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-linux-${ARCH}.tar.gz"
-tar -xvzf kubeseal-${KUBESEAL_VERSION}-linux-${ARCH}.tar.gz kubeseal
-install -m 755 kubeseal /usr/local/bin/kubeseal
+tar -xvzf "kubeseal-${KUBESEAL_VERSION}-linux-${ARCH}.tar.gz" kubeseal
+chmod 755 kubeseal 
+mv kubeseal /usr/local/bin/kubeseal
 kubeseal completion zsh > ~/.oh-my-zsh/cache/completions/_kubeseal
+rm "kubeseal-${KUBESEAL_VERSION}-linux-${ARCH}.tar.gz"

@@ -18,6 +18,4 @@ echo "Installing kubectl version $KUBECTL_VERSION for $ARCH..."
 curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl"
 chmod +x kubectl
 mv kubectl /usr/local/bin/
-kubectl completion zsh > $ZSH/cache/completions/_kubectl
-
-curl -sLO https://access.cdn.redhat.com/content/origin/files/sha256/99/99f0ecb5477ed1a038e7279252971b4c5d50fa9a877f78610b7d4e4ee02e0589/openshift-client-linux-amd64-rhel9-4.17.6.tar.gz
+kubectl completion zsh > /opt/app-root/src/.oh-my-zsh/cache/completions/_kubectl

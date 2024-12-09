@@ -32,7 +32,7 @@ md-lint: ## Lint markdown files
 .PHONY: action-lint
 action-lint:  ## Lint GitHub Action workflows
 	$(ECHO_PREFIX) printf "  %-12s .github/...\n" "[ACTION LINT]"
-	$(CMD_PREFIX) if ! which actionlint $(PIPE_DEV_NULL) ; then \
+	$(CMD_PREFIX) if ! command -v actionlint $(PIPE_DEV_NULL) ; then \
 		echo "Please install actionlint." ; \
 		echo "go install github.com/rhysd/actionlint/cmd/actionlint@latest" ; \
 		exit 1 ; \
@@ -41,7 +41,7 @@ action-lint:  ## Lint GitHub Action workflows
 
 .PHONY: yaml-lint
 yaml-lint: ## Lint yaml files
-	$(CMD_PREFIX) if ! which yamllint >/dev/null 2>&1; then \
+	$(CMD_PREFIX) if ! command -v yamllint >/dev/null 2>&1; then \
 		echo "Please install yamllint." ; \
 		echo "See: https://yamllint.readthedocs.io/en/stable/quickstart.html" ; \
 		exit 1 ; \
@@ -98,7 +98,7 @@ start-dev-podman:  ## Start UI development stack in podman
 ##@ Kubernetes - Kind cluster based dev environment
 .PHONY: check-kind
 check-kind:
-	$(CMD_PREFIX) if [ -z "$(shell which kind)" ]; then \
+	$(CMD_PREFIX) if [ -z "$(shell command -v kind)" ]; then \
 		echo "Please install kind and then start the kind dev environment." ; \
 		echo "https://kind.sigs.k8s.io/" ; \
 		exit 1 ; \
@@ -106,7 +106,7 @@ check-kind:
 
 .PHONY: check-kubectl
 check-kubectl:
-	$(CMD_PREFIX) if [ -z "$(shell which kubectl)" ]; then \
+	$(CMD_PREFIX) if [ -z "$(shell command -v kubectl)" ]; then \
 		echo "Please install kubectl" ; \
 		echo "https://kubernetes.io/docs/tasks/tools/#kubectl" ; \
 		exit 1 ; \
@@ -114,7 +114,7 @@ check-kubectl:
 
 .PHONY: check-kubeseal
 check-kubeseal:
-	$(CMD_PREFIX) if [ -z "$(shell which kubeseal)" ]; then \
+	$(CMD_PREFIX) if [ -z "$(shell command -v kubeseal)" ]; then \
 		echo "Please install kubeseal" ; \
 		echo "https://github.com/bitnami-labs/sealed-secrets?tab=readme-ov-file#kubeseal" ; \
 		exit 1 ; \
@@ -247,5 +247,4 @@ cycle-dev-container:
 		echo "removing image with id $$image_id and all containers using that image ..."; \
 		${CONTAINER_ENGINE} rmi $$image_id -f; \
 	fi;
-	$(MAKE) build-dev-container
 	$(MAKE) start-dev-container
