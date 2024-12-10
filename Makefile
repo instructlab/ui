@@ -16,6 +16,8 @@ else
     PIPE_DEV_NULL=
 endif
 
+#add an alias between kubectl and oc
+OC := $(shell command -v oc 2>/dev/null || echo kubectl)
 ILAB_KUBE_CONTEXT?=kind-instructlab-ui
 ILAB_KUBE_NAMESPACE?=instructlab
 ILAB_KUBE_CLUSTER_NAME?=instructlab-ui
@@ -216,17 +218,17 @@ deploy-qa-openshift: ## Deploy QA stack of the InstructLab UI on OpenShift
 		exit 1 ; \
 	fi
 	$(CMD_PREFIX) yes | cp -rf .env ./deploy/k8s/overlays/openshift/qa/.env
-	$(CMD_PREFIX) oc apply -k ./deploy/k8s/overlays/openshift/qa
-	$(CMD_PREFIX) oc wait --for=condition=Ready pods -n $(ILAB_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=ui --timeout=15m
+	$(CMD_PREFIX) $(OC) apply -k ./deploy/k8s/overlays/openshift/qa
+	$(CMD_PREFIX) $(OC) wait --for=condition=Ready pods -n $(ILAB_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=ui --timeout=15m
 
 .PHONY: redeploy-qa-openshift
 redeploy-qa-openshift: ## Redeploy QA stack of the InstructLab UI on OpenShift
-	$(CMD_PREFIX) oc -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
-	$(CMD_PREFIX) oc -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
+	$(CMD_PREFIX) $(OC) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
+	$(CMD_PREFIX) $(OC) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
 
 .PHONY: undeploy-qa-openshift
 undeploy-qa-openshift: ## Undeploy QA stack of the InstructLab UI on OpenShift
-	$(CMD_PREFIX) oc delete -k ./deploy/k8s/overlays/openshift/qa
+	$(CMD_PREFIX) $(OC) delete -k ./deploy/k8s/overlays/openshift/qa
 	$(CMD_PREFIX) if [ -f ./deploy/k8s/overlays/openshift/qa/.env ]; then \
 		rm ./deploy/k8s/overlays/openshift/qa/.env ; \
 	fi
@@ -237,20 +239,21 @@ deploy-umami-qa-openshift:
 		echo "Please create a .env file in the root of the project." ; \
 		exit 1 ; \
 	fi
-	$(CMD_PREFIX) oc create namespace $(UMAMI_KUBE_NAMESPACE) --dry-run=client -o yaml | oc apply -f -
+	$(CMD_PREFIX) $(OC) create namespace $(UMAMI_KUBE_NAMESPACE) --dry-run=client -o yaml | $(OC) apply -f -
 	$(CMD_PREFIX) source .env && \
 		deploy/k8s/base/umami/deploy-umami-openshift-env-secret-conversion.sh OPENSHIFT $(UMAMI_KUBE_NAMESPACE)
-	$(CMD_PREFIX) oc apply -f ./deploy/k8s/overlays/openshift/umami/umami-secret.yaml
-	$(CMD_PREFIX) oc apply -k ./deploy/k8s/overlays/openshift/umami
-	$(CMD_PREFIX) oc wait --for=condition=Ready pods -n $(UMAMI_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=umami --timeout=15m
-	@umami_route=$$(oc get route umami -n $(UMAMI_KUBE_NAMESPACE) | tail -n 1 | awk '{print $$2}') ; \
+	$(CMD_PREFIX) $(OC) apply -f ./deploy/k8s/overlays/openshift/umami/umami-secret.yaml
+	$(CMD_PREFIX) $(OC) apply -k ./deploy/k8s/overlays/openshift/umami
+	echo "Waiting for Umami Deployment (pods: postgresql and umami) ..."
+	$(CMD_PREFIX) $(OC) wait --for=condition=Ready pods -n $(UMAMI_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=umami --timeout=15m
+	@umami_route=$$($(OC) get route umami -n $(UMAMI_KUBE_NAMESPACE) | tail -n 1 | awk '{print $$2}') ; \
 	echo "Umami route deployed to: $$umami_route"
 
 .PHONY: undeploy-umami-qa-openshift
 undeploy-umami-qa-openshift:
-	$(CMD_PREFIX) oc scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
-	$(CMD_PREFIX) oc delete -f ./deploy/k8s/overlays/openshift/umami/umami-secret.yaml
-	$(CMD_PREFIX) oc delete -k ./deploy/k8s/overlays/openshift/umami
+	$(CMD_PREFIX) $(OC) scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
+	$(CMD_PREFIX) $(OC) delete -f ./deploy/k8s/overlays/openshift/umami/umami-secret.yaml
+	$(CMD_PREFIX) $(OC) delete -k ./deploy/k8s/overlays/openshift/umami
 
 .PHONY: deploy-prod-openshift
 deploy-prod-openshift: ## Deploy production stack of the InstructLab UI on OpenShift
@@ -259,18 +262,18 @@ deploy-prod-openshift: ## Deploy production stack of the InstructLab UI on OpenS
 		exit 1 ; \
 	fi
 	$(CMD_PREFIX) yes | cp -rf .env ./deploy/k8s/overlays/openshift/prod/.env
-	$(CMD_PREFIX) oc apply -k ./deploy/k8s/overlays/openshift/prod
-	$(CMD_PREFIX) oc wait --for=condition=Ready pods -n $(ILAB_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=ui --timeout=15m
+	$(CMD_PREFIX) $(OC) apply -k ./deploy/k8s/overlays/openshift/prod
+	$(CMD_PREFIX) $(OC) wait --for=condition=Ready pods -n $(ILAB_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=ui --timeout=15m
 
 .PHONY: redeploy-prod-openshift
 redeploy-prod-openshift: ## Redeploy production stack of the InstructLab UI on OpenShift
-	$(CMD_PREFIX) oc -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
-	$(CMD_PREFIX) oc -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
+	$(CMD_PREFIX) $(OC) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
+	$(CMD_PREFIX) $(OC) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
 
 
 .PHONY: undeploy-prod-openshift
 undeploy-prod-openshift: ## Undeploy production stack of the InstructLab UI on OpenShift
-	$(CMD_PREFIX) oc delete -k ./deploy/k8s/overlays/openshift/prod
+	$(CMD_PREFIX) $(OC) delete -k ./deploy/k8s/overlays/openshift/prod
 	$(CMD_PREFIX) if [ -f ./deploy/k8s/overlays/openshift/prod/.env ]; then \
 		rm ./deploy/k8s/overlays/openshift/prod/.env ; \
 	fi
@@ -281,23 +284,25 @@ deploy-umami-prod-openshift: check-kubeseal check-sealed-secrets-controller
 		echo "Please create a .env file in the root of the project." ; \
 		exit 1 ; \
 	fi
-	$(CMD_PREFIX) oc create namespace $(UMAMI_KUBE_NAMESPACE) --dry-run=client -o yaml | oc apply -f -
+	$(CMD_PREFIX) $(OC) create namespace $(UMAMI_KUBE_NAMESPACE) --dry-run=client -o yaml | $(OC) apply -f -
 	$(CMD_PREFIX) source .env && \
 		deploy/k8s/base/umami/deploy-umami-openshift-env-secret-conversion.sh "OPENSHIFT" $(UMAMI_KUBE_NAMESPACE)
 	$(CMD_PREFIX) cat deploy/k8s/overlays/openshift/umami/umami-secret.yaml | kubeseal \
 		--controller-name=${SEALED_SECRETS_CONTROLLER_NAME} \
 		--controller-namespace=${SEALED_SECRETS_CONTROLLER_NAMESPACE} \
 		--format yaml > ./deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml
-	$(CMD_PREFIX) oc apply -f deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml
-	$(CMD_PREFIX) oc apply -k deploy/k8s/overlays/openshift/umami
-	@umami_route=$$(oc get route umami -n $(UMAMI_KUBE_NAMESPACE) | tail -n 1 | awk '{print $$2}') ; \
+	$(CMD_PREFIX) $(OC) apply -f deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml
+	$(CMD_PREFIX) $(OC) apply -k deploy/k8s/overlays/openshift/umami
+	echo "Waiting for Umami Deployment (pods: postgresql and umami) ..."
+	$(CMD_PREFIX) $(OC) wait --for=condition=Ready pods -n $(UMAMI_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=umami --timeout=15m
+	@umami_route=$$($(OC) get route umami -n $(UMAMI_KUBE_NAMESPACE) | tail -n 1 | awk '{print $$2}') ; \
 	echo "Umami route deployed to: $$umami_route"
 
 .PHONY: undeploy-umami-prod-openshift
 undeploy-umami-prod-openshift:
-	$(CMD_PREFIX) oc scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
-	$(CMD_PREFIX) oc delete -f ./deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml
-	$(CMD_PREFIX) oc delete -k ./deploy/k8s/overlays/openshift/umami
+	$(CMD_PREFIX) $(OC) scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
+	$(CMD_PREFIX) $(OC) delete -f ./deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml
+	$(CMD_PREFIX) $(OC) delete -k ./deploy/k8s/overlays/openshift/umami
 
 .PHONY: check-dev-container-installed
 check-dev-container-installed:
