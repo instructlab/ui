@@ -144,8 +144,8 @@ check-yq:
 load-images: ## Load images onto Kind cluster
 	$(CMD_PREFIX) docker pull ghcr.io/instructlab/ui/ui:main
 	$(CMD_PREFIX) kind load --name $(ILAB_KUBE_CLUSTER_NAME) docker-image ghcr.io/instructlab/ui/ui:main
-	$(CMD_PREFIX) docker pull registry.redhat.io/rhel9/postgresql-15:9.5-1733127512
-	$(CMD_PREFIX) kind load --name $(ILAB_KUBE_CLUSTER_NAME) docker-image registry.redhat.io/rhel9/postgresql-15:9.5-1733127512
+	$(CMD_PREFIX) docker pull postgres:15-alpine
+	$(CMD_PREFIX) kind load --name $(ILAB_KUBE_CLUSTER_NAME) docker-image postgres:15-alpine
 
 .PHONY: stop-dev-kind
 stop-dev-kind: check-kind ## Stop the Kind cluster to destroy the development environment
@@ -197,15 +197,16 @@ deploy-umami-kind: wait-for-readiness load-images
 		deploy/k8s/base/umami/deploy-umami-openshift-env-secret-conversion.sh KIND $(UMAMI_KUBE_NAMESPACE)"
 	$(CMD_PREFIX) kubectl create -f ./deploy/k8s/overlays/kind/umami/umami-secret.yaml
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) apply -k ./deploy/k8s/overlays/kind/umami
+	$(CMD_PREFIX) echo "Waiting for Umami Deployment (pods: postgresql and umami) ..."
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) wait --for=condition=Ready pods -n $(UMAMI_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=umami --timeout=15m
-	@umami_ingress=$$(kubectl get ingress umami-ingress -n umami -o jsonpath='{.spec.rules[*].host}') ; \
-	echo "Umami ingress deployed to: $$umami_ingress"
+	$(CMD_PREFIX) umami_ingress=$$(kubectl get ingress umami-ingress -n umami -o jsonpath='{.spec.rules[*].host}') ; \
+    echo "Umami ingress deployed to: $$umami_ingress"
 
 .PHONY: undeploy-umami-kind
 undeploy-umami-kind:
-	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
-	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete -f ./deploy/k8s/overlays/kind/umami/umami-secret.yaml
-	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete -k ./deploy/k8s/overlays/kind/umami	
+	-$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
+	-$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete -f ./deploy/k8s/overlays/kind/umami/umami-secret.yaml
+	-$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete -k ./deploy/k8s/overlays/kind/umami
 
 .PHONY: start-dev-kind ## Run the development environment on Kind cluster
 start-dev-kind: setup-kind load-images deploy ## Setup a Kind cluster and deploy InstructLab UI on it
@@ -244,16 +245,16 @@ deploy-umami-qa-openshift:
 		deploy/k8s/base/umami/deploy-umami-openshift-env-secret-conversion.sh OPENSHIFT $(UMAMI_KUBE_NAMESPACE)
 	$(CMD_PREFIX) $(OC) apply -f ./deploy/k8s/overlays/openshift/umami/umami-secret.yaml
 	$(CMD_PREFIX) $(OC) apply -k ./deploy/k8s/overlays/openshift/umami
-	echo "Waiting for Umami Deployment (pods: postgresql and umami) ..."
+	$(CMD_PREFIX) echo "Waiting for Umami Deployment (pods: postgresql and umami) ..."
 	$(CMD_PREFIX) $(OC) wait --for=condition=Ready pods -n $(UMAMI_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=umami --timeout=15m
-	@umami_route=$$($(OC) get route umami -n $(UMAMI_KUBE_NAMESPACE) | tail -n 1 | awk '{print $$2}') ; \
+	$(CMD_PREFIX) umami_route=$$($(OC) get route umami -n $(UMAMI_KUBE_NAMESPACE) | tail -n 1 | awk '{print $$2}') ; \
 	echo "Umami route deployed to: $$umami_route"
 
 .PHONY: undeploy-umami-qa-openshift
 undeploy-umami-qa-openshift:
-	$(CMD_PREFIX) $(OC) scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
-	$(CMD_PREFIX) $(OC) delete -f ./deploy/k8s/overlays/openshift/umami/umami-secret.yaml
-	$(CMD_PREFIX) $(OC) delete -k ./deploy/k8s/overlays/openshift/umami
+	-$(CMD_PREFIX) $(OC) scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
+	-$(CMD_PREFIX) $(OC) delete -f ./deploy/k8s/overlays/openshift/umami/umami-secret.yaml
+	-$(CMD_PREFIX) $(OC) delete -k ./deploy/k8s/overlays/openshift/umami
 
 .PHONY: deploy-prod-openshift
 deploy-prod-openshift: ## Deploy production stack of the InstructLab UI on OpenShift
@@ -269,7 +270,6 @@ deploy-prod-openshift: ## Deploy production stack of the InstructLab UI on OpenS
 redeploy-prod-openshift: ## Redeploy production stack of the InstructLab UI on OpenShift
 	$(CMD_PREFIX) $(OC) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
 	$(CMD_PREFIX) $(OC) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
-
 
 .PHONY: undeploy-prod-openshift
 undeploy-prod-openshift: ## Undeploy production stack of the InstructLab UI on OpenShift
@@ -293,16 +293,16 @@ deploy-umami-prod-openshift: check-kubeseal check-sealed-secrets-controller
 		--format yaml > ./deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml
 	$(CMD_PREFIX) $(OC) apply -f deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml
 	$(CMD_PREFIX) $(OC) apply -k deploy/k8s/overlays/openshift/umami
-	echo "Waiting for Umami Deployment (pods: postgresql and umami) ..."
+	$(CMD_PREFIX) echo "Waiting for Umami Deployment (pods: postgresql and umami) ..."
 	$(CMD_PREFIX) $(OC) wait --for=condition=Ready pods -n $(UMAMI_KUBE_NAMESPACE) --all -l app.kubernetes.io/part-of=umami --timeout=15m
-	@umami_route=$$($(OC) get route umami -n $(UMAMI_KUBE_NAMESPACE) | tail -n 1 | awk '{print $$2}') ; \
+	$(CMD_PREFIX) umami_route=$$($(OC) get route umami -n $(UMAMI_KUBE_NAMESPACE) | tail -n 1 | awk '{print $$2}') ; \
 	echo "Umami route deployed to: $$umami_route"
 
 .PHONY: undeploy-umami-prod-openshift
 undeploy-umami-prod-openshift:
-	$(CMD_PREFIX) $(OC) scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
-	$(CMD_PREFIX) $(OC) delete -f ./deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml
-	$(CMD_PREFIX) $(OC) delete -k ./deploy/k8s/overlays/openshift/umami
+	-$(CMD_PREFIX) $(OC) scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
+	-$(CMD_PREFIX) $(OC) delete -f ./deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml
+	-$(CMD_PREFIX) $(OC) delete -k ./deploy/k8s/overlays/openshift/umami
 
 .PHONY: check-dev-container-installed
 check-dev-container-installed:

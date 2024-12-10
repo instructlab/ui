@@ -5,7 +5,7 @@ Introduction
 ## Deployment
 
 Umami is meant to work with either a `mysql` or `postgresql` DB backend. For now we only provide manifests and options for PostgreSQL,
-but if the need arises we will extend this to work with either. 
+but if the need arises we will extend this to work with either.
 
 ### Required ENV values
 
@@ -16,21 +16,25 @@ but best security practices are to set it.
 Also, we have chosen to use `UMAMI_APP_SECRET` in the `.env` file but in the deployment process this gets mapped to `APP_SECRET`. We chose this
 pattern because it brings clarity to what the variable does in the context of the `.env` file.
 
-|---------------------|---------------------------------------------------------------------------|----------------------------------------------------|
-| Variable            | Description                                                               | Example Value                                      |
-|---------------------|---------------------------------------------------------------------------|----------------------------------------------------|
-| UMAMI_APP_SECRET    | Used as Hash Salt for the Database                                        | YbSbtb                                             |
-| DATABASE_TYPE       | Type of Database to use with Umami. Only `postgresql` currently supported | postgresql                                         |
-| POSTGRESQL_DATABASE | Name of the database backend for Umami                                    | db-name                                            |
-| POSTGRESQL_USER     | Name of the user of the database for Umami                                | db-user                                            |
-| POSTGRESQL_PASSWORD | Password for the user of the database for Umami                           | db-pass                                            |
-| DATABASE_URL        | The URL the Umami pod will use to access the DB                           | postgresql://db-user:db-pass@umami-db:5432/db-name |
-|---------------------|---------------------------------------------------------------------------|----------------------------------------------------|
+
+| Variable                | Description                                                               | Example Value                                      |
+|-------------------------|---------------------------------------------------------------------------|----------------------------------------------------|
+| UMAMI_APP_SECRET        | Used as Hash Salt for the Database                                        | YbSbtb                                             |
+| DATABASE_TYPE           | Type of Database to use with Umami. Only `postgresql` currently supported | postgresql                                         |
+| UMAMI_DATABASE_NAME     | Name of the database backend for Umami                                    | db-name                                            |
+| UMAMI_DATABASE_USER     | Name of the user of the database for Umami                                | db-user                                            |
+| UMAMI_DATABASE_PASSWORD | Password for the user of the database for Umami                           | db-pass                                            |
+| DATABASE_URL            | The URL the Umami pod will use to access the DB                           | postgresql://db-user:db-pass@umami-db:5432/db-name |
+
 
 > [!IMPORTANT]
 > The `DATABASE_URL` is derrived from the other variables plus the [name of the service](../deploy/k8s/base/umami/postgresql-service.yaml#L4) used in deployment.
+> The env variables `UMAMI_DATABASE_NAME`, `UMAMI_DATABASE_USER` and `UMAMI_DATABASE_PASSWORD` get mapped to the environment variables for the container image
+> used based the environment.
+> For `kind` these are `POSTGRES_DB`, `POSTGRES_USER` and `POSTGRES_PASSWORD` respectively.
+> For `openshift` environment these are `POSTGRESQL_DATABASE`, `POSTGRESQL_NAME` and `POSTGRESQL_PASSWORD` respectively.
 
-Place those required variables in the `.env` file in the root of the repo. 
+Place those required variables in the `.env` file in the root of the repo.
 
 ### Deployment Manifest Notes
 
@@ -48,9 +52,9 @@ Make targets are our prefered method of deployment.
 This section will cover how the make targets work and how they differ per environment. The umami deployment `make` targets for all 3 environments use a
 [conversion script](./deploy/k8s/overlays/kind/umami/umami-secret.yaml) to parse values out of the `.env` file, into their own secret created in the
 respective overlay directory (`deploy/k8s/overlays`). These secrets will be ignored in `git` and are not included in their respective `kustomization.yaml`
-overlay files - they must be applied indivdually. This is done because for the Ilab-teams hosted deployments (https://ui.instructlab.ai/ and https://qa.ui.instructlab.ai/)
-we want to track those manifests in `git` via an encrypted sealed-secret, but also allow the deployment to work out of the box for people trying to self-deploy the stack.
-This creates a straightforward experience for both developers and maintainers.
+overlay files - they must be applied indivdually. This is done because for the Ilab-teams hosted deployments ([ui.instructlab.ai](https://ui.instructlab.ai/)
+and [qa.ui.instructlab.ai](https://qa.ui.instructlab.ai/)) we want to track those manifests in `git` via an encrypted sealed-secret, but also allow the
+deployment to work out of the box for people trying to self-deploy the stack.This creates a straightforward experience for both developers and maintainers.
 
 #### Kind
 
@@ -61,12 +65,16 @@ After your kind cluster has been started (`make setup-kind`), you can use `make 
 The umami-secret will be created at path `deploy/k8s/overlays/kind/umami/umami-secret.yaml`, and deploy it, along with the `./deploy/k8s/overlays/kind/umami`
 overlay manifests. Finally it will wait for the pods to rollout and then preform portforwarding on port `3001` for the Umami service.
 
+It should be noted that `kind` deployment uses the base manifest's `postgres:15-alpine` database image, with its respective `env` values: `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD`.
+
 #### QA
 
 Command: `make deploy-umami-qa-openshift`
 
 This will create the umami-secret at path `deploy/k8s/overlays/openshift/umami/umami-secret.yaml`. This is very similar to the `kind` umami deployment target
 except that it will deploy a `route` instead of an ingress.
+
+It should be noted that `qa-openshift` deployment uses the base manifest's `registry.redhat.io/rhel9/postgresql-15:9.5-1733127512` database image, with its respective `env` values: `POSTGRESQL_DATABASE`, `POSTGRESQL_NAME`, and `POSTGRESQL_PASSWORD`.
 
 #### Prod
 
@@ -78,6 +86,8 @@ secrets controller name, make sure to update the `SEALED_SECRETS_CONTROLLER_NAME
 [Makefile](../Makefile#L27-28). If successful, this will encrypt the secret to create the
 [umami-secret.sealedsecret.yaml](../deploy/k8s/overlays/openshift/umami/umami-secret.sealedsecret.yaml) which can safely get tracked in `git`. Finally,
 it will apply the sealed secret and the rest of the manifests.
+
+It should be noted that `prod-openshift` deployment uses the base manifest's `registry.redhat.io/rhel9/postgresql-15:9.5-1733127512` database image, with its respective `env` values: `POSTGRESQL_DATABASE`, `POSTGRESQL_NAME`, and `POSTGRESQL_PASSWORD`.
 
 ## Administration
 

@@ -5,7 +5,9 @@
 
 # Requires: kubectl, yq
 
-source .env
+if [ -f ".env" ]; then
+  source .env
+fi
 
 if [ "$#" -ne 2 ]; then
     echo "USAGE: $0 TARGET NAMESPACE
@@ -17,18 +19,23 @@ fi
 TARGET="$1"
 NAMESPACE="$2"
 
-
 if [ "${TARGET}" == "OPENSHIFT" ]; then
   UMAMI_SECRET_FILE_PATH="deploy/k8s/overlays/openshift/umami/umami-secret.yaml"
+  UMAMI_DATABASE_NAME_KEY_NAME=POSTGRESQL_DATABASE
+  UMAMI_DATABASE_USER_KEY_NAME=POSTGRESQL_USER
+  UMAMI_DATABASE_PASSWORD_KEY_NAME=POSTGRESQL_PASSWORD
 elif [ "${TARGET}" == "KIND" ]; then
   UMAMI_SECRET_FILE_PATH="deploy/k8s/overlays/kind/umami/umami-secret.yaml"
+  UMAMI_DATABASE_NAME_KEY_NAME=POSTGRES_DB
+  UMAMI_DATABASE_USER_KEY_NAME=POSTGRES_USER
+  UMAMI_DATABASE_PASSWORD_KEY_NAME=POSTGRES_PASSWORD
 else
   echo "Error, \$TARGET ${TARGET} not recongnized.
     TARGET options: [\"OPENSHIFT\", \"KIND\"]"
   exit 1
 fi
 
-required_vars=("DATABASE_TYPE" "POSTGRESQL_DATABASE" "POSTGRESQL_USER" "POSTGRESQL_PASSWORD" "UMAMI_APP_SECRET" "DATABASE_URL")
+required_vars=("DATABASE_TYPE" "UMAMI_DATABASE_NAME" "UMAMI_DATABASE_USER" "UMAMI_DATABASE_PASSWORD" "UMAMI_APP_SECRET" "DATABASE_URL")
 
 missing_vars=()
 
@@ -52,9 +59,9 @@ cluster_domain=$(kubectl cluster-info | grep 'Kubernetes control plane' | awk -F
 # Note: `.env` value  UMAMI_APP_SECRET is re-routed to APP_SECRET intentionally
 kubectl create secret generic umami-secret \
   --from-literal DATABASE_TYPE=${DATABASE_TYPE} \
-  --from-literal POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE} \
-  --from-literal POSTGRESQL_USER=${POSTGRESQL_USER} \
-  --from-literal POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD} \
+  --from-literal ${UMAMI_DATABASE_NAME_KEY_NAME}=${UMAMI_DATABASE_NAME} \
+  --from-literal ${UMAMI_DATABASE_USER_KEY_NAME}=${UMAMI_DATABASE_USER} \
+  --from-literal ${UMAMI_DATABASE_PASSWORD_KEY_NAME}=${UMAMI_DATABASE_PASSWORD} \
   --from-literal APP_SECRET=${UMAMI_APP_SECRET} \
   --from-literal DATABASE_URL=${DATABASE_URL} \
   --namespace ${NAMESPACE} \

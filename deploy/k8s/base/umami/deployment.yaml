@@ -10,23 +10,23 @@ spec:
     spec:
       containers:
         - name: postgresql
-          image: registry.redhat.io/rhel9/postgresql-15:9.5-1733127512
+          image: postgres:15-alpine
           env:
-            - name: POSTGRESQL_DATABASE
+            - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
                   name: umami-secret
-                  key: POSTGRESQL_DATABASE
-            - name: POSTGRESQL_USER
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   name: umami-secret
-                  key: POSTGRESQL_USER
-            - name: POSTGRESQL_PASSWORD
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: umami-secret
-                  key: POSTGRESQL_PASSWORD
+                  key: POSTGRES_PASSWORD
           ports:
             - containerPort: 5432
               name: postgres
