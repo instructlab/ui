@@ -14,7 +14,7 @@ const Login: React.FunctionComponent = () => {
       try {
         const res = await fetch('/api/envConfig');
         const envConfig = await res.json();
-        setIsProd(envConfig.DEPLOYMENT_TYPE !== 'dev');
+        setIsProd(envConfig.DEPLOYMENT_TYPE === 'false');
       } catch (error) {
         console.error('Error fetching environment config:', error);
         setIsProd(true);

@@ -17,7 +17,7 @@ const GithubAccessPopup: React.FunctionComponent<Props> = ({ onAccept }) => {
     const showPopupWarning = async () => {
       const res = await fetch('/api/envConfig');
       const envConfig = await res.json();
-      if (envConfig.DEPLOYMENT_TYPE === 'dev') {
+      if (envConfig.DEPLOYMENT_TYPE === 'native' || envConfig.ENABLE_DEV_MODE === 'true') {
         setIsOpen(false);
         onAccept();
       } else {

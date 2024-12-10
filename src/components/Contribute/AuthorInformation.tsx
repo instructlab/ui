@@ -5,8 +5,8 @@ import { HelperText } from '@patternfly/react-core/dist/dynamic/components/Helpe
 import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { checkSkillFormCompletion } from './Skill/validation';
-import { checkKnowledgeFormCompletion } from './Knowledge/validation';
+import { checkSkillFormCompletion } from './Github/Skill/validation';
+import { checkKnowledgeFormCompletion } from './Github/Knowledge/validation';
 
 export enum FormType {
   Knowledge,

@@ -15,6 +15,7 @@ export async function GET() {
     UPSTREAM_REPO_OWNER: process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER || '',
     UPSTREAM_REPO_NAME: process.env.NEXT_PUBLIC_TAXONOMY_REPO || '',
     DEPLOYMENT_TYPE: process.env.IL_UI_DEPLOYMENT || '',
+    ENABLE_DEV_MODE: process.env.IL_ENABLE_DEV_MODE || '',
     EXPERIMENTAL_FEATURES: process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES || ''
   };
 

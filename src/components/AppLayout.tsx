@@ -98,13 +98,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     },
     isExperimentalEnabled && {
       path: '/experimental',
-      label: 'Experimental Features',
-      children: [
-        { path: '/experimental/dashboard-local/', label: 'Local Dashboard' },
-        { path: '/experimental/contribute-local/skill/', label: 'Local Skill' },
-        { path: '/experimental/contribute-local/knowledge/', label: 'Local Knowledge' },
-        { path: '/experimental/contribute-local/configuration-local/', label: 'Local Configuration' }
-      ]
+      label: 'Experimental Features'
     }
   ].filter(Boolean) as Route[];
 

@@ -2,54 +2,11 @@
 
 This is a [NextJS](https://nextjs.org) framework with [Patternfly](https://www.patternfly.org/get-started/develop/) UI library components.
 
-## Manually Running the React UI
-
-Set the .env in the ui directory and run the following:
-
-```bash
-cd ui/
-npm install
-npm run dev
-# or for prod
-npm run build
-npm run start
-```
-
-## Other helpful NPM Commands
-
-```bash
-# Run a production build (outputs to ".next" dir)
-npm run build
-
-# Start the Next.js server (run a production build)
-npm run start
-
-# Lint the project
-npm run lint
-
-# Automatically fix linting issues
-npm run lint:fix
-
-# Format code using Prettier
-npm run pretty
-
-# Run type checking
-npm run type-check
-
-```
-
-## Make scripts
+## Deploying the UI stack on your local machine
 
 Podman is a requirement. Install and init instructions [here](https://podman.io/docs/installation).
 
-```bash
-# Run markdown linter
-make md-lint
-```
-
-## Deploying the UI stack on your local machine
-
-Set the .env in the ui directory and make sure you uncomment the `IL_UI_DEPLOYMENT=dev`. Once .env file is setup, run the following:
+Set the .env in the ui directory and make sure you uncomment the `IL_ENABLE_DEV_MODE=true`. `IL_ENABLE_DEV_MODE` flag enables assistive features that help you automate the time consuming and repetitive tasks, such as filling skill and knowledge forms for testing. Once .env file is setup, run the following:
 
 ```bash
 make start-dev-local
@@ -84,7 +41,56 @@ make stop-dev-kind
 
 Use `make help` to see all the available commands.
 
-## OAuth Configuration
+## Manually Running the React UI
+
+Set the .env in the ui directory and run the following:
+
+```bash
+cd ui/
+npm install
+npm run dev
+# or for prod
+npm run build
+npm run start
+```
+
+### Other helpful NPM Commands
+
+```bash
+# Run a production build (outputs to ".next" dir)
+npm run build
+
+# Start the Next.js server (run a production build)
+npm run start
+
+# Lint the project
+npm run lint
+
+# Automatically fix linting issues
+npm run lint:fix
+
+# Format code using Prettier
+npm run pretty
+
+# Run type checking
+npm run type-check
+
+```
+
+UI stack supports two mode of deployments:
+
+- github - This is the default mode and it allows users to push their knowledge and skill contribution to the github taxonomy repository.
+- native - This mode allow users to keep the skill and knowledge contribution in their local machine.
+
+## Running the UI in Native Deployment Mode
+
+To enable the native mode, set the `IL_UI_DEPLOYMENT=native` in the .env file. Once the flag is set, the UI will not push the knowledge and skill contribution to the github repository. Instead, it will keep the contribution in the local machine. In the `native` mode, the UI login page will show username and password input box to authenticate the user. You can setup the username and password in the .env file through the `IL_UI_ADMIN_USERNAME` and `IL_UI_ADMIN_USERNAME` flags.
+
+## Running the UI in Github Deployment Mode
+
+To enable the github mode, set the `IL_UI_DEPLOYMENT=github` in the .env file. Once the flag is set, the UI will push the knowledge and skill contribution to the github taxonomy repository. In the `github` mode, the UI login page will show the github login button to authenticate the user.
+
+### OAuth Configuration for Github Deployment Mode
 
 You can either set up the Oauth app in your
 [GitHub](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app)
@@ -140,7 +146,7 @@ The chat interface should now use the server.
 
 ![enter image description here](../public/dev-local-chat-server/successful-chat.png)
 
-### How to Cherry-Pick a Merged PR to `release-1.0`
+## How to Cherry-Pick a Merged PR to `release-1.0`
 
 Until we finish automating releases, you may be asked to cherry-pick your PR after it is merged. Here are instructions for cherry-picking a merged Pull Request to the `release-1.0` branch.
 
@@ -223,7 +229,7 @@ If there are multiple commits associated with the PR, repeat this command for ea
 
 - Navigate to your GitHub repository and create a new Pull Request from your cherry-pick branch (`cherry-pick-pr-<PR-number>-release-1.0`) into the `release-1.0` branch.
 
-### How to Run Playwright tests locally
+## How to Run Playwright tests locally
 
 As a developer, you can add more integration (end to end tests) after you develop your feature. We use [playwright](https://playwright.dev/) as the automation test runner for executing integration tests on our app. To execute playwright tests locally run the following command:
 
@@ -252,7 +258,7 @@ The configuration for playwright tests is defined in `playwright.config` file an
 
 If you'd like to run a specific single test, use the following command with the appropriate folder path to your test. Example: `npx playwright test tests/routing.spec.ts`. To get a detailed report of the completed tests, run `npx playwright show-report` and you'll get a detailed view.
 
-### How to use the devcontainer
+## How to use the devcontainer
 
 ** NOTE: requires the `devcontainer` binary
 
@@ -285,6 +291,6 @@ This will generate the new encrypted sealed-secret manifest in the file you spec
 BE CERTAIN to delete the un-encrypted secret file, we do not want to leak these values in `git`. Finally you can move the `sealed-secret`
 to its correct location within this repo.
 
-### Common issues
+## Common issues
 
 - `error: cannot get sealed secret service: Unauthorized`: You must be signed in to the qa cluster to be able to communicate with the sealed secrets controller.
