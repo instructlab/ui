@@ -25,6 +25,7 @@ import UserMenu from './UserMenu/UserMenu';
 import { useSession } from 'next-auth/react';
 // import { useTheme } from '../context/ThemeContext';
 import { useState } from 'react';
+import '@/components/app.scss';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -103,7 +104,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         { path: '/experimental/dashboard-local/', label: 'Local Dashboard' },
         { path: '/experimental/contribute-local/skill/', label: 'Local Skill' },
         { path: '/experimental/contribute-local/knowledge/', label: 'Local Knowledge' },
-        { path: '/experimental/contribute-local/configuration-local/', label: 'Local Configuration' }
+        { path: '/experimental/contribute-local/configuration-local/', label: 'Local Configuration' },
+        { path: '/experimental/fine-tune/', label: 'Fine-tuning' },
+        { path: '/experimental/chat-eval/', label: 'Model Chat Eval' }
       ]
     }
   ].filter(Boolean) as Route[];

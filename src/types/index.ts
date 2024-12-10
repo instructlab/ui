@@ -5,7 +5,7 @@ export interface Endpoint {
   modelName: string;
 }
 
-export interface Message {
+export interface ChatMessage {
   text: string;
   isUser: boolean;
 }
