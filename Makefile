@@ -176,7 +176,6 @@ deploy: wait-for-readiness ## Deploy a InstructLab UI development stack onto a k
 redeploy: ui-image load-images ## Redeploy the InstructLab UI stack onto a kubernetes cluster
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
-	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n $(UMAMI_KUBE_NAMESPACE) rollout restart deploy/umami
 
 .PHONY: undeploy
 undeploy: ## Undeploy the InstructLab UI stack from a kubernetes cluster
@@ -184,7 +183,6 @@ undeploy: ## Undeploy the InstructLab UI stack from a kubernetes cluster
 		rm ./deploy/k8s/overlays/kind/.env ; \
 	fi
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete namespace $(ILAB_KUBE_NAMESPACE)
-	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete namespace $(UMAMI_KUBE_NAMESPACE)
 
 .PHONY: deploy-umami-kind
 deploy-umami-kind: wait-for-readiness load-images

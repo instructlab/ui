@@ -1,6 +1,8 @@
 # Umami metrics
 
-Introduction
+Umami is an open-source, privacy-focused web analytics tool that serves as an alternative to Google Analytics. It provides essential insights into website traffic,
+user behavior, and performance, all while prioritizing data privacy. We chose to use Umami as our perfered method of metrics collection and visualisation due to
+ability to support for self-hosted deployments, open-source nature, and ease of use. Check out [their docs](https://umami.is/docs) for more information.
 
 ## Deployment
 
@@ -16,7 +18,6 @@ but best security practices are to set it.
 Also, we have chosen to use `UMAMI_APP_SECRET` in the `.env` file but in the deployment process this gets mapped to `APP_SECRET`. We chose this
 pattern because it brings clarity to what the variable does in the context of the `.env` file.
 
-
 | Variable                | Description                                                               | Example Value                                      |
 |-------------------------|---------------------------------------------------------------------------|----------------------------------------------------|
 | UMAMI_APP_SECRET        | Used as Hash Salt for the Database                                        | YbSbtb                                             |
@@ -25,7 +26,6 @@ pattern because it brings clarity to what the variable does in the context of th
 | UMAMI_DATABASE_USER     | Name of the user of the database for Umami                                | db-user                                            |
 | UMAMI_DATABASE_PASSWORD | Password for the user of the database for Umami                           | db-pass                                            |
 | DATABASE_URL            | The URL the Umami pod will use to access the DB                           | postgresql://db-user:db-pass@umami-db:5432/db-name |
-
 
 > [!IMPORTANT]
 > The `DATABASE_URL` is derrived from the other variables plus the [name of the service](../deploy/k8s/base/umami/postgresql-service.yaml#L4) used in deployment.
