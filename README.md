@@ -42,6 +42,10 @@ Please subscribe to the InstructLab Community Calendar following the instruction
 
 Please subscribe to the InstructLab Slack workspace by following the instructions [here](https://github.com/instructlab/community/blob/main/Collaboration.md#chat). Once you are part of the workspace, you can join the `#ui` channel where most of the project related topics are discussed.
 
+## Discord channel
+
+You can also chat with us on Discord in the `#ui` channel! Join here: [InstructLab Discord](https://discord.gg/Fa6tRapUZ2)
+
 ## License
 
 [Apache 2.0](LICENSE)
