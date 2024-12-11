@@ -29,4 +29,5 @@ pathservice.pid
 playwright/.auth
 # dont track secrets in git
 deploy/k8s/overlays/kind/umami/umami-secret.yaml
-deploy/k8s/overlays/openshift/umami/umami-secret.yaml
+deploy/k8s/overlays/openshift/umami/qa/umami-secret.yaml
+deploy/k8s/overlays/openshift/umami/prod/umami-secret.yaml

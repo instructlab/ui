@@ -45,6 +45,9 @@ a vanila `curl`. In my testing with this `sleep` there are no crashes, but if yo
 create our own image from the `ghcr.io/umami-software/umami:postgresql-latest` and add networking tools to detect if the psql container is up to avoid
 annoying restart crashloops.
 
+It should also be noted that deployment times for Umami vary between environment. Deployments to `kind` can sometimes take up to 5 minutes, although
+this is certainly unusual. Deployments on `openshift` are typically a bit faster, taking up to 3 minutes at most.
+
 ### Make Targets
 
 Make targets are our prefered method of deployment.
@@ -98,3 +101,7 @@ goes down.
 
 Once teams and users are properly setup, setup a `site` for each environment we want to deploy. Once created it will provision a script tag to inject
 into the typescript code to start tracking metrics.
+
+To access the portal, navigate to the correct endpoint based on your deployment method:
+`kind`: `http://umami.localhost:80`
+`openshift`: `umami-umami.<cluster_domain>`. You can find the exact value by running: `oc get route umami -n umami -o jsonpath='{.spec.rules[*].host}'`

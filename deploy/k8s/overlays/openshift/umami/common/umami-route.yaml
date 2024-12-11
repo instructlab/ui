@@ -3,7 +3,10 @@ kind: Route
 metadata:
   name: umami
   labels:
-    name: umami
+    app.kubernetes.io/component: umami-web
+    app.kubernetes.io/instance: umami
+    app.kubernetes.io/name: umami
+    app.kubernetes.io/part-of: umami
 spec:
   port:
     targetPort: 3001

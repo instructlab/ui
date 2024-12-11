@@ -11,7 +11,7 @@ fi
 
 if [ "$#" -ne 2 ]; then
     echo "USAGE: $0 TARGET NAMESPACE
-      TARGET:     The deployment target. Options: [\"OPENSHIFT\", \"KIND\"]
+      TARGET:     The deployment target. Options: [\"KIND\", \"QA_OPENSHIFT\", \"PROD_OPENSHIFT\"]
       NAMESPACE:  The namespace where you want to deploy the umami-secret." 1>&2
     exit 1
 fi
@@ -19,19 +19,24 @@ fi
 TARGET="$1"
 NAMESPACE="$2"
 
-if [ "${TARGET}" == "OPENSHIFT" ]; then
-  UMAMI_SECRET_FILE_PATH="deploy/k8s/overlays/openshift/umami/umami-secret.yaml"
-  UMAMI_DATABASE_NAME_KEY_NAME=POSTGRESQL_DATABASE
-  UMAMI_DATABASE_USER_KEY_NAME=POSTGRESQL_USER
-  UMAMI_DATABASE_PASSWORD_KEY_NAME=POSTGRESQL_PASSWORD
-elif [ "${TARGET}" == "KIND" ]; then
+if [ "${TARGET}" == "KIND" ]; then
   UMAMI_SECRET_FILE_PATH="deploy/k8s/overlays/kind/umami/umami-secret.yaml"
   UMAMI_DATABASE_NAME_KEY_NAME=POSTGRES_DB
   UMAMI_DATABASE_USER_KEY_NAME=POSTGRES_USER
   UMAMI_DATABASE_PASSWORD_KEY_NAME=POSTGRES_PASSWORD
+elif [ "${TARGET}" == "QA_OPENSHIFT" ]; then
+  UMAMI_SECRET_FILE_PATH="deploy/k8s/overlays/openshift/umami/qa/umami-secret.yaml"
+  UMAMI_DATABASE_NAME_KEY_NAME=POSTGRESQL_DATABASE
+  UMAMI_DATABASE_USER_KEY_NAME=POSTGRESQL_USER
+  UMAMI_DATABASE_PASSWORD_KEY_NAME=POSTGRESQL_PASSWORD
+elif [ "${TARGET}" == "PROD_OPENSHIFT" ]; then
+  UMAMI_SECRET_FILE_PATH="deploy/k8s/overlays/openshift/umami/prod/umami-secret.yaml"
+  UMAMI_DATABASE_NAME_KEY_NAME=POSTGRESQL_DATABASE
+  UMAMI_DATABASE_USER_KEY_NAME=POSTGRESQL_USER
+  UMAMI_DATABASE_PASSWORD_KEY_NAME=POSTGRESQL_PASSWORD
 else
   echo "Error, \$TARGET ${TARGET} not recongnized.
-    TARGET options: [\"OPENSHIFT\", \"KIND\"]"
+    TARGET options: [\"KIND\", \"QA_OPENSHIFT\", \"PROD_OPENSHIFT\"]"
   exit 1
 fi
 
@@ -73,6 +78,9 @@ kubectl create secret generic umami-secret \
   --dry-run=client \
   -o yaml > ${UMAMI_SECRET_FILE_PATH}
 
-yq eval ".metadata.labels.cluster_domain = \"${cluster_domain}\"" -i ${UMAMI_SECRET_FILE_PATH}
+yq eval ".metadata.labels.sealed-secrets-controller-cluster-domain = \"${cluster_domain}\"" -i ${UMAMI_SECRET_FILE_PATH}
+yq eval ".metadata.labels.\"app.kubernetes.io/app\" = \"umami\"" -i ${UMAMI_SECRET_FILE_PATH}
+yq eval ".metadata.labels.\"app.kubernetes.io/instance\" = \"umami\"" -i ${UMAMI_SECRET_FILE_PATH}
+yq eval ".metadata.labels.\"app.kubernetes.io/part-of\" = \"umami\"" -i ${UMAMI_SECRET_FILE_PATH}
 
 echo "Secret manifest has been created: ${UMAMI_SECRET_FILE_PATH}."

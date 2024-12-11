@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: umami-db
   labels:
-    component: db
+    app.kubernetes.io/component: umami-postgresql
 spec:
   ports:
     - port: 5432
       name: postgres
   selector:
-    app: umami
+    app.kubernetes.io/name: umami
