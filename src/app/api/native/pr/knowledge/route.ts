@@ -10,12 +10,12 @@ import { KnowledgeYamlData } from '@/types';
 import yaml from 'js-yaml';
 
 // Define paths and configuration
-const TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || './.instructlab-ui';
+const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || './.instructlab-ui';
 
 const KNOWLEDGE_DIR = 'knowledge';
 
 export async function POST(req: NextRequest) {
-  const REPO_DIR = path.join(TAXONOMY_ROOT_DIR, '/taxonomy');
+  const REPO_DIR = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
   try {
     // Extract the data from the request body
     const { content, attribution, name, email, submissionSummary, filePath } = await req.json();

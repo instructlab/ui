@@ -6,11 +6,11 @@ import fs from 'fs';
 import path from 'path';
 
 // Retrieve the base directory from the environment variable
-const TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || './.instructlab-ui';
+const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || './.instructlab-ui';
 const TAXONOMY_REPO_URL = process.env.NEXT_PUBLIC_TAXONOMY_REPO_URL || 'https://github.com/instructlab/taxonomy.git';
 
 export async function POST() {
-  const taxonomyDirectoryPath = path.join(TAXONOMY_ROOT_DIR, '/taxonomy');
+  const taxonomyDirectoryPath = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
 
   if (fs.existsSync(taxonomyDirectoryPath)) {
     const files = fs.readdirSync(taxonomyDirectoryPath);
@@ -32,8 +32,8 @@ export async function POST() {
     });
 
     // Include the full path in the response for client display
-    console.log(`Repository cloned successfully to ${TAXONOMY_ROOT_DIR}.`);
-    return NextResponse.json({ message: `Repository cloned successfully to ${TAXONOMY_ROOT_DIR}.` }, { status: 200 });
+    console.log(`Repository cloned successfully to ${LOCAL_TAXONOMY_ROOT_DIR}.`);
+    return NextResponse.json({ message: `Repository cloned successfully to ${LOCAL_TAXONOMY_ROOT_DIR}.` }, { status: 200 });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error(`Failed to clone taxonomy repository: ${errorMessage}`);

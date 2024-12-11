@@ -7,12 +7,12 @@ import path from 'path';
 import yaml from 'js-yaml';
 
 // Define paths and configuration
-const TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || './.instructlab-ui';
+const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || './.instructlab-ui';
 
 const SKILLS_DIR = 'compositional_skills';
 
 export async function POST(req: NextRequest) {
-  const REPO_DIR = path.join(TAXONOMY_ROOT_DIR, '/taxonomy');
+  const REPO_DIR = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
   try {
     // Extract the QnA data from the request body TODO: what is documentOutline?
     const { content, attribution, name, email, submissionSummary, documentOutline, filePath } = await req.json(); // eslint-disable-line @typescript-eslint/no-unused-vars
