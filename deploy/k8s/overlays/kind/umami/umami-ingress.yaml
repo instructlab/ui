@@ -5,6 +5,11 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /
+  labels:
+    app.kubernetes.io/component: umami-web
+    app.kubernetes.io/instance: umami
+    app.kubernetes.io/name: umami
+    app.kubernetes.io/part-of: umami
 spec:
   ingressClassName: nginx
   rules:

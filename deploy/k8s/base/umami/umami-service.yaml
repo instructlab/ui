@@ -4,11 +4,11 @@ kind: Service
 metadata:
   name: umami
   labels:
-    component: web
+    app.kubernetes.io/component: umami-web
 spec:
   ports:
     - name: web
       port: 3001
   selector:
-    app: umami
+    app.kubernetes.io/name: umami
   type: ClusterIP
