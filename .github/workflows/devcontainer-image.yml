@@ -115,7 +115,7 @@ jobs:
           file: src/Containerfile
 
       - name: Generate devcontainer GHCR artifact attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_DEV_IMAGE_NAME}}
           subject-digest: ${{ steps.push-dev-ghcr.outputs.digest }}
@@ -137,7 +137,7 @@ jobs:
           file: src/Containerfile
 
       - name: Generate devcontainer Quay artifact attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_DEV_IMAGE_NAME}}
           subject-digest: ${{ steps.push-dev-quay.outputs.digest }}

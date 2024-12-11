@@ -88,7 +88,7 @@ jobs:
           file: Containerfile
 
       - name: Generate Prod UI GHCR artifact attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME}}
           subject-digest: ${{ steps.push-ui-ghcr.outputs.digest }}
@@ -110,7 +110,7 @@ jobs:
           file: Containerfile
 
       - name: Generate PROD UI Quay artifact attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_UI_IMAGE_NAME}}
           subject-digest: ${{ steps.push-ui-quay.outputs.digest }}
@@ -221,7 +221,7 @@ jobs:
           file: Containerfile
 
       - name: Generate GHCR PS Image attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PS_IMAGE_NAME}}
           subject-digest: ${{ steps.push-ps-ghcr.outputs.digest }}
@@ -243,7 +243,7 @@ jobs:
           file: Containerfile
 
       - name: Generate Quay PS Image attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_PS_IMAGE_NAME}}
           subject-digest: ${{ steps.push-ps-quay.outputs.digest }}
