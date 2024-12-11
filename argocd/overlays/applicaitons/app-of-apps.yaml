@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-of-apps-ilab
+spec:
+  destination:
+    namespace: openshift-gitpos
+    name: in-cluster
+  project: default
+  source:
+    path: argocd/overlays/applicaitons
+    repoURL: https://github.com/instructlab/ui.git
+    targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+      - Validate=false
+      - ApplyOutOfSyncOnly=true
+    # automated:
+    #   selfHeal: true

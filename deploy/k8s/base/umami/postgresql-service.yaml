@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: umami-db
+  labels:
+    component: db
+spec:
+  ports:
+    - port: 5432
+      name: postgres
+  selector:
+    app: umami

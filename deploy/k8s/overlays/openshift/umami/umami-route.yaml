@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: umami
+  labels:
+    name: umami
+spec:
+  port:
+    targetPort: 3001
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: umami
+    weight: 100
+  wildcardPolicy: None
+
