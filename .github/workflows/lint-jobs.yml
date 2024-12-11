@@ -22,6 +22,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
+        env:
+          SHELLCHECK_OPTS: "-e SC1091" # ignores using .env for source as issue
+
   markdown-lint:
     runs-on: ubuntu-latest
     steps:

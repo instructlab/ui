@@ -4,7 +4,7 @@ metadata:
   name: ilab-ui-stack-production
 spec:
   destination:
-    name: in-cluster
+    name: in-cluster # THIS NEEDS TO CHANGE once we get prod on ARGO
     namespace: instructlab
   project: default
   source:
