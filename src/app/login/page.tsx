@@ -1,7 +1,7 @@
 // src/app/login/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import './githublogin.css';
 import NativeLogin from '@/app/login/nativelogin';
 import GithubLogin from '@/app/login/githublogin';
@@ -33,7 +33,11 @@ const Login: React.FunctionComponent = () => {
     // Render a loading indicator or null while determining the environment
     return <NativeLogin />;
   }
-  return <GithubLogin />;
+  return (
+    <Suspense>
+      <GithubLogin />
+    </Suspense>
+  );
 };
 
 export default Login;

@@ -11,8 +11,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal';
 
 const GithubLogin: React.FC = () => {
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showError, setShowError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('Something went wrong.');
   const [githubUsername, setGithubUsername] = useState<string | null>(null);

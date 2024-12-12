@@ -580,7 +580,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
                 actionGroupAlertContent.success &&
                 actionGroupAlertContent.url &&
                 actionGroupAlertContent.url.trim().length > 0 && (
-                  <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
+                  <a href={actionGroupAlertContent.url} rel="noreferrer">
                     View your new branch
                   </a>
                 )}

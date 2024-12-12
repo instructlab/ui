@@ -7,7 +7,7 @@ import path from 'path';
 import yaml from 'js-yaml';
 
 // Define paths and configuration
-const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || './.instructlab-ui';
+const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || `${process.env.HOME}/.instructlab-ui`;
 
 const SKILLS_DIR = 'compositional_skills';
 
