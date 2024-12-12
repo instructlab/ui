@@ -1,4 +1,4 @@
-// src/app/login/LocalLogin.tsx
+// src/app/login/DevModeLogin.tsx
 import React, { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { Grid, GridItem } from '@patternfly/react-core/dist/dynamic/layouts/Grid';
@@ -12,7 +12,7 @@ import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/H
 import GithubIcon from '@patternfly/react-icons/dist/dynamic/icons/github-icon';
 import './githublogin.css';
 
-const LocalLogin: React.FunctionComponent = () => {
+const DevModeLogin: React.FunctionComponent = () => {
   const [, setShowHelperText] = useState(false);
   const [username, setUsername] = useState('');
   const [isValidUsername, setIsValidUsername] = useState(true);
@@ -27,7 +27,7 @@ const LocalLogin: React.FunctionComponent = () => {
       setIsValidUsername(false);
       setIsValidPassword(false);
     } else {
-      window.location.href = '/';
+      window.location.href = '/dashboard';
     }
   };
 
@@ -40,7 +40,7 @@ const LocalLogin: React.FunctionComponent = () => {
   };
 
   const handleGitHubLogin = () => {
-    signIn('github', { callbackUrl: '/' });
+    signIn('github', { callbackUrl: '/dashboard' });
   };
 
   return (
@@ -158,4 +158,4 @@ const LocalLogin: React.FunctionComponent = () => {
   );
 };
 
-export default LocalLogin;
+export default DevModeLogin;

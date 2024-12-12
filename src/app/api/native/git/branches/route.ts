@@ -5,7 +5,8 @@ import fs from 'fs';
 import path from 'path';
 
 // Get the repository path from the environment variable
-const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || './.instructlab-ui';
+const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || `${process.env.HOME}/.instructlab-ui`;
+
 interface Diffs {
   file: string;
   status: string;

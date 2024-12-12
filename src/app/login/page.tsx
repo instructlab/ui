@@ -3,32 +3,37 @@
 
 import React, { useState, useEffect } from 'react';
 import './githublogin.css';
-import LocalLogin from '@/app/login/locallogin';
+import NativeLogin from '@/app/login/nativelogin';
 import GithubLogin from '@/app/login/githublogin';
+import DevModeLogin from './devmodelogin';
 
 const Login: React.FunctionComponent = () => {
-  const [isProd, setIsProd] = useState<boolean | null>(null);
+  const [deploymentType, setDeploymentType] = useState<string | 'github'>();
+  const [isDevModeEnabled, setIsDevModeEnabled] = useState<boolean>(false);
 
   useEffect(() => {
     const chooseLoginPage = async () => {
       try {
         const res = await fetch('/api/envConfig');
         const envConfig = await res.json();
-        setIsProd(envConfig.DEPLOYMENT_TYPE === 'false');
+        setDeploymentType(envConfig.DEPLOYMENT_TYPE);
+        setIsDevModeEnabled(envConfig.ENABLE_DEV_MODE === 'true');
       } catch (error) {
         console.error('Error fetching environment config:', error);
-        setIsProd(true);
+        setDeploymentType('github');
       }
     };
     chooseLoginPage();
   }, []);
 
-  if (isProd === null) {
-    // Render a loading indicator or null while determining the environment
-    return null;
+  if (isDevModeEnabled) {
+    return <DevModeLogin />;
   }
-
-  return isProd ? <GithubLogin /> : <LocalLogin />;
+  if (deploymentType === 'native') {
+    // Render a loading indicator or null while determining the environment
+    return <NativeLogin />;
+  }
+  return <GithubLogin />;
 };
 
 export default Login;
