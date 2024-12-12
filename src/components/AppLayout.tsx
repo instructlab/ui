@@ -21,6 +21,7 @@ import { PageSidebar } from '@patternfly/react-core/dist/dynamic/components/Page
 import { PageSidebarBody } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { SkipToContent } from '@patternfly/react-core/dist/dynamic/components/SkipToContent';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { Bullseye } from '@patternfly/react-core';
 import UserMenu from './UserMenu/UserMenu';
 import { useSession } from 'next-auth/react';
 // import { useTheme } from '../context/ThemeContext';
@@ -63,7 +64,11 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   }, [session, status, pathname, router]);
 
   if (status === 'loading') {
-    return <Spinner />;
+    return (
+      <Bullseye>
+        <Spinner />
+      </Bullseye>
+    );
   }
 
   if (!session) {

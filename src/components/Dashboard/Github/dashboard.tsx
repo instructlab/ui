@@ -118,7 +118,9 @@ const DashboardGithub: React.FunctionComponent = () => {
               </div>
             }
           >
-            <OutlinedQuestionCircleIcon />
+            <Button variant="plain" aria-label="more information">
+              <OutlinedQuestionCircleIcon />
+            </Button>
           </Popover>
         </Content>
       </PageSection>
