@@ -8,9 +8,9 @@ import { HelperText } from '@patternfly/react-core/dist/dynamic/components/Helpe
 import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { KnowledgeFormData } from '..';
 import { checkKnowledgeFormCompletion } from '../../validation';
 import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
+import { KnowledgeFormData } from '@/types';
 
 interface Props {
   reset: boolean;

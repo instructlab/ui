@@ -2,13 +2,13 @@ import React from 'react';
 import { FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
-import { QuestionAndAnswerPair, SeedExample } from '../Github';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
+import { KnowledgeSeedExample, QuestionAndAnswerPair } from '@/types';
 
 interface Props {
-  seedExample: SeedExample;
+  seedExample: KnowledgeSeedExample;
   seedExampleIndex: number;
   handleContextInputChange: (seedExampleIndex: number, contextValue: string) => void;
   handleContextBlur: (seedExampleIndex: number) => void;

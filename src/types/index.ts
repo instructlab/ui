@@ -107,3 +107,50 @@ export interface SkillFormData {
   licenseWork: string;
   creators: string;
 }
+
+export interface QuestionAndAnswerPair {
+  immutable: boolean;
+  question: string;
+  isQuestionValid: ValidatedOptions;
+  questionValidationError?: string;
+  answer: string;
+  isAnswerValid: ValidatedOptions;
+  answerValidationError?: string;
+}
+
+export interface KnowledgeSeedExample {
+  immutable: boolean;
+  isExpanded: boolean;
+  context: string;
+  isContextValid: ValidatedOptions;
+  validationError?: string;
+  questionAndAnswers: QuestionAndAnswerPair[];
+}
+
+export interface KnowledgeFormData {
+  email: string;
+  name: string;
+  submissionSummary: string;
+  domain: string;
+  documentOutline: string;
+  filePath: string;
+  seedExamples: KnowledgeSeedExample[];
+  knowledgeDocumentRepositoryUrl: string;
+  knowledgeDocumentCommit: string;
+  documentName: string;
+  titleWork: string;
+  linkWork: string;
+  revision: string;
+  licenseWork: string;
+  creators: string;
+}
+
+export interface KnowledgeEditFormData {
+  isEditForm: boolean;
+  knowledgeVersion: number;
+  pullRequestNumber: number;
+  branchName: string;
+  yamlFile: PullRequestFile;
+  attributionFile: PullRequestFile;
+  knowledgeFormData: KnowledgeFormData;
+}

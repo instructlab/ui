@@ -3,11 +3,11 @@ import React from 'react';
 import { Accordion, AccordionItem, AccordionContent, AccordionToggle } from '@patternfly/react-core/dist/dynamic/components/Accordion';
 import { FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
 import KnowledgeQuestionAnswerPairs from '../KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs';
-import { SeedExample } from '../Github';
+import type { KnowledgeSeedExample } from '@/types';
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
 
 interface Props {
-  seedExamples: SeedExample[];
+  seedExamples: KnowledgeSeedExample[];
   handleContextInputChange: (seedExampleIndex: number, contextValue: string) => void;
   handleContextBlur: (seedExampleIndex: number) => void;
   handleQuestionInputChange: (seedExampleIndex: number, questionAndAnswerIndex: number, questionValue: string) => void;
@@ -51,7 +51,7 @@ const KnowledgeSeedExample: React.FC<Props> = ({
       />
 
       <Accordion asDefinitionList={false}>
-        {seedExamples.map((seedExample: SeedExample, seedExampleIndex: number) => (
+        {seedExamples.map((seedExample: KnowledgeSeedExample, seedExampleIndex: number) => (
           <AccordionItem key={seedExampleIndex} isExpanded={seedExample.isExpanded}>
             <AccordionToggle onClick={() => toggleSeedExampleExpansion(seedExampleIndex)} id={`seed-example-toggle-${seedExampleIndex}`}>
               Seed Example {seedExampleIndex + 1} {seedExample.immutable && <span style={{ color: 'red' }}>*</span>}

@@ -1,4 +1,4 @@
-import { KnowledgeFormData, QuestionAndAnswerPair, SeedExample } from './Github';
+import { KnowledgeFormData, KnowledgeSeedExample, QuestionAndAnswerPair } from '@/types';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 
 const questionAndAnswerPairs1: QuestionAndAnswerPair[] = [
@@ -127,7 +127,7 @@ const questionAndAnswerPairs5: QuestionAndAnswerPair[] = [
   }
 ];
 
-const seedExamples: SeedExample[] = [
+const seedExamples: KnowledgeSeedExample[] = [
   {
     immutable: true,
     isExpanded: true,

@@ -26,61 +26,14 @@ import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/consta
 import { DownloadDropdown } from '@/components/Contribute/Knowledge/DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from '@/components/Contribute/Knowledge/ViewDropdown/ViewDropdown';
 import Update from '@/components/Contribute/Knowledge/Github/Update/Update';
-import { PullRequestFile } from '@/types';
+import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair } from '@/types';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button';
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from '@/components/Contribute/Knowledge/AutoFill';
 import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
 import { Wizard, WizardStep } from '@patternfly/react-core/dist/esm/components/Wizard';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
-import ReviewSubmission from '@/components/Contribute/Knowledge/Native/ReviewSubmission';
-
-export interface QuestionAndAnswerPair {
-  immutable: boolean;
-  question: string;
-  isQuestionValid: ValidatedOptions;
-  questionValidationError?: string;
-  answer: string;
-  isAnswerValid: ValidatedOptions;
-  answerValidationError?: string;
-}
-
-export interface SeedExample {
-  immutable: boolean;
-  isExpanded: boolean;
-  context: string;
-  isContextValid: ValidatedOptions;
-  validationError?: string;
-  questionAndAnswers: QuestionAndAnswerPair[];
-}
-
-export interface KnowledgeFormData {
-  email: string;
-  name: string;
-  submissionSummary: string;
-  domain: string;
-  documentOutline: string;
-  filePath: string;
-  seedExamples: SeedExample[];
-  knowledgeDocumentRepositoryUrl: string;
-  knowledgeDocumentCommit: string;
-  documentName: string;
-  titleWork: string;
-  linkWork: string;
-  revision: string;
-  licenseWork: string;
-  creators: string;
-}
-
-export interface KnowledgeEditFormData {
-  isEditForm: boolean;
-  knowledgeVersion: number;
-  pullRequestNumber: number;
-  branchName: string;
-  yamlFile: PullRequestFile;
-  attributionFile: PullRequestFile;
-  knowledgeFormData: KnowledgeFormData;
-}
+import ReviewSubmission from '../ReviewSubmission';
 
 export interface ActionGroupAlertContent {
   title: string;
@@ -134,7 +87,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
   const [activeStepIndex] = useState<number>(1);
 
-  const emptySeedExample: SeedExample = {
+  const emptySeedExample: KnowledgeSeedExample = {
     immutable: true,
     isExpanded: false,
     context: '',
@@ -164,7 +117,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     ]
   };
 
-  const [seedExamples, setSeedExamples] = useState<SeedExample[]>([
+  const [seedExamples, setSeedExamples] = useState<KnowledgeSeedExample[]>([
     emptySeedExample,
     emptySeedExample,
     emptySeedExample,
@@ -280,7 +233,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
   const handleContextInputChange = (seedExampleIndex: number, contextValue: string): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SeedExample, index: number) =>
+      seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -292,7 +245,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
   };
 
   const handleContextBlur = (seedExampleIndex: number): void => {
-    const updatedSeedExamples = seedExamples.map((seedExample: SeedExample, index: number): SeedExample => {
+    const updatedSeedExamples = seedExamples.map((seedExample: KnowledgeSeedExample, index: number): KnowledgeSeedExample => {
       if (index === seedExampleIndex) {
         const { msg, status } = validateContext(seedExample.context);
         return {
@@ -308,7 +261,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
   const handleQuestionInputChange = (seedExampleIndex: number, questionAndAnswerIndex: number, questionValue: string): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SeedExample, index: number) =>
+      seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -328,7 +281,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
   const handleQuestionBlur = (seedExampleIndex: number, questionAndAnswerIndex: number): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SeedExample, index: number) =>
+      seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -351,7 +304,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
   const handleAnswerInputChange = (seedExampleIndex: number, questionAndAnswerIndex: number, answerValue: string): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SeedExample, index: number) =>
+      seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -371,7 +324,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
   const handleAnswerBlur = (seedExampleIndex: number, questionAndAnswerIndex: number): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SeedExample, index: number) =>
+      seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,

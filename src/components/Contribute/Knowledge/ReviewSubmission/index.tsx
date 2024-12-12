@@ -1,6 +1,6 @@
 // src/components/Contribute/Knowledge/ReviewSubmission/ReviewSubmission.tsx
+import { KnowledgeFormData } from '@/types';
 import React from 'react';
-import { KnowledgeFormData } from '@/components/Contribute/Knowledge/Native';
 
 interface ReviewSubmissionProps {
   knowledgeFormData: KnowledgeFormData;
