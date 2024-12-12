@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: umami
+  name: umami-prod
 spec:
   project: default
   source:
@@ -10,7 +10,7 @@ spec:
     targetRevision: main
   destination:
     namespace: umami
-    name: in-cluster
+    name: instructlab-ui-prod
   syncPolicy:
     automated:
       selfHeal: true
