@@ -84,7 +84,7 @@ UI stack supports two mode of deployments:
 
 ## Running the UI in Native Deployment Mode
 
-To enable the native mode, set the `IL_UI_DEPLOYMENT=native` in the .env file. Once the flag is set, the UI will not push the knowledge and skill contribution to the github repository. Instead, it will keep the contribution in the local machine. In the `native` mode, the UI login page will show username and password input box to authenticate the user. You can setup the username and password in the .env file through the `IL_UI_ADMIN_USERNAME` and `IL_UI_ADMIN_USERNAME` flags.
+To enable the native mode, set the `IL_UI_DEPLOYMENT=native` in the .env file. Once the flag is set, the UI will not push the knowledge and skill contribution to the github repository. Instead, it will keep the contribution in the local machine. In the `native` mode, the UI login page will show username and password input box to authenticate the user. You can setup the username and password in the .env file through the `IL_UI_ADMIN_USERNAME` and `IL_UI_ADMIN_PASSWORD` flags.
 
 ## Running the UI in Github Deployment Mode
 
