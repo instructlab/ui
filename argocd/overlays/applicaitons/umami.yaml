@@ -6,7 +6,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/instructlab/ui.git
-    path: deploy/k8s/overlays/openshift/umami
+    path: deploy/k8s/overlays/openshift/umami/prod
     targetRevision: main
   destination:
     namespace: umami
