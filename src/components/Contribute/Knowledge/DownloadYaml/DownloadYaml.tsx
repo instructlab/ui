@@ -1,6 +1,5 @@
 import React from 'react';
-import { KnowledgeFormData } from '..';
-import { KnowledgeYamlData } from '@/types';
+import { KnowledgeFormData, KnowledgeYamlData } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/DropdownItem';

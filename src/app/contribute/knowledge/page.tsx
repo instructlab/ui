@@ -1,14 +1,11 @@
 // src/app/contribute/knowledge/page.tsx
+import KnowledgeFormNative from '@/components/Contribute/Knowledge/Native';
 import * as React from 'react';
 import { AppLayout } from '../../../components/AppLayout';
-import { KnowledgeForm } from '../../../components/Contribute/Knowledge';
+import { KnowledgeFormGithub } from '../../../components/Contribute/Knowledge/Github';
 
 const KnowledgeFormPage: React.FC = () => {
-  return (
-    <AppLayout>
-      <KnowledgeForm />
-    </AppLayout>
-  );
+  return <AppLayout>{process.env.IL_UI_DEPLOYMENT === 'native' ? <KnowledgeFormNative /> : <KnowledgeFormGithub />}</AppLayout>;
 };
 
 export default KnowledgeFormPage;

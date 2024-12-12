@@ -1,12 +1,13 @@
+import { KnowledgeFormData, KnowledgeSeedExample } from '@/types';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { ActionGroupAlertContent, KnowledgeFormData, SeedExample } from '.';
+import { ActionGroupAlertContent } from './Github';
 
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
   return emailRegex.test(email);
 };
 
-const hasDuplicateSeedExamples = (seedExamples: SeedExample[]): { duplicate: boolean; index: number } => {
+const hasDuplicateSeedExamples = (seedExamples: KnowledgeSeedExample[]): { duplicate: boolean; index: number } => {
   const contexts = new Set<string>();
   for (let index = 0; index < seedExamples.length; index++) {
     const seedExample = seedExamples[index];
@@ -20,7 +21,7 @@ const hasDuplicateSeedExamples = (seedExamples: SeedExample[]): { duplicate: boo
 };
 
 // Check if the question in Q&A pairs in a each seed example are unique
-const hasDuplicateQuestionAndAnswerPairs = (seedExample: SeedExample): { duplicate: boolean; index: number } => {
+const hasDuplicateQuestionAndAnswerPairs = (seedExample: KnowledgeSeedExample): { duplicate: boolean; index: number } => {
   const questions = new Set<string>();
   for (let index = 0; index < seedExample.questionAndAnswers.length; index++) {
     const questionAndAnswerPair = seedExample.questionAndAnswers[index];
@@ -36,7 +37,7 @@ const hasDuplicateQuestionAndAnswerPairs = (seedExample: SeedExample): { duplica
 
 // Validate that the total length of all the question and answer pairs
 // and context in a seed example is not more than 750 characters.
-const validateQuestionAndAnswerPairs = (seedExample: SeedExample): { success: boolean; currLength: number } => {
+const validateQuestionAndAnswerPairs = (seedExample: KnowledgeSeedExample): { success: boolean; currLength: number } => {
   const totalQnAPairsTokenCount = seedExample.questionAndAnswers.reduce((acc, questionAndAnswerPair) => {
     const questionTokens = questionAndAnswerPair.question.trim().split(/\s+/);
     const answerTokens = questionAndAnswerPair.answer.trim().split(/\s+/);

@@ -15,7 +15,9 @@ export async function GET() {
     UPSTREAM_REPO_OWNER: process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER || '',
     UPSTREAM_REPO_NAME: process.env.NEXT_PUBLIC_TAXONOMY_REPO || '',
     DEPLOYMENT_TYPE: process.env.IL_UI_DEPLOYMENT || '',
-    EXPERIMENTAL_FEATURES: process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES || ''
+    ENABLE_DEV_MODE: process.env.IL_ENABLE_DEV_MODE || 'false',
+    EXPERIMENTAL_FEATURES: process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES || '',
+    TAXONOMY_REPO_DIR: process.env.NEXT_PUBLIC_TAXONOMY_REPO_DIR || ''
   };
 
   return NextResponse.json(envConfig);

@@ -1,6 +1,5 @@
 import React from 'react';
-import { SkillFormData } from '..';
-import { SkillYamlData } from '@/types';
+import { SkillFormData, SkillYamlData } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/DropdownItem';
 import CodeIcon from '@patternfly/react-icons/dist/esm/icons/code-icon';

@@ -1,12 +1,13 @@
+import { SkillFormData, SkillSeedExample } from '@/types';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { ActionGroupAlertContent, SkillFormData, SeedExample } from '.';
+import { ActionGroupAlertContent } from './Github';
 
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
   return emailRegex.test(email);
 };
 
-const hasDuplicateSeedExamples = (seedExamples: SeedExample[]): { duplicate: boolean; index: number } => {
+const hasDuplicateSeedExamples = (seedExamples: SkillSeedExample[]): { duplicate: boolean; index: number } => {
   const question = new Set<string>();
   for (let index = 0; index < seedExamples.length; index++) {
     const seedExample = seedExamples[index];

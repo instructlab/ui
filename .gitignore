@@ -27,7 +27,9 @@ pathservice.pid
 /blob-report/
 /playwright/.cache/
 playwright/.auth
+.instructlab-ui
 # dont track secrets in git
 deploy/k8s/overlays/kind/umami/umami-secret.yaml
 deploy/k8s/overlays/openshift/umami/qa/umami-secret.yaml
 deploy/k8s/overlays/openshift/umami/prod/umami-secret.yaml
+

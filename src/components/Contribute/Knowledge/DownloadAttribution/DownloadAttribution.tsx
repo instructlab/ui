@@ -1,7 +1,7 @@
 import React from 'react';
-import { KnowledgeFormData } from '..';
 import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/DropdownItem';
 import FileIcon from '@patternfly/react-icons/dist/esm/icons/file-icon';
+import { KnowledgeFormData } from '@/types';
 
 interface Props {
   knowledgeFormData: KnowledgeFormData;

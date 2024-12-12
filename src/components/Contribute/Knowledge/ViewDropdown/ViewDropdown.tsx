@@ -3,10 +3,9 @@ import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdow
 import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { KnowledgeFormData } from '..';
 import YamlCodeModal from '@/components/YamlCodeModal';
 import CodeIcon from '@patternfly/react-icons/dist/esm/icons/code-icon';
-import { AttributionData, KnowledgeYamlData } from '@/types';
+import { AttributionData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import FileIcon from '@patternfly/react-icons/dist/dynamic/icons/file-icon';
