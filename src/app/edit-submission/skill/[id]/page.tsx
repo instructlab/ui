@@ -1,7 +1,7 @@
 // src/app/edit-submission/skill/[id]/page.tsx
 import * as React from 'react';
 import { AppLayout } from '@/components/AppLayout';
-import EditSkill from '@/components/Contribute/Github/EditSkill/EditSkill';
+import EditSkill from '@/components/Contribute/EditSkill/EditSkill';
 
 type PageProps = {
   params: Promise<{ id: string }>;

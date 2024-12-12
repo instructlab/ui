@@ -1,3 +1,5 @@
+import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
+
 export interface Endpoint {
   id: string;
   url: string;
@@ -78,4 +80,30 @@ export interface PullRequestFile {
 export interface PullRequestUpdateData {
   title: string;
   body: string;
+}
+
+export interface SkillSeedExample {
+  immutable: boolean;
+  isExpanded: boolean;
+  context?: string;
+  isContextValid?: ValidatedOptions;
+  validationError?: string;
+  question: string;
+  isQuestionValid: ValidatedOptions;
+  questionValidationError?: string;
+  answer: string;
+  isAnswerValid: ValidatedOptions;
+  answerValidationError?: string;
+}
+
+export interface SkillFormData {
+  email: string;
+  name: string;
+  submissionSummary: string;
+  documentOutline: string;
+  filePath: string;
+  seedExamples: SkillSeedExample[];
+  titleWork: string;
+  licenseWork: string;
+  creators: string;
 }
