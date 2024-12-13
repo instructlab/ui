@@ -176,7 +176,7 @@ jobs:
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
           yq -i '
-            (.images[] | select(.name == "quay.io/instructlab-ui/ui") | .newTag) = env(PR_TAG)
+            (.images[] | select(.name == "${{env.QUAY_UI_IMAGE_NAME}}") | .newTag) = env(PR_TAG)
           ' deploy/k8s/overlays/openshift/qa/kustomization.yaml
 
       - name: Commit and push bump QA UI Image manifest
@@ -351,7 +351,7 @@ jobs:
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
           yq -i '
-            (.images[] | select(.name == "quay.io/instructlab-ui/ui") | .newTag) = env(PR_TAG)
+            (.images[] | select(.name == "${{env.QUAY_PS_IMAGE_NAME}}") | .newTag) = env(PR_TAG)
           ' deploy/k8s/overlays/openshift/qa/kustomization.yaml
 
       - name: Commit and push bump QA PS Image manifest
