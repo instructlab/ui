@@ -36,13 +36,13 @@ jobs:
         run: |-
           if [[ "$(git log -1 --pretty=format:'%s')" == *"[CI AUTOMATION]:"* ]]; then
             echo "Workflow triggered by previous action commit. Skipping."
-            echo "skip_workflow='true'" >> "$GITHUB_OUTPUT"
+            echo "SKIP_WORKFLOW='true'" >> "$GITHUB_ENV"
           else
-            echo "skip_workflow='false'" >> "$GITHUB_OUTPUT"
+            echo "SKIP_WORKFLOW='false'" >> "$GITHUB_ENV"
           fi
 
       - name: Log in to the GHCR container image registry
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         uses: docker/login-action@v3
         with:
           registry: "${{ env.GHCR_REGISTRY }}"
@@ -50,7 +50,7 @@ jobs:
           password: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Log in to the Quay container image registry
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         uses: docker/login-action@v3
         with:
           registry: "${{ env.QUAY_REGISTRY }}"
@@ -58,11 +58,11 @@ jobs:
           password: "${{ secrets.QUAY_TOKEN }}"
 
       - name: Set up Docker Buildx
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
@@ -71,7 +71,7 @@ jobs:
             "${{ runner.os }}-buildx-"
 
       - name: Get Pull Request Number from Commit
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         id: get_pr_number
         uses: actions/github-script@v7
         with:
@@ -101,21 +101,21 @@ jobs:
             return '';
 
       - name: Extract GHCR metadata (tags, labels) for UI image
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         id: ghcr_ui_meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME }}
 
       - name: Extract Quay metadata (tags, labels) for UI image
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         id: quay_ui_meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_UI_IMAGE_NAME }}
 
       - name: Build and push ui image to ghcr.io
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         id: push-ui-ghcr
         uses: docker/build-push-action@v6
         with:
@@ -131,7 +131,7 @@ jobs:
           file: src/Containerfile
 
       - name: Generate GHCR artifact attestation
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME}}
@@ -139,7 +139,7 @@ jobs:
           push-to-registry: true
 
       - name: Build and push ui image to quay.io
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         id: push-ui-quay
         uses: docker/build-push-action@v6
         with:
@@ -155,7 +155,7 @@ jobs:
           file: src/Containerfile
 
       - name: Generate QA UI Quay artifact attestation
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_UI_IMAGE_NAME}}
@@ -163,12 +163,12 @@ jobs:
           push-to-registry: true
 
       - name: Update coderefs before code changes
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         run: |-
           git pull --ff-only
 
       - name: Update QA Quay UI image
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         id: update_qa_ui_manifest_image
         env:
           PR_TAG:  "pr-${{ steps.get_pr_number.outputs.result }}"
@@ -180,7 +180,7 @@ jobs:
           ' deploy/k8s/overlays/openshift/qa/kustomization.yaml
 
       - name: Commit and push bump QA UI Image manifest
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
@@ -210,13 +210,13 @@ jobs:
         run: |-
             if [[ "$(git log -1 --pretty=format:'%s')" == *"[CI AUTOMATION]:"* ]]; then
               echo "Workflow triggered by previous action commit. Skipping."
-              echo "skip_workflow=true" >> "$GITHUB_ENV"
+              echo "SKIP_WORKFLOW=true" >> "$GITHUB_ENV"
             else
-              echo "skip_workflow=false" >> "$GITHUB_ENV"
+              echo "SKIP_WORKFLOW=false" >> "$GITHUB_ENV"
             fi
 
       - name: Log in to the GHCR container image registry
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.GHCR_REGISTRY }}
@@ -224,7 +224,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log in to the Quay container image registry
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.QUAY_REGISTRY }}
@@ -232,11 +232,11 @@ jobs:
           password: ${{ secrets.QUAY_TOKEN }}
 
       - name: Set up Docker Buildx
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
@@ -245,7 +245,7 @@ jobs:
             ${{ runner.os }}-buildx-
 
       - name: Get Pull Request Number from Commit
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         id: get_pr_number
         uses: actions/github-script@v7
         with:
@@ -275,21 +275,21 @@ jobs:
             return '';
 
       - name: Extract metadata (tags, labels) for pathservice image
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         id: ghcr_ps_meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PS_IMAGE_NAME }}
 
       - name: Extract metadata (tags, labels) for pathservice image
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         id: quay_ps_meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_PS_IMAGE_NAME }}
 
       - name: Build and push QA PS image to ghcr.io
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         id: push-ps-ghcr
         uses: docker/build-push-action@v6
         with:
@@ -305,7 +305,7 @@ jobs:
           file: pathservice/Containerfile
 
       - name: Generate QA PS GHCR artifact attestation
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PS_IMAGE_NAME}}
@@ -313,7 +313,7 @@ jobs:
           push-to-registry: true
 
       - name: Build and push QA PS image to quay.io
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         id: push-ps-quay
         uses: docker/build-push-action@v6
         with:
@@ -329,21 +329,21 @@ jobs:
           file: pathservice/Containerfile
 
       - name: Generate QA PS Quay artifact attestation
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_PS_IMAGE_NAME}}
           subject-digest: ${{ steps.push-ps-quay.outputs.digest }}
           push-to-registry: true
 
-      
+
       - name: Update coderefs before code changes
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         run: |-
           git pull --ff-only
 
       - name: Update QA PS Quay image
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         id: update_qa_ps_manifest_image
         env:
           PR_TAG: "pr-${{ steps.get_pr_number.outputs.result }}"
@@ -355,7 +355,7 @@ jobs:
           ' deploy/k8s/overlays/openshift/qa/kustomization.yaml
 
       - name: Commit and push bump QA PS Image manifest
-        if: ${{ steps.check_skip.outputs.skip_workflow == 'false' }}
+        if: env.SKIP_WORKFLOW == 'false'
         run: |-
           git config user.name "platform-engineering-bot"
           git config user.email "platform-engineering@redhat.com"
