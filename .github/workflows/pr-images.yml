@@ -34,28 +34,28 @@ jobs:
       - name: Skip if triggered by GitHub Actions bot
         id: check_skip
         run: |-
-          if [[ "$(git log -1 --pretty=format:'%s')" == *"[CI AUTOMATION]:"* ]]; then
-            echo "Workflow triggered by previous action commit. Skipping."
-            echo "SKIP_WORKFLOW='true'" >> "$GITHUB_ENV"
-          else
-            echo "SKIP_WORKFLOW='false'" >> "$GITHUB_ENV"
-          fi
+            if [[ "$(git log -1 --pretty=format:'%s')" == *"[CI AUTOMATION]:"* ]]; then
+              echo "Workflow triggered by previous action commit. Skipping."
+              echo "SKIP_WORKFLOW=true" >> "$GITHUB_ENV"
+            else
+              echo "SKIP_WORKFLOW=false" >> "$GITHUB_ENV"
+            fi
 
       - name: Log in to the GHCR container image registry
         if: env.SKIP_WORKFLOW == 'false'
         uses: docker/login-action@v3
         with:
-          registry: "${{ env.GHCR_REGISTRY }}"
-          username: "${{ github.actor }}"
-          password: "${{ secrets.GITHUB_TOKEN }}"
+          registry: ${{ env.GHCR_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log in to the Quay container image registry
         if: env.SKIP_WORKFLOW == 'false'
         uses: docker/login-action@v3
         with:
-          registry: "${{ env.QUAY_REGISTRY }}"
-          username: "${{ secrets.QUAY_USERNAME }}"
-          password: "${{ secrets.QUAY_TOKEN }}"
+          registry: ${{ env.QUAY_REGISTRY }}
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_TOKEN }}
 
       - name: Set up Docker Buildx
         if: env.SKIP_WORKFLOW == 'false'
@@ -66,7 +66,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: "${{ runner.os }}-buildx-${{ github.sha }}"
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             "${{ runner.os }}-buildx-"
 
