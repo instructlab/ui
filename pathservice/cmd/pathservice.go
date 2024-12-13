@@ -16,9 +16,10 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	git "gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/config"
-	"gopkg.in/src-d/go-git.v4/plumbing"
+	git "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing"
+	githttp "github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
 const (
@@ -51,10 +52,19 @@ func (ps *PathService) cloneRepo() error {
 		ps.logger.Errorf("Repository already exists at %s, skip cloning", repoDir)
 		return nil
 	}
-	_, err := git.PlainClone(repoDir, false, &git.CloneOptions{
-		URL:      repoURL,
+	// Clone options
+	cloneOptions := &git.CloneOptions{
+		URL: repoURL,
+		Auth: &githttp.BasicAuth{
+			Username: "",
+			Password: "",
+		},
 		Progress: os.Stdout,
-	})
+	}
+
+	cloneOptions.InsecureSkipTLS = true
+
+	_, err := git.PlainClone(repoDir, false, cloneOptions)
 	return err
 }
 
