@@ -6,8 +6,8 @@ import path from 'path';
 
 // Get the repository path from the environment variable
 const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || `${process.env.HOME}/.instructlab-ui`;
-const REMOTE_TAXONOMY_REPO_DIR = process.env.NEXT_PUBLIC_TAXONOMY_REPO_DIR || '';
-const REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_REPO_CONTAINER_MOUNT_DIR || '/tmp/.instructlab-ui/taxonomy';
+const REMOTE_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || '';
+const REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR = '/tmp/.instructlab-ui';
 
 interface Diffs {
   file: string;
@@ -69,22 +69,25 @@ export async function POST(req: NextRequest) {
   }
 
   if (action === 'publish') {
-    let remoteTaxonomyRepoDir: string = '';
+    let remoteTaxonomyRepoDirFinal: string = '';
     // Check if directory pointed by remoteTaxonomyRepoDir exists and not empty
-    if (fs.existsSync(REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR) && fs.readdirSync(REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR).length !== 0) {
-      remoteTaxonomyRepoDir = REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR;
+    const remoteTaxonomyRepoContainerMountDir = path.join(REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR, '/taxonomy');
+    const remoteTaxonomyRepoDir = path.join(REMOTE_TAXONOMY_ROOT_DIR, '/taxonomy');
+    if (fs.existsSync(remoteTaxonomyRepoContainerMountDir) && fs.readdirSync(remoteTaxonomyRepoContainerMountDir).length !== 0) {
+      remoteTaxonomyRepoDirFinal = remoteTaxonomyRepoContainerMountDir;
+      console.log('Remote taxonomy repository is mounted at:', remoteTaxonomyRepoDirFinal);
     } else {
-      if (fs.existsSync(REMOTE_TAXONOMY_REPO_DIR) && fs.readdirSync(REMOTE_TAXONOMY_REPO_DIR).length !== 0) {
-        remoteTaxonomyRepoDir = REMOTE_TAXONOMY_REPO_DIR;
+      if (fs.existsSync(remoteTaxonomyRepoDir) && fs.readdirSync(remoteTaxonomyRepoDir).length !== 0) {
+        remoteTaxonomyRepoDirFinal = remoteTaxonomyRepoDir;
       }
     }
-    if (remoteTaxonomyRepoDir === '') {
+    if (remoteTaxonomyRepoDirFinal === '') {
       return NextResponse.json({ error: 'Remote taxonomy repository path does not exist.' }, { status: 400 });
     }
 
-    console.log('Remote taxonomy repository path:', remoteTaxonomyRepoDir);
+    console.log('Remote taxonomy repository path:', remoteTaxonomyRepoDirFinal);
 
-    return handlePublish(branchName, LOCAL_TAXONOMY_DIR, remoteTaxonomyRepoDir);
+    return handlePublish(branchName, LOCAL_TAXONOMY_DIR, remoteTaxonomyRepoDirFinal);
   }
   return NextResponse.json({ error: 'Invalid action specified' }, { status: 400 });
 }
@@ -210,7 +213,7 @@ async function handlePublish(branchName: string, localTaxonomyDir: string, remot
       return NextResponse.json({ error: 'Invalid contribution name for publish' }, { status: 400 });
     }
 
-    console.log(`Publishing contribution from ${branchName} to remote taxonomy repo at ${remoteTaxonomyDir}`);
+    console.log(`Publishing contribution from ${branchName} to remote taxonomy repo at ${REMOTE_TAXONOMY_ROOT_DIR}/taxonomy`);
     const changes = await findDiff(branchName, localTaxonomyDir);
 
     // Check if there are any changes to publish, create a new branch at remoteTaxonomyDir and copy all the files listed in the changes array to the new branch and create a commit
@@ -268,8 +271,8 @@ async function handlePublish(branchName: string, localTaxonomyDir: string, remot
           email: authorEmail
         }
       });
-      console.log(`Successfully published contribution from ${branchName} to remote taxonomy repo at ${remoteTaxonomyDir}`);
-      return NextResponse.json({ message: `Successfully published contribution to ${REMOTE_TAXONOMY_REPO_DIR}.` }, { status: 200 });
+      console.log(`Successfully published contribution from ${branchName} to remote taxonomy repo at ${REMOTE_TAXONOMY_ROOT_DIR}/taxonomy.`);
+      return NextResponse.json({ message: `Successfully published contribution to ${REMOTE_TAXONOMY_ROOT_DIR}/taxonomy.` }, { status: 200 });
     } else {
       return NextResponse.json({ message: `No changes to publish from contribution ${branchName}.` }, { status: 200 });
     }
