@@ -1,4 +1,4 @@
-// src/components/Experimental/ContributeLocal/Knowledge/index.tsx
+// src/components/Contribute/Knowledge/Github/index.tsx
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 import '../knowledge.css';

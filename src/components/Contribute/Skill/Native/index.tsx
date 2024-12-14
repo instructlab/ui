@@ -1,4 +1,4 @@
-// src/components/contribute/Skill/index.tsx
+// src/components/Contribute/Skill/Native/index.tsx
 'use client';
 import React, { useEffect, useState } from 'react';
 import './skills.css';
@@ -392,8 +392,8 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
                   actionGroupAlertContent.success &&
                   actionGroupAlertContent.url &&
                   actionGroupAlertContent.url.trim().length > 0 && (
-                    <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
-                      View your new branch
+                    <a href={actionGroupAlertContent.url} rel="noreferrer">
+                      View your skill contribution
                     </a>
                   )}
               </p>

@@ -2,7 +2,7 @@ import React from 'react';
 import { KnowledgeFormData, KnowledgeYamlData } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
-import { Icon } from '@patternfly/react-core';
+import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
 import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/DropdownItem';
 import CodeIcon from '@patternfly/react-icons/dist/esm/icons/code-icon';
 

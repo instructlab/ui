@@ -1,4 +1,4 @@
-// src/components/Contribute/Skill/index.tsx
+// src/components/Contribute/Skill/Github/index.tsx
 'use client';
 import React, { useEffect, useState } from 'react';
 import './skills.css';

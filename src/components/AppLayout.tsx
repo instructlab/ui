@@ -21,7 +21,7 @@ import { PageSidebar } from '@patternfly/react-core/dist/dynamic/components/Page
 import { PageSidebarBody } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { SkipToContent } from '@patternfly/react-core/dist/dynamic/components/SkipToContent';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
-import { Bullseye } from '@patternfly/react-core';
+import { Bullseye } from '@patternfly/react-core/dist/dynamic/layouts/Bullseye';
 import UserMenu from './UserMenu/UserMenu';
 import { useSession } from 'next-auth/react';
 // import { useTheme } from '../context/ThemeContext';

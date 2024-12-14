@@ -1,6 +1,6 @@
 import React from 'react';
 import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/DropdownItem';
-import { Icon } from '@patternfly/react-core';
+import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
 import FileIcon from '@patternfly/react-icons/dist/esm/icons/file-icon';
 import { KnowledgeFormData } from '@/types';
 
