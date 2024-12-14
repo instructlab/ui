@@ -22,19 +22,16 @@ import { Alert, AlertProps, AlertVariant } from '@patternfly/react-core/dist/esm
 import { AlertActionCloseButton } from '@patternfly/react-core/dist/esm/components/Alert/AlertActionCloseButton';
 import { PencilAltIcon } from '@patternfly/react-icons/dist/esm/icons/pencil-alt-icon';
 import { UploadIcon } from '@patternfly/react-icons/dist/esm/icons/upload-icon';
-import { ModalHeader } from '@patternfly/react-core/dist/esm/components/Modal/ModalHeader';
-import { ModalBody } from '@patternfly/react-core/dist/esm/components/Modal/ModalBody';
-import { FormGroup } from '@patternfly/react-core/dist/esm/components/Form/FormGroup';
-import { Form } from '@patternfly/react-core/dist/esm/components/Form/Form';
-import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/TextInput';
-import { ModalFooter } from '@patternfly/react-core/dist/esm/components/Modal/ModalFooter';
+import { Content } from '@patternfly/react-core/dist/esm/components/Content/Content';
+import { Popover } from '@patternfly/react-core/dist/esm/components/Popover/Popover';
+import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
+import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
 const DashboardNative: React.FunctionComponent = () => {
-  const [branches, setBranches] = React.useState<{ name: string; creationDate: number }[]>([]);
-  const [selectedTaxonomyRepoDir, setSelectedTaxonomyRepoDir] = React.useState<string>('');
-  const [defaultTaxonomyRepoDir, setDefaultTaxonomyRepoDir] = React.useState<string>('');
+  const [branches, setBranches] = React.useState<{ name: string; creationDate: number; message: string; author: string }[]>([]);
+  const [taxonomyRepoDir, setTaxonomyRepoDir] = React.useState<string>('');
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [mergeStatus] = React.useState<{ branch: string; message: string; success: boolean } | null>(null);
   const [diffData, setDiffData] = React.useState<{ branch: string; changes: { file: string; status: string }[] } | null>(null);
@@ -43,6 +40,7 @@ const DashboardNative: React.FunctionComponent = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = React.useState(false);
   const [selectedBranch, setSelectedBranch] = React.useState<string | null>(null);
+  const [isPublishing, setIsPublishing] = React.useState(false);
 
   const getUniqueId = () => new Date().getTime();
 
@@ -53,8 +51,7 @@ const DashboardNative: React.FunctionComponent = () => {
     const getEnvVariables = async () => {
       const res = await fetch('/api/envConfig');
       const envConfig = await res.json();
-      setDefaultTaxonomyRepoDir(envConfig.TAXONOMY_REPO_DIR);
-      setSelectedTaxonomyRepoDir(envConfig.TAXONOMY_REPO_DIR);
+      setTaxonomyRepoDir(envConfig.TAXONOMY_REPO_DIR);
     };
     getEnvVariables();
 
@@ -125,28 +122,6 @@ const DashboardNative: React.FunctionComponent = () => {
     const date = new Date(timestamp);
     return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
   };
-
-  // Disabling Merge for now, leaving the code for when we re-implement the feature.
-  // const handleMerge = async (branchName: string) => {
-  //   setMergeStatus(null); // Clear previous status
-  //   try {
-  //     const response = await fetch('/api/native/git/branches', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({ branchName, action: 'merge' })
-  //     });
-  //
-  //     const result = await response.json();
-  //     if (response.ok) {
-  //       setMergeStatus({ branch: branchName, message: result.message, success: true });
-  //     } else {
-  //       setMergeStatus({ branch: branchName, message: result.error, success: false });
-  //     }
-  //   } catch (error) {
-  //     setMergeStatus({ branch: branchName, message: 'Merge failed due to an unexpected error.', success: false });
-  //     console.error('Error merging branch:', error);
-  //   }
-  // };
 
   const handleShowChanges = async (branchName: string) => {
     try {
@@ -224,18 +199,19 @@ const DashboardNative: React.FunctionComponent = () => {
   };
 
   const handlePublishContributionConfirm = async () => {
+    setIsPublishing(true);
     if (selectedBranch) {
       try {
         const response = await fetch('/api/native/git/branches', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ branchName: selectedBranch, action: 'publish', remoteTaxonomyRepoDir: selectedTaxonomyRepoDir })
+          body: JSON.stringify({ branchName: selectedBranch, action: 'publish' })
         });
 
         const result = await response.json();
         if (response.ok) {
+          setIsPublishing(false);
           addSuccessAlert(result.message);
-          setSelectedTaxonomyRepoDir(defaultTaxonomyRepoDir);
           setSelectedBranch(null);
           setIsPublishModalOpen(false);
         } else {
@@ -247,10 +223,10 @@ const DashboardNative: React.FunctionComponent = () => {
     } else {
       addDangerAlert('No branch selected to publish');
     }
+    setIsPublishing(false);
   };
 
   const handlePublishContributionCancel = () => {
-    setSelectedTaxonomyRepoDir(defaultTaxonomyRepoDir);
     setSelectedBranch(null);
     setIsPublishModalOpen(false);
   };
@@ -264,8 +240,27 @@ const DashboardNative: React.FunctionComponent = () => {
       </PageBreadcrumb>
       <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
         <Title headingLevel="h1" size="lg">
-          Local Git Repository Branches
+          My Submissions
         </Title>
+        <Content>
+          View and manage your taxonomy contributions.
+          <Popover
+            aria-label="Basic popover"
+            bodyContent={
+              <div>
+                Taxonomy contributions help tune the InstructLab model. Contributions can include skills that teach the model how to do something or
+                knowledge that teaches the model facts, data, or references.{' '}
+                <a href="https://docs.instructlab.ai" target="_blank" rel="noopener noreferrer">
+                  Learn more<ExternalLinkAltIcon style={{ padding: '3px' }}></ExternalLinkAltIcon>
+                </a>
+              </div>
+            }
+          >
+            <Button variant="plain" aria-label="more information">
+              <OutlinedQuestionCircleIcon />
+            </Button>
+          </Popover>
+        </Content>
       </PageSection>
 
       <PageSection hasBodyWrapper={false}>
@@ -329,6 +324,9 @@ const DashboardNative: React.FunctionComponent = () => {
                       <FlexItem>
                         Branch Name: {branch.name}
                         <br />
+                        Contribution Title: <b>{branch.message}</b>
+                        <br />
+                        Author: {branch.author} {'    '}
                         Created on: {formatDateTime(branch.creationDate)}
                       </FlexItem>
                       <FlexItem align={{ default: 'alignRight' }}>
@@ -397,40 +395,21 @@ const DashboardNative: React.FunctionComponent = () => {
 
         <Modal
           variant={ModalVariant.small}
+          title="Publishing Contribution"
+          titleIconVariant="warning"
           isOpen={isPublishModalOpen}
           onClose={() => setIsPublishModalOpen(false)}
-          aria-labelledby="form-modal-title"
-          aria-describedby="modal-box-description-form"
-        >
-          <ModalHeader
-            title="Publish Contribution"
-            description="Publish your contribution to remote taxonomy repository"
-            descriptorId="modal-box-description-form"
-            labelId="form-modal-title"
-          />
-          <ModalBody>
-            <Form id="modal-with-form-form">
-              <FormGroup label="Taxonomy Path">
-                <TextInput
-                  isRequired
-                  type="email"
-                  id="modal-with-form-form-name"
-                  name="modal-with-form-form-name"
-                  placeholder={defaultTaxonomyRepoDir === '' ? 'Please enter the taxonomy repo directory path.' : defaultTaxonomyRepoDir}
-                  value={selectedTaxonomyRepoDir}
-                  onChange={(_event, value) => setSelectedTaxonomyRepoDir(value)}
-                />
-              </FormGroup>
-            </Form>
-          </ModalBody>
-          <ModalFooter>
-            <Button key="publish" variant="primary" form="modal-with-form-form" onClick={() => handlePublishContributionConfirm()}>
+          actions={[
+            <Button key="confirm" variant="primary" onClick={() => handlePublishContributionConfirm()}>
               Publish
-            </Button>
-            <Button key="cancel" variant="link" onClick={() => handlePublishContributionCancel()}>
+              {isPublishing && <Spinner isInline aria-label="Publishing contribution" />}
+            </Button>,
+            <Button key="cancel" variant="secondary" onClick={() => handlePublishContributionCancel()}>
               Cancel
             </Button>
-          </ModalFooter>
+          ]}
+        >
+          <p>are you sure you want to publish contribution to remote taxonomy repository present at : {taxonomyRepoDir}?</p>
         </Modal>
       </PageSection>
     </div>

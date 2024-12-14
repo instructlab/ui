@@ -6,6 +6,8 @@ import path from 'path';
 
 // Get the repository path from the environment variable
 const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || `${process.env.HOME}/.instructlab-ui`;
+const REMOTE_TAXONOMY_REPO_DIR = process.env.NEXT_PUBLIC_TAXONOMY_REPO_DIR || '';
+const REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_REPO_CONTAINER_MOUNT_DIR || '/tmp/.instructlab-ui/taxonomy';
 
 interface Diffs {
   file: string;
@@ -28,15 +30,23 @@ export async function GET() {
       const branchCommit = await git.resolveRef({ fs, dir: REPO_DIR, ref: branch });
       const commitDetails = await git.readCommit({ fs, dir: REPO_DIR, oid: branchCommit });
 
+      const commitMessage = commitDetails.commit.message;
+
+      // Check for Signed-off-by line
+      const signoffMatch = commitMessage.match(/^Signed-off-by: (.+)$/m);
+      const signoff = signoffMatch ? signoffMatch[1] : null;
+      const messageStr = commitMessage.split('Signed-off-by');
       branchDetails.push({
         name: branch,
-        creationDate: commitDetails.commit.committer.timestamp * 1000 // Convert to milliseconds
+        creationDate: commitDetails.commit.committer.timestamp * 1000, // Convert to milliseconds
+        message: messageStr[0].replace(/\n+$/, ''),
+        author: signoff
       });
     }
 
     branchDetails.sort((a, b) => b.creationDate - a.creationDate); // Sort by creation date, newest first
 
-    console.log('Branches present in native taxonomy:', branchDetails);
+    console.log('Total branches present in native taxonomy:', branchDetails.length);
     return NextResponse.json({ branches: branchDetails }, { status: 200 });
   } catch (error) {
     console.error('Failed to list branches:', error);
@@ -47,8 +57,8 @@ export async function GET() {
 // Handle POST requests for merge or branch comparison
 export async function POST(req: NextRequest) {
   const LOCAL_TAXONOMY_DIR = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
-  const { branchName, action, remoteTaxonomyRepoDir } = await req.json();
-  console.log('Received POST request:', { branchName, action, remoteTaxonomyRepoDir });
+  const { branchName, action } = await req.json();
+  console.log('Received POST request:', { branchName, action });
 
   if (action === 'delete') {
     return handleDelete(branchName, LOCAL_TAXONOMY_DIR);
@@ -59,6 +69,21 @@ export async function POST(req: NextRequest) {
   }
 
   if (action === 'publish') {
+    let remoteTaxonomyRepoDir: string = '';
+    // Check if directory pointed by remoteTaxonomyRepoDir exists and not empty
+    if (fs.existsSync(REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR) && fs.readdirSync(REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR).length !== 0) {
+      remoteTaxonomyRepoDir = REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR;
+    } else {
+      if (fs.existsSync(REMOTE_TAXONOMY_REPO_DIR) && fs.readdirSync(REMOTE_TAXONOMY_REPO_DIR).length !== 0) {
+        remoteTaxonomyRepoDir = REMOTE_TAXONOMY_REPO_DIR;
+      }
+    }
+    if (remoteTaxonomyRepoDir === '') {
+      return NextResponse.json({ error: 'Remote taxonomy repository path does not exist.' }, { status: 400 });
+    }
+
+    console.log('Remote taxonomy repository path:', remoteTaxonomyRepoDir);
+
     return handlePublish(branchName, LOCAL_TAXONOMY_DIR, remoteTaxonomyRepoDir);
   }
   return NextResponse.json({ error: 'Invalid action specified' }, { status: 400 });
@@ -73,7 +98,7 @@ async function handleDelete(branchName: string, localTaxonomyDir: string) {
     // Delete the target branch
     await git.deleteBranch({ fs, dir: localTaxonomyDir, ref: branchName });
 
-    return NextResponse.json({ message: `Successfully deleted branch ${branchName}.` }, { status: 200 });
+    return NextResponse.json({ message: `Successfully deleted contribution ${branchName}.` }, { status: 200 });
   } catch (error) {
     console.error(`Failed to delete contribution ${branchName}:`, error);
     return NextResponse.json(
@@ -182,7 +207,7 @@ async function getTopCommitDetails(dir: string, ref: string = 'HEAD') {
 async function handlePublish(branchName: string, localTaxonomyDir: string, remoteTaxonomyDir: string) {
   try {
     if (!branchName || branchName === 'main') {
-      return NextResponse.json({ error: 'Invalid branch name for publish' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid contribution name for publish' }, { status: 400 });
     }
 
     console.log(`Publishing contribution from ${branchName} to remote taxonomy repo at ${remoteTaxonomyDir}`);
@@ -244,9 +269,9 @@ async function handlePublish(branchName: string, localTaxonomyDir: string, remot
         }
       });
       console.log(`Successfully published contribution from ${branchName} to remote taxonomy repo at ${remoteTaxonomyDir}`);
-      return NextResponse.json({ message: `Successfully published contribution to ${remoteTaxonomyDir}.` }, { status: 200 });
+      return NextResponse.json({ message: `Successfully published contribution to ${REMOTE_TAXONOMY_REPO_DIR}.` }, { status: 200 });
     } else {
-      return NextResponse.json({ message: `No changes to publish from ${branchName}.` }, { status: 200 });
+      return NextResponse.json({ message: `No changes to publish from contribution ${branchName}.` }, { status: 200 });
     }
   } catch (error) {
     console.error(`Failed to publish contribution from ${branchName}:`, error);
