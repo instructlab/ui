@@ -129,16 +129,16 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
           titleTextSeparator="or"
           infoText="Accepted file types: Markdown"
         />
-        <p className="spinner-container">
+        <div className="spinner-container">
           {isUploading && (
             <>
               <Spinner size="lg" />
               <p>
-                Uploading files to <code>taxonomy-knowledge-docs</code> repo in your github account.
+                Uploading files to <code>taxonomy-knowledge-docs</code> repo in your GitHub account.
               </p>
             </>
           )}
-        </p>
+        </div>
         {showStatus && (
           <MultipleFileUploadStatus
             statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
