@@ -27,8 +27,7 @@ export async function POST() {
       http,
       dir: taxonomyDirectoryPath,
       url: TAXONOMY_REPO_URL,
-      singleBranch: true,
-      depth: 1
+      singleBranch: true
     });
 
     // Include the full path in the response for client display
