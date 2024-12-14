@@ -41,6 +41,7 @@ const DashboardNative: React.FunctionComponent = () => {
   const [isPublishModalOpen, setIsPublishModalOpen] = React.useState(false);
   const [selectedBranch, setSelectedBranch] = React.useState<string | null>(null);
   const [isPublishing, setIsPublishing] = React.useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
 
   const getUniqueId = () => new Date().getTime();
 
@@ -188,9 +189,14 @@ const DashboardNative: React.FunctionComponent = () => {
       }
     }
   };
-  const handleEditContribution = async (branchName: string) => {
+
+  const handleEditContribution = (branchName: string) => {
     setSelectedBranch(branchName);
-    setIsDeleteModalOpen(true);
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false); // Close the modal when needed
   };
 
   const handlePublishContribution = async (branchName: string) => {
@@ -374,6 +380,19 @@ const DashboardNative: React.FunctionComponent = () => {
           ) : (
             <p>No differences found.</p>
           )}
+        </Modal>
+        <Modal
+          variant={ModalVariant.small}
+          title="Edit Contribution"
+          isOpen={isEditModalOpen}
+          onClose={closeEditModal}
+          actions={[
+            <Button key="close" variant="primary" onClick={closeEditModal}>
+              Close
+            </Button>
+          ]}
+        >
+          <p>Not yet implemented for native mode.</p>
         </Modal>
         <Modal
           variant={ModalVariant.small}
