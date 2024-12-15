@@ -32,4 +32,6 @@ playwright/.auth
 deploy/k8s/overlays/kind/umami/umami-secret.yaml
 deploy/k8s/overlays/openshift/umami/qa/umami-secret.yaml
 deploy/k8s/overlays/openshift/umami/prod/umami-secret.yaml
+deploy/podman/github/secret.yaml
+deploy/podman/native/secret.yaml
 

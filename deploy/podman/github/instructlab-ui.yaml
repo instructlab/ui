@@ -52,31 +52,11 @@ spec:
             cpu: "100m"
             memory: "200Mi"
         env:
-        - name: NEXTAUTH_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: ui-env
-              key: NEXTAUTH_SECRET
-        - name: NEXTAUTH_URL
-          valueFrom:
-            secretKeyRef:
-              name: ui-env
-              key: NEXTAUTH_URL
-        - name: IL_UI_ADMIN_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: ui-env
-              key: IL_UI_ADMIN_PASSWORD
         - name: IL_UI_DEPLOYMENT
           valueFrom:
             secretKeyRef:
               name: ui-env
               key: IL_UI_DEPLOYMENT
-        - name: IL_UI_ADMIN_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: ui-env
-              key: IL_UI_ADMIN_USERNAME
         - name: OAUTH_GITHUB_ID
           valueFrom:
             secretKeyRef:
@@ -87,6 +67,46 @@ spec:
             secretKeyRef:
               name: ui-env
               key: OAUTH_GITHUB_SECRET
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: GITHUB_TOKEN
+        - name: NEXTAUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXTAUTH_SECRET
+        - name: NEXTAUTH_URL
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXTAUTH_URL
+        - name: NEXT_PUBLIC_AUTHENTICATION_ORG
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXT_PUBLIC_AUTHENTICATION_ORG
+        - name: NEXT_PUBLIC_TAXONOMY_REPO
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXT_PUBLIC_TAXONOMY_REPO
+        - name: NEXT_PUBLIC_TAXONOMY_REPO_OWNER
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXT_PUBLIC_TAXONOMY_REPO_OWNER
+        - name:  NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key:  NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO
+        - name: NEXT_PUBLIC_EXPERIMENTAL_FEATURES
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXT_PUBLIC_EXPERIMENTAL_FEATURES
         - name: IL_GRANITE_API
           valueFrom:
             secretKeyRef:
@@ -107,36 +127,11 @@ spec:
             secretKeyRef:
               name: ui-env
               key: IL_MERLINITE_MODEL_NAME
-        - name: GITHUB_TOKEN
+        - name: IL_ENABLE_DEV_MODE
           valueFrom:
             secretKeyRef:
               name: ui-env
-              key: GITHUB_TOKEN
-        - name: TAXONOMY_DOCUMENTS_REPO
-          valueFrom:
-            secretKeyRef:
-              name: ui-env
-              key: TAXONOMY_DOCUMENTS_REPO
-        - name: NEXT_PUBLIC_AUTHENTICATION_ORG
-          valueFrom:
-            secretKeyRef:
-              name: ui-env
-              key: NEXT_PUBLIC_AUTHENTICATION_ORG
-        - name: NEXT_PUBLIC_TAXONOMY_REPO_OWNER
-          valueFrom:
-            secretKeyRef:
-              name: ui-env
-              key: NEXT_PUBLIC_TAXONOMY_REPO_OWNER
-        - name: NEXT_PUBLIC_TAXONOMY_REPO
-          valueFrom:
-            secretKeyRef:
-              name: ui-env
-              key: NEXT_PUBLIC_TAXONOMY_REPO
-        - name: NEXT_PUBLIC_EXPERIMENTAL_FEATURES
-          valueFrom:
-            secretKeyRef:
-              name: ui-env
-              key: NEXT_PUBLIC_EXPERIMENTAL_FEATURES
+              key: IL_ENABLE_DEV_MODE
         ports:
         - containerPort: 3000
           hostPort: 3000

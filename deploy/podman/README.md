@@ -1,46 +1,68 @@
 # Podman deployment
 
-To help support knowledge and skill additions as well as the capabilities to chat with a deployed model, the following Podman files have been included to be used with `podman kube play`.
+To help support knowledge and skill additions as well as the capabilities to chat with a deployed model, the following Podman files have been included to be used with `podman kube play`. UI stack supports two mode of deployments:
+
+- Github mode: This mode is used to deploy the UI stack with Github integration. Users can create skill and knowledge and push it to the taxonomy repository present in instructlab org or their own personal clone of the taxonomy repository.
+- Native mode: This mode is used to deploy the UI stack without Github integration. User created skill and knowledge contributions are local to the machine where UI stack is deployed. Users can publish their contribution to any taxonomy repository present on the machine for data generation or training of the model.
 
 ## Secret
 
-A secret is required to personalize the Instructlab UI.
+A secret is required to personalize the Instructlab UI for both the above mentioned modes.
 
 Two options exist to generate the secret, either using `kubectl` or filling in values in the `secret.yaml` provided.
 
-**NOTE:** It is not required to fill in every field. Double quotes `""` can be used for values that are not used.
+> [!NOTE]
+> It is not required to fill in every field. Double quotes `""` can be used for values that are not used.
 
 ### Kubectl secret creation
 
 Using `kubectl`, we will use the `--dry-run -o yaml` flags to generate the secret for us.
 
+#### For Github mode
+
 ```bash
+cd ./github
+
 kubectl create secret generic ui-env \
-  --from-literal=IL_UI_ADMIN_USERNAME=admin \
-  --from-literal=IL_UI_ADMIN_PASSWORD=password \
+  --from-literal=IL_UI_DEPLOYMENT=github \
   --from-literal=OAUTH_GITHUB_ID="" \
   --from-literal=OAUTH_GITHUB_SECRET="" \
+  --from-literal=GITHUB_TOKEN="" \
   --from-literal=NEXTAUTH_SECRET=your_super_secretdom_string \
   --from-literal=NEXTAUTH_URL=http://localhost:3000 \
+  --from-literal=NEXT_PUBLIC_AUTHENTICATION_ORG="" \
+  --from-literal=NEXT_PUBLIC_TAXONOMY_REPO_OWNER="" \
+  --from-literal=NEXT_PUBLIC_TAXONOMY_REPO="" \
+  --from-literal=NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO=github.com/instructlab-public/taxonomy-knowledge-docs \
+  --from-literal=NEXT_PUBLIC_EXPERIMENTAL_FEATURES="false" \
   --from-literal=IL_GRANITE_API="" \
   --from-literal=IL_GRANITE_MODEL_NAME="" \
   --from-literal=IL_MERLINITE_API="" \
   --from-literal=IL_MERLINITE_MODEL_NAME="" \
-  --from-literal=IL_UI_DEPLOYMENT=dev \
-  --from-literal=GITHUB_TOKEN="" \
-  --from-literal=TAXONOMY_DOCUMENTS_REPO=github.com/instructlab-public/taxonomy-knowledge-docs \
-  --from-literal=NEXT_PUBLIC_AUTHENTICATION_ORG="" \
-  --from-literal=NEXT_PUBLIC_TAXONOMY_REPO_OWNER="" \
-  --from-literal=NEXT_PUBLIC_TAXONOMY_REPO="" \
+  --from-literal=IL_ENABLE_DEV_MODE=false \
+  --dry-run=client -o yaml > secret.yaml
+```
+
+#### For Native mode
+
+```bash
+cd ./native
+
+kubectl create secret generic ui-env \
+  --from-literal=IL_UI_DEPLOYMENT=native \
+  --from-literal=IL_UI_ADMIN_USERNAME="" \
+  --from-literal=IL_UI_ADMIN_PASSWORD="" \
+  --from-literal=NEXTAUTH_SECRET=your_super_secretdom_string \
+  --from-literal=NEXTAUTH_URL=http://localhost:3000 \
+  --from-literal=NEXT_PUBLIC_TAXONOMY_ROOT_DIR="" \
   --from-literal=NEXT_PUBLIC_EXPERIMENTAL_FEATURES="false" \
-  --from-literal=NEXT_PUBLIC_BASE_CLONE_DIRECTORY="" \
-  --from-literal=NEXT_PUBLIC_LOCAL_REPO_PATH="" \
+  --from-literal=IL_ENABLE_DEV_MODE=false \
   --dry-run=client -o yaml > secret.yaml
 ```
 
 ### Manual providing values
 
-A file named `secret.yaml` exists to allow for the user to input their values in place. These values must be `base64` encoded.
+A file named `secret.yaml.example` exists for both the modes. Please rename the file to `secret.yaml`. The user can use this file to input their values in place.These values must be `base64` encoded.
 
 Here is an example on how to `base64` encode a value.
 
@@ -52,7 +74,7 @@ Using the above fill in the values as it relates to the environment.
 
 ## Deploy the secret
 
-Now that the `secret.yaml` has been generated use `podman kube play` to load the secret.
+Now that the `secret.yaml` has been generated, use `podman kube play` to load the secret.
 
 ```bash
 podman kube play secret.yaml
@@ -60,7 +82,7 @@ podman kube play secret.yaml
 
 ## Launching the UI
 
-Now with the secret in place use `podman kube play` to launch the containers.
+Now with the secret in place, use `podman kube play` to launch the containers. If you are deploying the Native mode, please replace the `<TAXONOMY_REPO_ROOT_DIR>` variable in `native/instructlab-ui.yaml` with the absolute path of the directory where the taxonomy repository is present. UI will look for the taxonomy repo in this directory to submit the skill and knowledge contributions.
 
 ```bash
 podman kube play instructlab-ui.yaml

@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pathservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pathservice
+  template:
+    metadata:
+      labels:
+        app: pathservice
+    spec:
+      containers:
+      - name: pathservice
+        image: ghcr.io/instructlab/ui/pathservice:main
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "500Mi"
+          requests:
+            cpu: "1000m"
+            memory: "1000Mi"
+        ports:
+        - containerPort: 4000
+          hostPort: 4000
+        imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ui
+  template:
+    metadata:
+      labels:
+        app: ui
+    spec:
+      containers:
+      - name: ui
+        image: ghcr.io/instructlab/ui/ui:main
+        volumeMounts:
+        - name: taxonomy-repo
+          mountPath: /tmp/.instructlab-ui
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "2000Mi"
+          requests:
+            cpu: "1000m"
+            memory: "2000Mi"
+        env:
+        - name: IL_UI_DEPLOYMENT
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_UI_DEPLOYMENT
+        - name: IL_UI_ADMIN_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_UI_ADMIN_USERNAME
+        - name: IL_UI_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_UI_ADMIN_PASSWORD
+        - name: NEXTAUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXTAUTH_SECRET
+        - name: NEXTAUTH_URL
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXTAUTH_URL
+        - name: NEXT_PUBLIC_TAXONOMY_ROOT_DIR
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXT_PUBLIC_TAXONOMY_ROOT_DIR
+        - name: NEXT_PUBLIC_EXPERIMENTAL_FEATURES
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: NEXT_PUBLIC_EXPERIMENTAL_FEATURES
+        - name: IL_ENABLE_DEV_MODE
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_ENABLE_DEV_MODE
+        ports:
+        - containerPort: 3000
+          hostPort: 3000
+        imagePullPolicy: Always
+      volumes:
+      - name: taxonomy-repo
+        hostPath:
+          path: <TAXONOMY_REPO_ROOT_DIR>
+          type: Directory

@@ -81,22 +81,32 @@ start-dev-local:  ## Start the npm and pathservice local instances
 	$(CMD_PREFIX) echo "Development environment started."
 
 ##@ Podman Dev - Podman desktop based Deployment of the UI stack
-.PHONY: stop-dev-podman
-stop-dev-podman:  ## Stop UI development stack running in podman
-	$(CMD_PREFIX) echo "Deleting UI development stack running in podman..."
-	$(CMD_PREFIX) podman-compose -f ./deploy/compose/ui-compose.yml down
-	$(CMD_PREFIX) echo "Development environment deleted."
+.PHONY: stop-dev-native-podman
+stop-dev-native-podman:  ## Stop UI Native mode development stack running in podman
+	$(CMD_PREFIX) echo "Deleting UI Native mode development stack running in podman..."
+	$(CMD_PREFIX) podman kube down ./deploy/podman/native/instructlab-ui.yaml
+	$(CMD_PREFIX) podman kube down ./deploy/podman/native/secret.yaml
+	$(CMD_PREFIX) echo "Development environment for UI Native mode deleted."
 
-.PHONY: start-dev-podman
-start-dev-podman:  ## Start UI development stack in podman
-	$(CMD_PREFIX) echo "Deploying UI development stack using compose..."
-	$(CMD_PREFIX) if [ ! -f .env ]; then \
-		echo "Please create a .env file in the root of the project." ; \
-		exit 1 ; \
-	fi
-	$(CMD_PREFIX) yes | cp -rf .env ./deploy/compose/.env
-	$(CMD_PREFIX) podman-compose -f ./deploy/compose/ui-compose.yml up -d
-	$(CMD_PREFIX) echo "Development environment started."
+.PHONY: start-dev-native-podman
+start-dev-native-podman:  ## Start UI Native mode development stack in podman
+	$(CMD_PREFIX) echo "Deploying UI Native mode development stack using podman..."
+	$(CMD_PREFIX) podman kube play ./deploy/podman/native/secret.yaml
+	$(CMD_PREFIX) podman kube play ./deploy/podman/native/instructlab-ui.yaml
+	$(CMD_PREFIX) echo "Development environment for UI Native mode is started."
+
+.PHONY: stop-dev-github-podman
+stop-dev-github-podman:  ## Stop UI Github mode development stack running in podman
+	$(CMD_PREFIX) echo "Deleting UI Github mode development stack running in podman..."
+	$(CMD_PREFIX) podman kube down ./deploy/podman/github/instructlab-ui.yaml
+	$(CMD_PREFIX) podman kube down ./deploy/podman/github/secret.yaml
+	$(CMD_PREFIX) echo "Development environment for UI Github mode deleted."
+
+.PHONY: start-dev-github-podman
+start-dev-github-podman:  ## Start UI Github mode development stack in podman
+	$(CMD_PREFIX) podman kube play ./deploy/podman/github/secret.yaml
+	$(CMD_PREFIX) podman kube play ./deploy/podman/github/instructlab-ui.yaml
+	$(CMD_PREFIX) echo "Development environment for UI Github mode is started."
 
 ##@ Kubernetes - Kind cluster based dev environment
 .PHONY: check-kind
@@ -185,7 +195,7 @@ undeploy: ## Undeploy the InstructLab UI stack from a kubernetes cluster
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete namespace $(ILAB_KUBE_NAMESPACE)
 
 .PHONY: deploy-umami-kind
-deploy-umami-kind: wait-for-readiness load-images
+deploy-umami-kind: wait-for-readiness load-images ## Deploy Umami stack onto a Kind cluster
 	$(CMD_PREFIX) if [ ! -f .env ]; then \
 		echo "Please create a .env file in the root of the project." ; \
 		exit 1 ; \
@@ -200,7 +210,7 @@ deploy-umami-kind: wait-for-readiness load-images
     echo "Umami ingress deployed to: $$umami_ingress"
 
 .PHONY: undeploy-umami-kind
-undeploy-umami-kind:
+undeploy-umami-kind: ## Undeploy Umami stack from a Kind cluster
 	-$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
 	-$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) delete -k ./deploy/k8s/overlays/kind/umami
 
@@ -231,7 +241,7 @@ undeploy-qa-openshift: ## Undeploy QA stack of the InstructLab UI on OpenShift
 	fi
 
 .PHONY: deploy-umami-qa-openshift
-deploy-umami-qa-openshift:
+deploy-umami-qa-openshift: ## Deploy Umami stack onto an OpenShift QA cluster
 	$(CMD_PREFIX) if [ ! -f .env ]; then \
 		echo "Please create a .env file in the root of the project." ; \
 		exit 1 ; \
@@ -246,7 +256,7 @@ deploy-umami-qa-openshift:
 	echo "Umami route deployed to: $$umami_route"
 
 .PHONY: undeploy-umami-qa-openshift
-undeploy-umami-qa-openshift:
+undeploy-umami-qa-openshift: ## Undeploy Umami stack from an OpenShift QA cluster
 	-$(CMD_PREFIX) $(OC) scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
 	-$(CMD_PREFIX) $(OC) delete -k ./deploy/k8s/overlays/openshift/umami/qa
 
@@ -273,7 +283,7 @@ undeploy-prod-openshift: ## Undeploy production stack of the InstructLab UI on O
 	fi
 
 .PHONY: deploy-umami-prod-openshift
-deploy-umami-prod-openshift: check-kubeseal check-sealed-secrets-controller
+deploy-umami-prod-openshift: check-kubeseal check-sealed-secrets-controller ## Deploy Umami stack onto an OpenShift production cluster
 	$(CMD_PREFIX) if [ ! -f .env ]; then \
 		echo "Please create a .env file in the root of the project." ; \
 		exit 1 ; \
@@ -292,34 +302,35 @@ deploy-umami-prod-openshift: check-kubeseal check-sealed-secrets-controller
 	echo "Umami route deployed to: $$umami_route"
 
 .PHONY: undeploy-umami-prod-openshift
-undeploy-umami-prod-openshift:
+undeploy-umami-prod-openshift: ## Undeploy Umami stack from an OpenShift production cluster
 	-$(CMD_PREFIX) $(OC) scale --replicas=0 deployment/umami -n $(UMAMI_KUBE_NAMESPACE)
 	-$(CMD_PREFIX) $(OC) delete -k ./deploy/k8s/overlays/openshift/umami/prod
 
+##@ DevContainer - UI stack deployment in dev container
 .PHONY: check-dev-container-installed
-check-dev-container-installed:
+check-dev-container-installed: ## Check if devcontainer is installed
 	@if [ -z "${DEVCONTAINER_BINARY_EXISTS}" ]; then \
 		echo "You do not have devcontainer installed, please isntall it!" ; \
 		exit 1 ; \
 	fi;
 
 .PHONY: build-dev-container
-build-dev-container:
+build-dev-container: ## Build the dev container
 	$(MAKE) check-dev-container-installed
 	devcontainer build --workspace-folder=./ --docker-path=${CONTAINER_ENGINE}
 
 .PHONY: start-dev-container
-start-dev-container:
+start-dev-container: ## Start the dev container
 	$(MAKE) check-dev-container-installed
 	devcontainer up --workspace-folder=./ --docker-path=${CONTAINER_ENGINE}
 
 .PHONY: enter-dev-container
-enter-dev-container:
+enter-dev-container: ## Enter the dev container
 	$(MAKE) check-dev-container-installed
 	devcontainer exec --workspace-folder=./ --docker-path=${CONTAINER_ENGINE} bash
 
 .PHONY: cycle-dev-container
-cycle-dev-container:
+cycle-dev-container: ## Recyle (Stop, remove, build and start) the dev container
 	@image_id=$(shell ${CONTAINER_ENGINE} images | grep "quay.io/instructlab-ui/devcontainer" | awk '{print $$3}') && \
 	if [ -n "$$image_id" ]; then \
 		CONTAINER_IDS=$(shell ${CONTAINER_ENGINE} ps -a | grep "quay.io/instructlab-ui/devcontainer" | awk '{print $$1}') && \
