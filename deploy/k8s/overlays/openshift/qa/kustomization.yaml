@@ -32,6 +32,6 @@ patches:
         value: qa.env
 images:
   - name: quay.io/instructlab-ui/ui
-    newTag: pr-422
+    newTag: pr-429
   - name: quay.io/instructlab-ui/pathservice
     newTag: pr-429
