@@ -37,3 +37,11 @@
 .knowledge-form {
   line-height: 3;
 }
+
+.pf-v6-c-wizard {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 60vh;
+  overflow: hidden;
+}
