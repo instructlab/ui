@@ -9,7 +9,6 @@ import UserMenu from './UserMenu/UserMenu';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import {
-<<<<<<< HEAD
   Bullseye,
   Spinner,
   Masthead,
@@ -33,14 +32,12 @@ import {
 import { BarsIcon } from '@patternfly/react-icons';
 import ThemePreference from '@/components/ThemePreference/ThemePreference';
 import '../styles/globals.scss';
-=======
   PROD_DEPLOYMENT_ENVIRONMENT,
   PROD_METRICS_WEBSITE_ID,
   QA_DEPLOYMENT_ENVIRONMENT,
   QA_METRICS_WEBSITE_ID,
   UMAMI_METRICS_SCRIPT_SOURCE
 } from '../types/const';
->>>>>>> 1d9ee15 (add umami tracking codes via script tags)
 
 interface IAppLayout {
   children: React.ReactNode;
