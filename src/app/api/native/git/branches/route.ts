@@ -19,7 +19,7 @@ export async function GET() {
   try {
     // Ensure the repository path exists
     if (!fs.existsSync(REPO_DIR)) {
-      return NextResponse.json({ error: 'Repository path does not exist.' }, { status: 400 });
+      return NextResponse.json({ error: 'Local repository path does not exist.' }, { status: 400 });
     }
 
     // List all branches in the repository
@@ -46,15 +46,15 @@ export async function GET() {
 
     branchDetails.sort((a, b) => b.creationDate - a.creationDate); // Sort by creation date, newest first
 
-    console.log('Total branches present in native taxonomy:', branchDetails.length);
+    console.log('Total branches present in local taxonomy:', branchDetails.length);
     return NextResponse.json({ branches: branchDetails }, { status: 200 });
   } catch (error) {
-    console.error('Failed to list branches:', error);
-    return NextResponse.json({ error: 'Failed to list branches' }, { status: 500 });
+    console.error('Failed to list branches from local taxonomy:', error);
+    return NextResponse.json({ error: 'Failed to list branches from local taxonomy' }, { status: 500 });
   }
 }
 
-// Handle POST requests for merge or branch comparison
+// Handle POST requests for delete/diff/publish actions
 export async function POST(req: NextRequest) {
   const LOCAL_TAXONOMY_DIR = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
   const { branchName, action } = await req.json();
@@ -70,13 +70,16 @@ export async function POST(req: NextRequest) {
 
   if (action === 'publish') {
     let remoteTaxonomyRepoDirFinal: string = '';
-    // Check if directory pointed by remoteTaxonomyRepoDir exists and not empty
+
     const remoteTaxonomyRepoContainerMountDir = path.join(REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR, '/taxonomy');
     const remoteTaxonomyRepoDir = path.join(REMOTE_TAXONOMY_ROOT_DIR, '/taxonomy');
+
+    // Check if there is taxonomy repository mounted in the container
     if (fs.existsSync(remoteTaxonomyRepoContainerMountDir) && fs.readdirSync(remoteTaxonomyRepoContainerMountDir).length !== 0) {
       remoteTaxonomyRepoDirFinal = remoteTaxonomyRepoContainerMountDir;
-      console.log('Remote taxonomy repository is mounted at:', remoteTaxonomyRepoDirFinal);
+      console.log('Remote taxonomy repository ', remoteTaxonomyRepoDir, ' is mounted at:', remoteTaxonomyRepoDirFinal);
     } else {
+      // If remote taxonomy is not mounted, it means it's local deployment and we can directly use the paths
       if (fs.existsSync(remoteTaxonomyRepoDir) && fs.readdirSync(remoteTaxonomyRepoDir).length !== 0) {
         remoteTaxonomyRepoDirFinal = remoteTaxonomyRepoDir;
       }
@@ -216,7 +219,8 @@ async function handlePublish(branchName: string, localTaxonomyDir: string, remot
     console.log(`Publishing contribution from ${branchName} to remote taxonomy repo at ${REMOTE_TAXONOMY_ROOT_DIR}/taxonomy`);
     const changes = await findDiff(branchName, localTaxonomyDir);
 
-    // Check if there are any changes to publish, create a new branch at remoteTaxonomyDir and copy all the files listed in the changes array to the new branch and create a commit
+    // Check if there are any changes to publish, create a new branch at remoteTaxonomyDir and
+    // copy all the files listed in the changes array to the new branch and create a commit
     if (changes.length > 0) {
       const remoteBranchName = branchName;
       await git.checkout({ fs, dir: localTaxonomyDir, ref: branchName });
@@ -239,7 +243,7 @@ async function handlePublish(branchName: string, localTaxonomyDir: string, remot
 
       // Copy the files listed in the changes array to the remote branch and if the directories do not exist, create them
       for (const change of changes) {
-        console.log(`Copying ${change.file} to remote branch`);
+        console.log(`Copying ${change.file} to remote branch ${remoteBranchName}`);
         const filePath = path.join(localTaxonomyDir, change.file);
         const remoteFilePath = path.join(remoteTaxonomyDir, change.file);
         const remoteFileDir = path.dirname(remoteFilePath);
@@ -271,8 +275,11 @@ async function handlePublish(branchName: string, localTaxonomyDir: string, remot
           email: authorEmail
         }
       });
-      console.log(`Successfully published contribution from ${branchName} to remote taxonomy repo at ${REMOTE_TAXONOMY_ROOT_DIR}/taxonomy.`);
-      return NextResponse.json({ message: `Successfully published contribution to ${REMOTE_TAXONOMY_ROOT_DIR}/taxonomy.` }, { status: 200 });
+      console.log(`Successfully published contribution ${branchName} to remote taxonomy repo at ${REMOTE_TAXONOMY_ROOT_DIR}/taxonomy.`);
+      return NextResponse.json(
+        { message: `Successfully published contribution ${branchName} to ${REMOTE_TAXONOMY_ROOT_DIR}/taxonomy.` },
+        { status: 200 }
+      );
     } else {
       return NextResponse.json({ message: `No changes to publish from contribution ${branchName}.` }, { status: 200 });
     }

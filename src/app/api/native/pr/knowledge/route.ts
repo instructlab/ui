@@ -71,9 +71,10 @@ Creator names: ${attribution.creator_names}
     });
 
     // Respond with success message and branch name
-    return NextResponse.json({ message: 'Branch and commit created locally', branch: branchName }, { status: 201 });
+    console.log(`Knowledge contribution submitted successfully to local taxonomy repo. Submission Name is ${branchName}.`);
+    return NextResponse.json({ message: 'Knowledge contribution submitted successfully.', branch: branchName }, { status: 201 });
   } catch (error) {
-    console.error('Failed to create local branch and commit:', error);
-    return NextResponse.json({ error: 'Failed to create local branch and commit' }, { status: 500 });
+    console.error(`Failed to submit knowledge contribution to local taxonomy repo:`, error);
+    return NextResponse.json({ error: 'Failed to submit knowledge contribution.' }, { status: 500 });
   }
 }
