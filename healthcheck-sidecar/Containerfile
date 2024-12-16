@@ -1,0 +1,29 @@
+FROM registry.access.redhat.com/ubi9-minimal:9.5-1731593028
+
+WORKDIR /home
+
+RUN useradd -u 1001 -g root --home-dir /opt/app-root/src -s /sbin/nologin --comment "Default Application User" default && \
+    mkdir -p /opt/app-root/src/.local && \
+    touch /opt/app-root/src/sidecar.log && \
+    chmod -R g+w /opt/app-root/src
+
+WORKDIR /opt/app-root/src
+
+RUN microdnf install -y jq python3 python3-pip  && \
+    microdnf clean all
+
+COPY sidecar_script.py .
+COPY requirements.txt .
+
+RUN python3 -m pip install -r requirements.txt
+
+RUN chown -R default:root /opt/app-root/src/
+
+USER default
+
+ENV HOME=/opt/app-root/src \
+    PATH=/opt/app-root/src/.local/bin:$PATH
+
+RUN chmod -R g+rwX /opt/app-root/src
+
+ENTRYPOINT ["python3", "sidecar_script.py"]
