@@ -1,4 +1,4 @@
-// src/components/YamlCodeModal.tsx
+// src/components/YamlCodeModal/index.tsx
 'use client';
 import React from 'react';
 import { Modal } from '@patternfly/react-core/components';
@@ -15,24 +15,18 @@ interface YamlCodeModalProps {
 
 export const YamlCodeModal: React.FC<YamlCodeModalProps> = ({ isModalOpen, handleModalToggle, yamlContent }) => {
   return (
-    <Modal
-      variant={ModalVariant.medium}
-      title="Current YAML"
-      isOpen={isModalOpen}
-      onClose={handleModalToggle}
-      aria-label="YAML Code Modal"
-      // TODO: fix the typecheck error
-      // @ts-expect-error: Property 'actions' does not exist on type 'ModalProps'
-      actions={[
-        <Button key="close" variant="primary" onClick={handleModalToggle}>
+    <Modal variant={ModalVariant.medium} title="Current YAML" isOpen={isModalOpen} onClose={handleModalToggle} aria-label="YAML Code Modal">
+      <div style={{ padding: '40px' }}>
+        <CodeBlock>
+          <CodeBlockCode>{yamlContent}</CodeBlockCode>
+        </CodeBlock>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 20px' }}>
+        <Button variant="primary" onClick={handleModalToggle} style={{ marginRight: '10px' }}>
           Close
-        </Button>,
-        <CopyToClipboardButton key="copy" text={yamlContent} />
-      ]}
-    >
-      <CodeBlock>
-        <CodeBlockCode>{yamlContent}</CodeBlockCode>
-      </CodeBlock>
+        </Button>
+        <CopyToClipboardButton text={yamlContent} />
+      </div>
     </Modal>
   );
 };
