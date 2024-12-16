@@ -34,4 +34,4 @@ images:
   - name: quay.io/instructlab-ui/ui
     newTag: pr-430
   - name: quay.io/instructlab-ui/pathservice
-    newTag: pr-430
+    newTag: pr-431
