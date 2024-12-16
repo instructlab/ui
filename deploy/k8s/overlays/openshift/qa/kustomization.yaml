@@ -27,35 +27,11 @@ patches:
   - target:
       kind: Deployment
       name: ui
-    patch: |-
-      - op: replace
-        path: /spec/template/spec/containers/0/envFrom/0/secretRef/name
-        value: qa.env
-      - op: add 
-        path: /spec/template/spec/containers/0/readinessProbe
-        value:
-          exec:
-            command:
-              - sh
-              - -c
-              - "/opt/app-root/src/src/healthcheck-probe.sh"
-          initialDelaySeconds: 5
-          periodSeconds: 10
-      - op: add
-        path: /spec/template/spec/containers/-
-        value:
-          name: model-endpoint-healthcheck-sidecar
-          image: quay.io/instructlab-ui/healthcheck-sidecar
-          imagePullPolicy: Always # until image lands in quay cannot use pullPolicy: Always
-          ports:
-            - containerPort: 8080
-          envFrom:
-            - secretRef:
-                name: qa.env
+    patch: "- op: replace\n  path: /spec/template/spec/containers/0/envFrom/0/secretRef/name\n  value: qa.env\n- op: add \n  path: /spec/template/spec/containers/0/readinessProbe\n  value:\n    exec:\n      command:\n        - sh\n        - -c\n        - \"/opt/app-root/src/src/healthcheck-probe.sh\"\n    initialDelaySeconds: 5\n    periodSeconds: 10\n- op: add\n  path: /spec/template/spec/containers/-\n  value:\n    name: model-endpoint-healthcheck-sidecar\n    image: quay.io/instructlab-ui/healthcheck-sidecar\n    imagePullPolicy: Always # until image lands in quay cannot use pullPolicy: Always\n    ports:\n      - containerPort: 8080\n    envFrom:\n      - secretRef:\n          name: qa.env"
 images:
   - name: quay.io/instructlab-ui/ui
     newTag: pr-435
   - name: quay.io/instructlab-ui/pathservice
     newTag: pr-435
   - name: quay.io/instructlab-ui/healthcheck-sidecar
-    newTag: main
+    newTag: pr-375
