@@ -218,20 +218,21 @@ const DashboardNative: React.FunctionComponent = () => {
 
         const result = await response.json();
         if (response.ok) {
-          setIsPublishing(false);
           addSuccessAlert(result.message);
-          setSelectedBranch(null);
-          setIsPublishModalOpen(false);
         } else {
           console.error('Failed to publish the contribution:', result.error);
+          addDangerAlert(`Failed to publish the contribution:', ${result.error}`);
         }
       } catch (error) {
         console.error('Error while publishing the contribution:', error);
+        addDangerAlert(`Error while publishing the contribution: ${error}`);
       }
     } else {
       addDangerAlert('No branch selected to publish');
     }
     setIsPublishing(false);
+    setSelectedBranch(null);
+    setIsPublishModalOpen(false);
   };
 
   const handlePublishContributionCancel = () => {

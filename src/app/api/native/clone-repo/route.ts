@@ -31,11 +31,11 @@ export async function POST() {
     });
 
     // Include the full path in the response for client display
-    console.log(`Repository cloned successfully to ${LOCAL_TAXONOMY_ROOT_DIR}.`);
-    return NextResponse.json({ message: `Repository cloned successfully to ${LOCAL_TAXONOMY_ROOT_DIR}.` }, { status: 200 });
+    console.log(`Local Taxonomy repository cloned successfully to ${taxonomyDirectoryPath}.`);
+    return NextResponse.json({ message: `Local Taxonomy repository cloned successfully to ${taxonomyDirectoryPath}.` }, { status: 200 });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    console.error(`Failed to clone taxonomy repository: ${errorMessage}`);
-    return NextResponse.json({ message: `Failed to clone taxonomy repository: ${errorMessage}` }, { status: 500 });
+    console.error(`Failed to clone local taxonomy repository: ${errorMessage}`);
+    return NextResponse.json({ message: `Failed to clone local taxonomy repository: ${errorMessage}` }, { status: 500 });
   }
 }

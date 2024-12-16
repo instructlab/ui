@@ -5,6 +5,8 @@ import * as git from 'isomorphic-git';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
+import { AttributionData, SkillYamlData } from '@/types';
+import { dumpYaml } from '@/utils/yamlConfig';
 
 // Define paths and configuration
 const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || `${process.env.HOME}/.instructlab-ui`;
@@ -22,12 +24,14 @@ export async function POST(req: NextRequest) {
     const newYamlFilePath = path.join(SKILLS_DIR, filePath, 'qna.yaml');
     const newAttributionFilePath = path.join(SKILLS_DIR, filePath, 'attribution.txt');
 
-    // Prepare file content
-    const yamlString = yaml.dump(content);
+    const skillData = yaml.load(content) as SkillYamlData;
+    const attributionData = attribution as AttributionData;
+
+    const yamlString = dumpYaml(skillData);
     const attributionString = `
-Title of work: ${attribution.title_of_work}
-License of the work: ${attribution.license_of_the_work}
-Creator names: ${attribution.creator_names}
+Title of work: ${attributionData.title_of_work}
+License of the work: ${attributionData.license_of_the_work}
+Creator names: ${attributionData.creator_names}
 `;
 
     // Initialize the repository if it doesn’t exist
@@ -64,9 +68,10 @@ Creator names: ${attribution.creator_names}
     });
 
     // Respond with success
-    return NextResponse.json({ message: 'Branch and commit created locally', branch: branchName }, { status: 201 });
+    console.log('Skill contribution submitted successfully. Submission name is ', branchName);
+    return NextResponse.json({ message: 'Skill contribution submitted successfully.', branch: branchName }, { status: 201 });
   } catch (error) {
     console.error('Failed to create local branch and commit:', error);
-    return NextResponse.json({ error: 'Failed to create local branch and commit' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to submit skill contribution.' }, { status: 500 });
   }
 }

@@ -2,7 +2,7 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 import '../knowledge.css';
-import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Alert, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { getGitHubUsername } from '@/utils/github';
 import { useSession } from 'next-auth/react';
@@ -26,7 +26,7 @@ import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/consta
 import { DownloadDropdown } from '@/components/Contribute/Knowledge/DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from '@/components/Contribute/Knowledge/ViewDropdown/ViewDropdown';
 import Update from '@/components/Contribute/Knowledge/Github/Update/Update';
-import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair } from '@/types';
+import { KnowledgeEditFormData, KnowledgeFormData, KnowledgeYamlData, QuestionAndAnswerPair } from '@/types';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button';
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from '@/components/Contribute/Knowledge/AutoFill';
@@ -34,6 +34,9 @@ import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
 import { Wizard, WizardStep } from '@patternfly/react-core/dist/esm/components/Wizard';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import ReviewSubmission from '@/components/Contribute/Knowledge/ReviewSubmission';
+import { Flex } from '@patternfly/react-core/dist/esm/layouts/Flex/Flex';
+import { FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex/FlexItem';
+import { YamlFileUploadModal } from '../../YamlFileUploadModal';
 
 export interface ActionGroupAlertContent {
   title: string;
@@ -82,6 +85,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
 
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const router = useRouter();
 
@@ -396,6 +400,32 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     setSeedExamples(autoFillKnowledgeFields.seedExamples);
   };
 
+  const yamlSeedExampleToFormSeedExample = (
+    yamlSeedExamples: { context: string; questions_and_answers: { question: string; answer: string }[] }[]
+  ) => {
+    return yamlSeedExamples.map((yamlSeedExample) => ({
+      immutable: true,
+      isExpanded: false,
+      context: yamlSeedExample.context ?? '',
+      isContextValid: ValidatedOptions.default,
+      questionAndAnswers: yamlSeedExample.questions_and_answers.map((questionAndAnswer) => ({
+        question: questionAndAnswer.question ?? '',
+        answer: questionAndAnswer.answer ?? ''
+      }))
+    })) as KnowledgeSeedExample[];
+  };
+
+  const onYamlUploadKnowledgeFillForm = (data: KnowledgeYamlData): void => {
+    setName(data.created_by ?? '');
+    setDocumentOutline(data.document_outline ?? '');
+    setSubmissionSummary(data.document_outline ?? '');
+    setDomain(data.domain ?? '');
+    setKnowledgeDocumentRepositoryUrl(data.document.repo ?? '');
+    setKnowledgeDocumentCommit(data.document.commit ?? '');
+    setDocumentName(data.document.patterns.join(', ') ?? '');
+    setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
+  };
+
   const knowledgeFormData: KnowledgeFormData = {
     email: email,
     name: name,
@@ -544,17 +574,33 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
       </PageBreadcrumb>
 
       <PageSection className="knowledge-form" style={{ backgroundColor: 'white' }}>
-        <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
-          Knowledge Contribution
-        </Title>
+        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+          <FlexItem>
+            <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>
+              Knowledge Contribution
+            </Title>
+          </FlexItem>
+          <FlexItem>
+            {devModeEnabled && (
+              <Button variant="secondary" onClick={autoFillForm}>
+                Auto-Fill
+              </Button>
+            )}
+            {'  '}
+            <Button variant="secondary" aria-label="User upload of pre-existing yaml file" onClick={() => setIsModalOpen(true)}>
+              Upload a YAML file
+            </Button>
+          </FlexItem>
+        </Flex>
         <Content>
           <KnowledgeDescriptionContent />
         </Content>
-        {devModeEnabled && (
-          <Button variant="primary" onClick={autoFillForm}>
-            Auto-Fill
-          </Button>
-        )}
+        <YamlFileUploadModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          isKnowledgeForm={true}
+          onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
+        />
 
         <Wizard startIndex={activeStepIndex} onClose={handleCancel} height={600}>
           {steps.map((step) => (
@@ -565,27 +611,29 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
         </Wizard>
 
         {actionGroupAlertContent && (
-          <Alert
-            variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
-            title={actionGroupAlertContent.title}
-            timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
-            onTimeout={onCloseActionGroupAlert}
-            actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
-          >
-            <p>
-              {actionGroupAlertContent.waitAlert && <Spinner size="md" />}
-              {actionGroupAlertContent.message}
-              <br />
-              {!actionGroupAlertContent.waitAlert &&
-                actionGroupAlertContent.success &&
-                actionGroupAlertContent.url &&
-                actionGroupAlertContent.url.trim().length > 0 && (
-                  <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
-                    View your new branch
-                  </a>
-                )}
-            </p>
-          </Alert>
+          <AlertGroup isToast isLiveRegion>
+            <Alert
+              variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
+              title={actionGroupAlertContent.title}
+              timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
+              onTimeout={onCloseActionGroupAlert}
+              actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
+            >
+              <p>
+                {actionGroupAlertContent.waitAlert && <Spinner size="md" />}
+                {actionGroupAlertContent.message}
+                <br />
+                {!actionGroupAlertContent.waitAlert &&
+                  actionGroupAlertContent.success &&
+                  actionGroupAlertContent.url &&
+                  actionGroupAlertContent.url.trim().length > 0 && (
+                    <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
+                      View your new branch
+                    </a>
+                  )}
+              </p>
+            </Alert>
+          </AlertGroup>
         )}
 
         <ActionGroup>

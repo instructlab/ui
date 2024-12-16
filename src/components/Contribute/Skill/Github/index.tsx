@@ -2,7 +2,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import './skills.css';
-import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Alert, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { getGitHubUsername } from '../../../../utils/github';
@@ -84,7 +84,6 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
-
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const router = useRouter();
@@ -362,6 +361,12 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
             </Title>
           </FlexItem>
           <FlexItem>
+            {devModeEnabled && (
+              <Button variant="secondary" onClick={autoFillForm}>
+                Auto-Fill
+              </Button>
+            )}
+            {'  '}
             <Button variant="secondary" aria-label="User upload of pre-existing yaml file" onClick={() => setIsModalOpen(true)}>
               Upload a YAML file
             </Button>
@@ -370,11 +375,6 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
         <Content>
           <SkillsDescriptionContent />
         </Content>
-        {devModeEnabled && (
-          <Button variant="primary" onClick={autoFillForm}>
-            Auto-Fill
-          </Button>
-        )}
 
         <YamlFileUploadModal
           isModalOpen={isModalOpen}
@@ -438,27 +438,29 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
           />
 
           {actionGroupAlertContent && (
-            <Alert
-              variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
-              title={actionGroupAlertContent.title}
-              timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
-              onTimeout={onCloseActionGroupAlert}
-              actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
-            >
-              <p>
-                {actionGroupAlertContent.waitAlert && <Spinner size="md" />}
-                {actionGroupAlertContent.message}
-                <br />
-                {!actionGroupAlertContent.waitAlert &&
-                  actionGroupAlertContent.success &&
-                  actionGroupAlertContent.url &&
-                  actionGroupAlertContent.url.trim().length > 0 && (
-                    <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
-                      View your pull request
-                    </a>
-                  )}
-              </p>
-            </Alert>
+            <AlertGroup isToast isLiveRegion>
+              <Alert
+                variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
+                title={actionGroupAlertContent.title}
+                timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
+                onTimeout={onCloseActionGroupAlert}
+                actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
+              >
+                <p>
+                  {actionGroupAlertContent.waitAlert && <Spinner size="md" />}
+                  {actionGroupAlertContent.message}
+                  <br />
+                  {!actionGroupAlertContent.waitAlert &&
+                    actionGroupAlertContent.success &&
+                    actionGroupAlertContent.url &&
+                    actionGroupAlertContent.url.trim().length > 0 && (
+                      <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
+                        View your pull request
+                      </a>
+                    )}
+                </p>
+              </Alert>
+            </AlertGroup>
           )}
 
           <ActionGroup>

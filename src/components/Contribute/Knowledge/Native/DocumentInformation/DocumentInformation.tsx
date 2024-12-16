@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
-import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Alert, AlertActionLink, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
@@ -41,18 +41,17 @@ const DocumentInformation: React.FC<Props> = ({
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalText, setModalText] = useState<string | undefined>();
-
-  const [successAlertTitle, setSuccessAlertTitle] = useState<string | undefined>();
-  const [successAlertMessage, setSuccessAlertMessage] = useState<string | undefined>();
-  const [successAlertLink, setSuccessAlertLink] = useState<string | undefined>();
-
-  const [failureAlertTitle, setFailureAlertTitle] = useState<string | undefined>();
-  const [failureAlertMessage, setFailureAlertMessage] = useState<string | undefined>();
-
+  const [alertInfo, setAlertInfo] = useState<AlertInfo | undefined>();
   const [validRepo, setValidRepo] = useState<ValidatedOptions>();
   const [validCommit, setValidCommit] = useState<ValidatedOptions>();
   const [validDocumentName, setValidDocumentName] = useState<ValidatedOptions>();
 
+  interface AlertInfo {
+    type: 'success' | 'danger' | 'info';
+    title: string;
+    message: string;
+    link?: string;
+  }
   useEffect(() => {
     setValidRepo(ValidatedOptions.default);
     setValidCommit(ValidatedOptions.default);
@@ -116,6 +115,13 @@ const DocumentInformation: React.FC<Props> = ({
 
   const handleDocumentUpload = async () => {
     if (uploadedFiles.length > 0) {
+      const alertInfo: AlertInfo = {
+        type: 'info',
+        title: 'Document upload(s) in progress!',
+        message: 'Document upload(s) is in progress. You will be notified once the upload successfully completes.'
+      };
+      setAlertInfo(alertInfo);
+
       const fileContents: { fileName: string; fileContent: string }[] = [];
 
       await Promise.all(
@@ -144,9 +150,13 @@ const DocumentInformation: React.FC<Props> = ({
         });
 
         if (!response.ok) {
-          setFailureAlertTitle('Failed to upload document');
-          setFailureAlertMessage(`This upload failed. ${response.statusText}`);
-          new Error(response.statusText || 'Failed to upload document');
+          const alertInfo: AlertInfo = {
+            type: 'danger',
+            title: 'Document upload failed!',
+            message: `Upload failed for the added documents. ${response.statusText}`
+          };
+          setAlertInfo(alertInfo);
+          new Error(response.statusText || 'Document upload failed');
           return;
         }
 
@@ -156,24 +166,22 @@ const DocumentInformation: React.FC<Props> = ({
         setKnowledgeDocumentCommit(result.commitSha);
         setDocumentName(result.documentNames.join(', ')); // Populate the patterns field
         console.log('Files uploaded:', result.documentNames);
-        setSuccessAlertTitle('Document uploaded successfully!');
-        setSuccessAlertMessage('Documents have been uploaded to your repo to be referenced in the knowledge submission.');
+
+        const alertInfo: AlertInfo = {
+          type: 'success',
+          title: 'Document uploaded successfully!',
+          message: 'Documents have been uploaded to your repo to be referenced in the knowledge submission.'
+        };
         if (result.prUrl !== '') {
-          setSuccessAlertLink(result.prUrl);
+          alertInfo.link = result.prUrl;
         }
+        setAlertInfo(alertInfo);
       }
     }
   };
 
   const onCloseSuccessAlert = () => {
-    setSuccessAlertTitle(undefined);
-    setSuccessAlertMessage(undefined);
-    setSuccessAlertLink(undefined);
-  };
-
-  const onCloseFailureAlert = () => {
-    setFailureAlertTitle(undefined);
-    setFailureAlertMessage(undefined);
+    setAlertInfo(undefined);
   };
 
   const handleAutomaticUpload = () => {
@@ -211,17 +219,7 @@ const DocumentInformation: React.FC<Props> = ({
 
   return (
     <div>
-      <FormFieldGroupHeader
-        titleText={{
-          text: (
-            <p>
-              Document Information <span style={{ color: 'red' }}>*</span>
-            </p>
-          ),
-          id: 'doc-info-id'
-        }}
-        titleDescription="Add the relevant document's information"
-      />
+      <FormFieldGroupHeader titleDescription="Add the relevant document's information: " />
       <FormGroup>
         <div style={{ display: 'flex', gap: '10px' }}>
           <Button
@@ -341,27 +339,25 @@ const DocumentInformation: React.FC<Props> = ({
         </>
       )}
 
-      {successAlertTitle && successAlertMessage && successAlertLink && (
-        <Alert
-          variant="success"
-          title={successAlertTitle}
-          actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}
-          actionLinks={
-            <>
-              <AlertActionLink component="a" href={successAlertLink} target="_blank" rel="noopener noreferrer">
-                View it here
-              </AlertActionLink>
-            </>
-          }
-        >
-          {successAlertMessage}
-        </Alert>
-      )}
-
-      {failureAlertTitle && failureAlertMessage && (
-        <Alert variant="danger" title={failureAlertTitle} actionClose={<AlertActionCloseButton onClose={onCloseFailureAlert} />}>
-          {failureAlertMessage}
-        </Alert>
+      {alertInfo && (
+        <AlertGroup isToast isLiveRegion>
+          <Alert
+            variant={alertInfo.type}
+            title={alertInfo.title}
+            actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}
+            actionLinks={
+              alertInfo.link && (
+                <>
+                  <AlertActionLink component="a" href={alertInfo.link} rel="noopener noreferrer">
+                    View it here
+                  </AlertActionLink>
+                </>
+              )
+            }
+          >
+            {alertInfo.message}
+          </Alert>
+        </AlertGroup>
       )}
     </div>
   );

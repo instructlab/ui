@@ -2,7 +2,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import './skills.css';
-import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Alert, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { useSession } from 'next-auth/react';
@@ -23,7 +23,7 @@ import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/consta
 import { DownloadDropdown } from '@/components/Contribute/Skill/DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from '@/components/Contribute/Skill/ViewDropdown/ViewDropdown';
 import Update from '@/components/Contribute/Skill/Github/Update/Update';
-import { PullRequestFile, SkillSeedExample, SkillFormData } from '@/types';
+import { PullRequestFile, SkillSeedExample, SkillFormData, SkillYamlData } from '@/types';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button';
 import { useRouter } from 'next/navigation';
 import SkillsSeedExample from '@/components/Contribute/Skill/SkillsSeedExample/SkillsSeedExample';
@@ -31,6 +31,9 @@ import SkillsInformation from '@/components/Contribute/Skill/SkillsInformation/S
 import SkillsDescriptionContent from '@/components/Contribute/Skill/SkillsDescription/SkillsDescriptionContent';
 import { autoFillSkillsFields } from '@/components/Contribute/Skill/AutoFill';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { Flex } from '@patternfly/react-core/dist/esm/layouts/Flex/Flex';
+import { FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex/FlexItem';
+import { YamlFileUploadModal } from '../../YamlFileUploadModal';
 
 export interface SkillEditFormData {
   isEditForm: boolean;
@@ -78,9 +81,9 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
   const [creators, setCreators] = useState<string>('');
 
   const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
-
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const router = useRouter();
 
@@ -281,6 +284,23 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
     setSeedExamples(autoFillSkillsFields.seedExamples);
   };
 
+  const yamlSeedExampleToFormSeedExample = (yamlSeedExamples: { question: string; context?: string | undefined; answer: string }[]) => {
+    return yamlSeedExamples.map((yamlSeedExample) => ({
+      immutable: true,
+      isExpanded: false,
+      context: yamlSeedExample.context ?? '',
+      isContextValid: ValidatedOptions.default,
+      question: yamlSeedExample.question,
+      answer: yamlSeedExample.answer
+    })) as SkillSeedExample[];
+  };
+
+  const onYamlUploadSkillsFillForm = (data: SkillYamlData): void => {
+    setName(data.created_by ?? '');
+    setDocumentOutline(data.task_description ?? '');
+    setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
+  };
+
   const skillFormData: SkillFormData = {
     email: email,
     name: name,
@@ -311,17 +331,34 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
       </PageBreadcrumb>
 
       <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
-        <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
-          Skill Contribution
-        </Title>
+        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+          <FlexItem>
+            <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>
+              Skill Contribution
+            </Title>
+          </FlexItem>
+          <FlexItem>
+            {devModeEnabled && (
+              <Button variant="secondary" onClick={autoFillForm}>
+                Auto-Fill
+              </Button>
+            )}
+            {'  '}
+            <Button variant="secondary" aria-label="User upload of pre-existing yaml file" onClick={() => setIsModalOpen(true)}>
+              Upload a YAML file
+            </Button>
+          </FlexItem>
+        </Flex>
         <Content>
           <SkillsDescriptionContent />
         </Content>
-        {devModeEnabled && (
-          <Button variant="primary" onClick={autoFillForm}>
-            Auto-Fill
-          </Button>
-        )}
+        <YamlFileUploadModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          isKnowledgeForm={false}
+          onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
+        />
+
         <Form className="form-s">
           <AuthorInformation
             formType={FormType.Knowledge}
@@ -377,27 +414,29 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
           />
 
           {actionGroupAlertContent && (
-            <Alert
-              variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
-              title={actionGroupAlertContent.title}
-              timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
-              onTimeout={onCloseActionGroupAlert}
-              actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
-            >
-              <p>
-                {actionGroupAlertContent.waitAlert && <Spinner size="md" />}
-                {actionGroupAlertContent.message}
-                <br />
-                {!actionGroupAlertContent.waitAlert &&
-                  actionGroupAlertContent.success &&
-                  actionGroupAlertContent.url &&
-                  actionGroupAlertContent.url.trim().length > 0 && (
-                    <a href={actionGroupAlertContent.url} rel="noreferrer">
-                      View your skill contribution
-                    </a>
-                  )}
-              </p>
-            </Alert>
+            <AlertGroup isToast isLiveRegion>
+              <Alert
+                variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
+                title={actionGroupAlertContent.title}
+                timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
+                onTimeout={onCloseActionGroupAlert}
+                actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
+              >
+                <p>
+                  {actionGroupAlertContent.waitAlert && <Spinner size="md" />}
+                  {actionGroupAlertContent.message}
+                  <br />
+                  {!actionGroupAlertContent.waitAlert &&
+                    actionGroupAlertContent.success &&
+                    actionGroupAlertContent.url &&
+                    actionGroupAlertContent.url.trim().length > 0 && (
+                      <a href={actionGroupAlertContent.url} rel="noreferrer">
+                        View your skill contribution
+                      </a>
+                    )}
+                </p>
+              </Alert>
+            </AlertGroup>
           )}
 
           <ActionGroup>
