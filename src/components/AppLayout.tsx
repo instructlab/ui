@@ -26,6 +26,13 @@ import UserMenu from './UserMenu/UserMenu';
 import { useSession } from 'next-auth/react';
 // import { useTheme } from '../context/ThemeContext';
 import { useState } from 'react';
+import {
+  PROD_DEPLOYMENT_ENVIRONMENT,
+  PROD_METRICS_WEBSITE_ID,
+  QA_DEPLOYMENT_ENVIRONMENT,
+  QA_METRICS_WEBSITE_ID,
+  UMAMI_METRICS_SCRIPT_SOURCE
+} from '../types/const';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -45,6 +52,31 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
 
   const router = useRouter();
   const pathname = usePathname();
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const hostname = window.location.hostname;
+    const isProd = hostname === PROD_DEPLOYMENT_ENVIRONMENT;
+    const isQA = hostname === QA_DEPLOYMENT_ENVIRONMENT;
+
+    const scriptSource = isQA || isProd ? UMAMI_METRICS_SCRIPT_SOURCE : '';
+    const websiteId = isProd ? PROD_METRICS_WEBSITE_ID : isQA ? QA_METRICS_WEBSITE_ID : null;
+
+    if (scriptSource && websiteId) {
+      const script = document.createElement('script');
+      script.async = true;
+      script.defer = true;
+      script.dataset.websiteId = websiteId;
+      script.src = scriptSource;
+
+      document.head.appendChild(script);
+
+      return () => {
+        document.head.removeChild(script);
+      };
+    }
+  }, []);
 
   React.useEffect(() => {
     // Fetch the experimental feature flag
