@@ -19,7 +19,25 @@ import SkillsInformation from '@/components/Contribute/Skill/SkillsInformation/S
 import SkillsDescriptionContent from '@/components/Contribute/Skill/SkillsDescription/SkillsDescriptionContent';
 import { autoFillSkillsFields } from '@/components/Contribute/Skill/AutoFill';
 import { YamlFileUploadModal } from '../../YamlFileUploadModal';
-import { ValidatedOptions, PageGroup, PageBreadcrumb, Breadcrumb, BreadcrumbItem, PageSection, Flex, FlexItem, Title, Button, Content, Form, AlertGroup, Alert, AlertActionCloseButton, Spinner, ActionGroup } from '@patternfly/react-core';
+import {
+  ValidatedOptions,
+  PageGroup,
+  PageBreadcrumb,
+  Breadcrumb,
+  BreadcrumbItem,
+  PageSection,
+  Flex,
+  FlexItem,
+  Title,
+  Button,
+  Content,
+  Form,
+  AlertGroup,
+  Alert,
+  AlertActionCloseButton,
+  Spinner,
+  ActionGroup
+} from '@patternfly/react-core';
 
 export interface SkillEditFormData {
   isEditForm: boolean;

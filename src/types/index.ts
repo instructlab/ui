@@ -1,4 +1,4 @@
-import { ValidatedOptions } from "@patternfly/react-core";
+import { ValidatedOptions } from '@patternfly/react-core';
 
 export interface Endpoint {
   id: string;

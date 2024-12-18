@@ -12,6 +12,7 @@ const REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR = '/tmp/.instructlab-ui';
 interface Diffs {
   file: string;
   status: string;
+  content?: string;
 }
 
 export async function GET() {
@@ -38,15 +39,15 @@ export async function GET() {
       const messageStr = commitMessage.split('Signed-off-by');
       branchDetails.push({
         name: branch,
-        creationDate: commitDetails.commit.committer.timestamp * 1000, // Convert to milliseconds
+        creationDate: commitDetails.commit.committer.timestamp * 1000,
         message: messageStr[0].replace(/\n+$/, ''),
         author: signoff
       });
     }
 
     branchDetails.sort((a, b) => b.creationDate - a.creationDate); // Sort by creation date, newest first
+    console.log('Total branches present in native taxonomy:', branchDetails.length);
 
-    console.log('Total branches present in local taxonomy:', branchDetails.length);
     return NextResponse.json({ branches: branchDetails }, { status: 200 });
   } catch (error) {
     console.error('Failed to list branches from local taxonomy:', error);
@@ -131,7 +132,17 @@ async function handleDiff(branchName: string, localTaxonomyDir: string) {
     }
 
     const changes = await findDiff(branchName, localTaxonomyDir);
-    return NextResponse.json({ changes }, { status: 200 });
+    const enrichedChanges: Diffs[] = [];
+    for (const change of changes) {
+      if (change.status === 'added' || change.status === 'modified') {
+        const fileContent = await readFileFromBranch(localTaxonomyDir, branchName, change.file);
+        enrichedChanges.push({ ...change, content: fileContent });
+      } else {
+        enrichedChanges.push(change);
+      }
+    }
+
+    return NextResponse.json({ changes: enrichedChanges }, { status: 200 });
   } catch (error) {
     console.error(`Failed to show contribution changes ${branchName}:`, error);
     return NextResponse.json(
@@ -155,8 +166,8 @@ async function findDiff(branchName: string, localTaxonomyDir: string): Promise<D
   const mainCommit = await git.resolveRef({ fs, dir: localTaxonomyDir, ref: 'main' });
   const branchCommit = await git.resolveRef({ fs, dir: localTaxonomyDir, ref: branchName });
 
-  const mainFiles = await getFilesFromTree(mainCommit);
-  const branchFiles = await getFilesFromTree(branchCommit);
+  const mainFiles = await getFilesFromTree(mainCommit, localTaxonomyDir);
+  const branchFiles = await getFilesFromTree(branchCommit, localTaxonomyDir);
 
   // Create an array of Diffs to store changes
   const changes: Diffs[] = [];
@@ -210,6 +221,7 @@ async function getTopCommitDetails(dir: string, ref: string = 'HEAD') {
     throw error;
   }
 }
+
 async function handlePublish(branchName: string, localTaxonomyDir: string, remoteTaxonomyDir: string) {
   try {
     if (!branchName || branchName === 'main') {
@@ -222,16 +234,15 @@ async function handlePublish(branchName: string, localTaxonomyDir: string, remot
     // Check if there are any changes to publish, create a new branch at remoteTaxonomyDir and
     // copy all the files listed in the changes array to the new branch and create a commit
     if (changes.length > 0) {
-      const remoteBranchName = branchName;
       await git.checkout({ fs, dir: localTaxonomyDir, ref: branchName });
       // Read the commit message of the top commit from the branch
       const details = await getTopCommitDetails(localTaxonomyDir);
 
       // Check if the remote branch exists, if not create it
+      const remoteBranchName = branchName;
       const remoteBranchExists = await git.listBranches({ fs, dir: remoteTaxonomyDir });
       if (remoteBranchExists.includes(remoteBranchName)) {
-        console.log(`Branch ${remoteBranchName} exist in remote taxonomy, deleting it.`);
-        // Delete the remote branch if it exists, we will recreate it
+        console.log(`Branch ${remoteBranchName} exists in remote taxonomy, deleting it.`);
         await git.deleteBranch({ fs, dir: remoteTaxonomyDir, ref: remoteBranchName });
       } else {
         console.log(`Branch ${remoteBranchName} does not exist in remote taxonomy, creating a new branch.`);
@@ -243,14 +254,21 @@ async function handlePublish(branchName: string, localTaxonomyDir: string, remot
 
       // Copy the files listed in the changes array to the remote branch and if the directories do not exist, create them
       for (const change of changes) {
-        console.log(`Copying ${change.file} to remote branch ${remoteBranchName}`);
-        const filePath = path.join(localTaxonomyDir, change.file);
-        const remoteFilePath = path.join(remoteTaxonomyDir, change.file);
-        const remoteFileDir = path.dirname(remoteFilePath);
-        if (!fs.existsSync(remoteFileDir)) {
-          fs.mkdirSync(remoteFileDir, { recursive: true });
+        if (change.status !== 'deleted') {
+          const filePath = path.join(localTaxonomyDir, change.file);
+          const remoteFilePath = path.join(remoteTaxonomyDir, change.file);
+          const remoteFileDir = path.dirname(remoteFilePath);
+          if (!fs.existsSync(remoteFileDir)) {
+            fs.mkdirSync(remoteFileDir, { recursive: true });
+          }
+          fs.copyFileSync(filePath, remoteFilePath);
+        } else {
+          // If deleted, ensure the file is removed from remote as well, if it exists
+          const remoteFilePath = path.join(remoteTaxonomyDir, change.file);
+          if (fs.existsSync(remoteFilePath)) {
+            fs.rmSync(remoteFilePath);
+          }
         }
-        fs.copyFileSync(filePath, remoteFilePath);
       }
 
       await git.add({ fs, dir: remoteTaxonomyDir, filepath: '.' });
@@ -306,14 +324,25 @@ async function handlePublish(branchName: string, localTaxonomyDir: string, remot
   }
 }
 
-// Helper function to recursively gather file paths and their oids from a tree
-async function getFilesFromTree(commitOid: string) {
-  const REPO_DIR = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
+async function readFileFromBranch(localTaxonomyDir: string, branchName: string, filePath: string): Promise<string> {
+  const tempDir = path.join(localTaxonomyDir, '.temp_checkout');
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir);
+  }
+
+  const branchCommit = await git.resolveRef({ fs, dir: localTaxonomyDir, ref: branchName });
+  const { blob } = await git.readBlob({ fs, dir: localTaxonomyDir, oid: branchCommit, filepath: filePath });
+
+  const decoder = new TextDecoder('utf-8');
+  const content = decoder.decode(blob);
+  return content;
+}
+
+async function getFilesFromTree(commitOid: string, repoDir: string) {
   const fileMap: Record<string, string> = {};
 
   async function walkTree(dir: string) {
-    const tree = await git.readTree({ fs, dir: REPO_DIR, oid: commitOid, filepath: dir });
-
+    const tree = await git.readTree({ fs, dir: repoDir, oid: commitOid, filepath: dir });
     for (const entry of tree.tree) {
       const fullPath = path.join(dir, entry.path);
       if (entry.type === 'blob') {

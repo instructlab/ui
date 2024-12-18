@@ -1,6 +1,20 @@
 // src/components/Contribute/Knowledge/UploadFile.tsx
 'use client';
-import { HelperText, HelperTextItem, MultipleFileUpload, MultipleFileUploadMain, Spinner, MultipleFileUploadStatus, MultipleFileUploadStatusItem, Modal, Button, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
+import {
+  HelperText,
+  HelperTextItem,
+  MultipleFileUpload,
+  MultipleFileUploadMain,
+  Spinner,
+  MultipleFileUploadStatus,
+  MultipleFileUploadStatusItem,
+  Modal,
+  Button,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant
+} from '@patternfly/react-core';
 import { UploadIcon } from '@patternfly/react-icons';
 import React, { useState, useEffect } from 'react';
 import { FileRejection, DropEvent } from 'react-dropzone';
@@ -163,15 +177,13 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
               {modalText}
               <br />
             </p>
-
           </ModalBody>
-          <ModalFooter >
+          <ModalFooter>
             <Button key="close" variant="secondary" onClick={() => setModalText('')}>
               Close
             </Button>
           </ModalFooter>
         </Modal>
-
       </MultipleFileUpload>
     </div>
   );

@@ -31,7 +31,6 @@ const GithubAccessPopup: React.FunctionComponent<Props> = ({ onAccept }) => {
   };
 
   return (
-
     <Modal
       variant={ModalVariant.medium}
       title="GitHub Access Permissions"
@@ -43,8 +42,8 @@ const GithubAccessPopup: React.FunctionComponent<Props> = ({ onAccept }) => {
       <ModalHeader title="GitHub Access Permissions" labelId="github-access-warn-modal-title" titleIconVariant="warning" />
       <ModalBody id="github-access-warn-body-variant">
         <p>
-          To allow InstructLab UI to manage your taxonomy submissions, you must grant read and write permissions to your GitHub account. InstructLab UI
-          will use your account to:
+          To allow InstructLab UI to manage your taxonomy submissions, you must grant read and write permissions to your GitHub account. InstructLab
+          UI will use your account to:
           <br />
           <br />
           <li>
@@ -76,18 +75,17 @@ const GithubAccessPopup: React.FunctionComponent<Props> = ({ onAccept }) => {
           grant these permissions, select <b>deny</b> to sign out of InstructLab UI.
           <br />
         </p>
-
       </ModalBody>
-      <ModalFooter >
+      <ModalFooter>
         <Button key="confirm" variant="primary" onClick={() => setDecisionAndClose()}>
           Accept
-        </Button>,
+        </Button>
+        ,
         <Button key="cancel" variant="secondary" onClick={() => signOut()}>
           Deny
         </Button>
       </ModalFooter>
     </Modal>
-
   );
 };
 

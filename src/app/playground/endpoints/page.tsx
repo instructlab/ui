@@ -4,7 +4,31 @@ import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AppLayout } from '@/components/AppLayout';
 import { Endpoint } from '@/types';
-import { Breadcrumb, BreadcrumbItem, Button, Content, DataList, DataListAction, DataListCell, DataListItem, DataListItemCells, DataListItemRow, Form, FormGroup, InputGroup, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant, Page, PageBreadcrumb, PageSection, TextInput, Title } from '@patternfly/react-core';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  Button,
+  Content,
+  DataList,
+  DataListAction,
+  DataListCell,
+  DataListItem,
+  DataListItemCells,
+  DataListItemRow,
+  Form,
+  FormGroup,
+  InputGroup,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Page,
+  PageBreadcrumb,
+  PageSection,
+  TextInput,
+  Title
+} from '@patternfly/react-core';
 import { EyeSlashIcon, EyeIcon } from '@patternfly/react-icons';
 
 interface ExtendedEndpoint extends Endpoint {
@@ -101,7 +125,7 @@ const EndpointsPage: React.FC = () => {
     return isApiKeyVisible ? apiKey : '********';
   };
 
-  useEffect(() => { }, [url]);
+  useEffect(() => {}, [url]);
 
   return (
     <AppLayout>
@@ -172,7 +196,6 @@ const EndpointsPage: React.FC = () => {
           >
             <ModalHeader title={currentEndpoint?.id ? 'Edit Endpoint' : 'Add Endpoint'} labelId="endpoint-modal-title" titleIconVariant="info" />
             <ModalBody id="endpoint-body-variant">
-
               <Form>
                 <FormGroup label="URL" isRequired fieldId="url">
                   <TextInput isRequired type="text" id="url" name="url" value={url} onChange={(_, value) => setUrl(value)} placeholder="Enter URL" />
@@ -202,17 +225,17 @@ const EndpointsPage: React.FC = () => {
                   </InputGroup>
                 </FormGroup>
               </Form>
-              </ModalBody>
-              <ModalFooter>
+            </ModalBody>
+            <ModalFooter>
               <Button key="save" variant="primary" onClick={handleSaveEndpoint}>
                 Save
-              </Button>,
+              </Button>
+              ,
               <Button key="cancel" variant="link" onClick={handleModalToggle}>
                 Cancel
               </Button>
-              </ModalFooter>
+            </ModalFooter>
           </Modal>
-
         )}
       </Page>
     </AppLayout>

@@ -1,7 +1,16 @@
 import React, { useEffect } from 'react';
 import { checkSkillFormCompletion } from '../validation';
 import { SkillFormData } from '@/types';
-import { ValidatedOptions, FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, TextInput, FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core';
+import {
+  ValidatedOptions,
+  FormFieldGroupExpandable,
+  FormFieldGroupHeader,
+  FormGroup,
+  TextInput,
+  FormHelperText,
+  HelperText,
+  HelperTextItem
+} from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
