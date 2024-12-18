@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: healthcheck-sidecar
+  labels:
+    app.kubernetes.io/component: ui
+spec:
+  ports:
+    - name: web
+      port: 8080
+  selector:
+    app.kubernetes.io/name: ui
+  type: ClusterIP

@@ -20,8 +20,7 @@ auth.log
 tsconfig.tsbuildinfo
 .idea
 .vscode
-ui.pid
-pathservice.pid
+*.pid
 /test-results/
 /playwright-report/
 /blob-report/
@@ -34,4 +33,5 @@ deploy/k8s/overlays/openshift/umami/qa/umami-secret.yaml
 deploy/k8s/overlays/openshift/umami/prod/umami-secret.yaml
 deploy/podman/github/secret.yaml
 deploy/podman/native/secret.yaml
-
+healthcheck-sidecar/sidecar.log
+*/venv

@@ -1,0 +1,167 @@
+name: Publish QA Healthcheck Sidecar Container Images
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "healthcheck-sidecar/*"
+      - "!healthcheck-sidecar/stubbed_model_server.py"
+
+env:
+  GHCR_REGISTRY: ghcr.io
+  GHCR_HS_IMAGE_NAME: "${{ github.repository }}/healthcheck-sidecar"
+  QUAY_REGISTRY: quay.io
+  QUAY_HS_IMAGE_NAME: instructlab-ui/healthcheck-sidecar
+
+jobs:
+  build_and_publish_hs_qa_image:
+    name: Push QA Healthcheck Sidecar container image to GHCR and QUAY
+    runs-on: ubuntu-latest
+    environment: registry-creds
+    permissions:
+      packages: write
+      contents: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          ref: 'main'
+  
+      - name: Log in to the GHCR container image registry
+        uses: docker/login-action@v3
+        with:
+          registry: "${{ env.GHCR_REGISTRY }}"
+          username: "${{ github.actor }}"
+          password: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Log in to the Quay container image registry
+        uses: docker/login-action@v3
+        with:
+          registry: "${{ env.QUAY_REGISTRY }}"
+          username: "${{ secrets.QUAY_USERNAME }}"
+          password: "${{ secrets.QUAY_TOKEN }}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: "${{ runner.os }}-buildx-${{ github.sha }}"
+          restore-keys: |
+            "${{ runner.os }}-buildx-"
+
+      - name: Get Pull Request Number from Commit
+        id: get_pr_number
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log("Repository owner:", context.repo.owner);
+            console.log("Repository name:", context.repo.repo);
+            console.log("Current commit SHA:", context.sha);
+
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              sort: 'updated',
+              direction: 'desc'
+            });
+            console.log("Number of closed PRs fetched:", prs.data.length);
+
+            for (const pr of prs.data) {
+              console.log("Checking PR #", pr.number, "- Merged:");
+              if (pr.merged_at != "") {
+                console.log("Found merged PR:", pr.number);
+                return pr.number;
+              }
+            }
+
+            console.log("No merged PR found in the recent closed PRs.");
+            return '';
+
+      - name: Extract GHCR metadata (tags, labels) for HS image
+        id: ghcr_hs_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_HS_IMAGE_NAME }}
+
+      - name: Extract Quay metadata (tags, labels) for HS image
+        id: quay_hs_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_HS_IMAGE_NAME }}
+
+      - name: Build and push HS image to GHCR
+        id: push-hs-ghcr
+        uses: docker/build-push-action@v6
+        with:
+          context: healthcheck-sidecar
+          push: true
+          tags: |-
+            "${{ steps.ghcr_hs_meta.outputs.tags }}"
+            "${{ env.GHCR_REGISTRY }}/${{ env.GHCR_HS_IMAGE_NAME }}:pr-${{ steps.get_pr_number.outputs.result }}"
+          labels: ${{ steps.ghcr_hs_meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: healthcheck-sidecar/Containerfile
+
+      - name: Generate GHCR artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_HS_IMAGE_NAME}}
+          subject-digest: ${{ steps.push-hs-ghcr.outputs.digest }}
+          push-to-registry: true
+
+      - name: Build and push HS image to QUAY
+        id: push-hs-quay
+        uses: docker/build-push-action@v6
+        with:
+          context: healthcheck-sidecar
+          push: true
+          tags: |-
+            "${{ steps.quay_hs_meta.outputs.tags }}"
+            "${{ env.QUAY_REGISTRY }}/${{ env.QUAY_HS_IMAGE_NAME }}:pr-${{ steps.get_pr_number.outputs.result }}"
+          labels: ${{ steps.quay_hs_meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: healthcheck-sidecar/Containerfile
+
+      - name: Generate QA HS Quay artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_HS_IMAGE_NAME}}
+          subject-digest: ${{ steps.push-hs-quay.outputs.digest }}
+          push-to-registry: true
+
+      - name: Update coderefs before code changes
+        run: |-
+          git pull --ff-only
+
+      - name: Update QA Quay HS image
+        id: update_qa_hs_manifest_image
+        env:
+          PR_TAG:  "pr-${{ steps.get_pr_number.outputs.result }}"
+        run: |-
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+          yq -i '
+            (.images[] | select(.name == "quay.io/${{ env.QUAY_HS_IMAGE_NAME }}") | .newTag) = env(PR_TAG)
+          ' deploy/k8s/overlays/openshift/qa/kustomization.yaml
+
+      - name: Commit and push bump QA HS Image manifest
+        run: |-
+          git config user.name "platform-engineering-bot"
+          git config user.email "platform-engineering@redhat.com"
+          git add deploy/k8s/overlays/openshift/qa/kustomization.yaml
+          git commit -m "[CI AUTOMATION]: Bumping QA HS image to tag: pr-${{ steps.get_pr_number.outputs.result }}" -s
+          git push origin main
+

@@ -5,8 +5,10 @@ USER root
 WORKDIR /opt/app-root/src
 
 COPY ./ .
+
+RUN dnf install -y jq
 RUN mkdir -p node_modules
-RUN chown -R default:root package*.json next-env.d.ts node_modules
+RUN chown -R default:root package*.json next-env.d.ts node_modules /opt/app-root/src/src/healthcheck-probe.sh
 
 USER default
 
