@@ -2,30 +2,14 @@
 'use client';
 
 import * as React from 'react';
-import { Page, PageToggleButton } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { Content, ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { usePathname, useRouter } from 'next/navigation';
-import { BarsIcon } from '@patternfly/react-icons/dist/dynamic/icons/bars-icon';
-import { Brand } from '@patternfly/react-core/dist/dynamic/components/Brand';
 import HelpDropdown from './HelpDropdown/HelpDropdown';
 import Link from 'next/link';
-import { Masthead } from '@patternfly/react-core/dist/dynamic/components/Masthead';
-import { MastheadContent } from '@patternfly/react-core/dist/dynamic/components/Masthead';
-import { MastheadMain } from '@patternfly/react-core/dist/dynamic/components/Masthead';
-import { MastheadToggle, MastheadBrand } from '@patternfly/react-core/dist/dynamic/components/Masthead';
-import { Nav } from '@patternfly/react-core/dist/dynamic/components/Nav';
-import { NavExpandable } from '@patternfly/react-core/dist/dynamic/components/Nav';
-import { NavItem } from '@patternfly/react-core/dist/dynamic/components/Nav';
-import { NavList } from '@patternfly/react-core/dist/dynamic/components/Nav';
-import { PageSidebar } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { PageSidebarBody } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { SkipToContent } from '@patternfly/react-core/dist/dynamic/components/SkipToContent';
-import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
-import { Bullseye } from '@patternfly/react-core/dist/dynamic/layouts/Bullseye';
 import UserMenu from './UserMenu/UserMenu';
 import { useSession } from 'next-auth/react';
-// import { useTheme } from '../context/ThemeContext';
 import { useState } from 'react';
+import { Bullseye, Spinner, Masthead, MastheadMain, MastheadToggle, PageToggleButton, MastheadBrand, Brand, Content, ContentVariants, MastheadContent, NavItem, NavExpandable, Nav, NavList, PageSidebar, PageSidebarBody, SkipToContent, Page } from '@patternfly/react-core';
+import { BarsIcon } from '@patternfly/react-icons';
 
 interface IAppLayout {
   children: React.ReactNode;

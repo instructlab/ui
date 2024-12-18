@@ -4,8 +4,6 @@
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
 import { useRouter } from 'next/navigation';
 import SkillFormGithub, { SkillEditFormData } from '@/components/Contribute/Skill/Github';
 import { fetchPullRequest, fetchFileContent, fetchPullRequestFiles } from '@/utils/github';
@@ -13,6 +11,7 @@ import yaml from 'js-yaml';
 import axios from 'axios';
 import { SkillYamlData, AttributionData, PullRequestFile, SkillFormData, SkillSeedExample } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
+import { ValidatedOptions, Modal, ModalVariant } from '@patternfly/react-core';
 
 interface EditSkillClientComponentProps {
   prNumber: number;

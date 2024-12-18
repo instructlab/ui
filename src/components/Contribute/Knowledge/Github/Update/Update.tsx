@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ActionGroupAlertContent } from '..';
 import { AttributionData, KnowledgeFormData, KnowledgeYamlData, PullRequestFile } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
@@ -8,6 +7,7 @@ import { validateFields } from '../../validation';
 import { amendCommit, getGitHubUsername, updatePullRequest } from '@/utils/github';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@patternfly/react-core';
 
 const KNOWLEDGE_DIR = 'knowledge/';
 interface Props {

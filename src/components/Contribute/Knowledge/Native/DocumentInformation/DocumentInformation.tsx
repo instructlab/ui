@@ -1,16 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
-import { Alert, AlertActionLink, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
-import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
 import { UploadFile } from '@/components/Contribute/Knowledge/UploadFile';
 import { checkKnowledgeFormCompletion } from '@/components/Contribute/Knowledge/validation';
 import { KnowledgeFormData } from '@/types';
+import { ValidatedOptions, FormFieldGroupHeader, FormGroup, Button, Modal, ModalVariant, TextInput, FormHelperText, HelperText, HelperTextItem, AlertGroup, Alert, AlertActionCloseButton, AlertActionLink, ModalHeader, ModalBody, ModalFooter } from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
   reset: boolean;
@@ -241,20 +234,25 @@ const DocumentInformation: React.FC<Props> = ({
       <Modal
         variant={ModalVariant.medium}
         title="Data Loss Warning"
-        titleIconVariant="warning"
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        actions={[
+        aria-labelledby="file-upload-switch-modal-title"
+        aria-describedby="file-upload-switch-body-variant"
+      >
+        <ModalHeader title="Data Loss Warning" labelId="file-upload-switch-modal-title" titleIconVariant="warning" />
+        <ModalBody id="file-upload-switch-body-variant">
+          <p>{modalText}</p>
+        </ModalBody>
+        <ModalFooter >
           <Button key="Continue" variant="secondary" onClick={() => handleModalContinue()}>
             Continue
           </Button>,
           <Button key="cancel" variant="secondary" onClick={() => setIsModalOpen(false)}>
             Cancel
           </Button>
-        ]}
-      >
-        <p>{modalText}</p>
+        </ModalFooter>
       </Modal>
+
       {!useFileUpload ? (
         <>
           <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL">

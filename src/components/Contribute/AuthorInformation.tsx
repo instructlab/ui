@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
-import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
-import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { checkSkillFormCompletion } from './Skill/validation';
 import { checkKnowledgeFormCompletion } from './Knowledge/validation';
+import { ValidatedOptions, FormGroup, TextInput, FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 export enum FormType {
   Knowledge,

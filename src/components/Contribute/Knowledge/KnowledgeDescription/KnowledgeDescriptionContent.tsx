@@ -1,6 +1,6 @@
+import { Button } from '@patternfly/react-core';
+import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import React from 'react';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
 
 const KnowledgeDescriptionContent: React.FunctionComponent = () => {
   return (

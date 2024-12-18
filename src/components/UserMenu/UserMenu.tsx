@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Flex, FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex';
-import { Avatar } from '@patternfly/react-core/dist/dynamic/components/Avatar';
-import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/esm/components/Dropdown';
-import { Divider } from '@patternfly/react-core/dist/esm/components/Divider';
-import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/esm/components/MenuToggle';
-import { CaretDownIcon } from '@patternfly/react-icons/dist/dynamic/icons/caret-down-icon';
 import ThemePreference from './ThemePreference';
 import { signOut, useSession } from 'next-auth/react';
+import { Dropdown, MenuToggleElement, MenuToggle, Flex, FlexItem, Avatar, DropdownList, Divider, DropdownItem } from '@patternfly/react-core';
+import { CaretDownIcon } from '@patternfly/react-icons';
 
 const UserMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);

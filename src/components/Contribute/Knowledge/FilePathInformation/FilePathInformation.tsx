@@ -1,6 +1,6 @@
 import React from 'react';
-import { FormFieldGroupHeader, FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import PathService from '@/components/PathService/PathService';
+import { FormFieldGroupHeader, FormGroup } from '@patternfly/react-core';
 
 interface Props {
   reset?: boolean;

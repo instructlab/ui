@@ -1,8 +1,8 @@
 // src/app/contribute/knowledge/page.tsx
 'use client';
 import { AppLayout } from '@/components/AppLayout';
-import { KnowledgeFormGithub } from '@/components/Contribute/Knowledge/Github/index';
-import KnowledgeFormNative from '@/components/Contribute/Knowledge/Native/index';
+import KnowledgeFormGithub from '@/components/Contribute/Knowledge/Github';
+import KnowledgeFormNative from '@/components/Contribute/Knowledge/Native';
 import { useEffect, useState } from 'react';
 
 const KnowledgeFormPage: React.FunctionComponent = () => {
