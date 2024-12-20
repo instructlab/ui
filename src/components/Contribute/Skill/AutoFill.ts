@@ -1,5 +1,5 @@
 import { SkillFormData, SkillSeedExample } from '@/types';
-import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
+import { ValidatedOptions } from '@patternfly/react-core';
 
 const seedExamples: SkillSeedExample[] = [
   {

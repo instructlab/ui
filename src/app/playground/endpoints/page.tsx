@@ -1,28 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Page, PageBreadcrumb, PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import {
-  DataList,
-  DataListItem,
-  DataListItemRow,
-  DataListItemCells,
-  DataListCell,
-  DataListAction
-} from '@patternfly/react-core/dist/dynamic/components/DataList';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ModalVariant } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { Breadcrumb, BreadcrumbItem, Content } from '@patternfly/react-core/components/';
-import { Modal } from '@patternfly/react-core/deprecated';
-import { Form, FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
-import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
-import { InputGroup } from '@patternfly/react-core/dist/dynamic/components/InputGroup';
-import EyeIcon from '@patternfly/react-icons/dist/dynamic/icons/eye-icon';
-import EyeSlashIcon from '@patternfly/react-icons/dist/dynamic/icons/eye-slash-icon';
 import { v4 as uuidv4 } from 'uuid';
 import { AppLayout } from '@/components/AppLayout';
 import { Endpoint } from '@/types';
+import { Breadcrumb, BreadcrumbItem, Button, Content, DataList, DataListAction, DataListCell, DataListItem, DataListItemCells, DataListItemRow, Form, FormGroup, InputGroup, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant, Page, PageBreadcrumb, PageSection, TextInput, Title } from '@patternfly/react-core';
+import { EyeSlashIcon, EyeIcon } from '@patternfly/react-icons';
 
 interface ExtendedEndpoint extends Endpoint {
   isApiKeyVisible?: boolean;
@@ -118,7 +101,7 @@ const EndpointsPage: React.FC = () => {
     return isApiKeyVisible ? apiKey : '********';
   };
 
-  useEffect(() => {}, [url]);
+  useEffect(() => { }, [url]);
 
   return (
     <AppLayout>
@@ -180,49 +163,56 @@ const EndpointsPage: React.FC = () => {
         </PageSection>
         {isModalOpen && (
           <Modal
+            variant={ModalVariant.medium}
             title={currentEndpoint?.id ? 'Edit Endpoint' : 'Add Endpoint'}
             isOpen={isModalOpen}
-            onClose={handleModalToggle}
-            variant={ModalVariant.medium}
-            actions={[
+            onClose={() => handleModalToggle()}
+            aria-labelledby="endpoint-modal-title"
+            aria-describedby="endpoint-body-variant"
+          >
+            <ModalHeader title={currentEndpoint?.id ? 'Edit Endpoint' : 'Add Endpoint'} labelId="endpoint-modal-title" titleIconVariant="info" />
+            <ModalBody id="endpoint-body-variant">
+
+              <Form>
+                <FormGroup label="URL" isRequired fieldId="url">
+                  <TextInput isRequired type="text" id="url" name="url" value={url} onChange={(_, value) => setUrl(value)} placeholder="Enter URL" />
+                </FormGroup>
+                <FormGroup label="Model Name" isRequired fieldId="modelName">
+                  <TextInput
+                    isRequired
+                    type="text"
+                    id="modelName"
+                    name="modelName"
+                    value={modelName}
+                    onChange={(_, value) => setModelName(value)}
+                    placeholder="Enter Model Name"
+                  />
+                </FormGroup>
+                <FormGroup label="API Key" isRequired fieldId="apiKey">
+                  <InputGroup>
+                    <TextInput
+                      isRequired
+                      type="password"
+                      id="apiKey"
+                      name="apiKey"
+                      value={apiKey}
+                      onChange={(_, value) => setApiKey(value)}
+                      placeholder="Enter API Key"
+                    />
+                  </InputGroup>
+                </FormGroup>
+              </Form>
+              </ModalBody>
+              <ModalFooter>
               <Button key="save" variant="primary" onClick={handleSaveEndpoint}>
                 Save
               </Button>,
               <Button key="cancel" variant="link" onClick={handleModalToggle}>
                 Cancel
               </Button>
-            ]}
-          >
-            <Form>
-              <FormGroup label="URL" isRequired fieldId="url">
-                <TextInput isRequired type="text" id="url" name="url" value={url} onChange={(_, value) => setUrl(value)} placeholder="Enter URL" />
-              </FormGroup>
-              <FormGroup label="Model Name" isRequired fieldId="modelName">
-                <TextInput
-                  isRequired
-                  type="text"
-                  id="modelName"
-                  name="modelName"
-                  value={modelName}
-                  onChange={(_, value) => setModelName(value)}
-                  placeholder="Enter Model Name"
-                />
-              </FormGroup>
-              <FormGroup label="API Key" isRequired fieldId="apiKey">
-                <InputGroup>
-                  <TextInput
-                    isRequired
-                    type="password"
-                    id="apiKey"
-                    name="apiKey"
-                    value={apiKey}
-                    onChange={(_, value) => setApiKey(value)}
-                    placeholder="Enter API Key"
-                  />
-                </InputGroup>
-              </FormGroup>
-            </Form>
+              </ModalFooter>
           </Modal>
+
         )}
       </Page>
     </AppLayout>

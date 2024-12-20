@@ -3,23 +3,14 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { AppLayout } from '@/components/AppLayout';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Breadcrumb, BreadcrumbItem, PageBreadcrumb, PageSection, Content, Title } from '@patternfly/react-core/';
-import { Select } from '@patternfly/react-core/dist/dynamic/components/Select';
-import { SelectOption, SelectList } from '@patternfly/react-core/dist/dynamic/components/Select';
-import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
-import UserIcon from '@patternfly/react-icons/dist/dynamic/icons/user-icon';
-import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Breadcrumb, BreadcrumbItem, PageBreadcrumb, PageSection, Content, Title, MenuToggleElement, MenuToggle, SelectOption, Select, SelectList, Button, Spinner, Form, FormGroup, TextInput, Alert } from '@patternfly/react-core/';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBroom } from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
 import styles from './chat.module.css';
 import { Endpoint, Message, Model } from '@/types';
 import CopyToClipboardButton from '@/components/CopyToClipboardButton';
-import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
+import { UserIcon } from '@patternfly/react-icons';
 
 const ChatPage: React.FC = () => {
   const [question, setQuestion] = useState('');

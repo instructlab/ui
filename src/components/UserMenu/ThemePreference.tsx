@@ -1,10 +1,8 @@
 import React from 'react';
-import { Content, ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
-import { Flex, FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex';
-import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown';
 import { Theme, useTheme } from '../../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { DropdownItem, Content, ContentVariants, Flex, FlexItem } from '@patternfly/react-core';
 
 const ThemePreference: React.FC = () => {
   const { theme, setTheme } = useTheme();

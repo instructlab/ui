@@ -2,8 +2,6 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 import '../knowledge.css';
-import { Alert, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { getGitHubUsername } from '@/utils/github';
 import { useSession } from 'next-auth/react';
 import AuthorInformation from '@/components/Contribute/AuthorInformation';
@@ -13,30 +11,18 @@ import FilePathInformation from '@/components/Contribute/Knowledge/FilePathInfor
 import DocumentInformation from '@/components/Contribute/Knowledge/Native/DocumentInformation/DocumentInformation';
 import AttributionInformation from '@/components/Contribute/Knowledge/AttributionInformation/AttributionInformation';
 import Submit from './Submit/Submit';
-import { Breadcrumb } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
-import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
-import { PageBreadcrumb } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { PageGroup } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import KnowledgeDescriptionContent from '@/components/Contribute/Knowledge/KnowledgeDescription/KnowledgeDescriptionContent';
 import KnowledgeSeedExample from '@/components/Contribute/Knowledge/KnowledgeSeedExample/KnowledgeSeedExample';
 import { checkKnowledgeFormCompletion } from '@/components/Contribute/Knowledge/validation';
-import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { DownloadDropdown } from '@/components/Contribute/Knowledge/DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from '@/components/Contribute/Knowledge/ViewDropdown/ViewDropdown';
 import Update from '@/components/Contribute/Knowledge/Github/Update/Update';
 import { KnowledgeEditFormData, KnowledgeFormData, KnowledgeYamlData, QuestionAndAnswerPair } from '@/types';
-import { Button } from '@patternfly/react-core/dist/esm/components/Button/Button';
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from '@/components/Contribute/Knowledge/AutoFill';
-import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
-import { Wizard, WizardStep } from '@patternfly/react-core/dist/esm/components/Wizard';
-import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import ReviewSubmission from '../ReviewSubmission';
-import { Flex } from '@patternfly/react-core/dist/esm/layouts/Flex/Flex';
-import { FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex/FlexItem';
 import { YamlFileUploadModal } from '../../YamlFileUploadModal';
+import { ValidatedOptions, PageGroup, PageBreadcrumb, Breadcrumb, BreadcrumbItem, PageSection, Flex, FlexItem, Title, Button, Content, Wizard, WizardStep, AlertGroup, Alert, AlertActionCloseButton, Spinner, ActionGroup } from '@patternfly/react-core';
 
 export interface ActionGroupAlertContent {
   title: string;
