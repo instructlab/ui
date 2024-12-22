@@ -1,7 +1,7 @@
 // src/components/Experimental/FineTuning/index.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PageBreadcrumb } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
@@ -69,6 +69,9 @@ const FineTuning: React.FC = () => {
   const [expandedJobs, setExpandedJobs] = useState<{ [jobId: string]: boolean }>({});
   const [jobLogs, setJobLogs] = useState<{ [jobId: string]: string }>({});
 
+  // Ref to store intervals for each job's logs
+  const logsIntervals = useRef<{ [jobId: string]: NodeJS.Timeout }>({});
+
   const mapJobType = (job: Job) => {
     let jobType: 'generate' | 'train' | 'pipeline' | 'model-serve';
     if (job.job_id.startsWith('g-')) {
@@ -88,21 +91,21 @@ const FineTuning: React.FC = () => {
     const fetchData = async () => {
       try {
         // Fetch models
-        const modelsResponse = await fetch('/api/fine-tune/models');
+        const modelsResponse = await fetch('/api/fine-tune/models', { cache: 'no-cache' });
         if (!modelsResponse.ok) {
           throw new Error('Failed to fetch models');
         }
         const modelsData = await modelsResponse.json();
 
         // Fetch branches
-        const branchesResponse = await fetch('/api/local/git/branches');
+        const branchesResponse = await fetch('/api/local/git/branches', { cache: 'no-cache' });
         if (!branchesResponse.ok) {
           throw new Error('Failed to fetch git branches');
         }
         const branchesData = await branchesResponse.json();
 
         // Fetch jobs
-        const jobsResponse = await fetch('/api/fine-tune/jobs');
+        const jobsResponse = await fetch('/api/fine-tune/jobs', { cache: 'no-cache' });
         if (!jobsResponse.ok) {
           throw new Error('Failed to fetch jobs');
         }
@@ -128,7 +131,7 @@ const FineTuning: React.FC = () => {
 
     // Polling to update jobs periodically
     const interval = setInterval(() => {
-      fetch('/api/fine-tune/jobs')
+      fetch('/api/fine-tune/jobs', { cache: 'no-cache' })
         .then((res) => res.json())
         .then((data) => {
           const safeJobsData = Array.isArray(data) ? data : [];
@@ -144,6 +147,13 @@ const FineTuning: React.FC = () => {
     }, 10000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Clean up all intervals on component unmount
+  useEffect(() => {
+    return () => {
+      Object.values(logsIntervals.current).forEach(clearInterval);
+    };
   }, []);
 
   const formatDate = (isoDate?: string) => {
@@ -188,7 +198,8 @@ const FineTuning: React.FC = () => {
       const response = await fetch('/api/fine-tune/data/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ modelName: selectedModel, branchName: selectedBranch })
+        body: JSON.stringify({ modelName: selectedModel, branchName: selectedBranch }),
+        cache: 'no-cache'
       });
       const result = await response.json();
       if (response.ok) {
@@ -217,7 +228,8 @@ const FineTuning: React.FC = () => {
       const response = await fetch('/api/fine-tune/model/train', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ modelName: selectedModel, branchName: selectedBranch })
+        body: JSON.stringify({ modelName: selectedModel, branchName: selectedBranch }),
+        cache: 'no-cache'
       });
       const result = await response.json();
       if (response.ok) {
@@ -246,7 +258,8 @@ const FineTuning: React.FC = () => {
       const response = await fetch('/api/fine-tune/pipeline/generate-train', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ modelName: selectedModel, branchName: selectedBranch })
+        body: JSON.stringify({ modelName: selectedModel, branchName: selectedBranch }),
+        cache: 'no-cache'
       });
       const result = await response.json();
       if (response.ok && result.pipeline_job_id) {
@@ -267,21 +280,46 @@ const FineTuning: React.FC = () => {
     }
   };
 
-  const handleToggleLogs = async (jobId: string, isExpanding: boolean) => {
+  const fetchJobLogs = async (jobId: string) => {
+    try {
+      const response = await fetch(`/api/fine-tune/jobs/${jobId}/logs`, {
+        headers: {
+          'Cache-Control': 'no-cache'
+        },
+        cache: 'no-cache'
+      });
+
+      if (response.ok) {
+        const logsText = await response.text();
+        setJobLogs((prev) => ({ ...prev, [jobId]: logsText }));
+      } else {
+        setJobLogs((prev) => ({ ...prev, [jobId]: 'Failed to fetch logs.' }));
+      }
+    } catch (error) {
+      console.error('Error fetching job logs:', error);
+      setJobLogs((prev) => ({ ...prev, [jobId]: 'Error fetching logs.' }));
+    }
+  };
+
+  const handleToggleLogs = (jobId: string, isExpanding: boolean) => {
     setExpandedJobs((prev) => ({ ...prev, [jobId]: isExpanding }));
-    // If expanding and logs not fetched yet, fetch them
-    if (isExpanding && !jobLogs[jobId]) {
-      try {
-        const response = await fetch(`/api/fine-tune/jobs/${jobId}/logs`);
-        if (response.ok) {
-          const logsText = await response.text();
-          setJobLogs((prev) => ({ ...prev, [jobId]: logsText }));
-        } else {
-          setJobLogs((prev) => ({ ...prev, [jobId]: 'Failed to fetch logs.' }));
-        }
-      } catch (error) {
-        console.error('Error fetching job logs:', error);
-        setJobLogs((prev) => ({ ...prev, [jobId]: 'Error fetching logs.' }));
+
+    if (isExpanding) {
+      // Fetch logs immediately
+      fetchJobLogs(jobId);
+
+      // Set up interval to fetch logs every 10 seconds
+      const intervalId = setInterval(() => {
+        fetchJobLogs(jobId);
+      }, 10000);
+
+      // Store the interval ID
+      logsIntervals.current[jobId] = intervalId;
+    } else {
+      // Clear the interval if it exists
+      if (logsIntervals.current[jobId]) {
+        clearInterval(logsIntervals.current[jobId]);
+        delete logsIntervals.current[jobId];
       }
     }
   };
@@ -361,9 +399,7 @@ const FineTuning: React.FC = () => {
                     </div>
                   </CardBody>
                   <CardFooter>
-                    {job.status === 'running' ? (
-                      <Spinner size="sm" />
-                    ) : job.status === 'finished' ? (
+                    {job.status === 'finished' ? (
                       <Alert variant="success" isInline title="Job Completed Successfully!" />
                     ) : job.status === 'failed' ? (
                       <Alert variant="danger" isInline title="Job Failed" />
@@ -375,12 +411,10 @@ const FineTuning: React.FC = () => {
                       onToggle={(_event, expanded) => handleToggleLogs(job.job_id, expanded)}
                       isExpanded={isExpanded}
                     >
-                      {logs ? (
+                      {logs && (
                         <CodeBlock>
                           <CodeBlockCode id={`logs-${job.job_id}`}>{logs}</CodeBlockCode>
                         </CodeBlock>
-                      ) : (
-                        <Spinner size="md" />
                       )}
                     </ExpandableSection>
                   </CardFooter>

@@ -11,7 +11,7 @@
     background-color: transparent;
   }
 
-  // Chat Container
+  /* Chat Container */
   .pf-chatbot {
     background-color: #ffffff;
     border-radius: 8px;
@@ -23,7 +23,7 @@
     flex-direction: column;
     overflow: hidden;
 
-    // Header: Similar to ChatGPT's top bar
+    /* Header: Similar to ChatGPT's top bar */
     &__header {
       background: #ffffff;
       border-bottom: 1px solid #ddd;
@@ -32,7 +32,7 @@
       align-items: center;
       justify-content: space-between;
 
-      // Hide the default title if you prefer a minimal look
+      /* Hide the default title if you prefer a minimal look */
       .pf-chatbot__header-title {
         font-size: 1.2rem;
         font-weight: 600;
@@ -57,7 +57,7 @@
       }
     }
 
-    // Content Area
+    /* Content Area */
     &__content {
       background: #fafafa;
       padding: 1.5rem;
@@ -68,7 +68,7 @@
       gap: 1rem;
     }
 
-    // Messages Container
+    /* Messages Container */
     .pf-chatbot__message {
       display: flex;
       align-items: flex-start;
@@ -118,7 +118,7 @@
           }
         }
 
-        // Quick responses styling
+        /* Quick responses styling */
         .pf-chatbot__message-quick-response {
           margin-top: 0.5rem;
           display: flex;
@@ -135,7 +135,7 @@
           }
         }
 
-        // Attachments styling
+        /* Attachments styling */
         .pf-chatbot__message-attachments-container {
           margin-top: 0.5rem;
           .pf-chatbot__message-attachment {
@@ -147,7 +147,7 @@
         }
       }
 
-      // Avatar styling
+      /* Avatar styling */
       .pf-c-avatar {
         width: 40px;
         height: 40px;
@@ -156,7 +156,7 @@
       }
     }
 
-    // Footer (Message Bar)
+    /* Footer (Message Bar) */
     &__footer {
       background: #ffffff;
       border-top: 1px solid #ddd;
@@ -234,7 +234,7 @@
       }
     }
 
-    // Scrollbar styling (optional)
+    /* Scrollbar styling (optional) */
     &__content::-webkit-scrollbar {
       width: 6px;
     }

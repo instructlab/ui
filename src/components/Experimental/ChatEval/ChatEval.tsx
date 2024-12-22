@@ -15,7 +15,8 @@ import {
   ExpandableSection,
   Spinner,
   CodeBlock,
-  CodeBlockCode
+  CodeBlockCode,
+  Switch
 } from '@patternfly/react-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBroom } from '@fortawesome/free-solid-svg-icons';
@@ -41,15 +42,22 @@ import logo from '../../../../public/bot-icon-chat-32x32.svg';
 import userLogo from '../../../../public/default-avatar.svg';
 
 // TODO: get nextjs app router server side render working with the patternfly chatbot component.
-const MODEL_SERVER_IP = 'http://x.x.x.x';
+const MODEL_SERVER_IP = 'http://128.31.20.129';
 
 const ChatModelEval: React.FC = () => {
+  const [isUnifiedInput, setIsUnifiedInput] = useState(false);
+
+  // States for unified input
+  const [questionUnified, setQuestionUnified] = useState('');
+
+  // States for left chat
   const [questionLeft, setQuestionLeft] = useState('');
   const [messagesLeft, setMessagesLeft] = useState<MessageProps[]>([]);
   const [selectedModelLeft, setSelectedModelLeft] = useState<Model | null>(null);
   const [alertMessageLeft, setAlertMessageLeft] = useState<{ title: string; message: string; variant: 'danger' | 'info' } | undefined>(undefined);
   const [isLoadingLeft, setIsLoadingLeft] = useState(false);
 
+  // States for right chat
   const [questionRight, setQuestionRight] = useState('');
   const [messagesRight, setMessagesRight] = useState<MessageProps[]>([]);
   const [selectedModelRight, setSelectedModelRight] = useState<Model | null>(null);
@@ -103,6 +111,21 @@ const ChatModelEval: React.FC = () => {
 
     fetchDefaultModels();
   }, []);
+
+  /**
+   * Helper function to map internal model identifiers to chat model names.
+   * "granite-base-served" => "pre-train"
+   * "granite-latest-served" => "post-train"
+   * Custom models retain their original modelName.
+   */
+  const mapModelName = (modelName: string): string => {
+    if (modelName === 'granite-base-served') {
+      return 'pre-train';
+    } else if (modelName === 'granite-latest-served') {
+      return 'post-train';
+    }
+    return modelName;
+  };
 
   const handleServeModel = async (endpoint: string, side: 'left' | 'right') => {
     // Show loading popup
@@ -227,6 +250,10 @@ const ChatModelEval: React.FC = () => {
   // Common stream update handler
   const handleStreamUpdate = (id: string, newContent: string, setMessagesFn: React.Dispatch<React.SetStateAction<MessageProps[]>>) => {
     setMessagesFn((msgs) => {
+      if (!msgs) {
+        console.error('msgs is undefined in handleStreamUpdate');
+        return [];
+      }
       const updated = [...msgs];
       const idx = updated.findIndex((m) => m.id === id);
       if (idx !== -1) {
@@ -241,7 +268,6 @@ const ChatModelEval: React.FC = () => {
     message: string,
     selectedModel: Model | null,
     setSelectedModelFn: React.Dispatch<React.SetStateAction<Model | null>>,
-    setQuestionFn: React.Dispatch<React.SetStateAction<string>>,
     setIsLoadingFn: React.Dispatch<React.SetStateAction<boolean>>,
     setAlertMessageFn: React.Dispatch<React.SetStateAction<{ title: string; message: string; variant: 'danger' | 'info' } | undefined>>,
     setMessagesFn: React.Dispatch<React.SetStateAction<MessageProps[]>>
@@ -277,7 +303,12 @@ const ChatModelEval: React.FC = () => {
       }
     ]);
 
-    setQuestionFn('');
+    if (side === 'left') {
+      setQuestionLeft('');
+    } else {
+      setQuestionRight('');
+    }
+
     setIsLoadingFn(true);
 
     const messagesPayload = [
@@ -285,8 +316,11 @@ const ChatModelEval: React.FC = () => {
       { role: 'user', content: trimmedMessage }
     ];
 
+    // Map internal model identifiers to chat model names
+    const chatModelName = mapModelName(selectedModel.modelName);
+
     const requestData = {
-      model: selectedModel.modelName,
+      model: chatModelName,
       messages: messagesPayload,
       stream: true
     };
@@ -413,20 +447,11 @@ const ChatModelEval: React.FC = () => {
   };
 
   const handleSendLeft = (message: string) => {
-    handleSend('left', message, selectedModelLeft, setSelectedModelLeft, setQuestionLeft, setIsLoadingLeft, setAlertMessageLeft, setMessagesLeft);
+    handleSend('left', message, selectedModelLeft, setSelectedModelLeft, setIsLoadingLeft, setAlertMessageLeft, setMessagesLeft);
   };
 
   const handleSendRight = (message: string) => {
-    handleSend(
-      'right',
-      message,
-      selectedModelRight,
-      setSelectedModelRight,
-      setQuestionRight,
-      setIsLoadingRight,
-      setAlertMessageRight,
-      setMessagesRight
-    );
+    handleSend('right', message, selectedModelRight, setSelectedModelRight, setIsLoadingRight, setAlertMessageRight, setMessagesRight);
   };
 
   // Add a copy action to bot messages when they are fully loaded
@@ -496,8 +521,44 @@ const ChatModelEval: React.FC = () => {
     }
   };
 
+  const handleUnifiedSend = (message: string) => {
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage) return;
+
+    setQuestionUnified('');
+    // Send to both models if both are selected
+    let shouldSendLeft = true;
+    let shouldSendRight = true;
+
+    if (!selectedModelLeft) {
+      setAlertMessageLeft({
+        title: 'No Model Selected',
+        message: 'Please select a model for the left panel.',
+        variant: 'danger'
+      });
+      shouldSendLeft = false;
+    }
+
+    if (!selectedModelRight) {
+      setAlertMessageRight({
+        title: 'No Model Selected',
+        message: 'Please select a model for the right panel.',
+        variant: 'danger'
+      });
+      shouldSendRight = false;
+    }
+
+    if (shouldSendLeft) {
+      handleSendLeft(trimmedMessage);
+    }
+
+    if (shouldSendRight) {
+      handleSendRight(trimmedMessage);
+    }
+  };
+
   return (
-    <div>
+    <div className="chatbot-ui-page">
       <PageBreadcrumb>
         <Breadcrumb>
           <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
@@ -510,17 +571,29 @@ const ChatModelEval: React.FC = () => {
         </Title>
         <Content>
           <br />
-          Select a model in each panel to compare responses. For example, compare the base Granite model with a fine-tuned Granite model.
+          Select a model in each panel to compare responses. You can toggle between using a single input box that sends to both models or using two
+          separate input boxes.
         </Content>
+      </PageSection>
+
+      {/* Toggle Switch */}
+      <PageSection style={{ backgroundColor: 'white', padding: '1rem' }}>
+        <Switch
+          id="toggle-unified-input"
+          label="Single Input Box"
+          // labelOff="Dual Input Boxes"
+          isChecked={isUnifiedInput}
+          onChange={() => setIsUnifiedInput(!isUnifiedInput)}
+        />
       </PageSection>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '0.25rem', marginLeft: '1rem', marginRight: '1rem' }}>
         {/* Left Chat */}
         <div style={{ flex: '1 1 45%', maxWidth: '45%', marginBottom: '2rem' }}>
           <Chatbot isVisible={true} className="chatbot-ui-page">
-            <ChatbotHeader>
+            <ChatbotHeader className="pf-chatbot__header">
               <ChatbotHeaderMain />
-              <ChatbotHeaderActions>
+              <ChatbotHeaderActions className="pf-chatbot__header-actions">
                 <ChatbotHeaderSelectorDropdown value={selectedModelLeft?.name || 'Select a model'} onSelect={onSelectModelLeft}>
                   <DropdownList>
                     <DropdownItem value="Granite fine tune checkpoint">Granite fine tune checkpoint</DropdownItem>
@@ -537,7 +610,7 @@ const ChatModelEval: React.FC = () => {
                 </Button>
               </ChatbotHeaderActions>
             </ChatbotHeader>
-            <ChatbotContent>
+            <ChatbotContent className="pf-chatbot__content">
               <MessageBox>
                 <ChatbotWelcomePrompt title="" description="" />
                 {alertMessageLeft && (
@@ -545,28 +618,31 @@ const ChatModelEval: React.FC = () => {
                     {alertMessageLeft.message}
                   </ChatbotAlert>
                 )}
-                {messagesLeft.map((msg) => (
+                {transformedMessagesLeft.map((msg) => (
                   <Message key={msg.id} {...msg} />
                 ))}
               </MessageBox>
             </ChatbotContent>
-            <ChatbotFooter>
-              <MessageBar
-                onSendMessage={(message) => handleSendLeft(message)}
-                hasAttachButton={false}
-                onChange={(event, val) => setQuestionLeft(val)}
-                value={questionLeft}
-              />
-              <ChatbotFootnote
-                label="Please verify the accuracy of the responses."
-                popover={{
-                  title: 'Verify Accuracy',
-                  description: 'While the model strives for accuracy, there can be errors. Verify critical info.',
-                  link: { label: 'Learn more', url: 'https://www.redhat.com/' },
-                  cta: { label: 'Got it', onClick: () => {} }
-                }}
-              />
-            </ChatbotFooter>
+            {!isUnifiedInput && (
+              <ChatbotFooter className="pf-chatbot__footer">
+                <MessageBar
+                  onSendMessage={(message) => handleSendLeft(message)}
+                  hasAttachButton={false}
+                  onChange={(event, val) => setQuestionLeft(val)}
+                  value={questionLeft}
+                  placeholder="Type your prompt for the left model..."
+                />
+                <ChatbotFootnote
+                  label="Please verify the accuracy of the responses."
+                  popover={{
+                    title: 'Verify Accuracy',
+                    description: 'While the model strives for accuracy, there can be errors. Verify critical info.',
+                    link: { label: 'Learn more', url: 'https://www.redhat.com/' },
+                    cta: { label: 'Got it', onClick: () => {} }
+                  }}
+                />
+              </ChatbotFooter>
+            )}
           </Chatbot>
           {modelJobIdLeft && (
             <div style={{ marginTop: '1rem' }}>
@@ -588,11 +664,11 @@ const ChatModelEval: React.FC = () => {
         </div>
 
         {/* Right Chat */}
-        <div style={{ flex: '1 1 45%', maxWidth: '45%', marginBottom: '2rem' }}>
+        <div style={{ flex: '1 1 45%', maxWidth: '55%', marginBottom: '2rem' }}>
           <Chatbot isVisible={true} className="chatbot-ui-page">
-            <ChatbotHeader>
+            <ChatbotHeader className="pf-chatbot__header">
               <ChatbotHeaderMain />
-              <ChatbotHeaderActions>
+              <ChatbotHeaderActions className="pf-chatbot__header-actions">
                 <ChatbotHeaderSelectorDropdown value={selectedModelRight?.name || 'Select a model'} onSelect={onSelectModelRight}>
                   <DropdownList>
                     <DropdownItem value="Granite fine tune checkpoint">Granite fine tune checkpoint</DropdownItem>
@@ -609,7 +685,7 @@ const ChatModelEval: React.FC = () => {
                 </Button>
               </ChatbotHeaderActions>
             </ChatbotHeader>
-            <ChatbotContent>
+            <ChatbotContent className="pf-chatbot__content">
               <MessageBox>
                 <ChatbotWelcomePrompt title="" description="" />
                 {alertMessageRight && (
@@ -617,28 +693,31 @@ const ChatModelEval: React.FC = () => {
                     {alertMessageRight.message}
                   </ChatbotAlert>
                 )}
-                {messagesRight.map((msg) => (
+                {transformedMessagesRight.map((msg) => (
                   <Message key={msg.id} {...msg} />
                 ))}
               </MessageBox>
             </ChatbotContent>
-            <ChatbotFooter>
-              <MessageBar
-                onSendMessage={(message) => handleSendRight(message)}
-                hasAttachButton={false}
-                onChange={(event, val) => setQuestionRight(val)}
-                value={questionRight}
-              />
-              <ChatbotFootnote
-                label="Please verify the accuracy of the responses."
-                popover={{
-                  title: 'Verify Accuracy',
-                  description: 'While the model strives for accuracy, there can be errors. Verify critical info.',
-                  link: { label: 'Learn more', url: 'https://www.redhat.com/' },
-                  cta: { label: 'Got it', onClick: () => {} }
-                }}
-              />
-            </ChatbotFooter>
+            {!isUnifiedInput && (
+              <ChatbotFooter className="pf-chatbot__footer">
+                <MessageBar
+                  onSendMessage={(message) => handleSendRight(message)}
+                  hasAttachButton={false}
+                  onChange={(event, val) => setQuestionRight(val)}
+                  value={questionRight}
+                  placeholder="Type your prompt for the right model..."
+                />
+                <ChatbotFootnote
+                  label="Please verify the accuracy of the responses."
+                  popover={{
+                    title: 'Verify Accuracy',
+                    description: 'While the model strives for accuracy, there can be errors. Verify critical info.',
+                    link: { label: 'Learn more', url: 'https://www.redhat.com/' },
+                    cta: { label: 'Got it', onClick: () => {} }
+                  }}
+                />
+              </ChatbotFooter>
+            )}
           </Chatbot>
           {modelJobIdRight && (
             <div style={{ marginTop: '1rem' }}>
@@ -659,6 +738,30 @@ const ChatModelEval: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Unified MessageBar for both models */}
+      {isUnifiedInput && (
+        <PageSection style={{ backgroundColor: 'white', padding: '1rem' }}>
+          <ChatbotFooter className="pf-chatbot__footer">
+            <MessageBar
+              onSendMessage={(message) => handleUnifiedSend(message)}
+              hasAttachButton={false}
+              onChange={(event, val) => setQuestionUnified(val)}
+              value={questionUnified}
+              placeholder="Type your prompt here and send to both models..."
+            />
+            <ChatbotFootnote
+              label="Please verify the accuracy of the responses."
+              popover={{
+                title: 'Verify Accuracy',
+                description: 'While the model strives for accuracy, there can be errors. Verify critical info.',
+                link: { label: 'Learn more', url: 'https://www.redhat.com/' },
+                cta: { label: 'Got it', onClick: () => {} }
+              }}
+            />
+          </ChatbotFooter>
+        </PageSection>
+      )}
     </div>
   );
 };
