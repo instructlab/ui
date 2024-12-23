@@ -1,11 +1,7 @@
 import React from 'react';
-import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { TrashIcon, PlusCircleIcon, ExclamationCircleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
-import { TextArea } from '@patternfly/react-core/dist/esm/components/TextArea';
-import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/esm/components/HelperText';
 import { SkillSeedExample } from '@/types';
+import { FormFieldGroupExpandable, FormFieldGroupHeader, Button, FormGroup, TextArea, ValidatedOptions, FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core';
+import { ExternalLinkAltIcon, TrashIcon, ExclamationCircleIcon, PlusCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
   seedExamples: SkillSeedExample[];

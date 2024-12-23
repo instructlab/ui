@@ -1,11 +1,11 @@
 // src/components/contribute/native/Knowledge/Submit/Submit.tsx
 import React from 'react';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ActionGroupAlertContent } from '..';
 import { AttributionData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '@/components/Contribute/Knowledge/validation';
+import { Button } from '@patternfly/react-core';
 
 interface Props {
   disableAction: boolean;

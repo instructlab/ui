@@ -1,10 +1,10 @@
 import React from 'react';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ActionGroupAlertContent } from '..';
 import { AttributionData, SkillFormData, SkillYamlData } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '@/components/Contribute/Skill/validation';
+import { Button } from '@patternfly/react-core';
 
 interface Props {
   disableAction: boolean;

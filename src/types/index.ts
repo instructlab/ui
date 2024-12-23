@@ -1,4 +1,4 @@
-import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
+import { ValidatedOptions } from "@patternfly/react-core";
 
 export interface Endpoint {
   id: string;

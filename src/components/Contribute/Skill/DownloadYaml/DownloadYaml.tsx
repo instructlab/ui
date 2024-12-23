@@ -1,9 +1,9 @@
 import React from 'react';
 import { SkillFormData, SkillYamlData } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
-import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/DropdownItem';
-import CodeIcon from '@patternfly/react-icons/dist/esm/icons/code-icon';
 import { SkillSchemaVersion } from '@/types/const';
+import { DropdownItem } from '@patternfly/react-core';
+import { CodeIcon } from '@patternfly/react-icons';
 
 interface Props {
   skillFormData: SkillFormData;

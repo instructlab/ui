@@ -1,10 +1,8 @@
 import React from 'react';
 import yaml from 'js-yaml';
 import { KnowledgeYamlData, SkillYamlData } from '@/types';
-import { MultipleFileUpload } from '@patternfly/react-core/dist/esm/components/MultipleFileUpload/MultipleFileUpload';
-import { MultipleFileUploadMain } from '@patternfly/react-core/dist/esm/components/MultipleFileUpload/MultipleFileUploadMain';
-import { DropEvent } from '@patternfly/react-core/dist/esm/helpers/typeUtils';
-import { UploadIcon } from '@patternfly/react-icons/dist/esm/icons/upload-icon';
+import { DropEvent, MultipleFileUpload, MultipleFileUploadMain } from '@patternfly/react-core';
+import { UploadIcon } from '@patternfly/react-icons';
 
 interface readFile {
   fileName: string;
