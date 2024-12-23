@@ -114,7 +114,7 @@ jobs:
           file: healthcheck-sidecar/Containerfile
 
       - name: Generate GHCR artifact attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_HS_IMAGE_NAME}}
           subject-digest: ${{ steps.push-hs-ghcr.outputs.digest }}
@@ -136,7 +136,7 @@ jobs:
           file: healthcheck-sidecar/Containerfile
 
       - name: Generate QA HS Quay artifact attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_HS_IMAGE_NAME}}
           subject-digest: ${{ steps.push-hs-quay.outputs.digest }}
