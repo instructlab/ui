@@ -252,26 +252,20 @@ const DocumentInformation: React.FC<Props> = ({
           </Button>
         </div>
       </FormGroup>
-      <Modal
-        variant={ModalVariant.medium}
-        title="Data Loss Warning"
-        titleIconVariant="warning"
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        actions={[
-          <Button key="Continue" variant="secondary" onClick={handleModalContinue}>
+      <Modal variant={ModalVariant.medium} title="Data Loss Warning" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <p>{modalText}</p>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+          <Button variant="secondary" onClick={handleModalContinue}>
             Continue
-          </Button>,
-          <Button key="cancel" variant="secondary" onClick={() => setIsModalOpen(false)}>
+          </Button>
+          <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
             Cancel
           </Button>
-        ]}
-      >
-        <p>{modalText}</p>
+        </div>
       </Modal>
       {!useFileUpload ? (
         <>
-          <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL or File Path">
+          <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL or Server Side File Path">
             <TextInput
               isRequired
               type="url"

@@ -259,8 +259,17 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
               color: '#333'
             }}
           >
-            A commit SHA (<strong>{commitSha}</strong>) has already been selected in a previous seed example. All subsequent selections must use the
-            same commit SHA for consistency.
+            <Alert
+              variant="warning"
+              isInline
+              title="All knowledge files need to originate from the same commit or 'Document Information' submission"
+              style={{ marginBottom: '20px' }}
+            >
+              A commit SHA (<strong>{commitSha}</strong>) has already been selected in a previous seed example. All subsequent selections must use the
+              same commit SHA for consistency.
+            </Alert>
+            {/*A commit SHA (<strong>{commitSha}</strong>) has already been selected in a previous seed example. All subsequent selections must use the*/}
+            {/*same commit SHA for consistency.*/}
           </div>
         )}
 
