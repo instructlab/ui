@@ -6,7 +6,8 @@ import http from 'isomorphic-git/http/node';
 import path from 'path';
 import fs from 'fs';
 
-const LOCAL_TAXONOMY_DOCS_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || `${process.env.HOME}/.instructlab-ui`;
+const TAXONOMY_DOCS_ROOT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || '';
+const TAXONOMY_DOCS_CONTAINER_MOUNT_DIR = '/tmp/.instructlab-ui';
 const TAXONOMY_KNOWLEDGE_DOCS_REPO_URL = 'https://github.com/instructlab-public/taxonomy-knowledge-docs.git';
 
 export async function POST(req: NextRequest) {
@@ -30,8 +31,10 @@ export async function POST(req: NextRequest) {
     });
 
     // Write the files to the repository
+    const docsRepoUrlTmp = path.join(docsRepoUrl, '/');
     for (const file of filesWithTimestamp) {
-      const filePath = path.join(docsRepoUrl, file.fileName);
+      const filePath = path.join(docsRepoUrlTmp, file.fileName);
+      console.log(`Writing file to ${filePath} in taxonomy knowledge docs repository.`);
       fs.writeFileSync(filePath, file.fileContent);
     }
 
@@ -51,9 +54,12 @@ export async function POST(req: NextRequest) {
         .join(', ')}\n\nSigned-off-by: ui@instructlab.ai`
     });
 
+    console.log(`Successfully committed files to taxonomy knowledge docs repository with commit SHA: ${commitSha}`);
+
+    const origTaxonomyDocsRepoDir = path.join(TAXONOMY_DOCS_ROOT_DIR, '/taxonomy-knowledge-docs');
     return NextResponse.json(
       {
-        repoUrl: docsRepoUrl,
+        repoUrl: origTaxonomyDocsRepoDir,
         commitSha,
         documentNames: filesWithTimestamp.map((file: { fileName: string }) => file.fileName),
         prUrl: ''
@@ -61,17 +67,32 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Failed to upload documents:', error);
-    return NextResponse.json({ error: 'Failed to upload documents' }, { status: 500 });
+    console.error('Failed to upload knowledge documents:', error);
+    return NextResponse.json({ error: 'Failed to upload knowledge documents' }, { status: 500 });
   }
 }
 
 async function cloneTaxonomyDocsRepo() {
-  const taxonomyDocsDirectoryPath = path.join(LOCAL_TAXONOMY_DOCS_ROOT_DIR, '/taxonomy-knowledge-docs');
-  console.log(`Cloning taxonomy docs repository to ${taxonomyDocsDirectoryPath}...`);
+  // Check the location of the taxonomy repository and create the taxonomy-docs-repository parallel to that.
+  let remoteTaxonomyRepoDirFinal: string = '';
+  // Check if directory pointed by remoteTaxonomyRepoDir exists and not empty
+  const remoteTaxonomyRepoContainerMountDir = path.join(TAXONOMY_DOCS_CONTAINER_MOUNT_DIR, '/taxonomy');
+  const remoteTaxonomyRepoDir = path.join(TAXONOMY_DOCS_ROOT_DIR, '/taxonomy');
+  if (fs.existsSync(remoteTaxonomyRepoContainerMountDir) && fs.readdirSync(remoteTaxonomyRepoContainerMountDir).length !== 0) {
+    remoteTaxonomyRepoDirFinal = TAXONOMY_DOCS_CONTAINER_MOUNT_DIR;
+  } else {
+    if (fs.existsSync(remoteTaxonomyRepoDir) && fs.readdirSync(remoteTaxonomyRepoDir).length !== 0) {
+      remoteTaxonomyRepoDirFinal = TAXONOMY_DOCS_ROOT_DIR;
+    }
+  }
+  if (remoteTaxonomyRepoDirFinal === '') {
+    return null;
+  }
+
+  const taxonomyDocsDirectoryPath = path.join(remoteTaxonomyRepoDirFinal, '/taxonomy-knowledge-docs');
 
   if (fs.existsSync(taxonomyDocsDirectoryPath)) {
-    console.log(`Using existing taxonomy knowledge docs repository at ${taxonomyDocsDirectoryPath}.`);
+    console.log(`Using existing taxonomy knowledge docs repository at ${remoteTaxonomyRepoDir}/taxonomy-knowledge-docs.`);
     return taxonomyDocsDirectoryPath;
   } else {
     console.log(`Taxonomy knowledge docs repository not found at ${taxonomyDocsDirectoryPath}. Cloning...`);
@@ -83,12 +104,13 @@ async function cloneTaxonomyDocsRepo() {
       http,
       dir: taxonomyDocsDirectoryPath,
       url: TAXONOMY_KNOWLEDGE_DOCS_REPO_URL,
-      singleBranch: true,
-      depth: 1
+      singleBranch: true
     });
 
-    // Include the full path in the response for client display
-    console.log(`Repository cloned successfully to ${taxonomyDocsDirectoryPath}.`);
+    // Include the full path in the response for client display. Path displayed here is the one
+    // that user set in the environment variable.
+    console.log(`Taxonomy knowledge docs repository cloned successfully to ${remoteTaxonomyRepoDir}.`);
+    // Return the path that the UI sees (direct or mounted)
     return taxonomyDocsDirectoryPath;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
