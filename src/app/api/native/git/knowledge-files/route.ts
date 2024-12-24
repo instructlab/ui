@@ -1,5 +1,6 @@
 // src/app/api/native/git/knowledge-files/route.ts
 
+'use server';
 import { NextRequest, NextResponse } from 'next/server';
 import * as git from 'isomorphic-git';
 import fs from 'fs';
@@ -68,7 +69,7 @@ const listAllBranches = async (): Promise<Branch[]> => {
  * @returns An array of KnowledgeFile objects.
  */
 const getKnowledgeFiles = async (branchName: string): Promise<KnowledgeFile[]> => {
-  const REPO_DIR = LOCAL_TAXONOMY_DOCS_ROOT_DIR;
+  const REPO_DIR = path.join(LOCAL_TAXONOMY_DOCS_ROOT_DIR, '/taxonomy-knowledge-docs');
 
   // Ensure the repository path exists
   if (!fs.existsSync(REPO_DIR)) {

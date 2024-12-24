@@ -79,25 +79,6 @@ const DocumentInformation: React.FC<Props> = ({
     }
   }, [isEditForm]);
 
-  const validateRepo = (repoStr: string) => {
-    const repo = repoStr.trim();
-    if (repo.length === 0) {
-      setDisableAction(true);
-      setValidRepo(ValidatedOptions.error);
-      return;
-    }
-    try {
-      new URL(repo);
-      setValidRepo(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
-      return;
-    } catch (e) {
-      setDisableAction(true);
-      setValidRepo(ValidatedOptions.warning);
-      return;
-    }
-  };
-
   const validateCommit = (commitStr: string) => {
     const commit = commitStr.trim();
     if (commit.length > 0) {
@@ -283,7 +264,7 @@ const DocumentInformation: React.FC<Props> = ({
       </Modal>
       {!useFileUpload ? (
         <>
-          <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL">
+          <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL or Server Side File Path">
             <TextInput
               isRequired
               type="url"
@@ -292,26 +273,7 @@ const DocumentInformation: React.FC<Props> = ({
               placeholder="Enter repo URL where document exists"
               value={knowledgeDocumentRepositoryUrl}
               onChange={(_event, value) => setKnowledgeDocumentRepositoryUrl(value)}
-              onBlur={() => validateRepo(knowledgeDocumentRepositoryUrl)}
             />
-            {validRepo === ValidatedOptions.error && (
-              <FormHelperText>
-                <HelperText>
-                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validRepo}>
-                    Required field
-                  </HelperTextItem>
-                </HelperText>
-              </FormHelperText>
-            )}
-            {validRepo === ValidatedOptions.warning && (
-              <FormHelperText>
-                <HelperText>
-                  <HelperTextItem icon={<ExclamationCircleIcon />} variant="error">
-                    Please enter a valid URL.
-                  </HelperTextItem>
-                </HelperText>
-              </FormHelperText>
-            )}
           </FormGroup>
           <FormGroup isRequired key={'doc-info-details-commit_sha'} label="Commit SHA">
             <TextInput
