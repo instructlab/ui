@@ -37,6 +37,7 @@ import ReviewSubmission from '../ReviewSubmission';
 import { Flex } from '@patternfly/react-core/dist/esm/layouts/Flex/Flex';
 import { FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex/FlexItem';
 import { YamlFileUploadModal } from '../../YamlFileUploadModal';
+import { devLog } from '@/utils/devlog';
 
 export interface ActionGroupAlertContent {
   title: string;
@@ -211,7 +212,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
         }))
       );
 
-      console.log('Seed Examples Set from Edit Form Data:', knowledgeEditFormData.knowledgeFormData.seedExamples);
+      devLog('Seed Examples Set from Edit Form Data:', knowledgeEditFormData.knowledgeFormData.seedExamples);
     }
   }, [knowledgeEditFormData]);
 
@@ -280,7 +281,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
       prevSeedExamples.map((seedExample: KnowledgeSeedExample, index: number): KnowledgeSeedExample => {
         if (index === seedExampleIndex) {
           const { msg, status } = validateContext(seedExample.context);
-          console.log(`Context Validation for Seed Example ${seedExampleIndex + 1}: ${msg} (${status})`);
+          devLog(`Context Validation for Seed Example ${seedExampleIndex + 1}: ${msg} (${status})`);
           return {
             ...seedExample,
             isContextValid: status,
@@ -310,7 +311,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
           : seedExample
       )
     );
-    console.log(`Question Input Changed for Seed Example ${seedExampleIndex + 1}, Q&A Pair ${questionAndAnswerIndex + 1}: "${questionValue}"`);
+    devLog(`Question Input Changed for Seed Example ${seedExampleIndex + 1}, Q&A Pair ${questionAndAnswerIndex + 1}: "${questionValue}"`);
   };
 
   const handleQuestionBlur = (seedExampleIndex: number, questionAndAnswerIndex: number): void => {
@@ -322,9 +323,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
               questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) => {
                 if (qaIndex === questionAndAnswerIndex) {
                   const { msg, status } = validateQuestion(questionAndAnswerPair.question);
-                  console.log(
-                    `Question Validation for Seed Example ${seedExampleIndex + 1}, Q&A Pair ${questionAndAnswerIndex + 1}: ${msg} (${status})`
-                  );
+                  devLog(`Question Validation for Seed Example ${seedExampleIndex + 1}, Q&A Pair ${questionAndAnswerIndex + 1}: ${msg} (${status})`);
                   return {
                     ...questionAndAnswerPair,
                     isQuestionValid: status,
@@ -386,13 +385,13 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     setSeedExamples((prevSeedExamples) =>
       prevSeedExamples.map((seedExample, idx) => (idx === index ? { ...seedExample, isExpanded: !seedExample.isExpanded } : seedExample))
     );
-    console.log(`toggleSeedExampleExpansion: Seed Example ${index + 1} expanded to ${!seedExamples[index].isExpanded}`);
+    devLog(`toggleSeedExampleExpansion: Seed Example ${index + 1} expanded to ${!seedExamples[index].isExpanded}`);
   };
 
   // Function to append document information (Updated for single repositoryUrl and commitSha)
   // Within src/components/Contribute/Native/index.tsx
   const addDocumentInfoHandler = (repoUrl: string, commitShaValue: string, docName: string) => {
-    console.log(`addDocumentInfoHandler: repoUrl=${repoUrl}, commitSha=${commitShaValue}, docName=${docName}`);
+    devLog(`addDocumentInfoHandler: repoUrl=${repoUrl}, commitSha=${commitShaValue}, docName=${docName}`);
     if (knowledgeDocumentCommit && commitShaValue !== knowledgeDocumentCommit) {
       console.error('Cannot add documents from different commit SHAs.');
       setActionGroupAlertContent({
@@ -406,13 +405,13 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     // Set commitSha if not already set
     if (!knowledgeDocumentCommit) {
       setKnowledgeDocumentCommit(commitShaValue);
-      console.log(`Set knowledgeDocumentCommit to: ${commitShaValue}`);
+      devLog(`Set knowledgeDocumentCommit to: ${commitShaValue}`);
 
       // Set repositoryUrl if not set
       if (!knowledgeDocumentRepositoryUrl) {
         const baseUrl = repoUrl.replace(/\/[^/]+$/, '');
         setKnowledgeDocumentRepositoryUrl(baseUrl);
-        console.log(`Set knowledgeDocumentRepositoryUrl to: ${baseUrl}`);
+        devLog(`Set knowledgeDocumentRepositoryUrl to: ${baseUrl}`);
       }
     }
 
@@ -425,10 +424,10 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
         .filter((d) => d.length > 0);
       if (!currentDocs.includes(docName)) {
         const newList = currentDocs.length === 0 ? docName : currentDocs.join(', ') + ', ' + docName;
-        console.log(`Updated documentName: ${newList}`);
+        devLog(`Updated documentName: ${newList}`);
         return newList;
       } else {
-        console.log(`Document name "${docName}" is already added.`);
+        devLog(`Document name "${docName}" is already added.`);
         return prevDocumentName;
       }
     });
@@ -459,7 +458,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
     // setReset is just reset button, value has no impact.
     setReset((prev) => !prev);
-    console.log('Knowledge Form Reset.');
+    devLog('Knowledge Form Reset.');
   };
 
   const autoFillForm = (): void => {
@@ -499,7 +498,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
       }))
     }));
 
-    console.log('Mapped Seed Examples from YAML:', mappedSeedExamples);
+    devLog('Mapped Seed Examples from YAML:', mappedSeedExamples);
     return mappedSeedExamples;
   };
 
@@ -539,20 +538,18 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     creators
   };
 
-  console.log('Constructed knowledgeFormData:', knowledgeFormData); // Logging
+  devLog('Constructed knowledgeFormData:', knowledgeFormData);
 
   useEffect(() => {
-    console.log('Seed Examples Updated:', seedExamples);
+    devLog('Seed Examples Updated:', seedExamples);
   }, [seedExamples]);
 
   useEffect(() => {
     setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
-    console.log(`Action Disabled: ${!checkKnowledgeFormCompletion(knowledgeFormData)}`);
   }, [knowledgeFormData]);
 
   const handleCancel = () => {
     router.push('/dashboard');
-    console.log('Knowledge Form Cancelled. Redirecting to Dashboard.');
   };
 
   const steps = [
