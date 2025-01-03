@@ -98,7 +98,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       label: 'Playground',
       children: [
         { path: '/playground/chat', label: 'Chat' },
-        { path: '/playground/endpoints', label: 'Custom Model Endpoints' }
+        { path: '/playground/endpoints', label: 'Custom Model Endpoints' },
+        { path: '/playground/ragchat', label: 'Experimental RAG' }
       ]
     },
     isExperimentalEnabled && {
