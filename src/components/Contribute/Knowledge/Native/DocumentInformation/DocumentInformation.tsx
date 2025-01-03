@@ -1,8 +1,9 @@
+// src/components/Contribute/Knowledge/Native/DocumentInformation/DocumentInformation.tsx
 import React, { useEffect, useState } from 'react';
 import { FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
-import { Alert, AlertActionLink, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
@@ -17,12 +18,22 @@ interface Props {
   isEditForm?: boolean;
   knowledgeFormData: KnowledgeFormData;
   setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
+
   knowledgeDocumentRepositoryUrl: string;
   setKnowledgeDocumentRepositoryUrl: React.Dispatch<React.SetStateAction<string>>;
+
   knowledgeDocumentCommit: string;
   setKnowledgeDocumentCommit: React.Dispatch<React.SetStateAction<string>>;
+
   documentName: string;
   setDocumentName: React.Dispatch<React.SetStateAction<string>>;
+}
+
+interface AlertInfo {
+  type: 'success' | 'danger' | 'info';
+  title: string;
+  message: string;
+  link?: string;
 }
 
 const DocumentInformation: React.FC<Props> = ({
@@ -41,17 +52,19 @@ const DocumentInformation: React.FC<Props> = ({
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalText, setModalText] = useState<string | undefined>();
-  const [alertInfo, setAlertInfo] = useState<AlertInfo | undefined>();
-  const [validRepo, setValidRepo] = useState<ValidatedOptions>();
-  const [validCommit, setValidCommit] = useState<ValidatedOptions>();
-  const [validDocumentName, setValidDocumentName] = useState<ValidatedOptions>();
 
-  interface AlertInfo {
-    type: 'success' | 'danger' | 'info';
-    title: string;
-    message: string;
-    link?: string;
-  }
+  const [successAlertTitle, setSuccessAlertTitle] = useState<string | undefined>();
+  const [successAlertMessage, setSuccessAlertMessage] = useState<string | undefined>();
+  const [successAlertLink, setSuccessAlertLink] = useState<string | undefined>();
+
+  const [failureAlertTitle, setFailureAlertTitle] = useState<string | undefined>();
+  const [failureAlertMessage, setFailureAlertMessage] = useState<string | undefined>();
+  const [alertInfo, setAlertInfo] = useState<AlertInfo | undefined>();
+
+  const [validRepo, setValidRepo] = useState<ValidatedOptions>(ValidatedOptions.default);
+  const [validCommit, setValidCommit] = useState<ValidatedOptions>(ValidatedOptions.default);
+  const [validDocumentName, setValidDocumentName] = useState<ValidatedOptions>(ValidatedOptions.default);
+
   useEffect(() => {
     setValidRepo(ValidatedOptions.default);
     setValidCommit(ValidatedOptions.default);
@@ -66,25 +79,6 @@ const DocumentInformation: React.FC<Props> = ({
     }
   }, [isEditForm]);
 
-  const validateRepo = (repoStr: string) => {
-    const repo = repoStr.trim();
-    if (repo.length === 0) {
-      setDisableAction(true);
-      setValidRepo(ValidatedOptions.error);
-      return;
-    }
-    try {
-      new URL(repo);
-      setValidRepo(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
-      return;
-    } catch (e) {
-      setDisableAction(true);
-      setValidRepo(ValidatedOptions.warning);
-      return;
-    }
-  };
-
   const validateCommit = (commitStr: string) => {
     const commit = commitStr.trim();
     if (commit.length > 0) {
@@ -98,8 +92,8 @@ const DocumentInformation: React.FC<Props> = ({
   };
 
   const validateDocumentName = (document: string) => {
-    const documentName = document.trim();
-    if (documentName.length > 0) {
+    const documentNameStr = document.trim();
+    if (documentNameStr.length > 0) {
       setValidDocumentName(ValidatedOptions.success);
       setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
@@ -141,47 +135,49 @@ const DocumentInformation: React.FC<Props> = ({
       );
 
       if (fileContents.length === uploadedFiles.length) {
-        const response = await fetch('/api/native/upload', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ files: fileContents })
-        });
+        try {
+          const response = await fetch('/api/native/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ files: fileContents })
+          });
 
-        if (!response.ok) {
-          const alertInfo: AlertInfo = {
-            type: 'danger',
-            title: 'Document upload failed!',
-            message: `Upload failed for the added documents. ${response.statusText}`
-          };
-          setAlertInfo(alertInfo);
-          new Error(response.statusText || 'Document upload failed');
-          return;
+          if (response.status === 201) {
+            const result = await response.json();
+            console.log('Files uploaded result:', result);
+
+            setSuccessAlertTitle('Document uploaded successfully!');
+            setSuccessAlertMessage('Documents have been uploaded to your repo to be referenced in the knowledge submission.');
+            if (result.prUrl && result.prUrl.trim() !== '') {
+              setSuccessAlertLink(result.prUrl);
+            } else {
+              setSuccessAlertLink(undefined);
+            }
+          } else {
+            console.error('Upload failed:', response.statusText);
+            setFailureAlertTitle('Failed to upload document');
+            setFailureAlertMessage(`This upload failed. ${response.statusText}`);
+          }
+        } catch (error) {
+          console.error('Upload error:', error);
+          setFailureAlertTitle('Failed to upload document');
+          setFailureAlertMessage(`This upload failed. ${(error as Error).message}`);
         }
-
-        const result = await response.json();
-
-        setKnowledgeDocumentRepositoryUrl(result.repoUrl);
-        setKnowledgeDocumentCommit(result.commitSha);
-        setDocumentName(result.documentNames.join(', ')); // Populate the patterns field
-        console.log('Files uploaded:', result.documentNames);
-
-        const alertInfo: AlertInfo = {
-          type: 'success',
-          title: 'Document uploaded successfully!',
-          message: 'Documents have been uploaded to your repo to be referenced in the knowledge submission.'
-        };
-        if (result.prUrl !== '') {
-          alertInfo.link = result.prUrl;
-        }
-        setAlertInfo(alertInfo);
       }
     }
   };
 
   const onCloseSuccessAlert = () => {
-    setAlertInfo(undefined);
+    setSuccessAlertTitle(undefined);
+    setSuccessAlertMessage(undefined);
+    setSuccessAlertLink(undefined);
+  };
+
+  const onCloseFailureAlert = () => {
+    setFailureAlertTitle(undefined);
+    setFailureAlertMessage(undefined);
   };
 
   const handleAutomaticUpload = () => {
@@ -206,6 +202,7 @@ const DocumentInformation: React.FC<Props> = ({
     if (useFileUpload) {
       setUploadedFiles([]);
     } else {
+      console.log('Switching to manual entry - clearing repository and document info');
       setKnowledgeDocumentRepositoryUrl('');
       setValidRepo(ValidatedOptions.default);
       setKnowledgeDocumentCommit('');
@@ -219,20 +216,30 @@ const DocumentInformation: React.FC<Props> = ({
 
   return (
     <div>
-      <FormFieldGroupHeader titleDescription="Add the relevant document's information: " />
+      <FormFieldGroupHeader
+        titleText={{
+          text: (
+            <p>
+              Document Information <span style={{ color: 'red' }}>*</span>
+            </p>
+          ),
+          id: 'doc-info-id'
+        }}
+        titleDescription="Add the relevant document's information"
+      />
       <FormGroup>
         <div style={{ display: 'flex', gap: '10px' }}>
           <Button
             variant={useFileUpload ? 'primary' : 'secondary'}
             className={useFileUpload ? 'button-active' : 'button-secondary'}
-            onClick={() => handleAutomaticUpload()}
+            onClick={handleAutomaticUpload}
           >
             Automatically Upload Documents
           </Button>
           <Button
             variant={useFileUpload ? 'secondary' : 'primary'}
             className={!useFileUpload ? 'button-active' : 'button-secondary'}
-            onClick={() => handleManualUpload()}
+            onClick={handleManualUpload}
           >
             Manually Enter Document Details
           </Button>
@@ -245,7 +252,7 @@ const DocumentInformation: React.FC<Props> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         actions={[
-          <Button key="Continue" variant="secondary" onClick={() => handleModalContinue()}>
+          <Button key="Continue" variant="secondary" onClick={handleModalContinue}>
             Continue
           </Button>,
           <Button key="cancel" variant="secondary" onClick={() => setIsModalOpen(false)}>
@@ -257,42 +264,23 @@ const DocumentInformation: React.FC<Props> = ({
       </Modal>
       {!useFileUpload ? (
         <>
-          <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL">
+          <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL or Server Side File Path">
             <TextInput
               isRequired
               type="url"
               aria-label="repo"
               validated={validRepo}
-              placeholder="Enter repo url where document exists"
+              placeholder="Enter repo URL where document exists"
               value={knowledgeDocumentRepositoryUrl}
               onChange={(_event, value) => setKnowledgeDocumentRepositoryUrl(value)}
-              onBlur={() => validateRepo(knowledgeDocumentRepositoryUrl)}
             />
-            {validRepo === ValidatedOptions.error && (
-              <FormHelperText>
-                <HelperText>
-                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validRepo}>
-                    Required field
-                  </HelperTextItem>
-                </HelperText>
-              </FormHelperText>
-            )}
-            {validRepo === ValidatedOptions.warning && (
-              <FormHelperText>
-                <HelperText>
-                  <HelperTextItem icon={<ExclamationCircleIcon />} variant="error">
-                    Please enter a valid URL.
-                  </HelperTextItem>
-                </HelperText>
-              </FormHelperText>
-            )}
           </FormGroup>
           <FormGroup isRequired key={'doc-info-details-commit_sha'} label="Commit SHA">
             <TextInput
               isRequired
               type="text"
               aria-label="commit"
-              placeholder="Enter the commit sha of the document in that repo"
+              placeholder="Enter the commit SHA of the document in that repo"
               value={knowledgeDocumentCommit}
               validated={validCommit}
               onChange={(_event, value) => setKnowledgeDocumentCommit(value)}
@@ -313,7 +301,7 @@ const DocumentInformation: React.FC<Props> = ({
               isRequired
               type="text"
               aria-label="patterns"
-              placeholder="Enter the documents name (comma separated)"
+              placeholder="Enter the document names (comma separated)"
               value={documentName}
               validated={validDocumentName}
               onChange={(_event, value) => setDocumentName(value)}
@@ -333,31 +321,47 @@ const DocumentInformation: React.FC<Props> = ({
       ) : (
         <>
           <UploadFile onFilesChange={handleFilesChange} />
-          <Button variant="primary" onClick={handleDocumentUpload}>
+          <Button variant="primary" onClick={handleDocumentUpload} isDisabled={uploadedFiles.length === 0}>
             Submit Files
           </Button>
         </>
       )}
 
+      {/* Informational Alert */}
       {alertInfo && (
-        <AlertGroup isToast isLiveRegion>
-          <Alert
-            variant={alertInfo.type}
-            title={alertInfo.title}
-            actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}
-            actionLinks={
-              alertInfo.link && (
-                <>
-                  <AlertActionLink component="a" href={alertInfo.link} rel="noopener noreferrer">
-                    View it here
-                  </AlertActionLink>
-                </>
-              )
-            }
-          >
-            {alertInfo.message}
-          </Alert>
-        </AlertGroup>
+        <Alert variant={alertInfo.type} title={alertInfo.title} actionClose={<AlertActionCloseButton onClose={() => setAlertInfo(undefined)} />}>
+          {alertInfo.message}
+          {alertInfo.link && (
+            <AlertActionLink href={alertInfo.link} target="_blank" rel="noopener noreferrer">
+              View it here
+            </AlertActionLink>
+          )}
+        </Alert>
+      )}
+
+      {/* Success Alert */}
+      {successAlertTitle && successAlertMessage && (
+        <Alert
+          variant="success"
+          title={successAlertTitle}
+          actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}
+          actionLinks={
+            successAlertLink ? (
+              <AlertActionLink component="a" href={successAlertLink} target="_blank" rel="noopener noreferrer">
+                View it here
+              </AlertActionLink>
+            ) : null
+          }
+        >
+          {successAlertMessage}
+        </Alert>
+      )}
+
+      {/* Failure Alert */}
+      {failureAlertTitle && failureAlertMessage && (
+        <Alert variant="danger" title={failureAlertTitle} actionClose={<AlertActionCloseButton onClose={onCloseFailureAlert} />}>
+          {failureAlertMessage}
+        </Alert>
       )}
     </div>
   );
