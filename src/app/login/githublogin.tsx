@@ -29,7 +29,7 @@ const GithubLogin: React.FC = () => {
       setErrorMsg(errorMessage);
       setShowError(true);
     }
-  }, []);
+  }, [searchParams]);
 
   const handleGitHubLogin = () => {
     signIn('github', { callbackUrl: '/' }); // Redirect to home page after login

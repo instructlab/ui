@@ -425,23 +425,42 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
   };
 
-  const knowledgeFormData: KnowledgeFormData = {
-    email: email,
-    name: name,
-    submissionSummary: submissionSummary,
-    domain: domain,
-    documentOutline: documentOutline,
-    filePath: filePath,
-    seedExamples: seedExamples,
-    knowledgeDocumentRepositoryUrl: knowledgeDocumentRepositoryUrl,
-    knowledgeDocumentCommit: knowledgeDocumentCommit,
-    documentName: documentName,
-    titleWork: titleWork,
-    linkWork: linkWork,
-    revision: revision,
-    licenseWork: licenseWork,
-    creators: creators
-  };
+  const knowledgeFormData: KnowledgeFormData = useMemo(
+    () => ({
+      email,
+      name,
+      submissionSummary,
+      domain,
+      documentOutline,
+      filePath,
+      seedExamples,
+      knowledgeDocumentRepositoryUrl,
+      knowledgeDocumentCommit,
+      documentName,
+      titleWork,
+      linkWork,
+      revision,
+      licenseWork,
+      creators
+    }),
+    [
+      email,
+      name,
+      submissionSummary,
+      domain,
+      documentOutline,
+      filePath,
+      seedExamples,
+      knowledgeDocumentRepositoryUrl,
+      knowledgeDocumentCommit,
+      documentName,
+      titleWork,
+      linkWork,
+      revision,
+      licenseWork,
+      creators
+    ]
+  );
 
   useEffect(() => {
     setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
