@@ -1,13 +1,7 @@
 // /src/components/PathService.tsx
+import { ValidatedOptions, PopperProps, List, ListItem, SearchInput, FormHelperText, HelperText, HelperTextItem, Popper } from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import React, { useState, useEffect, useRef } from 'react';
-import { SearchInput } from '@patternfly/react-core/dist/dynamic/components/SearchInput';
-import { List } from '@patternfly/react-core/dist/dynamic/components/List';
-import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
-import { Popper, PopperProps, ValidatedOptions } from '@patternfly/react-core/dist/dynamic/helpers';
-import { FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
 
 interface PathServiceProps {
   reset?: boolean;

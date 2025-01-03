@@ -1,14 +1,9 @@
 import React, { useEffect, useState, Suspense } from 'react';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
-
-import { Grid } from '@patternfly/react-core/dist/dynamic/layouts/Grid';
-import { GridItem } from '@patternfly/react-core/dist/dynamic/layouts/Grid';
-import GithubIcon from '@patternfly/react-icons/dist/dynamic/icons/github-icon';
 import './githublogin.css';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal';
+import { Button, Content, Grid, GridItem, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
+import { GithubIcon } from '@patternfly/react-icons';
 
 const GithubLogin: React.FC = () => {
   const router = useRouter();
@@ -138,19 +133,23 @@ const GithubLogin: React.FC = () => {
             <Modal
               variant={ModalVariant.medium}
               title="Join InstructLab on GitHub"
-              titleIconVariant="warning"
               isOpen={showError}
               onClose={() => handleOnClose()}
-              actions={[
+              aria-labelledby="join-ilab-modal-title"
+              aria-describedby="join-ilab-body-variant"
+            >
+              <ModalHeader title="Join InstructLab on GitHub" labelId="join-ilab-modal-title" titleIconVariant="danger" />
+              <ModalBody id="join-ilab-body-variant">
+                <p>{errorMsg}</p>
+              </ModalBody>
+              <ModalFooter >
                 <Button key="confirm" variant="primary" onClick={() => sendInvite()}>
                   Send Invite to {githubUsername}
                 </Button>,
                 <Button key="cancel" variant="secondary" onClick={() => handleOnClose()}>
                   No, Thanks
                 </Button>
-              ]}
-            >
-              <p>{errorMsg}</p>
+              </ModalFooter>
             </Modal>
           </div>
         )}

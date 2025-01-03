@@ -1,11 +1,7 @@
 import React from 'react';
-import { FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
-import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
-import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import { KnowledgeSeedExample, QuestionAndAnswerPair } from '@/types';
+import { FormGroup, TextArea, ValidatedOptions, FormHelperText, HelperText, HelperTextItem, FormFieldGroupHeader } from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
   seedExample: KnowledgeSeedExample;

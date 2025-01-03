@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
-import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import YamlCodeModal from '@/components/YamlCodeModal';
-import CodeIcon from '@patternfly/react-icons/dist/esm/icons/code-icon';
 import { AttributionData, SkillFormData, SkillYamlData } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
-import FileIcon from '@patternfly/react-icons/dist/dynamic/icons/file-icon';
-import EyeIcon from '@patternfly/react-icons/dist/esm/icons/eye-icon';
+import { Dropdown, MenuToggleElement, MenuToggle, DropdownList, DropdownItem } from '@patternfly/react-core';
+import { EyeIcon, CodeIcon, FileIcon } from '@patternfly/react-icons';
 
 interface Props {
   skillFormData: SkillFormData;

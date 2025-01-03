@@ -1,7 +1,6 @@
 // src/app/api/pr/knowledge/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { NextRequest } from 'next/server';
 import yaml from 'js-yaml';
 import { KnowledgeYamlData, AttributionData } from '@/types';
 import { GITHUB_API_URL, BASE_BRANCH } from '@/types/const';

@@ -1,5 +1,5 @@
 import { SkillFormData, SkillSeedExample } from '@/types';
-import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
+import { ValidatedOptions } from '@patternfly/react-core';
 import { ActionGroupAlertContent } from './Github';
 
 const validateEmail = (email: string): boolean => {

@@ -1,9 +1,6 @@
+import { Dropdown, MenuToggleElement, MenuToggle, DropdownList, DropdownItem, Flex, FlexItem } from '@patternfly/react-core';
+import { OutlinedQuestionCircleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 import React, { useCallback, useState } from 'react';
-import { Flex, FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex';
-import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/esm/components/Dropdown';
-import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/esm/components/MenuToggle';
-import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
-import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/dynamic/icons/outlined-question-circle-icon';
 import AboutInstructLab from '../AboutModal/AboutModal';
 
 const HelpDropdown: React.FC = () => {

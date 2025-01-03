@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ActionGroupAlertContent } from '..';
 import { AttributionData, SkillYamlData, PullRequestFile, SkillFormData } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
@@ -8,6 +7,7 @@ import { validateFields } from '../../validation';
 import { amendCommit, getGitHubUsername, updatePullRequest } from '@/utils/github';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@patternfly/react-core';
 
 const SKILLS_DIR = 'compositional_skills/';
 interface Props {

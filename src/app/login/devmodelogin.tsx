@@ -1,16 +1,9 @@
 // src/app/login/DevModeLogin.tsx
 import React, { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { Grid, GridItem } from '@patternfly/react-core/dist/dynamic/layouts/Grid';
-import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
-import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import GithubIcon from '@patternfly/react-icons/dist/dynamic/icons/github-icon';
 import './githublogin.css';
+import { Button, Content, Form, FormGroup, Grid, GridItem, HelperText, HelperTextItem, TextInput } from '@patternfly/react-core';
+import { GithubIcon } from '@patternfly/react-icons';
 
 const DevModeLogin: React.FunctionComponent = () => {
   const [, setShowHelperText] = useState(false);

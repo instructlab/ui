@@ -1,32 +1,10 @@
 // src/components/Dashboard/Native/dashboard.tsx
 import * as React from 'react';
-import { Card, CardBody } from '@patternfly/react-core/dist/dynamic/components/Card';
-import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
-import { PageBreadcrumb } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
-import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core/dist/esm/components/Breadcrumb';
-import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Flex, FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
-import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal';
-import { EmptyState, EmptyStateBody, EmptyStateFooter, EmptyStateActions } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import GithubIcon from '@patternfly/react-icons/dist/esm/icons/github-icon';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { TrashIcon } from '@patternfly/react-icons/dist/esm/icons/trash-icon';
-import { Tooltip } from '@patternfly/react-core/dist/esm/components/Tooltip/Tooltip';
-import { CatalogIcon } from '@patternfly/react-icons/dist/esm/icons/catalog-icon';
-import { AlertGroup } from '@patternfly/react-core/dist/esm/components/Alert/AlertGroup';
-import { Alert, AlertProps, AlertVariant } from '@patternfly/react-core/dist/esm/components/Alert/Alert';
-import { AlertActionCloseButton } from '@patternfly/react-core/dist/esm/components/Alert/AlertActionCloseButton';
-import { PencilAltIcon } from '@patternfly/react-icons/dist/esm/icons/pencil-alt-icon';
-import { UploadIcon } from '@patternfly/react-icons/dist/esm/icons/upload-icon';
-import { Content } from '@patternfly/react-core/dist/esm/components/Content/Content';
-import { Popover } from '@patternfly/react-core/dist/esm/components/Popover/Popover';
-import { ExternalLinkAltIcon } from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
-import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 import path from 'path';
+import { AlertProps, PageBreadcrumb, Breadcrumb, BreadcrumbItem, PageSection, Title, Content, Popover, Button, AlertGroup, Alert, AlertVariant, AlertActionCloseButton, Spinner, EmptyState, EmptyStateBody, EmptyStateFooter, EmptyStateActions, Stack, StackItem, Card, CardBody, Flex, FlexItem, Tooltip, Modal, ModalVariant, ModalBody, ModalFooter, ModalHeader } from '@patternfly/react-core';
+import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, CatalogIcon, PencilAltIcon, UploadIcon, TrashIcon } from '@patternfly/react-icons';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
@@ -371,57 +349,80 @@ const DashboardNative: React.FunctionComponent = () => {
           title={`Changes in ${diffData?.branch} compared to main`}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          aria-labelledby="changes-contribution-modal-title"
+          aria-describedby="changes-contribution-body-variant"
         >
-          {diffData?.changes.length ? (
-            <ul>
-              {diffData.changes.map((change) => (
-                <li key={change.file}>
-                  {change.file} - <strong>{change.status}</strong>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No differences found.</p>
-          )}
+          <ModalHeader title={`Changes in ${diffData?.branch} compared to main`} labelId="changes-contribution-modal-title" titleIconVariant="info" />
+          <ModalBody id="changes-contribution-body-variant">
+            {diffData?.changes.length ? (
+              <ul>
+                {diffData.changes.map((change) => (
+                  <li key={change.file}>
+                    {change.file} - <strong>{change.status}</strong>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No differences found.</p>
+            )}
+
+          </ModalBody>
         </Modal>
+
         <Modal
           variant={ModalVariant.small}
           title="Edit Contribution"
           isOpen={isEditModalOpen}
           onClose={closeEditModal}
-          actions={[
+          aria-labelledby="edit-contribution-modal-title"
+          aria-describedby="edit-contribution-body-variant"
+        >
+          <ModalHeader title="Edit Contribution" labelId="edit-contribution-modal-title" titleIconVariant="info" />
+          <ModalBody id="edit-contribution-body-variant">
+            <p>Not yet implemented for native mode.</p>
+          </ModalBody>
+          <ModalFooter >
             <Button key="close" variant="primary" onClick={closeEditModal}>
               Close
             </Button>
-          ]}
-        >
-          <p>Not yet implemented for native mode.</p>
+          </ModalFooter>
         </Modal>
+
         <Modal
           variant={ModalVariant.small}
           title="Deleting Contribution"
-          titleIconVariant="warning"
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
-          actions={[
+          aria-labelledby="delete-contribution-modal-title"
+          aria-describedby="delete-contribution-body-variant"
+        >
+          <ModalHeader title="Deleting Contribution" labelId="delete-contribution-modal-title" titleIconVariant="warning" />
+          <ModalBody id="delete-contribution-body-variant">
+            <p>are you sure you want to delete this contribution?</p>
+          </ModalBody>
+          <ModalFooter >
             <Button key="confirm" variant="primary" onClick={() => handleDeleteContributionConfirm()}>
               Delete
             </Button>,
             <Button key="cancel" variant="secondary" onClick={() => handleDeleteContributionCancel()}>
               Cancel
             </Button>
-          ]}
-        >
-          <p>are you sure you want to delete this contribution?</p>
+          </ModalFooter>
         </Modal>
 
         <Modal
           variant={ModalVariant.small}
           title="Publishing Contribution"
-          titleIconVariant="warning"
           isOpen={isPublishModalOpen}
           onClose={() => setIsPublishModalOpen(false)}
-          actions={[
+          aria-labelledby="publish-contribution-modal-title"
+          aria-describedby="publish-contribution-body-variant"
+        >
+          <ModalHeader title="Publishing Contribution" labelId="publish-contribution-modal-title" titleIconVariant="warning" />
+          <ModalBody id="publish-contribution-body-variant">
+            <p>are you sure you want to publish contribution to remote taxonomy repository present at : {taxonomyRepoDir}?</p>
+          </ModalBody>
+          <ModalFooter >
             <Button key="confirm" variant="primary" onClick={() => handlePublishContributionConfirm()}>
               Publish {'  '}
               {isPublishing && <Spinner isInline aria-label="Publishing contribution" />}
@@ -429,10 +430,9 @@ const DashboardNative: React.FunctionComponent = () => {
             <Button key="cancel" variant="secondary" onClick={() => handlePublishContributionCancel()}>
               Cancel
             </Button>
-          ]}
-        >
-          <p>are you sure you want to publish contribution to remote taxonomy repository present at : {taxonomyRepoDir}?</p>
+          </ModalFooter>
         </Modal>
+
       </PageSection>
     </div>
   );

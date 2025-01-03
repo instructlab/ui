@@ -1,12 +1,9 @@
 import React from 'react';
-import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
-import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import DownloadYaml from '../DownloadYaml/DownloadYaml';
 import DownloadAttribution from '../DownloadAttribution/DownloadAttribution';
-import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
 import { KnowledgeFormData } from '@/types';
+import { Dropdown, MenuToggleElement, MenuToggle, Icon, DropdownList } from '@patternfly/react-core';
+import { DownloadIcon } from '@patternfly/react-icons';
 
 interface Props {
   knowledgeFormData: KnowledgeFormData;
