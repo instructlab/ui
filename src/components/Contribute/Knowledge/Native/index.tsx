@@ -490,14 +490,16 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
       immutable: true,
       isExpanded: false,
       context: yamlSeedExample.context,
-      // TODO: Hardcoding yaml QnA uploads seed_examples to success until working with Validate.tsx - Bug #465
-      isContextValid: ValidatedOptions.success,
+      isContextValid: ValidatedOptions.default,
+      validationError: '',
       questionAndAnswers: yamlSeedExample.questions_and_answers.map((qa) => ({
         immutable: true,
         question: qa.question,
         answer: qa.answer,
-        isQuestionValid: ValidatedOptions.success,
-        isAnswerValid: ValidatedOptions.success
+        isQuestionValid: ValidatedOptions.default,
+        questionValidationError: '',
+        isAnswerValid: ValidatedOptions.default,
+        answerValidationError: ''
       }))
     }));
 
