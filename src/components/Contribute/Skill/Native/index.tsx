@@ -1,6 +1,6 @@
 // src/components/Contribute/Skill/Native/index.tsx
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import './skills.css';
 import { Alert, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
@@ -301,17 +301,20 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
     setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
   };
 
-  const skillFormData: SkillFormData = {
-    email: email,
-    name: name,
-    submissionSummary: submissionSummary,
-    documentOutline: documentOutline,
-    filePath: filePath,
-    seedExamples: seedExamples,
-    titleWork: titleWork,
-    licenseWork: licenseWork,
-    creators: creators
-  };
+  const skillFormData: SkillFormData = useMemo(
+    () => ({
+      email,
+      name,
+      submissionSummary,
+      documentOutline,
+      filePath,
+      seedExamples,
+      titleWork,
+      licenseWork,
+      creators
+    }),
+    [email, name, submissionSummary, documentOutline, filePath, seedExamples, titleWork, licenseWork, creators]
+  );
 
   useEffect(() => {
     setDisableAction(!checkSkillFormCompletion(skillFormData));
