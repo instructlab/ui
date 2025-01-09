@@ -1,47 +1,47 @@
 /* Knowledge CSS */
 
-.form-k {
-  width: 80%;
-  margin-bottom: 50px;
-  background-color: white;
-}
+/*.form-k {*/
+/*  width: 80%;*/
+/*  margin-bottom: 50px;*/
+/*  background-color: white;*/
+/*}*/
 
-.submit-k:hover,
-.download-k-yaml:hover,
-.download-k-attribution:hover,
-.button-active,
-.button-active:hover {
-  background-color: #45a049;
-}
+/*.submit-k:hover,*/
+/*.download-k-yaml:hover,*/
+/*.download-k-attribution:hover,*/
+/*.button-active,*/
+/*.button-active:hover {*/
+/*  background-color: #45a049;*/
+/*}*/
 
-.heading-k {
-  text-align: left;
-  font-size: medium;
-}
+/*.heading-k {*/
+/*  text-align: left;*/
+/*  font-size: medium;*/
+/*}*/
 
-.button-secondary:hover {
-  border-color: #45a049;
-}
+/*.button-secondary:hover {*/
+/*  border-color: #45a049;*/
+/*}*/
 
-.spinner-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-}
+/*.spinner-container {*/
+/*  display: flex;*/
+/*  justify-content: center;*/
+/*  align-items: center;*/
+/*  gap: 1rem;*/
+/*}*/
 
-.knowledge-form .pf-c-form__group {
-  margin-bottom: 30px;
-}
+/*.knowledge-form .pf-c-form__group {*/
+/*  margin-bottom: 30px;*/
+/*}*/
 
-.knowledge-form {
-  line-height: 3;
-}
+/*.knowledge-form {*/
+/*  line-height: 3;*/
+/*}*/
 
-.pf-v6-c-wizard {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  min-height: 60vh;
-  overflow: hidden;
-}
+/*.pf-v6-c-wizard {*/
+/*  display: flex;*/
+/*  flex-direction: column;*/
+/*  flex-grow: 1;*/
+/*  min-height: 60vh;*/
+/*  overflow: hidden;*/
+/*}*/

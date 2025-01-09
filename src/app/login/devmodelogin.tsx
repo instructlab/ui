@@ -63,7 +63,7 @@ const DevModeLogin: React.FunctionComponent = () => {
               icon={<GithubIcon />}
               iconPosition="left"
               size="lg"
-              style={{ backgroundColor: 'black', marginBottom: '1rem' }}
+              style={{ marginBottom: '1rem' }}
               onClick={handleGitHubLogin}
             >
               Sign in with GitHub
@@ -98,9 +98,7 @@ const DevModeLogin: React.FunctionComponent = () => {
                   </HelperText>
                 )}
               </FormGroup>
-              <Button type="submit" style={{ backgroundColor: 'black', color: 'white' }}>
-                Login
-              </Button>
+              <Button type="submit">Login</Button>
             </Form>
           </div>
           <Content>
