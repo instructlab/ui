@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import ClientProvider from '../components/ClientProviders';
 import '@patternfly/react-core/dist/styles/base.css';
 import '@patternfly/react-styles/css/components/Menu/menu.css';
+// import '../styles/globals.scss';
 
 export const metadata = {
   title: 'InstructLab UI',

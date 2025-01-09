@@ -2,7 +2,7 @@ import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import { Content, ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import GithubIcon from '@patternfly/react-icons/dist/dynamic/icons/github-icon';
-import InstructLabLogo from '../../../public/updated-logo.png';
+import InstructLabLogo from '../../../public/header-logo-light.png';
 import InstructLabAboutUsBg from '../../../public/InstructLab-About-Modal-Background.svg';
 import styles from './about-modal.module.css';
 import { linksData } from './data/linksData';

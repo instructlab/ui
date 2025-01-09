@@ -2,10 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Flex, FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex';
 import { Avatar } from '@patternfly/react-core/dist/dynamic/components/Avatar';
 import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/esm/components/Dropdown';
-import { Divider } from '@patternfly/react-core/dist/esm/components/Divider';
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/esm/components/MenuToggle';
 import { CaretDownIcon } from '@patternfly/react-icons/dist/dynamic/icons/caret-down-icon';
-import ThemePreference from './ThemePreference';
 import { signOut, useSession } from 'next-auth/react';
 
 const UserMenu: React.FC = () => {
@@ -41,7 +39,7 @@ const UserMenu: React.FC = () => {
         <MenuToggle ref={toggleRef} aria-label="user menu dropdown" variant="plain" onClick={onToggleClick} isExpanded={isOpen}>
           <Flex spaceItems={{ default: 'spaceItemsSm' }} style={{ display: 'flex', alignItems: 'center' }}>
             <FlexItem>{userImage ? <Avatar src={userImage} alt={userName} /> : <Avatar src="/default-avatar.png" alt="Default Avatar" />}</FlexItem>
-            <FlexItem> {userName}</FlexItem>
+            <FlexItem>{userName}</FlexItem>
             <FlexItem>
               <CaretDownIcon />
             </FlexItem>
@@ -52,10 +50,7 @@ const UserMenu: React.FC = () => {
       style={{ position: 'relative' }}
     >
       <DropdownList>
-        <ThemePreference />
-        <Divider component="li" key="separator" />
-
-        <DropdownItem value={2} key="Log out" onClick={() => signOut()}>
+        <DropdownItem key="Log out" onClick={() => signOut()}>
           Log out
         </DropdownItem>
       </DropdownList>

@@ -129,7 +129,7 @@ const EndpointsPage: React.FC = () => {
         </Breadcrumb>
       </PageBreadcrumb>
 
-      <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
+      <PageSection hasBodyWrapper={false}>
         <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
           Custom Model Endpoints
         </Title>
@@ -140,7 +140,7 @@ const EndpointsPage: React.FC = () => {
         </Content>
       </PageSection>
       <Page>
-        <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
+        <PageSection hasBodyWrapper={false}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Title headingLevel="h1">Manage Endpoints</Title>
             <Button onClick={handleAddEndpoint}>Add Endpoint</Button>
