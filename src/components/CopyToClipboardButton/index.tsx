@@ -1,9 +1,9 @@
 // src/components/CopyToClipboardButton.tsx
 'use client';
 
+import { Button } from '@patternfly/react-core';
+import { CopyIcon } from '@patternfly/react-icons';
 import React from 'react';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import CopyIcon from '@patternfly/react-icons/dist/dynamic/icons/copy-icon';
 
 interface CopyToClipboardButtonProps {
   text: string;

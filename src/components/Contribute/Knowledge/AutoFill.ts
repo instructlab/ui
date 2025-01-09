@@ -1,5 +1,5 @@
 import { KnowledgeFormData, KnowledgeSeedExample, QuestionAndAnswerPair } from '@/types';
-import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
+import { ValidatedOptions } from '@patternfly/react-core';
 
 const questionAndAnswerPairs1: QuestionAndAnswerPair[] = [
   {

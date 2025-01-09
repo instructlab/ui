@@ -1,12 +1,8 @@
 import React, { useEffect } from 'react';
-import { FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
-import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
-import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { checkKnowledgeFormCompletion } from '../validation';
 import { KnowledgeFormData } from '@/types';
+import { ValidatedOptions, FormFieldGroupHeader, FormGroup, TextInput, FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
   reset: boolean;

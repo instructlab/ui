@@ -9,11 +9,10 @@ import { fetchPullRequest, fetchFileContent, fetchPullRequestFiles } from '@/uti
 import yaml from 'js-yaml';
 import axios from 'axios';
 import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, KnowledgeSeedExample } from '@/types';
-import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { useEffect, useState } from 'react';
-import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
 import { useRouter } from 'next/navigation';
 import KnowledgeFormGithub from '../Knowledge/Github';
+import { ValidatedOptions, Modal, ModalVariant } from '@patternfly/react-core';
 
 interface EditKnowledgeClientComponentProps {
   prNumber: number;

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core/dist/dynamic/components/Modal';
 import YamlFileUpload from './YamlFileUpload';
 import { KnowledgeYamlData, SkillYamlData } from '@/types';
+import { Modal, ModalVariant, ModalHeader, ModalBody } from '@patternfly/react-core';
 
 interface Props {
   isModalOpen: boolean;
@@ -42,7 +42,6 @@ export const YamlFileUploadModal: React.FunctionComponent<Props> = ({
             onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
           />
         </ModalBody>
-        <ModalFooter></ModalFooter>
       </Modal>
     </React.Fragment>
   );

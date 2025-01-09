@@ -1,18 +1,9 @@
 // src/components/Contribute/Knowledge/UploadFile.tsx
 'use client';
+import { HelperText, HelperTextItem, MultipleFileUpload, MultipleFileUploadMain, Spinner, MultipleFileUploadStatus, MultipleFileUploadStatusItem, Modal, Button, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
+import { UploadIcon } from '@patternfly/react-icons';
 import React, { useState, useEffect } from 'react';
-import {
-  MultipleFileUploadStatusItem,
-  MultipleFileUploadStatus,
-  MultipleFileUpload,
-  MultipleFileUploadMain
-} from '@patternfly/react-core/dist/dynamic/components/MultipleFileUpload';
-import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
-import UploadIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
 import { FileRejection, DropEvent } from 'react-dropzone';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import { Spinner } from '@patternfly/react-core/dist/esm/components/Spinner';
 import './knowledge.css';
 
 interface readFile {
@@ -158,24 +149,29 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
           </MultipleFileUploadStatus>
         )}
         <Modal
-          isOpen={!!modalText}
+          variant={ModalVariant.small}
           title="Unsupported file"
-          titleIconVariant="warning"
-          variant="small"
-          aria-label="unsupported file upload attempted"
+          isOpen={!!modalText}
           onClose={() => setModalText('')}
-          actions={[
+          aria-labelledby="unsupported-file-modal-title"
+          aria-describedby="unsupported-file-body-variant"
+        >
+          <ModalHeader title="Unsupported file" labelId="unsupported-file-modal-title" titleIconVariant="warning" />
+          <ModalBody id="unsupported-file-body-variant">
+            <p>
+              <br />
+              {modalText}
+              <br />
+            </p>
+
+          </ModalBody>
+          <ModalFooter >
             <Button key="close" variant="secondary" onClick={() => setModalText('')}>
               Close
             </Button>
-          ]}
-        >
-          <p>
-            <br />
-            {modalText}
-            <br />
-          </p>
+          </ModalFooter>
         </Modal>
+
       </MultipleFileUpload>
     </div>
   );
