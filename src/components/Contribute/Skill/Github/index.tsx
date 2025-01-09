@@ -357,7 +357,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
         </Breadcrumb>
       </PageBreadcrumb>
 
-      <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
+      <PageSection hasBodyWrapper={false}>
         <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
           <FlexItem>
             <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>

@@ -261,7 +261,7 @@ const ChatPage: React.FC = () => {
         </Breadcrumb>
       </PageBreadcrumb>
 
-      <PageSection style={{ backgroundColor: 'white' }}>
+      <PageSection>
         <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
           Chat with a Model
         </Title>

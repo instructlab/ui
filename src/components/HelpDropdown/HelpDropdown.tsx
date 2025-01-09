@@ -40,7 +40,7 @@ const HelpDropdown: React.FC = () => {
             right: 0,
             minWidth: '200px',
             width: 'auto',
-            backgroundColor: '#fff',
+            // backgroundColor: '#fff',
             border: ' 1px solid #ccc',
             zIndex: 1000
           }}

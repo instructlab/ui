@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import ThemePreference from './ThemePreference';
 import { signOut, useSession } from 'next-auth/react';
-import { Dropdown, MenuToggleElement, MenuToggle, Flex, FlexItem, Avatar, DropdownList, Divider, DropdownItem } from '@patternfly/react-core';
+import { Dropdown, MenuToggleElement, MenuToggle, Flex, FlexItem, Avatar, DropdownList, DropdownItem } from '@patternfly/react-core';
 import { CaretDownIcon } from '@patternfly/react-icons';
 
 const UserMenu: React.FC = () => {
@@ -37,7 +36,7 @@ const UserMenu: React.FC = () => {
         <MenuToggle ref={toggleRef} aria-label="user menu dropdown" variant="plain" onClick={onToggleClick} isExpanded={isOpen}>
           <Flex spaceItems={{ default: 'spaceItemsSm' }} style={{ display: 'flex', alignItems: 'center' }}>
             <FlexItem>{userImage ? <Avatar src={userImage} alt={userName} /> : <Avatar src="/default-avatar.png" alt="Default Avatar" />}</FlexItem>
-            <FlexItem> {userName}</FlexItem>
+            <FlexItem>{userName}</FlexItem>
             <FlexItem>
               <CaretDownIcon />
             </FlexItem>
@@ -48,10 +47,7 @@ const UserMenu: React.FC = () => {
       style={{ position: 'relative' }}
     >
       <DropdownList>
-        <ThemePreference />
-        <Divider component="li" key="separator" />
-
-        <DropdownItem value={2} key="Log out" onClick={() => signOut()}>
+        <DropdownItem key="Log out" onClick={() => signOut()}>
           Log out
         </DropdownItem>
       </DropdownList>
