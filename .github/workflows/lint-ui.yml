@@ -31,9 +31,19 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Install dependencies
         run: npm install
+      - name: Run Code Formatting (npm run pretty)
+        run: npm run pretty
+      - name: Check for Formatting Changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "❌ Code formatting issues detected. Please run 'npm run pretty' and amend the commit."
+            exit 1
+          else
+            echo "✅ No formatting issues detected."
+          fi
       - name: Run UI linting
         run: npm run lint
       - name: Run UI type check
