@@ -142,10 +142,11 @@ const GithubLogin: React.FC = () => {
               <ModalBody id="join-ilab-body-variant">
                 <p>{errorMsg}</p>
               </ModalBody>
-              <ModalFooter >
+              <ModalFooter>
                 <Button key="confirm" variant="primary" onClick={() => sendInvite()}>
                   Send Invite to {githubUsername}
-                </Button>,
+                </Button>
+                ,
                 <Button key="cancel" variant="secondary" onClick={() => handleOnClose()}>
                   No, Thanks
                 </Button>

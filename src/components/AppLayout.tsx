@@ -8,7 +8,27 @@ import Link from 'next/link';
 import UserMenu from './UserMenu/UserMenu';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { Bullseye, Spinner, Masthead, MastheadMain, MastheadToggle, PageToggleButton, MastheadBrand, Brand, Content, ContentVariants, MastheadContent, NavItem, NavExpandable, Nav, NavList, PageSidebar, PageSidebarBody, SkipToContent, Page } from '@patternfly/react-core';
+import {
+  Bullseye,
+  Spinner,
+  Masthead,
+  MastheadMain,
+  MastheadToggle,
+  PageToggleButton,
+  MastheadBrand,
+  Brand,
+  Content,
+  ContentVariants,
+  MastheadContent,
+  NavItem,
+  NavExpandable,
+  Nav,
+  NavList,
+  PageSidebar,
+  PageSidebarBody,
+  SkipToContent,
+  Page
+} from '@patternfly/react-core';
 import { BarsIcon } from '@patternfly/react-icons';
 
 interface IAppLayout {

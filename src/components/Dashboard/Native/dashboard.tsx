@@ -3,26 +3,79 @@ import * as React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import path from 'path';
-import { AlertProps, PageBreadcrumb, Breadcrumb, BreadcrumbItem, PageSection, Title, Content, Popover, Button, AlertGroup, Alert, AlertVariant, AlertActionCloseButton, Spinner, EmptyState, EmptyStateBody, EmptyStateFooter, EmptyStateActions, Stack, StackItem, Card, CardBody, Flex, FlexItem, Tooltip, Modal, ModalVariant, ModalBody, ModalFooter, ModalHeader } from '@patternfly/react-core';
-import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, CatalogIcon, PencilAltIcon, UploadIcon, TrashIcon } from '@patternfly/react-icons';
+import {
+  AlertProps,
+  PageBreadcrumb,
+  Breadcrumb,
+  BreadcrumbItem,
+  PageSection,
+  Title,
+  Content,
+  Popover,
+  Button,
+  AlertGroup,
+  Alert,
+  AlertVariant,
+  AlertActionCloseButton,
+  Spinner,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateFooter,
+  EmptyStateActions,
+  Stack,
+  StackItem,
+  Card,
+  CardBody,
+  Flex,
+  FlexItem,
+  Tooltip,
+  Modal,
+  ModalVariant,
+  ModalBody,
+  ModalFooter,
+  ModalHeader
+} from '@patternfly/react-core';
+import {
+  ExternalLinkAltIcon,
+  OutlinedQuestionCircleIcon,
+  GithubIcon,
+  CatalogIcon,
+  PencilAltIcon,
+  UploadIcon,
+  TrashIcon
+} from '@patternfly/react-icons';
+import { ExpandableSection } from '@patternfly/react-core/dist/esm/components/ExpandableSection/ExpandableSection';
+import { v4 as uuidv4 } from 'uuid';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
+
+interface ChangeData {
+  file: string;
+  status: string;
+  content?: string;
+  commitSha?: string;
+}
+
+interface AlertItem {
+  title: string;
+  variant: AlertProps['variant'];
+  key: React.Key;
+}
 
 const DashboardNative: React.FunctionComponent = () => {
   const [branches, setBranches] = React.useState<{ name: string; creationDate: number; message: string; author: string }[]>([]);
   const [taxonomyRepoDir, setTaxonomyRepoDir] = React.useState<string>('');
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [mergeStatus] = React.useState<{ branch: string; message: string; success: boolean } | null>(null);
-  const [diffData, setDiffData] = React.useState<{ branch: string; changes: { file: string; status: string }[] } | null>(null);
+  const [diffData, setDiffData] = React.useState<{ branch: string; changes: ChangeData[] } | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
-  const [alerts, setAlerts] = React.useState<Partial<AlertProps>[]>([]);
+  const [alerts, setAlerts] = React.useState<AlertItem[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = React.useState(false);
   const [selectedBranch, setSelectedBranch] = React.useState<string | null>(null);
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
-
-  const getUniqueId = () => new Date().getTime();
+  const [expandedFiles, setExpandedFiles] = React.useState<Record<string, boolean>>({});
 
   const router = useRouter();
 
@@ -43,20 +96,22 @@ const DashboardNative: React.FunctionComponent = () => {
     });
   }, []);
 
-  const addAlert = (title: string, variant: AlertProps['variant'], key: React.Key) => {
-    setAlerts((prevAlerts) => [...prevAlerts, { title, variant, key }]);
+  const addAlert = (title: string, variant: AlertProps['variant']) => {
+    const alertKey = uuidv4();
+    const newAlert: AlertItem = { title, variant, key: alertKey };
+    setAlerts((prevAlerts) => [...prevAlerts, newAlert]);
   };
 
   const removeAlert = (key: React.Key) => {
-    setAlerts((prevAlerts) => [...prevAlerts.filter((alert) => alert.key !== key)]);
+    setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert.key !== key));
   };
 
   const addSuccessAlert = (message: string) => {
-    addAlert(message, 'success', getUniqueId());
+    addAlert(message, 'success');
   };
 
   const addDangerAlert = (message: string) => {
-    addAlert(message, 'danger', getUniqueId());
+    addAlert(message, 'danger');
   };
 
   const fetchBranches = async () => {
@@ -69,9 +124,11 @@ const DashboardNative: React.FunctionComponent = () => {
         setBranches(filteredBranches);
       } else {
         console.error('Failed to fetch branches:', result.error);
+        addDangerAlert(result.error || 'Failed to fetch branches.');
       }
     } catch (error) {
       console.error('Error fetching branches:', error);
+      addDangerAlert('Error fetching branches.');
     } finally {
       setIsLoading(false);
     }
@@ -176,7 +233,7 @@ const DashboardNative: React.FunctionComponent = () => {
   };
 
   const closeEditModal = () => {
-    setIsEditModalOpen(false); // Close the modal when needed
+    setIsEditModalOpen(false);
   };
 
   const handlePublishContribution = async (branchName: string) => {
@@ -196,10 +253,13 @@ const DashboardNative: React.FunctionComponent = () => {
 
         const result = await response.json();
         if (response.ok) {
-          addSuccessAlert(result.message);
+          setIsPublishing(false);
+          addSuccessAlert(result.message || 'Successfully published contribution.');
+          setSelectedBranch(null);
+          setIsPublishModalOpen(false);
         } else {
           console.error('Failed to publish the contribution:', result.error);
-          addDangerAlert(`Failed to publish the contribution:', ${result.error}`);
+          addDangerAlert(result.error || 'Failed to publish the contribution.');
         }
       } catch (error) {
         console.error('Error while publishing the contribution:', error);
@@ -216,6 +276,13 @@ const DashboardNative: React.FunctionComponent = () => {
   const handlePublishContributionCancel = () => {
     setSelectedBranch(null);
     setIsPublishModalOpen(false);
+  };
+
+  const toggleFileContent = (filename: string) => {
+    setExpandedFiles((prev) => ({
+      ...prev,
+      [filename]: !prev[filename]
+    }));
   };
 
   return (
@@ -314,6 +381,7 @@ const DashboardNative: React.FunctionComponent = () => {
                         Contribution Title: <b>{branch.message}</b>
                         <br />
                         Author: {branch.author} {'    '}
+                        <br />
                         Created on: {formatDateTime(branch.creationDate)}
                       </FlexItem>
                       <FlexItem align={{ default: 'alignRight' }}>
@@ -346,27 +414,47 @@ const DashboardNative: React.FunctionComponent = () => {
 
         <Modal
           variant={ModalVariant.medium}
-          title={`Changes in ${diffData?.branch} compared to main`}
+          title={`Files Contained in Branch: ${diffData?.branch}`}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           aria-labelledby="changes-contribution-modal-title"
           aria-describedby="changes-contribution-body-variant"
         >
-          <ModalHeader title={`Changes in ${diffData?.branch} compared to main`} labelId="changes-contribution-modal-title" titleIconVariant="info" />
-          <ModalBody id="changes-contribution-body-variant">
-            {diffData?.changes.length ? (
-              <ul>
-                {diffData.changes.map((change) => (
-                  <li key={change.file}>
-                    {change.file} - <strong>{change.status}</strong>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No differences found.</p>
-            )}
-
-          </ModalBody>
+          {diffData?.changes.length ? (
+            <ul style={{ listStyle: 'none', paddingLeft: '0' }}>
+              {diffData.changes.map((change) => (
+                <li key={`${change.file}-${change.commitSha}`} style={{ marginBottom: '1rem' }}>
+                  <div>
+                    <strong>{change.file}</strong> - <em>{change.status}</em> - Commit SHA: {change.commitSha}
+                  </div>
+                  {change.status !== 'deleted' && change.content && (
+                    <ExpandableSection
+                      toggleText={expandedFiles[change.file] ? 'Hide file contents' : 'Show file contents'}
+                      onToggle={() => toggleFileContent(change.file)}
+                      isExpanded={expandedFiles[change.file] || false}
+                    >
+                      <pre
+                        style={{
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word',
+                          backgroundColor: '#f5f5f5',
+                          padding: '10px',
+                          borderRadius: '4px',
+                          maxHeight: '700px',
+                          overflowY: 'auto',
+                          userSelect: 'text'
+                        }}
+                      >
+                        {change.content}
+                      </pre>
+                    </ExpandableSection>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No differences found.</p>
+          )}
         </Modal>
 
         <Modal
@@ -381,7 +469,7 @@ const DashboardNative: React.FunctionComponent = () => {
           <ModalBody id="edit-contribution-body-variant">
             <p>Not yet implemented for native mode.</p>
           </ModalBody>
-          <ModalFooter >
+          <ModalFooter>
             <Button key="close" variant="primary" onClick={closeEditModal}>
               Close
             </Button>
@@ -400,10 +488,11 @@ const DashboardNative: React.FunctionComponent = () => {
           <ModalBody id="delete-contribution-body-variant">
             <p>are you sure you want to delete this contribution?</p>
           </ModalBody>
-          <ModalFooter >
+          <ModalFooter>
             <Button key="confirm" variant="primary" onClick={() => handleDeleteContributionConfirm()}>
               Delete
-            </Button>,
+            </Button>
+            ,
             <Button key="cancel" variant="secondary" onClick={() => handleDeleteContributionCancel()}>
               Cancel
             </Button>
@@ -422,17 +511,17 @@ const DashboardNative: React.FunctionComponent = () => {
           <ModalBody id="publish-contribution-body-variant">
             <p>are you sure you want to publish contribution to remote taxonomy repository present at : {taxonomyRepoDir}?</p>
           </ModalBody>
-          <ModalFooter >
+          <ModalFooter>
             <Button key="confirm" variant="primary" onClick={() => handlePublishContributionConfirm()}>
               Publish {'  '}
               {isPublishing && <Spinner isInline aria-label="Publishing contribution" />}
-            </Button>,
+            </Button>
+            ,
             <Button key="cancel" variant="secondary" onClick={() => handlePublishContributionCancel()}>
               Cancel
             </Button>
           </ModalFooter>
         </Modal>
-
       </PageSection>
     </div>
   );

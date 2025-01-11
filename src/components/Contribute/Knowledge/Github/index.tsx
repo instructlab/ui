@@ -22,7 +22,26 @@ import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from '@/components/Contribute/Knowledge/AutoFill';
 import ReviewSubmission from '@/components/Contribute/Knowledge/ReviewSubmission';
 import { YamlFileUploadModal } from '../../YamlFileUploadModal';
-import { ValidatedOptions, PageGroup, PageBreadcrumb, Breadcrumb, BreadcrumbItem, PageSection, Flex, FlexItem, Title, Button, Content, Wizard, WizardStep, AlertGroup, Alert, AlertActionCloseButton, Spinner, ActionGroup } from '@patternfly/react-core';
+import {
+  ValidatedOptions,
+  PageGroup,
+  PageBreadcrumb,
+  Breadcrumb,
+  BreadcrumbItem,
+  PageSection,
+  Flex,
+  FlexItem,
+  Title,
+  Button,
+  Content,
+  Wizard,
+  WizardStep,
+  AlertGroup,
+  Alert,
+  AlertActionCloseButton,
+  Spinner,
+  ActionGroup
+} from '@patternfly/react-core';
 
 export interface ActionGroupAlertContent {
   title: string;

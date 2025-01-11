@@ -12,17 +12,37 @@ import DocumentInformation from '@/components/Contribute/Knowledge/Native/Docume
 import AttributionInformation from '@/components/Contribute/Knowledge/AttributionInformation/AttributionInformation';
 import Submit from './Submit/Submit';
 import KnowledgeDescriptionContent from '@/components/Contribute/Knowledge/KnowledgeDescription/KnowledgeDescriptionContent';
-import KnowledgeSeedExample from '@/components/Contribute/Knowledge/KnowledgeSeedExample/KnowledgeSeedExample';
+import KnowledgeSeedExampleNative from '@/components/Contribute/Knowledge/Native/KnowledgeSeedExampleNative/KnowledgeSeedExampleNative';
 import { checkKnowledgeFormCompletion } from '@/components/Contribute/Knowledge/validation';
 import { DownloadDropdown } from '@/components/Contribute/Knowledge/DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from '@/components/Contribute/Knowledge/ViewDropdown/ViewDropdown';
 import Update from '@/components/Contribute/Knowledge/Github/Update/Update';
-import { KnowledgeEditFormData, KnowledgeFormData, KnowledgeYamlData, QuestionAndAnswerPair } from '@/types';
+import { KnowledgeEditFormData, KnowledgeFormData, KnowledgeSeedExample, KnowledgeYamlData, QuestionAndAnswerPair } from '@/types';
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from '@/components/Contribute/Knowledge/AutoFill';
 import ReviewSubmission from '../ReviewSubmission';
 import { YamlFileUploadModal } from '../../YamlFileUploadModal';
-import { ValidatedOptions, PageGroup, PageBreadcrumb, Breadcrumb, BreadcrumbItem, PageSection, Flex, FlexItem, Title, Button, Content, Wizard, WizardStep, AlertGroup, Alert, AlertActionCloseButton, Spinner, ActionGroup } from '@patternfly/react-core';
+import {
+  ValidatedOptions,
+  PageGroup,
+  PageBreadcrumb,
+  Breadcrumb,
+  BreadcrumbItem,
+  PageSection,
+  Flex,
+  FlexItem,
+  Title,
+  Button,
+  Content,
+  Wizard,
+  WizardStep,
+  AlertGroup,
+  Alert,
+  AlertActionCloseButton,
+  Spinner,
+  ActionGroup
+} from '@patternfly/react-core';
+import { devLog } from '@/utils/devlog';
 
 export interface ActionGroupAlertContent {
   title: string;
@@ -54,10 +74,10 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
   // File Path Information
   const [filePath, setFilePath] = useState<string>('');
 
+  // Document Information (using fields from KnowledgeFormData)
   const [knowledgeDocumentRepositoryUrl, setKnowledgeDocumentRepositoryUrl] = useState<string>('');
   const [knowledgeDocumentCommit, setKnowledgeDocumentCommit] = useState<string>('');
-  // This used to be 'patterns' but I am not totally sure what this variable actually is...
-  const [documentName, setDocumentName] = useState<string>('');
+  const [documentName, setDocumentName] = useState<string>(''); // store as comma-separated
 
   // Attribution Information
   // State
@@ -71,48 +91,57 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isYamlModalOpen, setIsYamlModalOpen] = useState<boolean>(false); // **New State Added**
 
   const router = useRouter();
 
   const [activeStepIndex] = useState<number>(1);
 
-  const emptySeedExample: KnowledgeSeedExample = {
+  // Function to create a unique empty seed example
+  const createEmptySeedExample = (): KnowledgeSeedExample => ({
     immutable: true,
     isExpanded: false,
     context: '',
     isContextValid: ValidatedOptions.default,
+    validationError: '',
     questionAndAnswers: [
       {
         immutable: true,
         question: '',
         isQuestionValid: ValidatedOptions.default,
+        questionValidationError: '',
         answer: '',
-        isAnswerValid: ValidatedOptions.default
+        isAnswerValid: ValidatedOptions.default,
+        answerValidationError: ''
       },
       {
         immutable: true,
         question: '',
         isQuestionValid: ValidatedOptions.default,
+        questionValidationError: '',
         answer: '',
-        isAnswerValid: ValidatedOptions.default
+        isAnswerValid: ValidatedOptions.default,
+        answerValidationError: ''
       },
       {
         immutable: true,
         question: '',
         isQuestionValid: ValidatedOptions.default,
+        questionValidationError: '',
         answer: '',
-        isAnswerValid: ValidatedOptions.default
+        isAnswerValid: ValidatedOptions.default,
+        answerValidationError: ''
       }
     ]
-  };
+  });
 
+  // Initialize seedExamples with unique objects
   const [seedExamples, setSeedExamples] = useState<KnowledgeSeedExample[]>([
-    emptySeedExample,
-    emptySeedExample,
-    emptySeedExample,
-    emptySeedExample,
-    emptySeedExample
+    createEmptySeedExample(),
+    createEmptySeedExample(),
+    createEmptySeedExample(),
+    createEmptySeedExample(),
+    createEmptySeedExample()
   ]);
 
   useEffect(() => {
@@ -170,14 +199,32 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
       setRevision(knowledgeEditFormData.knowledgeFormData.revision);
       setLicenseWork(knowledgeEditFormData.knowledgeFormData.licenseWork);
       setCreators(knowledgeEditFormData.knowledgeFormData.creators);
-      setSeedExamples(knowledgeEditFormData.knowledgeFormData.seedExamples);
+
+      setSeedExamples(() =>
+        knowledgeEditFormData.knowledgeFormData.seedExamples.map((example) => ({
+          ...example,
+          immutable: example.immutable !== undefined ? example.immutable : true, // Ensure immutable is set
+          isContextValid: example.isContextValid || ValidatedOptions.default,
+          validationError: example.validationError || '',
+          questionAndAnswers: example.questionAndAnswers.map((qa) => ({
+            ...qa,
+            immutable: qa.immutable !== undefined ? qa.immutable : true, // Ensure immutable is set
+            isQuestionValid: qa.isQuestionValid || ValidatedOptions.default,
+            questionValidationError: qa.questionValidationError || '',
+            isAnswerValid: qa.isAnswerValid || ValidatedOptions.default,
+            answerValidationError: qa.answerValidationError || ''
+          }))
+        }))
+      );
+
+      devLog('Seed Examples Set from Edit Form Data:', knowledgeEditFormData.knowledgeFormData.seedExamples);
     }
   }, [knowledgeEditFormData]);
 
   const validateContext = (context: string) => {
     // Split the context into words based on spaces
     const contextStr = context.trim();
-    if (contextStr.length == 0) {
+    if (contextStr.length === 0) {
       setDisableAction(true);
       return { msg: 'Context is required', status: ValidatedOptions.error };
     }
@@ -193,7 +240,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
   const validateQuestion = (question: string) => {
     const questionStr = question.trim();
-    if (questionStr.length == 0) {
+    if (questionStr.length === 0) {
       setDisableAction(true);
       return { msg: 'Question is required', status: ValidatedOptions.error };
     }
@@ -208,7 +255,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
   const validateAnswer = (answer: string) => {
     const answerStr = answer.trim();
-    if (answerStr.length == 0) {
+    if (answerStr.length === 0) {
       setDisableAction(true);
       return { msg: 'Answer is required', status: ValidatedOptions.error };
     }
@@ -222,8 +269,8 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
   };
 
   const handleContextInputChange = (seedExampleIndex: number, contextValue: string): void => {
-    setSeedExamples(
-      seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
+    setSeedExamples((prevSeedExamples) =>
+      prevSeedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -235,28 +282,30 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
   };
 
   const handleContextBlur = (seedExampleIndex: number): void => {
-    const updatedSeedExamples = seedExamples.map((seedExample: KnowledgeSeedExample, index: number): KnowledgeSeedExample => {
-      if (index === seedExampleIndex) {
-        const { msg, status } = validateContext(seedExample.context);
-        return {
-          ...seedExample,
-          isContextValid: status,
-          validationError: msg
-        };
-      }
-      return seedExample;
-    });
-    setSeedExamples(updatedSeedExamples);
+    setSeedExamples((prevSeedExamples) =>
+      prevSeedExamples.map((seedExample: KnowledgeSeedExample, index: number): KnowledgeSeedExample => {
+        if (index === seedExampleIndex) {
+          const { msg, status } = validateContext(seedExample.context);
+          devLog(`Context Validation for Seed Example ${seedExampleIndex + 1}: ${msg} (${status})`);
+          return {
+            ...seedExample,
+            isContextValid: status,
+            validationError: msg
+          };
+        }
+        return seedExample;
+      })
+    );
   };
 
   const handleQuestionInputChange = (seedExampleIndex: number, questionAndAnswerIndex: number, questionValue: string): void => {
-    setSeedExamples(
-      seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
+    setSeedExamples((prevSeedExamples) =>
+      prevSeedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
-              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, index: number) =>
-                index === questionAndAnswerIndex
+              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) =>
+                qaIndex === questionAndAnswerIndex
                   ? {
                       ...questionAndAnswerPair,
                       question: questionValue
@@ -267,17 +316,19 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
           : seedExample
       )
     );
+    devLog(`Question Input Changed for Seed Example ${seedExampleIndex + 1}, Q&A Pair ${questionAndAnswerIndex + 1}: "${questionValue}"`);
   };
 
   const handleQuestionBlur = (seedExampleIndex: number, questionAndAnswerIndex: number): void => {
-    setSeedExamples(
-      seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
+    setSeedExamples((prevSeedExamples) =>
+      prevSeedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
-              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, index: number) => {
-                if (index === questionAndAnswerIndex) {
+              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) => {
+                if (qaIndex === questionAndAnswerIndex) {
                   const { msg, status } = validateQuestion(questionAndAnswerPair.question);
+                  devLog(`Question Validation for Seed Example ${seedExampleIndex + 1}, Q&A Pair ${questionAndAnswerIndex + 1}: ${msg} (${status})`);
                   return {
                     ...questionAndAnswerPair,
                     isQuestionValid: status,
@@ -298,8 +349,8 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
         index === seedExampleIndex
           ? {
               ...seedExample,
-              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, index: number) =>
-                index === questionAndAnswerIndex
+              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) =>
+                qaIndex === questionAndAnswerIndex
                   ? {
                       ...questionAndAnswerPair,
                       answer: answerValue
@@ -313,13 +364,13 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
   };
 
   const handleAnswerBlur = (seedExampleIndex: number, questionAndAnswerIndex: number): void => {
-    setSeedExamples(
-      seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
+    setSeedExamples((prevSeedExamples) =>
+      prevSeedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
-              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, index: number) => {
-                if (index === questionAndAnswerIndex) {
+              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) => {
+                if (qaIndex === questionAndAnswerIndex) {
                   const { msg, status } = validateAnswer(questionAndAnswerPair.answer);
                   return {
                     ...questionAndAnswerPair,
@@ -335,12 +386,56 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     );
   };
 
-  // const toggleSeedExampleExpansion = (index: number): void => {
-  //   setSeedExamples(seedExamples.map((seedExample, idx) => (idx === index ? { ...seedExample, isExpanded: !seedExample.isExpanded } : seedExample)));
-  // };
-
   const toggleSeedExampleExpansion = (index: number): void => {
-    setSeedExamples(seedExamples.map((seedExample, idx) => (idx === index ? { ...seedExample, isExpanded: !seedExample.isExpanded } : seedExample)));
+    setSeedExamples((prevSeedExamples) =>
+      prevSeedExamples.map((seedExample, idx) => (idx === index ? { ...seedExample, isExpanded: !seedExample.isExpanded } : seedExample))
+    );
+    devLog(`toggleSeedExampleExpansion: Seed Example ${index + 1} expanded to ${!seedExamples[index].isExpanded}`);
+  };
+
+  // Function to append document information (Updated for single repositoryUrl and commitSha)
+  // Within src/components/Contribute/Native/index.tsx
+  const addDocumentInfoHandler = (repoUrl: string, commitShaValue: string, docName: string) => {
+    devLog(`addDocumentInfoHandler: repoUrl=${repoUrl}, commitSha=${commitShaValue}, docName=${docName}`);
+    if (knowledgeDocumentCommit && commitShaValue !== knowledgeDocumentCommit) {
+      console.error('Cannot add documents from different commit SHAs.');
+      setActionGroupAlertContent({
+        title: 'Invalid Selection',
+        message: 'All documents must be from the same commit SHA.',
+        success: false
+      });
+      return;
+    }
+
+    // Set commitSha if not already set
+    if (!knowledgeDocumentCommit) {
+      setKnowledgeDocumentCommit(commitShaValue);
+      devLog(`Set knowledgeDocumentCommit to: ${commitShaValue}`);
+
+      // Set repositoryUrl if not set
+      if (!knowledgeDocumentRepositoryUrl) {
+        const baseUrl = repoUrl.replace(/\/[^/]+$/, '');
+        setKnowledgeDocumentRepositoryUrl(baseUrl);
+        devLog(`Set knowledgeDocumentRepositoryUrl to: ${baseUrl}`);
+      }
+    }
+
+    // Add docName if not already present
+    // Split current documentName by comma and trim
+    setDocumentName((prevDocumentName) => {
+      const currentDocs = prevDocumentName
+        .split(',')
+        .map((d) => d.trim())
+        .filter((d) => d.length > 0);
+      if (!currentDocs.includes(docName)) {
+        const newList = currentDocs.length === 0 ? docName : currentDocs.join(', ') + ', ' + docName;
+        devLog(`Updated documentName: ${newList}`);
+        return newList;
+      } else {
+        devLog(`Document name "${docName}" is already added.`);
+        return prevDocumentName;
+      }
+    });
   };
 
   const onCloseActionGroupAlert = () => {
@@ -356,17 +451,19 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     setKnowledgeDocumentRepositoryUrl('');
     setKnowledgeDocumentCommit('');
     setDocumentName('');
-    setTitleWork('');
-    setLinkWork('');
-    setLicenseWork('');
-    setCreators('');
-    setRevision('');
     setFilePath('');
-    setSeedExamples([emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample]);
+    setSeedExamples([
+      createEmptySeedExample(),
+      createEmptySeedExample(),
+      createEmptySeedExample(),
+      createEmptySeedExample(),
+      createEmptySeedExample()
+    ]);
     setDisableAction(true);
 
     // setReset is just reset button, value has no impact.
-    setReset(reset ? false : true);
+    setReset((prev) => !prev);
+    devLog('Knowledge Form Reset.');
   };
 
   const autoFillForm = (): void => {
@@ -375,9 +472,10 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     setDocumentOutline(autoFillKnowledgeFields.documentOutline);
     setSubmissionSummary(autoFillKnowledgeFields.submissionSummary);
     setDomain(autoFillKnowledgeFields.domain);
-    setKnowledgeDocumentRepositoryUrl(autoFillKnowledgeFields.knowledgeDocumentRepositoryUrl);
+    setKnowledgeDocumentRepositoryUrl('~/.instructlab-ui/taxonomy-knowledge-docs');
     setKnowledgeDocumentCommit(autoFillKnowledgeFields.knowledgeDocumentCommit);
     setDocumentName(autoFillKnowledgeFields.documentName);
+    setFilePath(autoFillKnowledgeFields.filePath);
     setTitleWork(autoFillKnowledgeFields.titleWork);
     setLinkWork(autoFillKnowledgeFields.linkWork);
     setLicenseWork(autoFillKnowledgeFields.licenseWork);
@@ -387,17 +485,26 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
   };
   const yamlSeedExampleToFormSeedExample = (
     yamlSeedExamples: { context: string; questions_and_answers: { question: string; answer: string }[] }[]
-  ) => {
-    return yamlSeedExamples.map((yamlSeedExample) => ({
+  ): KnowledgeSeedExample[] => {
+    const mappedSeedExamples = yamlSeedExamples.map((yamlSeedExample) => ({
       immutable: true,
       isExpanded: false,
-      context: yamlSeedExample.context ?? '',
+      context: yamlSeedExample.context,
       isContextValid: ValidatedOptions.default,
-      questionAndAnswers: yamlSeedExample.questions_and_answers.map((questionAndAnswer) => ({
-        question: questionAndAnswer.question ?? '',
-        answer: questionAndAnswer.answer ?? ''
+      validationError: '',
+      questionAndAnswers: yamlSeedExample.questions_and_answers.map((qa) => ({
+        immutable: true,
+        question: qa.question,
+        answer: qa.answer,
+        isQuestionValid: ValidatedOptions.default,
+        questionValidationError: '',
+        isAnswerValid: ValidatedOptions.default,
+        answerValidationError: ''
       }))
-    })) as KnowledgeSeedExample[];
+    }));
+
+    devLog('Mapped Seed Examples from YAML:', mappedSeedExamples);
+    return mappedSeedExamples;
   };
 
   const onYamlUploadKnowledgeFillForm = (data: KnowledgeYamlData): void => {
@@ -409,25 +516,38 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     setKnowledgeDocumentCommit(data.document.commit ?? '');
     setDocumentName(data.document.patterns.join(', ') ?? '');
     setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
+
+    // Optionally, set a success alert
+    setActionGroupAlertContent({
+      title: 'YAML Uploaded Successfully',
+      message: 'Your knowledge form has been populated based on the uploaded YAML file.',
+      success: true
+    });
   };
 
   const knowledgeFormData: KnowledgeFormData = {
-    email: email,
-    name: name,
-    submissionSummary: submissionSummary,
-    domain: domain,
-    documentOutline: documentOutline,
-    filePath: filePath,
-    seedExamples: seedExamples,
-    knowledgeDocumentRepositoryUrl: knowledgeDocumentRepositoryUrl,
-    knowledgeDocumentCommit: knowledgeDocumentCommit,
-    documentName: documentName,
-    titleWork: titleWork,
-    linkWork: linkWork,
-    revision: revision,
-    licenseWork: licenseWork,
-    creators: creators
+    email,
+    name,
+    submissionSummary,
+    domain,
+    documentOutline,
+    filePath,
+    seedExamples,
+    knowledgeDocumentRepositoryUrl,
+    knowledgeDocumentCommit,
+    documentName,
+    titleWork,
+    linkWork,
+    revision,
+    licenseWork,
+    creators
   };
+
+  devLog('Constructed knowledgeFormData:', knowledgeFormData);
+
+  useEffect(() => {
+    devLog('Seed Examples Updated:', seedExamples);
+  }, [seedExamples]);
 
   useEffect(() => {
     setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
@@ -484,22 +604,6 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
       )
     },
     {
-      id: 'seed-examples',
-      name: 'Seed Examples',
-      component: (
-        <KnowledgeSeedExample
-          seedExamples={seedExamples}
-          handleContextInputChange={handleContextInputChange}
-          handleContextBlur={handleContextBlur}
-          handleQuestionInputChange={handleQuestionInputChange}
-          handleQuestionBlur={handleQuestionBlur}
-          handleAnswerInputChange={handleAnswerInputChange}
-          handleAnswerBlur={handleAnswerBlur}
-          toggleSeedExampleExpansion={toggleSeedExampleExpansion}
-        />
-      )
-    },
-    {
       id: 'document-info',
       name: 'Document Information',
       component: (
@@ -514,6 +618,39 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
           setKnowledgeDocumentCommit={setKnowledgeDocumentCommit}
           documentName={documentName}
           setDocumentName={setDocumentName}
+        />
+      )
+    },
+    {
+      id: 'seed-examples',
+      name: 'Seed Examples',
+      component: (
+        <KnowledgeSeedExampleNative
+          seedExamples={seedExamples}
+          handleContextInputChange={(idx, val) => {
+            handleContextInputChange(idx, val);
+          }}
+          handleContextBlur={(idx) => {
+            handleContextBlur(idx);
+          }}
+          handleQuestionInputChange={(sIdx, qaIdx, val) => {
+            handleQuestionInputChange(sIdx, qaIdx, val);
+          }}
+          handleQuestionBlur={(sIdx, qaIdx) => {
+            handleQuestionBlur(sIdx, qaIdx);
+          }}
+          handleAnswerInputChange={(sIdx, qaIdx, val) => {
+            handleAnswerInputChange(sIdx, qaIdx, val);
+          }}
+          handleAnswerBlur={(sIdx, qaIdx) => {
+            handleAnswerBlur(sIdx, qaIdx);
+          }}
+          toggleSeedExampleExpansion={(idx) => {
+            toggleSeedExampleExpansion(idx);
+          }}
+          addDocumentInfo={addDocumentInfoHandler}
+          repositoryUrl={knowledgeDocumentRepositoryUrl}
+          commitSha={knowledgeDocumentCommit}
         />
       )
     },
@@ -572,7 +709,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
               </Button>
             )}
             {'  '}
-            <Button variant="secondary" aria-label="User upload of pre-existing yaml file" onClick={() => setIsModalOpen(true)}>
+            <Button variant="secondary" aria-label="User upload of pre-existing yaml file" onClick={() => setIsYamlModalOpen(true)}>
               Upload a YAML file
             </Button>
           </FlexItem>
@@ -582,8 +719,8 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
           <KnowledgeDescriptionContent />
         </Content>
         <YamlFileUploadModal
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
+          isModalOpen={isYamlModalOpen}
+          setIsModalOpen={setIsYamlModalOpen}
           isKnowledgeForm={true}
           onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
         />
@@ -601,7 +738,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
             <Alert
               variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
               title={actionGroupAlertContent.title}
-              timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
+              timeout={actionGroupAlertContent.timeout === false ? false : actionGroupAlertContent.timeout}
               onTimeout={onCloseActionGroupAlert}
               actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
             >

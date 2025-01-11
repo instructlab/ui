@@ -1,6 +1,16 @@
 import React from 'react';
 import { SkillSeedExample } from '@/types';
-import { FormFieldGroupExpandable, FormFieldGroupHeader, Button, FormGroup, TextArea, ValidatedOptions, FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core';
+import {
+  FormFieldGroupExpandable,
+  FormFieldGroupHeader,
+  Button,
+  FormGroup,
+  TextArea,
+  ValidatedOptions,
+  FormHelperText,
+  HelperText,
+  HelperTextItem
+} from '@patternfly/react-core';
 import { ExternalLinkAltIcon, TrashIcon, ExclamationCircleIcon, PlusCircleIcon } from '@patternfly/react-icons';
 
 interface Props {

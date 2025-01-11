@@ -2,7 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { UploadFile } from '../../UploadFile';
 import { checkKnowledgeFormCompletion } from '../../validation';
 import { KnowledgeFormData } from '@/types';
-import { ValidatedOptions, FormFieldGroupHeader, FormGroup, Button, Modal, ModalVariant, TextInput, FormHelperText, HelperText, HelperTextItem, AlertGroup, Alert, AlertActionCloseButton, AlertActionLink, ModalHeader, ModalBody, ModalFooter } from '@patternfly/react-core';
+import {
+  ValidatedOptions,
+  FormFieldGroupHeader,
+  FormGroup,
+  Button,
+  Modal,
+  ModalVariant,
+  TextInput,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+  AlertGroup,
+  Alert,
+  AlertActionCloseButton,
+  AlertActionLink,
+  ModalHeader,
+  ModalBody,
+  ModalFooter
+} from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
@@ -243,10 +261,11 @@ const DocumentInformation: React.FC<Props> = ({
         <ModalBody id="file-upload-switch-body-variant">
           <p>{modalText}</p>
         </ModalBody>
-        <ModalFooter >
+        <ModalFooter>
           <Button key="Continue" variant="secondary" onClick={() => handleModalContinue()}>
             Continue
-          </Button>,
+          </Button>
+          ,
           <Button key="cancel" variant="secondary" onClick={() => setIsModalOpen(false)}>
             Cancel
           </Button>

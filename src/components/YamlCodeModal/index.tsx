@@ -12,7 +12,6 @@ interface YamlCodeModalProps {
 
 export const YamlCodeModal: React.FC<YamlCodeModalProps> = ({ isModalOpen, handleModalToggle, yamlContent }) => {
   return (
-
     <Modal
       variant={ModalVariant.medium}
       title="Current YAML"
@@ -27,14 +26,14 @@ export const YamlCodeModal: React.FC<YamlCodeModalProps> = ({ isModalOpen, handl
           <CodeBlockCode>{yamlContent}</CodeBlockCode>
         </CodeBlock>
       </ModalBody>
-      <ModalFooter >
+      <ModalFooter>
         <Button key="close" variant="primary" onClick={handleModalToggle}>
           Close
-        </Button>,
+        </Button>
+        ,
         <CopyToClipboardButton key="copy" text={yamlContent} />
       </ModalFooter>
     </Modal>
-
   );
 };
 
