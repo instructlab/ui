@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { KnowledgeSeedExample, QuestionAndAnswerPair } from '@/types';
 import { FormGroup, TextArea, ValidatedOptions, FormHelperText, HelperText, HelperTextItem, FormFieldGroupHeader } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
@@ -24,6 +24,30 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
   handleAnswerInputChange,
   handleAnswerBlur
 }) => {
+  const [contextWordCount, setContextWordCount] = useState(0);
+  const MAX_WORDS = 500;
+
+  // TODO: replace with a tokenizer library
+  const countWords = (text: string) => {
+    return text.trim().split(/\s+/).filter(Boolean).length;
+  };
+
+  // Update word count whenever context changes
+  useEffect(() => {
+    setContextWordCount(countWords(seedExample.context));
+  }, [seedExample.context]);
+
+  // Handle context input change with word count validation
+  const onContextChange = (_event: React.FormEvent<HTMLTextAreaElement>, contextValue: string) => {
+    const wordCount = countWords(contextValue);
+    if (wordCount <= MAX_WORDS) {
+      handleContextInputChange(seedExampleIndex, contextValue);
+    } else {
+      // allow the overage and show validation error
+      handleContextInputChange(seedExampleIndex, contextValue);
+    }
+  };
+
   return (
     <FormGroup key={seedExampleIndex}>
       <TextArea
@@ -34,10 +58,19 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
         placeholder="Enter the context from which the Q&A pairs are derived. (500 words max)"
         value={seedExample.context}
         validated={seedExample.isContextValid}
-        maxLength={500}
-        onChange={(_event, contextValue: string) => handleContextInputChange(seedExampleIndex, contextValue)}
+        onChange={onContextChange}
         onBlur={() => handleContextBlur(seedExampleIndex)}
       />
+
+      {/* Display word count */}
+      <FormHelperText>
+        <HelperText>
+          <HelperTextItem>
+            {contextWordCount} / {MAX_WORDS} words
+          </HelperTextItem>
+        </HelperText>
+      </FormHelperText>
+
       {seedExample.isContextValid === ValidatedOptions.error && (
         <FormHelperText key={seedExampleIndex * 10 + 2}>
           <HelperText>
