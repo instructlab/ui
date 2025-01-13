@@ -490,16 +490,14 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
       immutable: true,
       isExpanded: false,
       context: yamlSeedExample.context,
-      isContextValid: ValidatedOptions.default,
-      validationError: '',
+      // TODO: Hardcoding yaml QnA uploads seed_examples to success until working with Validate.tsx - Bug #465
+      isContextValid: ValidatedOptions.success,
       questionAndAnswers: yamlSeedExample.questions_and_answers.map((qa) => ({
         immutable: true,
         question: qa.question,
         answer: qa.answer,
-        isQuestionValid: ValidatedOptions.default,
-        questionValidationError: '',
-        isAnswerValid: ValidatedOptions.default,
-        answerValidationError: ''
+        isQuestionValid: ValidatedOptions.success,
+        isAnswerValid: ValidatedOptions.success
       }))
     }));
 
@@ -516,8 +514,6 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     setKnowledgeDocumentCommit(data.document.commit ?? '');
     setDocumentName(data.document.patterns.join(', ') ?? '');
     setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
-
-    // Optionally, set a success alert
     setActionGroupAlertContent({
       title: 'YAML Uploaded Successfully',
       message: 'Your knowledge form has been populated based on the uploaded YAML file.',
