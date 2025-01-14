@@ -4,11 +4,16 @@ This is a [NextJS](https://nextjs.org) framework with [Patternfly](https://www.p
 
 ## Deploying the UI stack on your local machine
 
-Podman is a requirement. Install and init instructions [here](https://podman.io/docs/installation).
+Podman is a requirement for using the Makefile. Install and init instructions [here](https://podman.io/docs/installation).
 
-Set the .env in the ui directory and make sure you uncomment the `IL_ENABLE_DEV_MODE=true`. `IL_ENABLE_DEV_MODE` flag enables assistive features that help you automate the time consuming and repetitive tasks, such as filling skill and knowledge forms for testing. Once .env file is setup, run the following:
+Set the .env in the ui directory by copying the example env files in the root directory. The`IL_ENABLE_DEV_MODE` flag enables assistive features that help you automate the time consuming and repetitive tasks, such as filling skill and knowledge forms for testing. Once .env file is setup, run the following:
 
 ```bash
+# Github mode development .env
+cp .env.github.example .env
+# or native mode .env
+cp .env.native.example .env
+
 make start-dev-local
 ```
 
@@ -17,7 +22,7 @@ This will start the UI and the dependent pathservice locally on the machine.
 > [!NOTE]
 > It might ask for permission to allow to listen on port 4000.
 
-To stop the the local dev environment run the following:
+To stop the local dev environment run the following:
 
 ```bash
 make stop-dev-local
@@ -41,12 +46,17 @@ make stop-dev-kind
 
 Use `make help` to see all the available commands.
 
-## Manually Running the React UI
+## Manually Running the UI with npm
 
-Set the .env in the ui directory and run the following:
+Choose the .env file to use and start the Next.js service with the following:
 
 ```bash
 cd ui/
+# Github mode development .env
+cp .env.github.example .env
+# or native mode .env
+cp .env.native.example .env
+# start a development instance with hot module replacement on port 3000
 npm install
 npm run dev
 # or for prod
@@ -74,7 +84,6 @@ npm run pretty
 
 # Run type checking
 npm run type-check
-
 ```
 
 UI stack supports two mode of deployments:
