@@ -27,6 +27,10 @@ If you encounter an issue in the hosted instance of the [InstructLab UI](ui.inst
 For more, check out the [InstructLab UI Contribution Guide](CONTRIBUTING.md)
 and [InstructLab Community Guide](https://github.com/instructlab/community/blob/main/CONTRIBUTING.md).
 
+## Getting Started
+
+Get started with the [development documentation](docs/development.md).
+
 ## Tutorials and relevant documentation
 
 - [Skill and Knowledge Contribution Guide](https://docs.instructlab.ai/taxonomy/)
