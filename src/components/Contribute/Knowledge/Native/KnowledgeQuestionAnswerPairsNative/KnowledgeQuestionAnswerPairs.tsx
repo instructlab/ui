@@ -65,7 +65,7 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
   const preRefs = useRef<Record<string, HTMLPreElement | null>>({});
 
   const LOCAL_TAXONOMY_DOCS_ROOT_DIR =
-    process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_DOCS_ROOT_DIR || '/home/yourusername/.instructlab-ui/taxonomy-knowledge-docs';
+    `${process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR}/taxonomy-knowledge-docs` || `${process.env.HOME}/.instructlab-ui/taxonomy-knowledge-docs`;
 
   const fetchKnowledgeFiles = async () => {
     setIsLoading(true);
