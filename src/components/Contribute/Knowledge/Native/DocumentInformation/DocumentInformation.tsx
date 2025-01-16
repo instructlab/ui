@@ -268,7 +268,8 @@ const DocumentInformation: React.FC<Props> = ({
           <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL or Server Side File Path">
             <TextInput
               isRequired
-              type="url"
+              // TODO: once all of the different potential filepaths/url/types are determined, add back stricter validation
+              type="text"
               aria-label="repo"
               validated={validRepo}
               placeholder="Enter repo URL where document exists"
