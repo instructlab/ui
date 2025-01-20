@@ -1,5 +1,5 @@
 .chatbot-ui-page {
-  background-color: #f0f0f0;
+  //background-color: #f0f0f0;
   font-family: 'Inter', sans-serif;
   color: #333;
   display: flex;
@@ -13,30 +13,29 @@
 
   /* Chat Container */
   .pf-chatbot {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-width: 600px;
-    width: 100%;
-    margin: 1rem auto;
-    display: flex;
-    flex-direction: column;
+    //background-color: #ffffff;
+    //border-radius: 8px;
+    //box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    //max-width: 800px;
+    //min-width: 400px;
+    //width: 100%;
+    //margin: 1rem auto;
+    //display: flex;
+    //flex-direction: column;
     overflow: hidden;
 
-    /* Header: Similar to ChatGPT's top bar */
     &__header {
-      background: #ffffff;
+      //background: #ffffff;
       border-bottom: 1px solid #ddd;
       padding: 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
 
-      /* Hide the default title if you prefer a minimal look */
       .pf-chatbot__header-title {
         font-size: 1.2rem;
         font-weight: 600;
-        color: #333;
+        //color: #333;
         margin: 0;
       }
 
@@ -59,13 +58,14 @@
 
     /* Content Area */
     &__content {
-      background: #fafafa;
+      //background: #fafafa;
       padding: 1.5rem;
       flex: 1;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      min-height: 500px;
     }
 
     /* Messages Container */
@@ -76,7 +76,7 @@
 
       &--user {
         .pf-chatbot__message-contents {
-          background: #dcf0d9;
+          background: #6e73d3;
           color: #333;
           align-self: flex-end;
         }
@@ -99,7 +99,7 @@
           font-weight: bold;
           margin-bottom: 0.25rem;
           font-size: 0.9rem;
-          color: #555;
+          color: #0e0e0e;
         }
 
         .pf-chatbot__message-response {

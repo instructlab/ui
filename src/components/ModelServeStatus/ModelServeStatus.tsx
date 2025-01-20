@@ -33,7 +33,7 @@ const ModelStatusIndicator: React.FC<ModelStatusProps> = ({ modelName }) => {
 
     const fetchStatus = async () => {
       try {
-        const res = await fetch(`/api/model/vllm-status?modelName=${vllmName}`);
+        const res = await fetch(`/api/fine-tune/model/vllm-status?modelName=${vllmName}`);
         if (!res.ok) {
           console.error('Failed to fetch vllm status', res.status, res.statusText);
           setStatus('stopped');
@@ -57,7 +57,6 @@ const ModelStatusIndicator: React.FC<ModelStatusProps> = ({ modelName }) => {
     // Optionally poll every X seconds
     const intervalId = setInterval(fetchStatus, 5000); // poll every 5s
     return () => clearInterval(intervalId);
-
   }, [modelName]);
 
   if (status === 'stopped') {
@@ -66,7 +65,7 @@ const ModelStatusIndicator: React.FC<ModelStatusProps> = ({ modelName }) => {
   }
 
   return (
-    <Label color={getStatusColor(status)}>
+    <Label className="square-label.pf-c-label" color={getStatusColor(status)}>
       {status}
     </Label>
   );

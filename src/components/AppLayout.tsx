@@ -27,7 +27,7 @@ import { useSession } from 'next-auth/react';
 // import { useTheme } from '../context/ThemeContext';
 import { useState } from 'react';
 import '@/components/styles/globals.scss';
-import '@/components/app.scss';
+// import '@/components/app.scss';
 interface IAppLayout {
   children: React.ReactNode;
 }

@@ -411,7 +411,7 @@ const FineTuning: React.FC = () => {
           </ToggleGroup>
         </div>
         <div>
-          <Button variant="primary" onClick={handleCreateButtonClick}>
+          <Button variant="primary" className="square-button" onClick={handleCreateButtonClick}>
             Create+
           </Button>
         </div>
@@ -565,17 +565,17 @@ const FineTuning: React.FC = () => {
           </FormGroup>
 
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-            <Button variant="primary" onClick={handleGenerateClick}>
+            <Button variant="primary" className="square-button" onClick={handleGenerateClick}>
               Generate
             </Button>
-            <Button variant="primary" onClick={handleTrainClick}>
+            <Button variant="primary" className="square-button" onClick={handleTrainClick}>
               Train
             </Button>
-            <Button variant="primary" onClick={handlePipelineClick}>
+            <Button variant="primary" className="square-button" onClick={handlePipelineClick}>
               Generate &amp; Train
             </Button>
           </div>
-          <Button variant="link" onClick={handleModalClose}>
+          <Button variant="link" className="square-button" onClick={handleModalClose}>
             Cancel
           </Button>
         </Form>

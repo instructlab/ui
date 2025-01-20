@@ -16,7 +16,8 @@ import {
   Spinner,
   CodeBlock,
   CodeBlockCode,
-  Switch
+  Switch,
+  Badge
 } from '@patternfly/react-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBroom } from '@fortawesome/free-solid-svg-icons';
@@ -37,7 +38,6 @@ import {
   ChatbotFootnote,
   ChatbotAlert
 } from '@patternfly/chatbot';
-
 import logo from '../../../../public/bot-icon-chat-32x32.svg';
 import userLogo from '../../../../public/default-avatar.svg';
 import ModelStatusIndicator from '@/components/ModelServeStatus/ModelServeStatus';
@@ -62,6 +62,8 @@ const ChatModelEval: React.FC = () => {
   const [messagesRight, setMessagesRight] = useState<MessageProps[]>([]);
   const [selectedModelRight, setSelectedModelRight] = useState<Model | null>(null);
   const [alertMessageRight, setAlertMessageRight] = useState<{ title: string; message: string; variant: 'danger' | 'info' } | undefined>(undefined);
+  const [freeGpus, setFreeGpus] = useState<number>(0);
+  const [totalGpus, setTotalGpus] = useState<number>(0);
 
   const systemRole =
     'You are a cautious assistant. You carefully follow instructions.' +
@@ -74,8 +76,8 @@ const ChatModelEval: React.FC = () => {
   const [modelJobIdLeft, setModelJobIdLeft] = useState<string | undefined>(undefined);
   const [modelJobIdRight, setModelJobIdRight] = useState<string | undefined>(undefined);
 
-  const setShowModelLoadingLeft = useState(false);
-  const setShowModelLoadingRight = useState(false);
+  const [showModelLoadingLeft, setShowModelLoadingLeft] = useState(false);
+  const [showModelLoadingRight, setShowModelLoadingRight] = useState(false);
 
   // For logs viewing
   const [expandedJobsLeft, setExpandedJobsLeft] = useState<Record<string, boolean>>({});
@@ -84,16 +86,36 @@ const ChatModelEval: React.FC = () => {
   const [expandedJobsRight, setExpandedJobsRight] = useState<Record<string, boolean>>({});
   const [jobLogsRight, setJobLogsRight] = useState<Record<string, string>>({});
 
+  useEffect(() => {
+    const fetchGpus = async () => {
+      try {
+        const res = await fetch('/api/fine-tune/gpu-free');
+        if (!res.ok) {
+          console.error('Failed to fetch free GPUs:', res.status, res.statusText);
+          setFreeGpus(0);
+          setTotalGpus(0);
+          return;
+        }
+        const data = await res.json();
+        setFreeGpus(data.free_gpus || 0);
+        setTotalGpus(data.total_gpus || 0);
+      } catch (err) {
+        console.error('Error fetching free GPUs:', err);
+        setFreeGpus(0);
+        setTotalGpus(0);
+      }
+    };
+
+    fetchGpus();
+    const intervalId = setInterval(fetchGpus, 20000);
+    return () => clearInterval(intervalId);
+  }, []);
+
   // Fetch models on component mount
   useEffect(() => {
     const fetchDefaultModels = async () => {
       const response = await fetch('/api/envConfig');
       const envConfig = await response.json();
-
-      const defs: Model[] = [
-        { name: 'Granite-7b', apiURL: envConfig.GRANITE_API, modelName: envConfig.GRANITE_MODEL_NAME },
-        { name: 'Merlinite-7b', apiURL: envConfig.MERLINITE_API, modelName: envConfig.MERLINITE_MODEL_NAME }
-      ];
 
       const storedEndpoints = localStorage.getItem('endpoints');
       const cust: Model[] = storedEndpoints
@@ -104,7 +126,7 @@ const ChatModelEval: React.FC = () => {
           }))
         : [];
 
-      setDefaultModels(defs);
+      setDefaultModels([]);
       setCustomModels(cust);
     };
 
@@ -130,10 +152,10 @@ const ChatModelEval: React.FC = () => {
     // Show loading popup
     if (side === 'left') {
       setShowModelLoadingLeft(true);
-      setTimeout(() => setShowModelLoadingLeft(false), 3000);
+      setTimeout(() => setShowModelLoadingLeft(false), 5000);
     } else {
       setShowModelLoadingRight(true);
-      setTimeout(() => setShowModelLoadingRight(false), 3000);
+      setTimeout(() => setShowModelLoadingRight(false), 5000);
     }
 
     try {
@@ -236,6 +258,71 @@ const ChatModelEval: React.FC = () => {
     setAlertMessageRight(undefined);
   };
 
+  // =============== Unload Model Logic (Left / Right) ===============
+  // Left uses model_name=pre-train, right uses model_name=post-train
+  const handleUnloadLeft = async () => {
+    try {
+      const resp = await fetch('/api/fine-tune/model/vllm-unload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model_name: 'pre-train' })
+      });
+      if (!resp.ok) {
+        console.error('Failed to unload pre-train:', resp.status, resp.statusText);
+        return;
+      }
+      const data = await resp.json();
+      console.log('Unload left success:', data);
+
+      // Optionally clear out the selected model and job logs on the left
+      setSelectedModelLeft(null);
+      setModelJobIdLeft(undefined);
+      setMessagesLeft([]);
+      setAlertMessageLeft({
+        title: 'Model Unloaded',
+        message: 'Successfully unloaded the pre-train model.',
+        variant: 'info'
+      });
+      setTimeout(() => {
+        setAlertMessageLeft(undefined);
+      }, 5000);
+    } catch (error) {
+      console.error('Error unloading model on left:', error);
+    }
+  };
+
+  const handleUnloadRight = async () => {
+    try {
+      const resp = await fetch('/api/fine-tune/model/vllm-unload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model_name: 'post-train' })
+      });
+      if (!resp.ok) {
+        console.error('Failed to unload post-train:', resp.status, resp.statusText);
+        return;
+      }
+      const data = await resp.json();
+      console.log('Unload right success:', data);
+
+      // Optionally clear out the selected model and job logs on the right
+      setSelectedModelRight(null);
+      setModelJobIdRight(undefined);
+      setMessagesRight([]);
+      setAlertMessageRight({
+        title: 'Model Unloaded',
+        message: 'Successfully unloaded the post-train model.',
+        variant: 'info'
+      });
+      setTimeout(() => {
+        setAlertMessageRight(undefined);
+      }, 5000);
+    } catch (error) {
+      console.error('Error unloading model on right:', error);
+    }
+  };
+
+  // =============== Cleanup (Left / Right) ===============
   const handleCleanupLeft = () => {
     setMessagesLeft([]);
     setAlertMessageLeft(undefined);
@@ -574,6 +661,12 @@ const ChatModelEval: React.FC = () => {
           <br />
           Select a model in each panel to compare responses. You can toggle between using a single input box that sends to both models or using two
           separate input boxes.
+          <br />
+          <br />
+          Free GPUs:{' '}
+          <Badge isRead>
+            {freeGpus} / {totalGpus}
+          </Badge>
         </Content>
       </PageSection>
 
@@ -590,7 +683,12 @@ const ChatModelEval: React.FC = () => {
               <ChatbotHeaderMain />
               <ChatbotHeaderActions className="pf-chatbot__header-actions">
                 <ModelStatusIndicator modelName={selectedModelLeft?.modelName || null} />
-                <ChatbotHeaderSelectorDropdown value={selectedModelLeft?.name || 'Select a model'} onSelect={onSelectModelLeft}>
+                {freeGpus < 1 && !selectedModelLeft && <span style={{ color: 'red', marginRight: '0.5rem', padding: '0.5rem' }}>No GPUs free</span>}
+                <ChatbotHeaderSelectorDropdown
+                  disabled={freeGpus < 1 && !selectedModelLeft}
+                  value={selectedModelLeft?.name || 'Select a model'}
+                  onSelect={onSelectModelLeft}
+                >
                   <DropdownList>
                     <DropdownItem value="Granite fine tune checkpoint">Granite fine tune checkpoint</DropdownItem>
                     <DropdownItem value="Granite base model">Granite base model</DropdownItem>
@@ -601,7 +699,26 @@ const ChatModelEval: React.FC = () => {
                     ))}
                   </DropdownList>
                 </ChatbotHeaderSelectorDropdown>
-                <Button variant="secondary" onClick={handleCleanupLeft} aria-label="Clear chat" style={{ marginLeft: '1rem' }}>
+
+                {/* Unload button (pre-train) */}
+                <Button
+                  variant="secondary"
+                  onClick={handleUnloadLeft}
+                  aria-label="Unload left model"
+                  style={{ marginLeft: '1rem' }}
+                  className="square-button"
+                >
+                  Unload Model
+                </Button>
+
+                {/* Clear chat button */}
+                <Button
+                  variant="secondary"
+                  onClick={handleCleanupLeft}
+                  aria-label="Clear chat"
+                  style={{ marginLeft: '1rem' }}
+                  className="square-button"
+                >
                   <FontAwesomeIcon icon={faBroom} /> Clear chat
                 </Button>
               </ChatbotHeaderActions>
@@ -673,7 +790,13 @@ const ChatModelEval: React.FC = () => {
             <ChatbotHeader className="pf-chatbot__header">
               <ChatbotHeaderMain />
               <ChatbotHeaderActions className="pf-chatbot__header-actions">
-                <ChatbotHeaderSelectorDropdown value={selectedModelRight?.name || 'Select a model'} onSelect={onSelectModelRight}>
+                <ModelStatusIndicator modelName={selectedModelRight?.modelName || null} />
+                {freeGpus < 1 && !selectedModelRight && <span style={{ color: 'red', marginRight: '0.5rem', padding: '0.5rem' }}>No GPUs free</span>}
+                <ChatbotHeaderSelectorDropdown
+                  disabled={freeGpus < 1 && !selectedModelLeft}
+                  value={selectedModelRight?.name || 'Select a model'}
+                  onSelect={onSelectModelRight}
+                >
                   <DropdownList>
                     <DropdownItem value="Granite fine tune checkpoint">Granite fine tune checkpoint</DropdownItem>
                     <DropdownItem value="Granite base model">Granite base model</DropdownItem>
@@ -684,7 +807,26 @@ const ChatModelEval: React.FC = () => {
                     ))}
                   </DropdownList>
                 </ChatbotHeaderSelectorDropdown>
-                <Button variant="secondary" onClick={handleCleanupRight} aria-label="Clear chat" style={{ marginLeft: '1rem' }}>
+
+                {/* Unload button (post-train) */}
+                <Button
+                  variant="secondary"
+                  onClick={handleUnloadRight}
+                  aria-label="Unload right model"
+                  style={{ marginLeft: '1rem' }}
+                  className="square-button"
+                >
+                  Unload Model
+                </Button>
+
+                {/* Clear chat button */}
+                <Button
+                  variant="secondary"
+                  onClick={handleCleanupRight}
+                  aria-label="Clear chat"
+                  style={{ marginLeft: '1rem' }}
+                  className="square-button"
+                >
                   <FontAwesomeIcon icon={faBroom} /> Clear chat
                 </Button>
               </ChatbotHeaderActions>
