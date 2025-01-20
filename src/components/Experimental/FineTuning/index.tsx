@@ -23,11 +23,14 @@ import {
   Card,
   CardTitle,
   CardBody,
-  CardFooter
+  CardFooter,
+  NumberInput
 } from '@patternfly/react-core';
 import { format } from 'date-fns';
 
 import { ExpandableSection, CodeBlock, CodeBlockCode } from '@patternfly/react-core';
+import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
+import { CheckCircleIcon } from '@patternfly/react-icons';
 
 interface Model {
   name: string;
@@ -43,7 +46,7 @@ interface Branch {
 interface Job {
   job_id: string;
   status: string;
-  type?: 'generate' | 'train' | 'pipeline';
+  type?: 'generate' | 'train' | 'pipeline' | 'model-serve';
   branch?: string;
   start_time: string; // ISO timestamp
   end_time?: string;
@@ -57,6 +60,7 @@ const FineTuning: React.FC = () => {
 
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedBranch, setSelectedBranch] = useState<string>('');
+  const [selectedEpochs, setSelectedEpochs] = useState<number | ''>('');
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState<boolean>(false);
@@ -98,7 +102,7 @@ const FineTuning: React.FC = () => {
         const modelsData = await modelsResponse.json();
 
         // Fetch branches
-        const branchesResponse = await fetch('/api/local/git/branches', { cache: 'no-cache' });
+        const branchesResponse = await fetch('/api/fine-tune/git/branches', { cache: 'no-cache' });
         if (!branchesResponse.ok) {
           throw new Error('Failed to fetch git branches');
         }
@@ -130,21 +134,39 @@ const FineTuning: React.FC = () => {
     fetchData();
 
     // Polling to update jobs periodically
-    const interval = setInterval(() => {
-      fetch('/api/fine-tune/jobs', { cache: 'no-cache' })
-        .then((res) => res.json())
-        .then((data) => {
-          const safeJobsData = Array.isArray(data) ? data : [];
-          const updatedJobs = safeJobsData
-            .map((job: Job) => mapJobType(job))
-            .sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime());
-          setJobs(updatedJobs);
-        })
-        .catch((error) => {
-          console.error('Error fetching jobs:', error);
-          setJobs([]);
-        });
-    }, 10000);
+    const interval = setInterval(async () => {
+      console.debug('Polling: Fetching jobs from /api/fine-tune/jobs');
+
+      try {
+        const response = await fetch('/api/fine-tune/jobs', { cache: 'no-cache' });
+        console.debug(`Polling fetch response status: ${response.status}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to fetch jobs during polling: ${response.status} ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.debug('Polling: Jobs data fetched successfully:', data);
+
+        const safeJobsData = Array.isArray(data) ? data : [];
+        const updatedJobs = safeJobsData
+          .map((job: Job) => mapJobType(job))
+          .sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime());
+
+        setJobs(updatedJobs);
+
+        // Reset retry counts on successful fetch
+        // Object.keys(retryCounts.current).forEach((jobId) => {
+        //   retryCounts.current[jobId] = 0;
+        // });
+      } catch (error) {
+        console.error('Error fetching jobs during polling:', error);
+        // Optionally, display a non-intrusive notification to the user
+
+        // Implement retry logic if needed
+        // For now, we'll avoid clearing the jobs list to maintain UI stability
+      }
+    }, 10000); // Poll every 10 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -186,6 +208,7 @@ const FineTuning: React.FC = () => {
     setErrorMessage('');
     setSelectedBranch('');
     setSelectedModel('');
+    setSelectedEpochs(10);
   };
 
   const handleGenerateClick = async () => {
@@ -193,12 +216,16 @@ const FineTuning: React.FC = () => {
       setErrorMessage('Please select both a model and a branch.');
       return;
     }
+    if (selectedEpochs === '') {
+      setErrorMessage('Please enter the number of epochs.');
+      return;
+    }
     setIsModalOpen(false);
     try {
       const response = await fetch('/api/fine-tune/data/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ modelName: selectedModel, branchName: selectedBranch }),
+        body: JSON.stringify({ modelName: selectedModel, branchName: selectedBranch, epochs: selectedEpochs }), // Include epochs
         cache: 'no-cache'
       });
       const result = await response.json();
@@ -210,7 +237,7 @@ const FineTuning: React.FC = () => {
         };
         setJobs((prevJobs) => [...prevJobs, newJob]);
       } else {
-        setErrorMessage('Failed to start generate job');
+        setErrorMessage(result.error || 'Failed to start generate job');
       }
     } catch (error) {
       console.error('Error starting generate job:', error);
@@ -223,12 +250,26 @@ const FineTuning: React.FC = () => {
       setErrorMessage('Please select both a model and a branch.');
       return;
     }
+    if (selectedEpochs === '') {
+      setErrorMessage('Please enter the number of epochs.');
+      return;
+    }
     setIsModalOpen(false);
     try {
+      console.log('Sending train request with:', {
+        modelName: selectedModel,
+        branchName: selectedBranch,
+        epochs: selectedEpochs
+      });
+
       const response = await fetch('/api/fine-tune/model/train', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ modelName: selectedModel, branchName: selectedBranch }),
+        body: JSON.stringify({
+          modelName: selectedModel,
+          branchName: selectedBranch,
+          epochs: selectedEpochs
+        }),
         cache: 'no-cache'
       });
       const result = await response.json();
@@ -240,7 +281,7 @@ const FineTuning: React.FC = () => {
         };
         setJobs((prevJobs) => [...prevJobs, newJob]);
       } else {
-        setErrorMessage('Failed to start train job');
+        setErrorMessage(result.error || 'Failed to start train job');
       }
     } catch (error) {
       console.error('Error starting train job:', error);
@@ -253,12 +294,21 @@ const FineTuning: React.FC = () => {
       setErrorMessage('Please select both a model and a branch.');
       return;
     }
+    if (selectedEpochs === '') {
+      setErrorMessage('Please enter the number of epochs.');
+      return;
+    }
     setIsModalOpen(false);
     try {
+      console.debug('Sending pipeline generate-train request with:', {
+        modelName: selectedModel,
+        branchName: selectedBranch,
+        epochs: selectedEpochs
+      });
       const response = await fetch('/api/fine-tune/pipeline/generate-train', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ modelName: selectedModel, branchName: selectedBranch }),
+        body: JSON.stringify({ modelName: selectedModel, branchName: selectedBranch, epochs: selectedEpochs }), // Include epochs
         cache: 'no-cache'
       });
       const result = await response.json();
@@ -271,8 +321,10 @@ const FineTuning: React.FC = () => {
           branch: selectedBranch
         };
         setJobs((prevJobs) => [...prevJobs, newJob]);
+        console.debug('New pipeline job added:', newJob);
       } else {
-        setErrorMessage('Failed to start generate-train pipeline');
+        setErrorMessage(result.error || 'Failed to start generate-train pipeline');
+        console.warn('Pipeline action failed:', result.error);
       }
     } catch (error) {
       console.error('Error starting generate-train pipeline job:', error);
@@ -293,15 +345,18 @@ const FineTuning: React.FC = () => {
         const logsText = await response.text();
         setJobLogs((prev) => ({ ...prev, [jobId]: logsText }));
       } else {
-        setJobLogs((prev) => ({ ...prev, [jobId]: 'Failed to fetch logs.' }));
+        const errorText = await response.text();
+        setJobLogs((prev) => ({ ...prev, [jobId]: `Failed to fetch logs: ${response.status} ${errorText}` }));
+        console.warn(`Failed to fetch logs for job ${jobId}: ${response.status} ${errorText}`);
       }
     } catch (error) {
-      console.error('Error fetching job logs:', error);
+      console.error(`Error fetching job logs for job ${jobId}:`, error);
       setJobLogs((prev) => ({ ...prev, [jobId]: 'Error fetching logs.' }));
     }
   };
 
   const handleToggleLogs = (jobId: string, isExpanding: boolean) => {
+    console.debug(`Toggling logs for job ID: ${jobId}. Expanding: ${isExpanding}`);
     setExpandedJobs((prev) => ({ ...prev, [jobId]: isExpanding }));
 
     if (isExpanding) {
@@ -370,7 +425,13 @@ const FineTuning: React.FC = () => {
               const logs = jobLogs[job.job_id];
               return (
                 <Card key={job.job_id} style={{ width: '100%' }}>
-                  <CardTitle>
+                  <CardTitle style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {/* TODO: fix the status icons to have color, e.g. red/green */}
+                    {job.status === 'finished' ? (
+                      <CheckCircleIcon color="var(--pf-global--success-color--nonstatus--green)" />
+                    ) : job.status === 'failed' ? (
+                      <ExclamationCircleIcon color="var(--pf-global--danger-color--status--danger--default)" />
+                    ) : null}
                     {job.type === 'generate'
                       ? 'Generate Job'
                       : job.type === 'pipeline'
@@ -378,7 +439,7 @@ const FineTuning: React.FC = () => {
                         : job.type === 'model-serve'
                           ? 'Model Serve Job'
                           : 'Train Job'}
-                  </CardTitle>{' '}
+                  </CardTitle>
                   <CardBody>
                     <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                       <p>
@@ -399,22 +460,18 @@ const FineTuning: React.FC = () => {
                     </div>
                   </CardBody>
                   <CardFooter>
-                    {job.status === 'finished' ? (
-                      <Alert variant="success" isInline title="Job Completed Successfully!" />
-                    ) : job.status === 'failed' ? (
-                      <Alert variant="danger" isInline title="Job Failed" />
-                    ) : null}
-
                     {/* Expandable section for logs */}
                     <ExpandableSection
                       toggleText={isExpanded ? 'Hide Logs' : 'View Logs'}
                       onToggle={(_event, expanded) => handleToggleLogs(job.job_id, expanded)}
                       isExpanded={isExpanded}
                     >
-                      {logs && (
+                      {logs ? (
                         <CodeBlock>
                           <CodeBlockCode id={`logs-${job.job_id}`}>{logs}</CodeBlockCode>
                         </CodeBlock>
+                      ) : (
+                        <Spinner size="sm" />
                       )}
                     </ExpandableSection>
                   </CardFooter>
@@ -424,7 +481,7 @@ const FineTuning: React.FC = () => {
           </div>
         ) : (
           <EmptyState headingLevel="h4" titleText="No Fine Tuning Jobs">
-            <EmptyStateBody>You haven't created any fine-tuning jobs yet. Use the 'Create' button to get started.</EmptyStateBody>
+            <EmptyStateBody>You have not created any fine-tuning jobs yet. Use the Create+ button to get started.</EmptyStateBody>
           </EmptyState>
         )}
       </PageSection>
@@ -478,6 +535,33 @@ const FineTuning: React.FC = () => {
                 ))}
               </DropdownList>
             </Dropdown>
+          </FormGroup>
+
+          {/* New FormGroup for Epoch Selection using NumberInput */}
+          <FormGroup label="Number of Epochs" isRequired fieldId="epochs-input">
+            <NumberInput
+              value={selectedEpochs}
+              onMinus={() => {
+                const newValue = typeof selectedEpochs === 'number' ? selectedEpochs - 1 : 0;
+                setSelectedEpochs(newValue >= 1 ? newValue : 1); // Ensure minimum of 1
+              }}
+              onChange={(event: React.FormEvent<HTMLInputElement>) => {
+                const value = (event.target as HTMLInputElement).value;
+                const parsedValue = value === '' ? '' : Number(value);
+                if (parsedValue === '' || (Number.isInteger(parsedValue) && parsedValue > 0)) {
+                  setSelectedEpochs(parsedValue);
+                }
+              }}
+              onPlus={() => {
+                const newValue = typeof selectedEpochs === 'number' ? selectedEpochs + 1 : 1;
+                setSelectedEpochs(newValue);
+              }}
+              inputName="epochs"
+              inputAriaLabel="Number of Epochs"
+              minusBtnAriaLabel="decrease number of epochs"
+              plusBtnAriaLabel="increase number of epochs"
+              min={1}
+            />
           </FormGroup>
 
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>

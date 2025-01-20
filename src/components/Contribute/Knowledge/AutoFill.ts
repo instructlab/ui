@@ -1,4 +1,4 @@
-import { KnowledgeFormData, QuestionAndAnswerPair, SeedExample } from '.';
+import { KnowledgeFormData, KnowledgeSeedExample, QuestionAndAnswerPair } from '@/types';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 
 const questionAndAnswerPairs1: QuestionAndAnswerPair[] = [
@@ -127,7 +127,7 @@ const questionAndAnswerPairs5: QuestionAndAnswerPair[] = [
   }
 ];
 
-const seedExamples: SeedExample[] = [
+const seedExamples: KnowledgeSeedExample[] = [
   {
     immutable: true,
     isExpanded: true,
@@ -238,12 +238,12 @@ const seedExamples: SeedExample[] = [
   {
     immutable: true,
     isExpanded: true,
-    context: `Phoenix is the radiant of two annual meteor showers. The Phoenicids, 
-    also known as the December Phoenicids, were first observed on 3 December 1887. 
-    The shower was particularly intense in December 1956, and is thought related 
-    to the breakup of the short-period comet 289P/Blanpain. It peaks around 4–5 
-    December, though is not seen every year.[58] A very minor meteor shower peaks 
-    around July 14 with around one meteor an hour, though meteors can be seen 
+    context: `Phoenix is the radiant of two annual meteor showers. The Phoenicids,
+    also known as the December Phoenicids, were first observed on 3 December 1887.
+    The shower was particularly intense in December 1956, and is thought related
+    to the breakup of the short-period comet 289P/Blanpain. It peaks around 4–5
+    December, though is not seen every year.[58] A very minor meteor shower peaks
+    around July 14 with around one meteor an hour, though meteors can be seen
     anytime from July 3 to 18; this shower is referred to as the July Phoenicids.[59]`,
     isContextValid: ValidatedOptions.success,
     questionAndAnswers: questionAndAnswerPairs5

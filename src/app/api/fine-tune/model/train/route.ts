@@ -1,4 +1,4 @@
-// src/app/api/fine-tune/model/train
+// src/app/api/fine-tune/model/train/route.ts
 'use server';
 
 import { NextResponse } from 'next/server';
@@ -8,14 +8,19 @@ export async function POST(request: Request) {
     console.log('Received train job request');
 
     // Parse the request body for required data
-    const { modelName, branchName } = await request.json();
+    const { modelName, branchName, epochs } = await request.json();
     const API_SERVER = process.env.NEXT_PUBLIC_API_SERVER!;
 
-    console.log('Request body:', { modelName, branchName });
+    console.log('Request body:', { modelName, branchName, epochs });
 
     if (!modelName || !branchName) {
       console.error('Missing required parameters: modelName and branchName');
       return NextResponse.json({ error: 'Missing required parameters: modelName and branchName' }, { status: 400 });
+    }
+
+    // Validate epochs if provided
+    if (epochs !== undefined && (typeof epochs !== 'number' || epochs <= 0)) {
+      return NextResponse.json({ error: "'epochs' must be a positive integer" }, { status: 400 });
     }
 
     // Forward the request to the API server
@@ -30,7 +35,8 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         modelName,
-        branchName
+        branchName,
+        epochs
       })
     });
 
@@ -40,7 +46,8 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      console.error('Error response from API server:', response.status, response.statusText);
+      const errorText = await response.text();
+      console.error('Error response from API server:', response.status, response.statusText, errorText);
       return NextResponse.json({ error: 'Failed to train the model on the API server' }, { status: response.status });
     }
 

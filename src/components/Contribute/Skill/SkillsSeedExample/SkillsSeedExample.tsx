@@ -2,13 +2,13 @@ import React from 'react';
 import { FormFieldGroupExpandable, FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { TrashIcon, PlusCircleIcon, ExclamationCircleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons/dist/dynamic/icons/';
-import { SeedExample } from '..';
 import { TextArea } from '@patternfly/react-core/dist/esm/components/TextArea';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/esm/components/HelperText';
+import { SkillSeedExample } from '@/types';
 
 interface Props {
-  seedExamples: SeedExample[];
+  seedExamples: SkillSeedExample[];
   handleContextInputChange: (seedExampleIndex: number, contextValue: string) => void;
   handleContextBlur: (seedExampleIndex: number) => void;
   handleQuestionInputChange: (seedExampleIndex: number, questionValue: string) => void;
@@ -58,7 +58,7 @@ const SkillsSeedExample: React.FC<Props> = ({
         />
       }
     >
-      {seedExamples.map((seedExample: SeedExample, seedExampleIndex: number) => (
+      {seedExamples.map((seedExample: SkillSeedExample, seedExampleIndex: number) => (
         <FormFieldGroupExpandable
           isExpanded={seedExample.isExpanded}
           toggleAriaLabel="Details"

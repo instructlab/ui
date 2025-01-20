@@ -1,7 +1,7 @@
-import { SeedExample, SkillFormData } from '.';
+import { SkillFormData, SkillSeedExample } from '@/types';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 
-const seedExamples: SeedExample[] = [
+const seedExamples: SkillSeedExample[] = [
   {
     immutable: false,
     isExpanded: false,

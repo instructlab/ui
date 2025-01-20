@@ -2,18 +2,14 @@
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
-const DEPLOYMENT = process.env.IL_UI_DEPLOYMENT!;
-const EXPERIMENTAL_FEATURES = process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES || '';
+const PATH_SERVICE_URL = process.env.IL_PATH_SERVICE_URL || 'http://pathservice:4000/tree/';
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { root_path, dir_name } = body;
 
   try {
-    let apiBaseUrl = 'http://pathservice:4000/tree/';
-    if (DEPLOYMENT === 'dev' && EXPERIMENTAL_FEATURES !== 'true') {
-      apiBaseUrl = 'http://localhost:4000/tree/';
-    }
+    const apiBaseUrl = PATH_SERVICE_URL;
     const response = await axios.get<string[]>(apiBaseUrl + root_path, {
       params: { dir_name: dir_name }
     });

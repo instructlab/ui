@@ -1,3 +1,5 @@
+import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
+
 export interface Endpoint {
   id: string;
   url: string;
@@ -5,7 +7,7 @@ export interface Endpoint {
   modelName: string;
 }
 
-export interface ChatMessage {
+export interface Message {
   text: string;
   isUser: boolean;
 }
@@ -78,4 +80,77 @@ export interface PullRequestFile {
 export interface PullRequestUpdateData {
   title: string;
   body: string;
+}
+
+export interface SkillSeedExample {
+  immutable: boolean;
+  isExpanded: boolean;
+  context?: string;
+  isContextValid?: ValidatedOptions;
+  validationError?: string;
+  question: string;
+  isQuestionValid: ValidatedOptions;
+  questionValidationError?: string;
+  answer: string;
+  isAnswerValid: ValidatedOptions;
+  answerValidationError?: string;
+}
+
+export interface SkillFormData {
+  email: string;
+  name: string;
+  submissionSummary: string;
+  documentOutline: string;
+  filePath: string;
+  seedExamples: SkillSeedExample[];
+  titleWork: string;
+  licenseWork: string;
+  creators: string;
+}
+
+export interface QuestionAndAnswerPair {
+  immutable: boolean;
+  question: string;
+  isQuestionValid: ValidatedOptions;
+  questionValidationError?: string;
+  answer: string;
+  isAnswerValid: ValidatedOptions;
+  answerValidationError?: string;
+}
+
+export interface KnowledgeSeedExample {
+  immutable: boolean;
+  isExpanded: boolean;
+  context: string;
+  isContextValid: ValidatedOptions;
+  validationError?: string;
+  questionAndAnswers: QuestionAndAnswerPair[];
+}
+
+export interface KnowledgeFormData {
+  email: string;
+  name: string;
+  submissionSummary: string;
+  domain: string;
+  documentOutline: string;
+  filePath: string;
+  seedExamples: KnowledgeSeedExample[];
+  knowledgeDocumentRepositoryUrl: string;
+  knowledgeDocumentCommit: string;
+  documentName: string;
+  titleWork: string;
+  linkWork: string;
+  revision: string;
+  licenseWork: string;
+  creators: string;
+}
+
+export interface KnowledgeEditFormData {
+  isEditForm: boolean;
+  knowledgeVersion: number;
+  pullRequestNumber: number;
+  branchName: string;
+  yamlFile: PullRequestFile;
+  attributionFile: PullRequestFile;
+  knowledgeFormData: KnowledgeFormData;
 }

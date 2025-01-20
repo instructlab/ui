@@ -113,7 +113,7 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
   const successfullyReadFileCount = readFileData.filter((fileData) => fileData.loadResult === 'success').length;
 
   return (
-    <>
+    <div>
       <MultipleFileUpload
         onFileDrop={handleFileDrop}
         dropzoneProps={{
@@ -129,16 +129,16 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
           titleTextSeparator="or"
           infoText="Accepted file types: Markdown"
         />
-        <p className="spinner-container">
+        <div className="spinner-container">
           {isUploading && (
             <>
               <Spinner size="lg" />
               <p>
-                Uploading files to <code>taxonomy-knowledge-docs</code> repo in your github account.
+                Uploading files to <code>taxonomy-knowledge-docs</code> repo.
               </p>
             </>
           )}
-        </p>
+        </div>
         {showStatus && (
           <MultipleFileUploadStatus
             statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
@@ -177,6 +177,6 @@ export const UploadFile: React.FunctionComponent<{ onFilesChange: (files: File[]
           </p>
         </Modal>
       </MultipleFileUpload>
-    </>
+    </div>
   );
 };

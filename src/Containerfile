@@ -1,14 +1,17 @@
 FROM registry.access.redhat.com/ubi9/nodejs-22:9.5-1730543890
 
+USER root
+
 WORKDIR /opt/app-root/src
 
-COPY package*.json ./
-
-USER root
-RUN chown -R default:root /opt/app-root/src/package*.json
-USER default
-RUN npm install
 COPY ./ .
 
+RUN dnf install -y jq
+RUN mkdir -p node_modules
+RUN chown -R default:root package*.json next-env.d.ts node_modules /opt/app-root/src/src/healthcheck-probe.sh
+
+USER default
+
+RUN npm install
 RUN npm run build
 CMD ["npm", "run", "start"]

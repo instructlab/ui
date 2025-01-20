@@ -40,9 +40,10 @@ import {
 
 import logo from '../../../../public/bot-icon-chat-32x32.svg';
 import userLogo from '../../../../public/default-avatar.svg';
+import ModelStatusIndicator from '@/components/ModelServeStatus/ModelServeStatus';
 
 // TODO: get nextjs app router server side render working with the patternfly chatbot component.
-const MODEL_SERVER_IP = 'http://128.31.20.129';
+const MODEL_SERVER_IP = 'http://128.31.20.81';
 
 const ChatModelEval: React.FC = () => {
   const [isUnifiedInput, setIsUnifiedInput] = useState(false);
@@ -55,14 +56,12 @@ const ChatModelEval: React.FC = () => {
   const [messagesLeft, setMessagesLeft] = useState<MessageProps[]>([]);
   const [selectedModelLeft, setSelectedModelLeft] = useState<Model | null>(null);
   const [alertMessageLeft, setAlertMessageLeft] = useState<{ title: string; message: string; variant: 'danger' | 'info' } | undefined>(undefined);
-  const [isLoadingLeft, setIsLoadingLeft] = useState(false);
 
   // States for right chat
   const [questionRight, setQuestionRight] = useState('');
   const [messagesRight, setMessagesRight] = useState<MessageProps[]>([]);
   const [selectedModelRight, setSelectedModelRight] = useState<Model | null>(null);
   const [alertMessageRight, setAlertMessageRight] = useState<{ title: string; message: string; variant: 'danger' | 'info' } | undefined>(undefined);
-  const [isLoadingRight, setIsLoadingRight] = useState(false);
 
   const systemRole =
     'You are a cautious assistant. You carefully follow instructions.' +
@@ -75,8 +74,8 @@ const ChatModelEval: React.FC = () => {
   const [modelJobIdLeft, setModelJobIdLeft] = useState<string | undefined>(undefined);
   const [modelJobIdRight, setModelJobIdRight] = useState<string | undefined>(undefined);
 
-  const [showModelLoadingLeft, setShowModelLoadingLeft] = useState(false);
-  const [showModelLoadingRight, setShowModelLoadingRight] = useState(false);
+  const setShowModelLoadingLeft = useState(false);
+  const setShowModelLoadingRight = useState(false);
 
   // For logs viewing
   const [expandedJobsLeft, setExpandedJobsLeft] = useState<Record<string, boolean>>({});
@@ -85,7 +84,7 @@ const ChatModelEval: React.FC = () => {
   const [expandedJobsRight, setExpandedJobsRight] = useState<Record<string, boolean>>({});
   const [jobLogsRight, setJobLogsRight] = useState<Record<string, string>>({});
 
-  // Fetch models
+  // Fetch models on component mount
   useEffect(() => {
     const fetchDefaultModels = async () => {
       const response = await fetch('/api/envConfig');
@@ -175,8 +174,8 @@ const ChatModelEval: React.FC = () => {
       // For latest checkpoint: port 8001
       if (endpoint.includes('serve-base')) {
         const servedModel: Model = {
-          name: 'Granite base model (Served)',
-          apiURL: `${MODEL_SERVER_IP}:8000`, // API endpoint for base model
+          name: 'Granite base model (Serving)',
+          apiURL: `${MODEL_SERVER_IP}:8000`, // endpoint for base model
           modelName: 'granite-base-served'
         };
 
@@ -187,8 +186,8 @@ const ChatModelEval: React.FC = () => {
         }
       } else if (endpoint.includes('serve-latest')) {
         const servedModel: Model = {
-          name: 'Granite fine tune checkpoint (Served)',
-          apiURL: `${MODEL_SERVER_IP}:8001`, // API endpoint for latest model
+          name: 'Granite fine tune checkpoint (Serving)',
+          apiURL: `${MODEL_SERVER_IP}:8001`, // endpoint for latest model
           modelName: 'granite-latest-served'
         };
 
@@ -263,60 +262,79 @@ const ChatModelEval: React.FC = () => {
     });
   };
 
-  const handleSend = async (
-    side: 'left' | 'right',
-    message: string,
-    selectedModel: Model | null,
-    setSelectedModelFn: React.Dispatch<React.SetStateAction<Model | null>>,
-    setIsLoadingFn: React.Dispatch<React.SetStateAction<boolean>>,
-    setAlertMessageFn: React.Dispatch<React.SetStateAction<{ title: string; message: string; variant: 'danger' | 'info' } | undefined>>,
-    setMessagesFn: React.Dispatch<React.SetStateAction<MessageProps[]>>
-  ) => {
+  const handleSend = async (side: 'left' | 'right', message: string) => {
     const trimmedMessage = message.trim();
+
+    // Prevent sending empty messages
     if (!trimmedMessage) {
+      console.warn(`Attempted to send an empty message on the ${side} side.`);
       return;
     }
 
+    // Determine the selected model based on the side
+    const selectedModel = side === 'left' ? selectedModelLeft : selectedModelRight;
+
+    // Alert the user if no model is selected
     if (!selectedModel) {
-      setTimeout(() => {
-        setAlertMessageFn({
+      if (side === 'left') {
+        setAlertMessageLeft({
           title: 'No Model Selected',
           message: 'Please select a model before sending a prompt.',
           variant: 'danger'
         });
-      }, 0);
+      } else {
+        setAlertMessageRight({
+          title: 'No Model Selected',
+          message: 'Please select a model before sending a prompt.',
+          variant: 'danger'
+        });
+      }
       return;
     }
 
-    setAlertMessageFn(undefined);
-
+    // Add the user's message to the chat
     const userMsgId = `${Date.now()}_user_${side}`;
-    setMessagesFn((msgs) => [
-      ...msgs,
-      {
-        id: userMsgId,
-        role: 'user',
-        content: trimmedMessage,
-        name: 'User',
-        avatar: userLogo.src,
-        timestamp: new Date().toLocaleTimeString()
-      }
-    ]);
+    const userMessage: MessageProps = {
+      id: userMsgId,
+      role: 'user',
+      content: trimmedMessage,
+      name: 'User',
+      avatar: userLogo.src,
+      timestamp: new Date().toLocaleTimeString()
+    };
 
     if (side === 'left') {
-      setQuestionLeft('');
+      setMessagesLeft((msgs) => [...msgs, userMessage]);
+      setQuestionLeft(''); // Clear the input field
     } else {
+      setMessagesRight((msgs) => [...msgs, userMessage]);
       setQuestionRight('');
     }
 
-    setIsLoadingFn(true);
+    // Add a loading message from the bot
+    const botMsgId = `${Date.now()}_bot_${side}`;
+    const botMessage: MessageProps = {
+      id: botMsgId,
+      role: 'bot',
+      content: '',
+      name: 'Bot',
+      avatar: logo.src,
+      timestamp: new Date().toLocaleTimeString(),
+      isLoading: true
+    };
 
+    if (side === 'left') {
+      setMessagesLeft((msgs) => [...msgs, botMessage]);
+    } else {
+      setMessagesRight((msgs) => [...msgs, botMessage]);
+    }
+
+    // Prepare the payload for the backend
     const messagesPayload = [
       { role: 'system', content: systemRole },
       { role: 'user', content: trimmedMessage }
     ];
 
-    // Map internal model identifiers to chat model names
     const chatModelName = mapModelName(selectedModel.modelName);
 
     const requestData = {
@@ -325,22 +343,9 @@ const ChatModelEval: React.FC = () => {
       stream: true
     };
 
-    const botMessageId = `${Date.now()}_bot_${side}`;
-    setMessagesFn((msgs) => [
-      ...msgs,
-      {
-        id: botMessageId,
-        role: 'bot',
-        content: '',
-        name: 'Bot',
-        avatar: logo.src,
-        timestamp: new Date().toLocaleTimeString(),
-        isLoading: true
-      }
-    ]);
-
     try {
-      const chatResponse = await fetch(`${selectedModel.apiURL}/v1/chat/completions`, {
+      // Send the message to the backend
+      const response = await fetch(`${selectedModel.apiURL}/v1/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -349,109 +354,105 @@ const ChatModelEval: React.FC = () => {
         body: JSON.stringify(requestData)
       });
 
-      if (!chatResponse.body) {
-        setIsLoadingFn(false);
-        setMessagesFn((msgs) => {
-          const updated = [...msgs];
-          const idx = updated.findIndex((m) => m.id === botMessageId);
-          if (idx !== -1) {
-            updated[idx].isLoading = false;
-            updated[idx].content = 'Failed to fetch response from the server.';
-          }
-          return updated;
-        });
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Fetch error for ${side} side: ${response.status} - ${errorText}`);
+
+        // Update the bot message with the error
+        const errorMessage: MessageProps = {
+          id: botMsgId,
+          role: 'bot',
+          content: `Error ${response.status}: ${errorText}`,
+          name: 'Bot',
+          avatar: logo.src,
+          timestamp: new Date().toLocaleTimeString(),
+          isLoading: false
+        };
+
+        if (side === 'left') {
+          setMessagesLeft((msgs) => msgs.map((msg) => (msg.id === botMsgId ? errorMessage : msg)));
+        } else {
+          setMessagesRight((msgs) => msgs.map((msg) => (msg.id === botMsgId ? errorMessage : msg)));
+        }
         return;
       }
 
-      const reader = chatResponse.body.getReader();
-      const textDecoder = new TextDecoder('utf-8');
-      let botMessage = '';
+      if (!response.body) {
+        console.error(`No response body received from ${side} side.`);
+        return;
+      }
 
-      let done = false;
-      let firstTokenReceived = false;
-      while (!done) {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let doneReading = false;
+      let botContent = '';
+
+      while (!doneReading) {
         const { value, done: isDone } = await reader.read();
-        done = isDone;
-        if (!value) {
-          continue;
-        }
-
-        const chunk = textDecoder.decode(value, { stream: true });
-        const lines = chunk.split('\n').filter((line) => line.trim() !== '');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const json = line.replace('data: ', '');
-            if (json === '[DONE]') {
-              setIsLoadingFn(false);
-              setMessagesFn((msgs) => {
-                const updated = [...msgs];
-                const idx = updated.findIndex((m) => m.id === botMessageId);
-                if (idx !== -1) {
-                  updated[idx].isLoading = false;
-                }
-                return updated;
-              });
-              return;
-            }
-
-            try {
-              const parsed = JSON.parse(json);
-              const deltaContent = parsed.choices[0].delta?.content;
-              if (deltaContent) {
-                if (!firstTokenReceived) {
-                  firstTokenReceived = true;
-                  setMessagesFn((msgs) => {
-                    const updated = [...msgs];
-                    const idx = updated.findIndex((m) => m.id === botMessageId);
-                    if (idx !== -1) {
-                      updated[idx].isLoading = false;
-                    }
-                    return updated;
-                  });
-                }
-
-                botMessage += deltaContent;
-                handleStreamUpdate(botMessageId, botMessage, setMessagesFn);
+        doneReading = isDone;
+        if (value) {
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n').filter((line) => line.trim() !== '');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.replace('data: ', '');
+              if (data === '[DONE]') {
+                doneReading = true;
+                break;
               }
-            } catch (err) {
-              console.error('Error parsing chunk as JSON:', err);
+              try {
+                const parsed = JSON.parse(data);
+                const delta = parsed.choices[0].delta?.content;
+                if (delta) {
+                  botContent += delta;
+                  if (side === 'left') {
+                    setMessagesLeft((msgs) => msgs.map((msg) => (msg.id === botMsgId ? { ...msg, content: botContent } : msg)));
+                  } else {
+                    setMessagesRight((msgs) => msgs.map((msg) => (msg.id === botMsgId ? { ...msg, content: botContent } : msg)));
+                  }
+                }
+              } catch (e) {
+                console.error('Error parsing JSON:', e);
+              }
             }
           }
         }
       }
 
-      // If stream ends without [DONE]
-      setIsLoadingFn(false);
-      setMessagesFn((msgs) => {
-        const updated = [...msgs];
-        const idx = updated.findIndex((m) => m.id === botMessageId);
-        if (idx !== -1) {
-          updated[idx].isLoading = false;
-        }
-        return updated;
-      });
+      // Finalize the bot message by removing the loading state
+      if (side === 'left') {
+        setMessagesLeft((msgs) => msgs.map((msg) => (msg.id === botMsgId ? { ...msg, isLoading: false } : msg)));
+      } else {
+        setMessagesRight((msgs) => msgs.map((msg) => (msg.id === botMsgId ? { ...msg, isLoading: false } : msg)));
+      }
     } catch (error) {
-      console.error('Error fetching chat response:', error);
-      setIsLoadingFn(false);
-      setMessagesFn((msgs) => {
-        const updated = [...msgs];
-        const idx = updated.findIndex((m) => m.id === botMessageId);
-        if (idx !== -1) {
-          updated[idx].isLoading = false;
-          updated[idx].content = 'Error fetching chat response';
-        }
-        return updated;
-      });
+      console.error(`Error fetching chat response on the ${side} side:`, error);
+
+      // Update the bot message with a generic error
+      const errorMessage: MessageProps = {
+        id: botMsgId,
+        role: 'bot',
+        content: 'Error fetching chat response.',
+        name: 'Bot',
+        avatar: logo.src,
+        timestamp: new Date().toLocaleTimeString(),
+        isLoading: false
+      };
+
+      if (side === 'left') {
+        setMessagesLeft((msgs) => msgs.map((msg) => (msg.id === botMsgId ? errorMessage : msg)));
+      } else {
+        setMessagesRight((msgs) => msgs.map((msg) => (msg.id === botMsgId ? errorMessage : msg)));
+      }
     }
   };
 
   const handleSendLeft = (message: string) => {
-    handleSend('left', message, selectedModelLeft, setSelectedModelLeft, setIsLoadingLeft, setAlertMessageLeft, setMessagesLeft);
+    handleSend('left', message);
   };
 
   const handleSendRight = (message: string) => {
-    handleSend('right', message, selectedModelRight, setSelectedModelRight, setIsLoadingRight, setAlertMessageRight, setMessagesRight);
+    handleSend('right', message);
   };
 
   // Add a copy action to bot messages when they are fully loaded
@@ -549,11 +550,11 @@ const ChatModelEval: React.FC = () => {
     }
 
     if (shouldSendLeft) {
-      handleSendLeft(trimmedMessage);
+      handleSend('left', trimmedMessage);
     }
 
     if (shouldSendRight) {
-      handleSendRight(trimmedMessage);
+      handleSend('right', trimmedMessage);
     }
   };
 
@@ -565,7 +566,7 @@ const ChatModelEval: React.FC = () => {
           <BreadcrumbItem isActive>Model Chat Evaluation</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
-      <PageSection style={{ backgroundColor: 'white' }}>
+      <PageSection>
         <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
           Evaluate Two Models Side-by-Side
         </Title>
@@ -578,13 +579,7 @@ const ChatModelEval: React.FC = () => {
 
       {/* Toggle Switch */}
       <PageSection style={{ backgroundColor: 'white', padding: '1rem' }}>
-        <Switch
-          id="toggle-unified-input"
-          label="Single Input Box"
-          // labelOff="Dual Input Boxes"
-          isChecked={isUnifiedInput}
-          onChange={() => setIsUnifiedInput(!isUnifiedInput)}
-        />
+        <Switch id="toggle-unified-input" label="Single Input Box" isChecked={isUnifiedInput} onChange={() => setIsUnifiedInput(!isUnifiedInput)} />
       </PageSection>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '0.25rem', marginLeft: '1rem', marginRight: '1rem' }}>
@@ -594,6 +589,7 @@ const ChatModelEval: React.FC = () => {
             <ChatbotHeader className="pf-chatbot__header">
               <ChatbotHeaderMain />
               <ChatbotHeaderActions className="pf-chatbot__header-actions">
+                <ModelStatusIndicator modelName={selectedModelLeft?.modelName || null} />
                 <ChatbotHeaderSelectorDropdown value={selectedModelLeft?.name || 'Select a model'} onSelect={onSelectModelLeft}>
                   <DropdownList>
                     <DropdownItem value="Granite fine tune checkpoint">Granite fine tune checkpoint</DropdownItem>
@@ -626,11 +622,19 @@ const ChatModelEval: React.FC = () => {
             {!isUnifiedInput && (
               <ChatbotFooter className="pf-chatbot__footer">
                 <MessageBar
-                  onSendMessage={(message) => handleSendLeft(message)}
+                  onSendMessage={(message) => {
+                    console.debug(`onSendMessage triggered for left side with message: "${message}"`);
+                    handleSendLeft(message);
+                  }}
                   hasAttachButton={false}
-                  onChange={(event, val) => setQuestionLeft(val)}
+                  onChange={(event, val) => {
+                    console.debug(`Left MessageBar onChange: "${val}"`);
+                    setQuestionLeft(val);
+                  }}
                   value={questionLeft}
                   placeholder="Type your prompt for the left model..."
+                  // Disable send button if message is empty or no model is selected
+                  isSendButtonDisabled={!questionLeft.trim() || !selectedModelLeft}
                 />
                 <ChatbotFootnote
                   label="Please verify the accuracy of the responses."
@@ -701,11 +705,19 @@ const ChatModelEval: React.FC = () => {
             {!isUnifiedInput && (
               <ChatbotFooter className="pf-chatbot__footer">
                 <MessageBar
-                  onSendMessage={(message) => handleSendRight(message)}
+                  onSendMessage={(message) => {
+                    console.debug(`onSendMessage triggered for right side with message: "${message}"`);
+                    handleSendRight(message);
+                  }}
                   hasAttachButton={false}
-                  onChange={(event, val) => setQuestionRight(val)}
+                  onChange={(event, val) => {
+                    console.debug(`Right MessageBar onChange: "${val}"`);
+                    setQuestionRight(val);
+                  }}
                   value={questionRight}
                   placeholder="Type your prompt for the right model..."
+                  // Disable send button if message is empty or no model is selected
+                  isSendButtonDisabled={!questionRight.trim() || !selectedModelRight}
                 />
                 <ChatbotFootnote
                   label="Please verify the accuracy of the responses."
@@ -744,11 +756,19 @@ const ChatModelEval: React.FC = () => {
         <PageSection style={{ backgroundColor: 'white', padding: '1rem' }}>
           <ChatbotFooter className="pf-chatbot__footer">
             <MessageBar
-              onSendMessage={(message) => handleUnifiedSend(message)}
+              onSendMessage={(message) => {
+                console.debug(`onSendMessage triggered for unified input with message: "${message}"`);
+                handleUnifiedSend(message);
+              }}
               hasAttachButton={false}
-              onChange={(event, val) => setQuestionUnified(val)}
+              onChange={(event, val) => {
+                console.debug(`Unified MessageBar onChange: "${val}"`);
+                setQuestionUnified(val);
+              }}
               value={questionUnified}
               placeholder="Type your prompt here and send to both models..."
+              // Disable send button if message is empty or no models are selected
+              isSendButtonDisabled={!questionUnified.trim() || !selectedModelLeft || !selectedModelRight}
             />
             <ChatbotFootnote
               label="Please verify the accuracy of the responses."

@@ -7,11 +7,11 @@ import { useEffect, useState } from 'react';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
 import { useRouter } from 'next/navigation';
-import SkillForm, { SkillEditFormData, SkillFormData, SeedExample } from '@/components/Contribute/Skill';
+import SkillFormGithub, { SkillEditFormData } from '@/components/Contribute/Skill/Github';
 import { fetchPullRequest, fetchFileContent, fetchPullRequestFiles } from '@/utils/github';
 import yaml from 'js-yaml';
 import axios from 'axios';
-import { SkillYamlData, AttributionData, PullRequestFile } from '@/types';
+import { SkillYamlData, AttributionData, PullRequestFile, SkillFormData, SkillSeedExample } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 
 interface EditSkillClientComponentProps {
@@ -72,9 +72,9 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
           // Populate the form fields with YAML data
           skillExistingFormData.documentOutline = yamlData.task_description;
 
-          const seedExamples: SeedExample[] = [];
+          const seedExamples: SkillSeedExample[] = [];
           yamlData.seed_examples.forEach((seed, index) => {
-            const example: SeedExample = {
+            const example: SkillSeedExample = {
               immutable: index < 5 ? true : false,
               isExpanded: true,
               context: seed.context || '',
@@ -147,7 +147,7 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
     );
   }
 
-  return <SkillForm skillEditFormData={skillEditFormData} />;
+  return <SkillFormGithub skillEditFormData={skillEditFormData} />;
 };
 
 export default EditSkill;

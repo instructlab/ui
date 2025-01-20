@@ -21,12 +21,13 @@ import { PageSidebar } from '@patternfly/react-core/dist/dynamic/components/Page
 import { PageSidebarBody } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { SkipToContent } from '@patternfly/react-core/dist/dynamic/components/SkipToContent';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { Bullseye } from '@patternfly/react-core/dist/dynamic/layouts/Bullseye';
 import UserMenu from './UserMenu/UserMenu';
 import { useSession } from 'next-auth/react';
 // import { useTheme } from '../context/ThemeContext';
 import { useState } from 'react';
+import '@/components/styles/globals.scss';
 import '@/components/app.scss';
-
 interface IAppLayout {
   children: React.ReactNode;
 }
@@ -64,19 +65,15 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   }, [session, status, pathname, router]);
 
   if (status === 'loading') {
-    return <Spinner />;
+    return (
+      <Bullseye>
+        <Spinner />
+      </Bullseye>
+    );
   }
 
   if (!session) {
     return null; // Return nothing if not authenticated to avoid flicker
-  }
-
-  //const isExperimentalEnabled = process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES === 'true';
-
-  // Only log if experimental features are enabled
-  if (isExperimentalEnabled) {
-    console.log('Is Experimental Enabled:', isExperimentalEnabled);
-    console.log('Environment Variable:', process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES);
   }
 
   const routes = [
@@ -101,10 +98,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       path: '/experimental',
       label: 'Experimental Features',
       children: [
-        { path: '/experimental/dashboard-local/', label: 'Local Dashboard' },
-        { path: '/experimental/contribute-local/skill/', label: 'Local Skill' },
-        { path: '/experimental/contribute-local/knowledge/', label: 'Local Knowledge' },
-        { path: '/experimental/contribute-local/configuration-local/', label: 'Local Configuration' },
         { path: '/experimental/fine-tune/', label: 'Fine-tuning' },
         { path: '/experimental/chat-eval/', label: 'Model Chat Eval' }
       ]

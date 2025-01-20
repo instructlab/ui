@@ -1,7 +1,8 @@
 import React from 'react';
-import { KnowledgeFormData } from '..';
 import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/DropdownItem';
+import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
 import FileIcon from '@patternfly/react-icons/dist/esm/icons/file-icon';
+import { KnowledgeFormData } from '@/types';
 
 interface Props {
   knowledgeFormData: KnowledgeFormData;
@@ -29,8 +30,18 @@ const DownloadAttribution: React.FC<Props> = ({ knowledgeFormData }) => {
   };
 
   return (
-    <DropdownItem key="DownloadAttribution" to="#default-link6" onClick={handleDownloadAttribution}>
-      <FileIcon /> Attribution File
+    <DropdownItem
+      key="DownloadAttribution"
+      to="#default-link6"
+      onClick={handleDownloadAttribution}
+      icon={
+        <Icon>
+          <FileIcon />
+        </Icon>
+      }
+    >
+      {' '}
+      Attribution File
     </DropdownItem>
   );
 };

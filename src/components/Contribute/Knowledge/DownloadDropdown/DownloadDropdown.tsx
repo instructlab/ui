@@ -1,11 +1,12 @@
 import React from 'react';
 import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import DownloadYaml from '../DownloadYaml/DownloadYaml';
 import DownloadAttribution from '../DownloadAttribution/DownloadAttribution';
-import { KnowledgeFormData } from '..';
 import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
+import { KnowledgeFormData } from '@/types';
 
 interface Props {
   knowledgeFormData: KnowledgeFormData;
@@ -30,8 +31,18 @@ export const DownloadDropdown: React.FunctionComponent<Props> = ({ knowledgeForm
       onSelect={onSelect}
       onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
       toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-        <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isOpen}>
-          <DownloadIcon /> Download
+        <MenuToggle
+          ref={toggleRef}
+          onClick={onToggleClick}
+          isExpanded={isOpen}
+          icon={
+            <Icon>
+              <DownloadIcon />{' '}
+            </Icon>
+          }
+        >
+          {' '}
+          Download
         </MenuToggle>
       )}
       ouiaId="DownloadDropdown"

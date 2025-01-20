@@ -4,8 +4,8 @@ import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dro
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import DownloadYaml from '../DownloadYaml/DownloadYaml';
 import DownloadAttribution from '../DownloadAttribution/DownloadAttribution';
-import { SkillFormData } from '..';
 import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
+import { SkillFormData } from '@/types';
 
 interface Props {
   skillFormData: SkillFormData;

@@ -3,12 +3,12 @@ import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdow
 import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { KnowledgeFormData } from '..';
 import YamlCodeModal from '@/components/YamlCodeModal';
 import CodeIcon from '@patternfly/react-icons/dist/esm/icons/code-icon';
-import { AttributionData, KnowledgeYamlData } from '@/types';
+import { AttributionData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
+import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
 import FileIcon from '@patternfly/react-icons/dist/dynamic/icons/file-icon';
 import EyeIcon from '@patternfly/react-icons/dist/esm/icons/eye-icon';
 
@@ -76,8 +76,17 @@ export const ViewDropdown: React.FunctionComponent<Props> = ({ knowledgeFormData
         onSelect={onSelect}
         onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
         toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-          <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isOpen}>
-            <EyeIcon />
+          <MenuToggle
+            ref={toggleRef}
+            onClick={onToggleClick}
+            isExpanded={isOpen}
+            icon={
+              <Icon>
+                <EyeIcon />{' '}
+              </Icon>
+            }
+          >
+            {' '}
             View
           </MenuToggle>
         )}
@@ -85,11 +94,29 @@ export const ViewDropdown: React.FunctionComponent<Props> = ({ knowledgeFormData
         shouldFocusToggleOnSelect
       >
         <DropdownList>
-          <DropdownItem key="view-yaml" onClick={handleViewYaml}>
-            <CodeIcon /> YAML Content
+          <DropdownItem
+            key="view-yaml"
+            onClick={handleViewYaml}
+            icon={
+              <Icon>
+                <CodeIcon />
+              </Icon>
+            }
+          >
+            {' '}
+            YAML Content
           </DropdownItem>
-          <DropdownItem key="view-attribution" onClick={handleViewAttribution}>
-            <FileIcon /> Attribution Content
+          <DropdownItem
+            key="view-attribution"
+            onClick={handleViewAttribution}
+            icon={
+              <Icon>
+                <FileIcon />
+              </Icon>
+            }
+          >
+            {' '}
+            Attribution Content
           </DropdownItem>
         </DropdownList>
       </Dropdown>

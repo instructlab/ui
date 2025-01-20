@@ -8,11 +8,12 @@ import { KnowledgeSchemaVersion } from '@/types/const';
 import { fetchPullRequest, fetchFileContent, fetchPullRequestFiles } from '@/utils/github';
 import yaml from 'js-yaml';
 import axios from 'axios';
-import KnowledgeForm, { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, SeedExample } from '@/components/Contribute/Knowledge';
+import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, KnowledgeSeedExample } from '@/types';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { useEffect, useState } from 'react';
 import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
 import { useRouter } from 'next/navigation';
+import KnowledgeFormGithub from '../Knowledge/Github';
 
 interface EditKnowledgeClientComponentProps {
   prNumber: number;
@@ -83,10 +84,10 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
           knowledgeExistingFormData.knowledgeDocumentCommit = yamlData.document.commit;
           knowledgeExistingFormData.documentName = yamlData.document.patterns.join(', ');
 
-          const seedExamples: SeedExample[] = [];
+          const seedExamples: KnowledgeSeedExample[] = [];
           yamlData.seed_examples.forEach((seed, index) => {
             // iterate through questions_and_answers and create a new object for each
-            const example: SeedExample = {
+            const example: KnowledgeSeedExample = {
               immutable: index < 5 ? true : false,
               isExpanded: true,
               context: seed.context,
@@ -175,7 +176,7 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
 
   return (
     // <AppLayout>
-    <KnowledgeForm knowledgeEditFormData={knowledgeEditFormData} />
+    <KnowledgeFormGithub knowledgeEditFormData={knowledgeEditFormData} />
     // </AppLayout>
   );
 };
