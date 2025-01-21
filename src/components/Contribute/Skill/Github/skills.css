@@ -1,16 +1,14 @@
-/* Skill CSS */
+/*!* Skill CSS *!*/
 
 .form-s {
   width: 80%;
   margin-bottom: 50px;
-  background-color: white;
 }
 
-.submit:hover,
-.download-yaml:hover,
-.download-attribution:hover {
-  background-color: #45a049;
-}
+/*.submit:hover,*/
+/*.download-yaml:hover,*/
+/*.download-attribution:hover {*/
+/*}*/
 
 .heading {
   text-align: left;

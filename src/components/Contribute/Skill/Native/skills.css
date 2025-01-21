@@ -3,13 +3,6 @@
 .form-s {
   width: 80%;
   margin-bottom: 50px;
-  background-color: white;
-}
-
-.submit:hover,
-.download-yaml:hover,
-.download-attribution:hover {
-  background-color: #45a049;
 }
 
 .heading {

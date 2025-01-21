@@ -1,5 +1,5 @@
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
-import InstructLabLogo from '../../../public/updated-logo.png';
+import InstructLabLogo from '../../../public/InstructLab-About-Modal-Background.svg';
 import InstructLabAboutUsBg from '../../../public/InstructLab-About-Modal-Background.svg';
 import styles from './about-modal.module.css';
 import { linksData } from './data/linksData';

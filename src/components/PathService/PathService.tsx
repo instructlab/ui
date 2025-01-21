@@ -124,7 +124,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
   const popperProps: PopperProps = {
     triggerRef: inputRef,
     popper: (
-      <List style={{ border: '1px solid #ccc', backgroundColor: 'white', maxHeight: '20%', overflow: 'auto' }}>
+      <List style={{ border: '1px solid #ccc', maxHeight: '20%', overflow: 'auto' }}>
         {items.map((item, index) => (
           <ListItem key={index} onClick={() => handleSelect(item)} style={{ padding: '5px 10px', cursor: 'pointer' }}>
             {item}

@@ -691,7 +691,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
         </Breadcrumb>
       </PageBreadcrumb>
 
-      <PageSection className="knowledge-form" style={{ backgroundColor: 'white' }}>
+      <PageSection className="knowledge-form">
         <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
           <FlexItem>
             <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>

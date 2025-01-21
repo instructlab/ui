@@ -292,7 +292,7 @@ const DashboardNative: React.FunctionComponent = () => {
           <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
-      <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
+      <PageSection hasBodyWrapper={false}>
         <Title headingLevel="h1" size="lg">
           My Submissions
         </Title>

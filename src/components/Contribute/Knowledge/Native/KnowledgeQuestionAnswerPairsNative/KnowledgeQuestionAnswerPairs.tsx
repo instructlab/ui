@@ -252,7 +252,7 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
           <div
             style={{
               padding: '10px',
-              backgroundColor: '#f2f2f2',
+              // backgroundColor: '#f2f2f2',
               borderRadius: '5px',
               marginBottom: '10px',
               fontSize: '14px',

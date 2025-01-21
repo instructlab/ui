@@ -76,9 +76,7 @@ const NativeLogin: React.FunctionComponent = () => {
                   </HelperText>
                 )}
               </FormGroup>
-              <Button type="submit" style={{ backgroundColor: 'black', color: 'white' }}>
-                Login
-              </Button>
+              <Button type="submit">Login</Button>
             </Form>
           </div>
           <Content>

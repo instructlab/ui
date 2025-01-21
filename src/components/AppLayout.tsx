@@ -30,6 +30,8 @@ import {
   Page
 } from '@patternfly/react-core';
 import { BarsIcon } from '@patternfly/react-icons';
+import ThemePreference from '@/components/ThemePreference/ThemePreference';
+import '../styles/globals.scss';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -42,8 +44,6 @@ type Route = {
 };
 
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
-  // TODO: migrate to patternfly tokens
-  // const { theme } = useTheme();
   const { data: session, status } = useSession();
   const [isExperimentalEnabled, setExperimental] = useState(false);
 
@@ -122,8 +122,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         <MastheadBrand data-codemods>
           <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Brand src="/updated-logo.png" alt="InstructLab Logo" heights={{ default: '60px' }} />
-              <Content component={ContentVariants.h1} style={{ marginLeft: '10px', textDecoration: 'none', color: 'black', paddingBottom: '25px' }}>
+              <Brand src="/header-logo-light.png" alt="InstructLab Logo" heights={{ default: '60px' }} />
+              <Content component={ContentVariants.h1} style={{ marginLeft: '10px', textDecoration: 'none', paddingBottom: '25px' }}>
                 InstructLab
               </Content>
             </div>
@@ -139,6 +139,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         }}
       >
         <HelpDropdown />
+        <ThemePreference />
         <UserMenu />
       </MastheadContent>
     </Masthead>
@@ -162,8 +163,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   );
 
   const Navigation = (
-    // TODO: Theme no longer works here, with patternfly v6 it now uses tokens: https://www.patternfly.org/get-started/release-highlights/
-    // <Nav id="nav-primary-simple" theme={theme}>
     <Nav id="nav-primary-simple">
       <NavList id="nav-list-simple">
         {routes.map((route, idx) => (route.children ? renderNavExpandable(route, idx) : renderNavItem(route, idx)))}
@@ -172,7 +171,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   );
 
   const Sidebar = (
-    <PageSidebar>
+    <PageSidebar aria-label="Primary Navigation">
       <PageSidebarBody>{Navigation}</PageSidebarBody>
     </PageSidebar>
   );
