@@ -1,4 +1,6 @@
-FROM registry.access.redhat.com/ubi9/nodejs-22:9.5-1730543890
+ARG BASE_IMAGE="registry.access.redhat.com/ubi9/nodejs-22:9.5-1730543890"
+
+FROM ${BASE_IMAGE}
 
 USER root
 
