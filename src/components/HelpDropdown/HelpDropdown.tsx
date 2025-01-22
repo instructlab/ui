@@ -1,4 +1,4 @@
-import { Dropdown, MenuToggleElement, MenuToggle, DropdownList, DropdownItem, Flex, FlexItem } from '@patternfly/react-core';
+import { Dropdown, MenuToggleElement, MenuToggle, DropdownList, DropdownItem, Flex, FlexItem, Icon } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 import React, { useCallback, useState } from 'react';
 import AboutInstructLab from '../AboutModal/AboutModal';
@@ -27,7 +27,9 @@ const HelpDropdown: React.FC = () => {
         onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
         toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
           <MenuToggle ref={toggleRef} aria-label="help dropdown toggle" variant="plain" onClick={onToggleClick} isExpanded={isOpen}>
-            <OutlinedQuestionCircleIcon />
+            <Icon size="xl">
+              <OutlinedQuestionCircleIcon />
+            </Icon>
           </MenuToggle>
         )}
         shouldFocusToggleOnSelect
@@ -35,13 +37,9 @@ const HelpDropdown: React.FC = () => {
       >
         <DropdownList
           style={{
-            position: 'absolute',
-            top: '100%',
             right: 0,
             minWidth: '200px',
             width: 'auto',
-            // backgroundColor: '#fff',
-            border: ' 1px solid #ccc',
             zIndex: 1000
           }}
         >
