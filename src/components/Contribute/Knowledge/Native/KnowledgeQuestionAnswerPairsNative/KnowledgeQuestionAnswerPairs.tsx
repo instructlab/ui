@@ -60,6 +60,8 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
   const [expandedFiles, setExpandedFiles] = useState<Record<string, boolean>>({});
   const [selectedWordCount, setSelectedWordCount] = useState<number>(0);
   const [showAllCommits, setShowAllCommits] = useState<boolean>(false);
+  const [contextWordCount, setContextWordCount] = useState(0);
+  const MAX_WORDS = 500;
 
   // Ref for the <pre> elements to track selections TODO: figure out how to make text expansions taller in PF without a custom-pre
   const preRefs = useRef<Record<string, HTMLPreElement | null>>({});
@@ -217,6 +219,27 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
     []
   );
 
+  // TODO: replace with a tokenizer library
+  const countWords = (text: string) => {
+    return text.trim().split(/\s+/).filter(Boolean).length;
+  };
+
+  // Update word count whenever context changes
+  useEffect(() => {
+    setContextWordCount(countWords(seedExample.context));
+  }, [seedExample.context]);
+
+  // Handle context input change with word count validation
+  const onContextChange = (_event: React.FormEvent<HTMLTextAreaElement>, contextValue: string) => {
+    const wordCount = countWords(contextValue);
+    if (wordCount <= MAX_WORDS) {
+      handleContextInputChange(seedExampleIndex, contextValue);
+    } else {
+      // allow the overage and show validation error
+      handleContextInputChange(seedExampleIndex, contextValue);
+    }
+  };
+
   return (
     <FormGroup style={{ padding: '20px' }}>
       <Tooltip content={<div>Select context from your knowledge files</div>} position="top">
@@ -232,11 +255,18 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
         placeholder="Enter the context from which the Q&A pairs are derived. (500 words max)"
         value={seedExample.context}
         validated={seedExample.isContextValid}
-        maxLength={500}
+        onChange={onContextChange}
         style={{ marginBottom: '20px' }}
-        onChange={(_event, contextValue: string) => handleContextInputChange(seedExampleIndex, contextValue)}
         onBlur={() => handleContextBlur(seedExampleIndex)}
       />
+      {/* Display word count */}
+      <FormHelperText>
+        <HelperText>
+          <HelperTextItem>
+            {contextWordCount} / {MAX_WORDS} words
+          </HelperTextItem>
+        </HelperText>
+      </FormHelperText>
       {seedExample.isContextValid === ValidatedOptions.error && (
         <FormHelperText>
           <HelperText>
