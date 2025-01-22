@@ -1,24 +1,17 @@
 // src/components/Contribute/Knowledge/Native/DocumentInformation/DocumentInformation.tsx
 import React, { useEffect, useState } from 'react';
+import { FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
+import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
+import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
+import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
+import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
+import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
 import { UploadFile } from '@/components/Contribute/Knowledge/UploadFile';
 import { checkKnowledgeFormCompletion } from '@/components/Contribute/Knowledge/validation';
 import { KnowledgeFormData } from '@/types';
-import {
-  ValidatedOptions,
-  FormFieldGroupHeader,
-  FormGroup,
-  Button,
-  Modal,
-  ModalVariant,
-  TextInput,
-  FormHelperText,
-  HelperText,
-  HelperTextItem,
-  Alert,
-  AlertActionCloseButton,
-  AlertActionLink
-} from '@patternfly/react-core';
-import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
   reset: boolean;
@@ -252,24 +245,29 @@ const DocumentInformation: React.FC<Props> = ({
           </Button>
         </div>
       </FormGroup>
-      <Modal variant={ModalVariant.medium} title="Data Loss Warning" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <p>{modalText}</p>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-          <Button variant="secondary" onClick={handleModalContinue}>
+      <Modal
+        variant={ModalVariant.medium}
+        title="Data Loss Warning"
+        titleIconVariant="warning"
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        actions={[
+          <Button key="Continue" variant="secondary" onClick={handleModalContinue}>
             Continue
-          </Button>
-          <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
+          </Button>,
+          <Button key="cancel" variant="secondary" onClick={() => setIsModalOpen(false)}>
             Cancel
           </Button>
-        </div>
+        ]}
+      >
+        <p>{modalText}</p>
       </Modal>
       {!useFileUpload ? (
         <>
           <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL or Server Side File Path">
             <TextInput
               isRequired
-              // TODO: once all of the different potential filepaths/url/types are determined, add back stricter validation
-              type="text"
+              type="url"
               aria-label="repo"
               validated={validRepo}
               placeholder="Enter repo URL where document exists"
@@ -328,8 +326,6 @@ const DocumentInformation: React.FC<Props> = ({
           </Button>
         </>
       )}
-
-      {/* Informational Alert */}
       {alertInfo && (
         <Alert variant={alertInfo.type} title={alertInfo.title} actionClose={<AlertActionCloseButton onClose={() => setAlertInfo(undefined)} />}>
           {alertInfo.message}
@@ -340,8 +336,6 @@ const DocumentInformation: React.FC<Props> = ({
           )}
         </Alert>
       )}
-
-      {/* Success Alert */}
       {successAlertTitle && successAlertMessage && (
         <Alert
           variant="success"
@@ -358,8 +352,6 @@ const DocumentInformation: React.FC<Props> = ({
           {successAlertMessage}
         </Alert>
       )}
-
-      {/* Failure Alert */}
       {failureAlertTitle && failureAlertMessage && (
         <Alert variant="danger" title={failureAlertTitle} actionClose={<AlertActionCloseButton onClose={onCloseFailureAlert} />}>
           {failureAlertMessage}
