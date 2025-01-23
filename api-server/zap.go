@@ -29,6 +29,6 @@ func (srv *ILabServer) initLogger(debug bool) {
 	srv.log = logger.Sugar()
 
 	if debug {
-		srv.log.Debug("Debug logging is ENABLED.")
+		srv.log.Debug("Debug logging is enabled.")
 	}
 }

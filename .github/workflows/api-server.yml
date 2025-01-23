@@ -1,0 +1,53 @@
+name: api-server
+
+on:
+  push:
+    branches:
+      - main
+      - release-1.0
+  pull_request:
+    branches:
+      - main
+      - release-1.0
+
+jobs:
+  fmt-build-test:
+    runs-on: ubuntu-latest
+
+    env:
+      CGO_ENABLED: 1
+
+    defaults:
+      run:
+        working-directory: api-server
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21.6'
+
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config
+
+      - name: Install Go Dependencies
+        run: |
+          go mod download
+
+      - name: Go Format
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "The following files are not formatted properly:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: Build
+        run: |
+          go build ./...

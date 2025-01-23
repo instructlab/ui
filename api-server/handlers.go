@@ -581,8 +581,8 @@ func (srv *ILabServer) serveLatestCheckpointHandler(w http.ResponseWriter, r *ht
 			"8001",
 			"post-train",
 			1,
-			"/var/home/cloud-user",
-			"/var/home/cloud-user",
+			srv.homeDir,
+			srv.homeDir,
 			w,
 		)
 	} else {
@@ -612,8 +612,8 @@ func (srv *ILabServer) serveBaseModelHandler(w http.ResponseWriter, r *http.Requ
 			"8000",
 			"pre-train",
 			0,
-			"/var/home/cloud-user",
-			"/var/home/cloud-user",
+			srv.homeDir,
+			srv.homeDir,
 			w,
 		)
 	} else {
