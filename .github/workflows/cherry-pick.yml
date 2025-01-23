@@ -1,29 +1,70 @@
-name: Cherry pick PR into release-1.0 branch
+
+name: Cherry-Pick into release-1.0 branch
 
 on:
-  pull_request_target:
+  push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  cherry_pick_release_1_0:
+  cherry-pick:
     runs-on: ubuntu-latest
-    name: Cherry pick into release-1.0 branch
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'cherry-pick-release-1.0') && github.event.pull_request.merged == true }}
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-      - name: Cherry pick into release-1.0 branch
-        uses: carloscastrojumo/github-cherry-pick-action@v1.0.10
+          fetch-depth: 0 # Ensure we fetch all history for cherry-picking
+
+      # Step 2: Set up Git
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Step 3: Check for the specific tag in the commit
+      - name: Check for Cherry Pick Tag in Commit Message
+        id: check_tag
+        run: |
+          if [[ "$(git log -1 --pretty=%B)" == *"[cherry-pick]"* ]]; then
+            echo "Found tag [cherry-pick]"
+            echo "::set-output name=should_cherry_pick::true"
+          else
+            echo "No tag found. Skipping cherry-pick."
+            echo "::set-output name=should_cherry_pick::false"
+          fi
+
+      # Step 4: Cherry-pick the commit to the release branch
+      - name: Cherry-pick, commit and push into release-1.0 branch
+        if: steps.check_tag.outputs.should_cherry_pick == 'true'
+        run: |
+          # Get the latest commit hash
+          COMMIT_HASH=$(git rev-parse HEAD)
+
+          # Create new branch for cherry picking
+          BRANCH="cherry-pick-$(date +%Y%m%d%H%M%S)"
+          git checkout -b $BRANCH release-1.0
+
+          # Cherry-pick the commit 
+          git cherry-pick $COMMIT_HASH || { 
+            echo "Cherry-pick failed. Resolve conflicts manually." 
+            exit 1 } 
+            
+          # Push the new branch
+          git push origin $BRANCH_NAME
+
+
+      # Step 5: Create a pull request for the release branch
+      - name: Create Pull Request
+        if: steps.check_tag.outputs.should_cherry_pick == 'true'
+        uses: peter-evans/create-pull-request@v5
         with:
-          branch: release-1.0
-          labels: |
-            cherry-pick
-          reviewers: |
-            instructlab/ui-maintainers
-          title: '[cherry-pick] {old_title}'
-          body: 'Cherry picking #{old_pull_request_id} onto this branch'
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: release-1.0
+          head: ${{ steps.cherry-pick.outputs.branch }}
+          title: "Cherry-pick: Add commit to release-1.0"
+          body: |
+            This PR contains a cherry-picked commit from the `main` branch.
+            - Original commit: $COMMIT_HASH
