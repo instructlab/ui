@@ -77,16 +77,20 @@ const FineTuning: React.FC = () => {
   const logsIntervals = useRef<{ [jobId: string]: NodeJS.Timeout }>({});
 
   const mapJobType = (job: Job) => {
-    let jobType: 'generate' | 'train' | 'pipeline' | 'model-serve';
+    let jobType: 'generate' | 'train' | 'pipeline' | 'model-serve' | 'vllm-run';
+
     if (job.job_id.startsWith('g-')) {
       jobType = 'generate';
     } else if (job.job_id.startsWith('p-')) {
       jobType = 'pipeline';
     } else if (job.job_id.startsWith('ml-')) {
       jobType = 'model-serve';
+    } else if (job.job_id.startsWith('v-')) {
+      jobType = 'vllm-run'; // New categorization for 'v-' jobs
     } else {
       jobType = 'train';
     }
+
     return { ...job, type: jobType };
   };
 
@@ -190,8 +194,8 @@ const FineTuning: React.FC = () => {
   };
 
   const filteredJobs = jobs.filter((job) => {
-    if (job.job_id.startsWith('ml-')) {
-      return false; // Exclude model serve jobs from the dashboard list
+    if (job.job_id.startsWith('ml-') || job.job_id.startsWith('v-')) {
+      return false; // Exclude model serve and vllm prefixed jobs from the dashboard list
     }
     if (selectedStatus === 'successful') return job.status === 'finished';
     if (selectedStatus === 'pending') return job.status === 'running';
