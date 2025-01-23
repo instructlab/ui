@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: doclingserve
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    spec:
+      containers:
+        - name: doclingserve
+          image: ghcr.io/ds4sd/docling-serve-cpu:main
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: 5000
+      restartPolicy: Always
