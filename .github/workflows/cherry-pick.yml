@@ -1,10 +1,10 @@
 name: Cherry-Pick into release-1.0 branch
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   cherry_pick:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -27,7 +27,7 @@ jobs:
           git cherry-pick ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: cherry-pick-${{ github.event.pull_request.number }}
