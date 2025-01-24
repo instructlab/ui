@@ -1,16 +1,7 @@
 import React, { useEffect } from 'react';
 import { checkSkillFormCompletion } from '../validation';
 import { SkillFormData } from '@/types';
-import {
-  ValidatedOptions,
-  FormFieldGroupExpandable,
-  FormFieldGroupHeader,
-  FormGroup,
-  TextInput,
-  FormHelperText,
-  HelperText,
-  HelperTextItem
-} from '@patternfly/react-core';
+import { ValidatedOptions, FormGroup, TextInput, FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
@@ -93,22 +84,12 @@ const AttributionInformation: React.FC<Props> = ({
   };
 
   return (
-    <FormFieldGroupExpandable
-      toggleAriaLabel="Details"
-      header={
-        <FormFieldGroupHeader
-          titleText={{
-            text: (
-              <p>
-                Attribution Information <span style={{ color: 'red' }}>*</span>
-              </p>
-            ),
-            id: 'attribution-info-id'
-          }}
-          titleDescription="Provide attribution information."
-        />
-      }
-    >
+    <>
+      <h2>
+        <strong>Attribution Information</strong> <span style={{ color: 'red' }}>*</span>
+      </h2>
+      <p>Provide attribution information for the skill.</p>
+
       <FormGroup isRequired key={'attribution-info-details-title_work'} label="Work title">
         <TextInput
           isRequired
@@ -172,7 +153,7 @@ const AttributionInformation: React.FC<Props> = ({
           </FormHelperText>
         )}
       </FormGroup>
-    </FormFieldGroupExpandable>
+    </>
   );
 };
 
