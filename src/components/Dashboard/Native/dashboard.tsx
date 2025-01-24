@@ -492,7 +492,6 @@ const DashboardNative: React.FunctionComponent = () => {
             <Button key="confirm" variant="primary" onClick={() => handleDeleteContributionConfirm()}>
               Delete
             </Button>
-            ,
             <Button key="cancel" variant="secondary" onClick={() => handleDeleteContributionCancel()}>
               Cancel
             </Button>
@@ -516,7 +515,6 @@ const DashboardNative: React.FunctionComponent = () => {
               Publish {'  '}
               {isPublishing && <Spinner isInline aria-label="Publishing contribution" />}
             </Button>
-            ,
             <Button key="cancel" variant="secondary" onClick={() => handlePublishContributionCancel()}>
               Cancel
             </Button>

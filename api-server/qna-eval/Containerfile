@@ -1,0 +1,40 @@
+# Podman container tookit support https://docs.nvidia.com/ai-enterprise/deployment/rhel-with-kvm/latest/podman.html
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the requirements.txt to the container
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the Python script to the container
+COPY validate-qna.py .
+
+# Set the entrypoint to execute the Python script
+ENTRYPOINT ["python", "validate-qna.py"]
+
+# Build the container image
+# podman build -t qna-eval .
+
+# Run the container with the necessary arguments and volume mount
+# podman run --rm \
+#    --device nvidia.com/gpu=1 \
+#    -v /var/home/cloud-user/:/var/home/cloud-user/ \
+#    qna-eval \
+#    --model_path "/var/home/cloud-user/.local/share/instructlab/checkpoints/samples_134632/" \
+#    --yaml_file "/var/home/cloud-user/.local/share/instructlab/taxonomy/knowledge/history/foo/qna.yaml"
+
+# Or run from this quay repo
+# podman run --rm \
+#     --device nvidia.com/gpu=1 \
+#     -v /var/home/cloud-user/:/var/home/cloud-user/ \
+#     quay.io/bsalisbu/qna-eval \
+#     --model_path "/var/home/cloud-user/.local/share/instructlab/checkpoints/samples_134632/" \
+#     --yaml_file "/var/home/cloud-user/.local/share/instructlab/taxonomy/knowledge/history/foo/qna.yaml"

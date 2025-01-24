@@ -68,7 +68,8 @@ const AuthorInformation: React.FC<Props> = ({ formType, reset, formData, setDisa
   return (
     <>
       <h2>
-        Author Information <span style={{ color: 'red' }}>*</span>
+        <strong>Author Information </strong>
+        <span style={{ color: 'red' }}>*</span>
       </h2>
       <p>Provide your information required for a GitHub DCO sign-off.</p>
       <FormGroup isRequired key={'author-info-details-email'} label="Email address">

@@ -9,9 +9,7 @@ a {
   background-position: center;
   background-repeat: no-repeat;
   background-color: #454b9a;
-
   min-height: 100vh;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,6 +20,7 @@ a {
 
 .login-container {
   text-align: center;
+  font-size: medium !important;
   width: 100%;
   max-width: 1200px;
   padding: 20px;
@@ -29,16 +28,16 @@ a {
 
 .sign-in-text {
   margin-top: 1rem;
-  color: white;
+  color: white !important;
   padding: 20px;
-  font-size: xx-large;
+  font-size: large !important;
 }
 
 .description-text {
   margin-top: 1rem;
-  color: white;
+  color: white !important;
   padding-bottom: 50px;
-  font-size: x-large;
+  font-size: large !important;
   font-style: italic;
 }
 

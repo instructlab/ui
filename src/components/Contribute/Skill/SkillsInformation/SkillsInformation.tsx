@@ -1,16 +1,7 @@
 import React, { useEffect } from 'react';
 import { checkSkillFormCompletion } from '../validation';
 import { SkillFormData } from '@/types';
-import {
-  ValidatedOptions,
-  FormFieldGroupExpandable,
-  FormFieldGroupHeader,
-  FormGroup,
-  TextInput,
-  HelperText,
-  HelperTextItem,
-  TextArea
-} from '@patternfly/react-core';
+import { ValidatedOptions, FormGroup, TextInput, HelperText, HelperTextItem, TextArea } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
@@ -72,24 +63,13 @@ const SkillsInformation: React.FC<Props> = ({
   };
 
   return (
-    <FormFieldGroupExpandable
-      isExpanded
-      toggleAriaLabel="Details"
-      header={
-        <FormFieldGroupHeader
-          titleText={{
-            text: (
-              <p>
-                Skill Information <span style={{ color: 'red' }}>*</span>
-              </p>
-            ),
-            id: 'skills-info-id'
-          }}
-          titleDescription="Provide brief information about the Skills."
-        />
-      }
-    >
-      <FormGroup key={'skills-info-details-submission_summary'} label="Submission summary">
+    <>
+      <h2>
+        <strong>Skill Information</strong> <span style={{ color: 'red' }}>*</span>
+      </h2>
+      <p>Provide brief information about the Skills.</p>
+
+      <FormGroup isRequired key={'skills-info-details-submission_summary'} label="Submission summary">
         <TextInput
           isRequired
           type="text"
@@ -109,7 +89,7 @@ const SkillsInformation: React.FC<Props> = ({
           </HelperText>
         )}
       </FormGroup>
-      <FormGroup key={'skills-info-details-document_outline'} label="Document Outline">
+      <FormGroup isRequired key={'skills-info-details-document_outline'} label="Document Outline">
         <TextArea
           isRequired
           type="text"
@@ -130,7 +110,7 @@ const SkillsInformation: React.FC<Props> = ({
           </HelperText>
         )}
       </FormGroup>
-    </FormFieldGroupExpandable>
+    </>
   );
 };
 

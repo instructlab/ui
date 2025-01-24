@@ -1,7 +1,7 @@
 // src/components/Contribute/Skill/Github/index.tsx
 'use client';
 import React, { useEffect, useState } from 'react';
-import './skills.css';
+import '../skills.css';
 import { getGitHubUsername } from '../../../../utils/github';
 import { useSession } from 'next-auth/react';
 import FilePathInformation from '../FilePathInformation/FilePathInformation';
@@ -30,14 +30,16 @@ import {
   Title,
   Button,
   Content,
-  Form,
   AlertGroup,
   Alert,
   AlertActionCloseButton,
   Spinner,
-  ActionGroup
+  ActionGroup,
+  Wizard,
+  WizardStep
 } from '@patternfly/react-core';
 import AuthorInformation, { FormType } from '../../AuthorInformation';
+import ReviewSubmission from '../ReviewSubmission';
 
 export interface SkillEditFormData {
   isEditForm: boolean;
@@ -89,7 +91,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-
+  const [activeStepIndex] = useState<number>(1);
   const router = useRouter();
 
   const emptySeedExample: SkillSeedExample = {
@@ -266,6 +268,13 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
     );
   };
 
+  const toggleSeedExampleExpansion = (index: number): void => {
+    setSeedExamples((prevSeedExamples) =>
+      prevSeedExamples.map((seedExample, idx) => (idx === index ? { ...seedExample, isExpanded: !seedExample.isExpanded } : seedExample))
+    );
+    console.log(`toggleSeedExampleExpansion: Seed Example ${index + 1} expanded to ${!seedExamples[index].isExpanded}`);
+  };
+
   const addSeedExample = (): void => {
     const seedExample = emptySeedExample;
     seedExample.immutable = false;
@@ -347,17 +356,98 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
   const handleCancel = () => {
     router.push('/dashboard');
   };
+  const steps = [
+    {
+      id: 'author-skill-info',
+      name: 'Details',
+      component: (
+        <>
+          <AuthorInformation
+            formType={FormType.Knowledge}
+            reset={reset}
+            formData={skillFormData}
+            setDisableAction={setDisableAction}
+            email={email}
+            setEmail={setEmail}
+            name={name}
+            setName={setName}
+          />
+          <SkillsInformation
+            reset={reset}
+            isEditForm={skillEditFormData?.isEditForm}
+            skillFormData={skillFormData}
+            setDisableAction={setDisableAction}
+            submissionSummary={submissionSummary}
+            setSubmissionSummary={setSubmissionSummary}
+            documentOutline={documentOutline}
+            setDocumentOutline={setDocumentOutline}
+          />
+        </>
+      )
+    },
+    {
+      id: 'file-path-info',
+      name: 'File Path Information',
+      component: (
+        <FilePathInformation reset={reset} path={skillEditFormData ? skillEditFormData.skillFormData.filePath : filePath} setFilePath={setFilePath} />
+      )
+    },
+    {
+      id: 'skill-seed-examples',
+      name: 'Create seed data',
+      component: (
+        <SkillsSeedExample
+          seedExamples={seedExamples}
+          handleContextInputChange={handleContextInputChange}
+          handleContextBlur={handleContextBlur}
+          handleQuestionInputChange={handleQuestionInputChange}
+          handleQuestionBlur={handleQuestionBlur}
+          handleAnswerInputChange={handleAnswerInputChange}
+          handleAnswerBlur={handleAnswerBlur}
+          toggleSeedExampleExpansion={toggleSeedExampleExpansion}
+          addSeedExample={addSeedExample}
+          deleteSeedExample={deleteSeedExample}
+        />
+      )
+    },
+    {
+      id: 'attribution-info',
+      name: 'Attribution',
+      component: (
+        <AttributionInformation
+          reset={reset}
+          isEditForm={skillEditFormData?.isEditForm}
+          skillFormData={skillFormData}
+          setDisableAction={setDisableAction}
+          titleWork={titleWork}
+          setTitleWork={setTitleWork}
+          licenseWork={licenseWork}
+          setLicenseWork={setLicenseWork}
+          creators={creators}
+          setCreators={setCreators}
+        />
+      )
+    },
+    {
+      id: 'review-submission',
+      name: 'Review Submission',
+      component: <ReviewSubmission skillFormData={skillFormData} />,
+      footer: {
+        isNextDisabled: true
+      }
+    }
+  ];
 
   return (
     <PageGroup>
-      <PageBreadcrumb hasBodyWrapper={false}>
+      <PageBreadcrumb>
         <Breadcrumb>
           <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
           <BreadcrumbItem isActive>Skill Contribution</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
 
-      <PageSection hasBodyWrapper={false}>
+      <PageSection className="skill-form">
         <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
           <FlexItem>
             <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>
@@ -387,114 +477,67 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
           onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
         />
 
-        <Form className="form-s">
-          <AuthorInformation
-            formType={FormType.Knowledge}
-            reset={reset}
-            formData={skillFormData}
-            setDisableAction={setDisableAction}
-            email={email}
-            setEmail={setEmail}
-            name={name}
-            setName={setName}
-          />
+        <Wizard startIndex={activeStepIndex} onClose={handleCancel} height={600}>
+          {steps.map((step) => (
+            <WizardStep key={step.id} id={step.id} name={step.name} footer={step.footer}>
+              {step.component}
+            </WizardStep>
+          ))}
+        </Wizard>
 
-          <SkillsInformation
-            reset={reset}
-            isEditForm={skillEditFormData?.isEditForm}
-            skillFormData={skillFormData}
-            setDisableAction={setDisableAction}
-            submissionSummary={submissionSummary}
-            setSubmissionSummary={setSubmissionSummary}
-            documentOutline={documentOutline}
-            setDocumentOutline={setDocumentOutline}
-          />
+        {actionGroupAlertContent && (
+          <AlertGroup isToast isLiveRegion>
+            <Alert
+              variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
+              title={actionGroupAlertContent.title}
+              timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
+              onTimeout={onCloseActionGroupAlert}
+              actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
+            >
+              <p>
+                {actionGroupAlertContent.waitAlert && <Spinner size="md" />}
+                {actionGroupAlertContent.message}
+                <br />
+                {!actionGroupAlertContent.waitAlert &&
+                  actionGroupAlertContent.success &&
+                  actionGroupAlertContent.url &&
+                  actionGroupAlertContent.url.trim().length > 0 && (
+                    <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
+                      View your pull request
+                    </a>
+                  )}
+              </p>
+            </Alert>
+          </AlertGroup>
+        )}
 
-          <FilePathInformation
-            reset={reset}
-            path={skillEditFormData ? skillEditFormData.skillFormData.filePath : filePath}
-            setFilePath={setFilePath}
-          />
-
-          <SkillsSeedExample
-            seedExamples={seedExamples}
-            handleContextInputChange={handleContextInputChange}
-            handleContextBlur={handleContextBlur}
-            handleQuestionInputChange={handleQuestionInputChange}
-            handleQuestionBlur={handleQuestionBlur}
-            handleAnswerInputChange={handleAnswerInputChange}
-            handleAnswerBlur={handleAnswerBlur}
-            addSeedExample={addSeedExample}
-            deleteSeedExample={deleteSeedExample}
-          />
-
-          <AttributionInformation
-            reset={reset}
-            isEditForm={skillEditFormData?.isEditForm}
-            skillFormData={skillFormData}
-            setDisableAction={setDisableAction}
-            titleWork={titleWork}
-            setTitleWork={setTitleWork}
-            licenseWork={licenseWork}
-            setLicenseWork={setLicenseWork}
-            creators={creators}
-            setCreators={setCreators}
-          />
-
-          {actionGroupAlertContent && (
-            <AlertGroup isToast isLiveRegion>
-              <Alert
-                variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
-                title={actionGroupAlertContent.title}
-                timeout={actionGroupAlertContent.timeout == false ? false : actionGroupAlertContent.timeout}
-                onTimeout={onCloseActionGroupAlert}
-                actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
-              >
-                <p>
-                  {actionGroupAlertContent.waitAlert && <Spinner size="md" />}
-                  {actionGroupAlertContent.message}
-                  <br />
-                  {!actionGroupAlertContent.waitAlert &&
-                    actionGroupAlertContent.success &&
-                    actionGroupAlertContent.url &&
-                    actionGroupAlertContent.url.trim().length > 0 && (
-                      <a href={actionGroupAlertContent.url} target="_blank" rel="noreferrer">
-                        View your pull request
-                      </a>
-                    )}
-                </p>
-              </Alert>
-            </AlertGroup>
+        <ActionGroup>
+          {skillEditFormData?.isEditForm && (
+            <Update
+              disableAction={disableAction}
+              skillFormData={skillFormData}
+              pullRequestNumber={skillEditFormData.pullRequestNumber}
+              setActionGroupAlertContent={setActionGroupAlertContent}
+              yamlFile={skillEditFormData.yamlFile}
+              attributionFile={skillEditFormData.attributionFile}
+              branchName={skillEditFormData.branchName}
+            />
           )}
-
-          <ActionGroup>
-            {skillEditFormData?.isEditForm && (
-              <Update
-                disableAction={disableAction}
-                skillFormData={skillFormData}
-                pullRequestNumber={skillEditFormData.pullRequestNumber}
-                setActionGroupAlertContent={setActionGroupAlertContent}
-                yamlFile={skillEditFormData.yamlFile}
-                attributionFile={skillEditFormData.attributionFile}
-                branchName={skillEditFormData.branchName}
-              />
-            )}
-            {!skillEditFormData?.isEditForm && (
-              <Submit
-                disableAction={disableAction}
-                skillFormData={skillFormData}
-                setActionGroupAlertContent={setActionGroupAlertContent}
-                githubUsername={githubUsername}
-                resetForm={resetForm}
-              />
-            )}
-            <DownloadDropdown skillFormData={skillFormData} githubUsername={githubUsername} />
-            <ViewDropdown skillFormData={skillFormData} githubUsername={githubUsername} />
-            <Button variant="link" type="button" onClick={handleCancel}>
-              Cancel
-            </Button>
-          </ActionGroup>
-        </Form>
+          {!skillEditFormData?.isEditForm && (
+            <Submit
+              disableAction={disableAction}
+              skillFormData={skillFormData}
+              setActionGroupAlertContent={setActionGroupAlertContent}
+              githubUsername={githubUsername}
+              resetForm={resetForm}
+            />
+          )}
+          <DownloadDropdown skillFormData={skillFormData} githubUsername={githubUsername} />
+          <ViewDropdown skillFormData={skillFormData} githubUsername={githubUsername} />
+          <Button variant="link" type="button" onClick={handleCancel}>
+            Cancel
+          </Button>
+        </ActionGroup>
       </PageSection>
     </PageGroup>
   );

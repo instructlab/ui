@@ -7,8 +7,8 @@ import fs from 'fs';
 import path from 'path';
 
 // Constants for repository paths
-const LOCAL_TAXONOMY_DOCS_ROOT_DIR =
-  process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_DOCS_ROOT_DIR || `${process.env.HOME}/.instructlab-ui/taxonomy-knowledge-docs`;
+const TAXONOMY_DOCS_ROOT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || '';
+const TAXONOMY_DOCS_CONTAINER_MOUNT_DIR = '/tmp/.instructlab-ui';
 
 // Interface for the response
 interface KnowledgeFile {
@@ -24,11 +24,32 @@ interface Branch {
   commitDate: string;
 }
 
+function findTaxonomyDocRepoPath(): string {
+  // Check the location of the taxonomy docs repository .
+  let remoteTaxonomyDocsRepoDirFinal: string = '';
+  // Check if the taxonomy docs repo directory is mounted in the container (for container deployment) or present locally (for local deployment).
+  const remoteTaxonomyDocsRepoContainerMountDir = path.join(TAXONOMY_DOCS_CONTAINER_MOUNT_DIR, '/taxonomy-knowledge-docs');
+  const remoteTaxonomyDocsRepoDir = path.join(TAXONOMY_DOCS_ROOT_DIR, '/taxonomy-knowledge-docs');
+  if (fs.existsSync(remoteTaxonomyDocsRepoContainerMountDir) && fs.readdirSync(remoteTaxonomyDocsRepoContainerMountDir).length !== 0) {
+    remoteTaxonomyDocsRepoDirFinal = TAXONOMY_DOCS_CONTAINER_MOUNT_DIR;
+  } else {
+    if (fs.existsSync(remoteTaxonomyDocsRepoDir) && fs.readdirSync(remoteTaxonomyDocsRepoDir).length !== 0) {
+      remoteTaxonomyDocsRepoDirFinal = TAXONOMY_DOCS_ROOT_DIR;
+    }
+  }
+  if (remoteTaxonomyDocsRepoDirFinal === '') {
+    return '';
+  }
+
+  const taxonomyDocsDirectoryPath = path.join(remoteTaxonomyDocsRepoDirFinal, '/taxonomy-knowledge-docs');
+  return taxonomyDocsDirectoryPath;
+}
+
 /**
  * Function to list all branches.
  */
 const listAllBranches = async (): Promise<Branch[]> => {
-  const REPO_DIR = LOCAL_TAXONOMY_DOCS_ROOT_DIR;
+  const REPO_DIR = findTaxonomyDocRepoPath();
 
   if (!fs.existsSync(REPO_DIR)) {
     throw new Error('Repository path does not exist.');
@@ -69,7 +90,7 @@ const listAllBranches = async (): Promise<Branch[]> => {
  * @returns An array of KnowledgeFile objects.
  */
 const getKnowledgeFiles = async (branchName: string): Promise<KnowledgeFile[]> => {
-  const REPO_DIR = path.join(LOCAL_TAXONOMY_DOCS_ROOT_DIR, '/taxonomy-knowledge-docs');
+  const REPO_DIR = findTaxonomyDocRepoPath();
 
   // Ensure the repository path exists
   if (!fs.existsSync(REPO_DIR)) {
