@@ -16,15 +16,38 @@ spec:
       - name: pathservice
         image: ghcr.io/instructlab/ui/pathservice:main
         resources:
-          limits:
-            cpu: "100m"
-            memory: "200Mi"
           requests:
             cpu: "100m"
             memory: "200Mi"
         ports:
         - containerPort: 4000
           hostPort: 4000
+        imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: doclingserve
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: doclingserve
+  template:
+    metadata:
+      labels:
+        app: doclingserve
+    spec:
+      containers:
+      - name: doclingserve
+        image: ghcr.io/ds4sd/docling-serve-cpu:main
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "200Mi"
+        ports:
+        - containerPort: 5000
+          hostPort: 5000
         imagePullPolicy: Always
 ---
 apiVersion: apps/v1
@@ -45,9 +68,6 @@ spec:
       - name: ui
         image: ghcr.io/instructlab/ui/ui:main
         resources:
-          limits:
-            cpu: "100m"
-            memory: "200Mi"
           requests:
             cpu: "100m"
             memory: "200Mi"

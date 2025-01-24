@@ -20,8 +20,8 @@ export async function POST(request: Request) {
     // 1. Parse JSON body from client
     const body: ConvertRequestBody = await request.json();
 
-    // 2. Read the IL_FILE_CONVERSION_SERVICE from .env (fallback to localhost if not set)
-    const baseUrl = process.env.IL_FILE_CONVERSION_SERVICE || 'http://localhost:8000';
+    // 2. Read the IL_FILE_CONVERSION_SERVICE from .env
+    const baseUrl = process.env.IL_FILE_CONVERSION_SERVICE || 'http://doclingserve:5000';
 
     // 3. Check the health of the conversion service before proceeding
     const healthRes = await fetch(`${baseUrl}/health`);
