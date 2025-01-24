@@ -107,7 +107,11 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     },
     isExperimentalEnabled && {
       path: '/experimental',
-      label: 'Experimental Features'
+      label: 'Experimental Features',
+      children: [
+        { path: '/experimental/fine-tune/', label: 'Fine-tuning' },
+        { path: '/experimental/chat-eval/', label: 'Model Chat Eval' }
+      ]
     }
   ].filter(Boolean) as Route[];
 

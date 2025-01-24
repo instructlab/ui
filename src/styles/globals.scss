@@ -5,3 +5,13 @@
 @import 'tokens-dark.scss';
 @import 'tokens-charts.scss';
 @import 'tokens-charts-dark.scss';
+@import 'chatbot.scss';
+
+.square-button {
+  border-radius: 6px !important;
+}
+
+/* Custom class to make PatternFly Labels square */
+.square-label.pf-c-label {
+  border-radius: 0px !important;
+}
