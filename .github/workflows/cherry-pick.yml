@@ -8,7 +8,7 @@ on:
 
 jobs:
   cherry_pick:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'cherry-pick release-1.0')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
