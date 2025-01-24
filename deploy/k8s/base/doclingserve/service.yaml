@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: doclingserve
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/component: doclingserve
+    app.kubernetes.io/instance: doclingserve
+    app.kubernetes.io/name: doclingserve
+  ports:
+    - port: 5000
+      targetPort: 5000

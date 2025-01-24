@@ -5,6 +5,7 @@ resources:
   - namespace.yaml
   - ui
   - pathservice
+  - doclingserve
 labels:
   - includeSelectors: true
     pairs:

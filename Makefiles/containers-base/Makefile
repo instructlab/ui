@@ -28,16 +28,18 @@ endif
 ################## BUILD SOURCE CONTAINERS ##################
 
 ui-image: validate-container-engine src/Containerfile ## Build container image for the InstructLab UI
-	$(ECHO_PREFIX) printf "  %-12s src/Containerfile\n" "[$(CONTAINER_ENGINE), linux/$(TARGET_IMAGE_ARCH)]"
-	$(CMD_PREFIX) $(CONTAINER_ENGINE) build --platform linux/$(TARGET_IMAGE_ARCH) -f src/Containerfile -t quay.io/instructlab-ui/ui:$(TAG) .
+	$(ECHO_PREFIX) printf "  %-12s src/Containerfile\n" "[$(CONTAINER_ENGINE)]"
+	$(CMD_PREFIX) $(CONTAINER_ENGINE) build -f src/Containerfile -t quay.io/instructlab-ui/ui:$(TAG) .
 	$(CMD_PREFIX) $(CONTAINER_ENGINE) tag quay.io/instructlab-ui/ui:$(TAG) quay.io/instructlab-ui/ui:main
+	$(CMD_PREFIX) $(CONTAINER_ENGINE) tag quay.io/instructlab-ui/ui:$(TAG) ghcr.io/instructlab/ui/ui:main
 
 ps-image: validate-container-engine pathservice/Containerfile ## Build container image for the InstructLab PathService
-	$(ECHO_PREFIX) printf "  %-12s pathservice/Containerfile\n" "[$(CONTAINER_ENGINE), linux/$(TARGET_IMAGE_ARCH)]"
-	$(CMD_PREFIX) $(CONTAINER_ENGINE) build --platform linux/$(TARGET_IMAGE_ARCH) -f pathservice/Containerfile -t quay.io/instructlab-ui/pathservice:$(TAG) .
+	$(ECHO_PREFIX) printf "  %-12s pathservice/Containerfile\n" "[$(CONTAINER_ENGINE)]"
+	$(CMD_PREFIX) $(CONTAINER_ENGINE) build -f pathservice/Containerfile -t quay.io/instructlab-ui/pathservice:$(TAG) .
 	$(CMD_PREFIX) $(CONTAINER_ENGINE) tag quay.io/instructlab-ui/pathservice:$(TAG) quay.io/instructlab-ui/pathservice:main
+	$(CMD_PREFIX) $(CONTAINER_ENGINE) tag quay.io/instructlab-ui/pathservice:$(TAG) ghcr.io/instructlab/ui/pathservice:main
 
 healthcheck-sidecar-image: validate-container-engine healthcheck-sidecar/Containerfile ## Build container image for the InstructLab Healthcheck-Sidecar
-	$(ECHO_PREFIX) printf "  %-12s healthcheck-sidecar/Containerfile\n" "[$(CONTAINER_ENGINE), linux/$(TARGET_IMAGE_ARCH)]"
+	$(ECHO_PREFIX) printf "  %-12s healthcheck-sidecar/Containerfile\n" "[$(CONTAINER_ENGINE)]"
 	$(CMD_PREFIX) $(CONTAINER_ENGINE) build -f healthcheck-sidecar/Containerfile -t quay.io/instructlab-ui/healthcheck-sidecar:$(TAG) healthcheck-sidecar
 	$(CMD_PREFIX) $(CONTAINER_ENGINE) tag quay.io/instructlab-ui/healthcheck-sidecar:$(TAG) quay.io/instructlab-ui/healthcheck-sidecar:main
