@@ -29,7 +29,8 @@ import {
   CardBody,
   Flex,
   FlexItem,
-  Label
+  Label,
+  ModalBody
 } from '@patternfly/react-core';
 import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon } from '@patternfly/react-icons';
 
@@ -130,10 +131,12 @@ const DashboardGithub: React.FunctionComponent = () => {
         <div style={{ marginBottom: '20px' }} />
         {!isFirstPullDone && (
           <Modal variant={ModalVariant.small} title="Retrieving your submissions" isOpen={isLoading} onClose={() => handleOnClose()}>
-            <div>
-              <Spinner size="md" />
-              Retrieving all your skills and knowledge submissions from taxonomy repository.
-            </div>
+            <ModalBody>
+              <div>
+                <Spinner size="md" />
+                Retrieving all your skills and knowledge submissions from taxonomy repository.
+              </div>
+            </ModalBody>
           </Modal>
         )}
         {isFirstPullDone && pullRequests.length === 0 ? (

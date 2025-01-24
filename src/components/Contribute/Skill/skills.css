@@ -1,0 +1,23 @@
+/* Skill CSS */
+
+.form-s {
+  width: 80%;
+  margin-bottom: 50px;
+}
+
+.heading {
+  text-align: left;
+  font-size: medium;
+}
+
+.skill-form {
+  line-height: 3;
+}
+
+.pf-v6-c-wizard {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 60vh;
+  overflow: hidden;
+}

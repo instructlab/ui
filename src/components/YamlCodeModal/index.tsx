@@ -30,7 +30,6 @@ export const YamlCodeModal: React.FC<YamlCodeModalProps> = ({ isModalOpen, handl
         <Button key="close" variant="primary" onClick={handleModalToggle}>
           Close
         </Button>
-        ,
         <CopyToClipboardButton key="copy" text={yamlContent} />
       </ModalFooter>
     </Modal>
