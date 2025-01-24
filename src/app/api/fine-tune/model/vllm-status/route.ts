@@ -11,6 +11,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Missing modelName query param' }, { status: 400 });
     }
 
+    // const res = await fetch(`/api/fine-tune/model/vllm-status?modelName=${vllmName}`);
+
     const API_SERVER = process.env.NEXT_PUBLIC_API_SERVER!;
     const endpoint = `${API_SERVER}/vllm-status?model_name=${modelName}`;
 

@@ -1,16 +1,18 @@
-// src/app/api/fine-tune/jobs/[job_id]/logs/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-const API_SERVER = process.env.NEXT_PUBLIC_API_SERVER!;
+type LogsRouteProps = {
+  params: Promise<{ job_id: string }>;
+};
 
-export async function GET(request: Request, { params }: { params: { job_id: string } }) {
-  const { job_id } = await Promise.resolve(params);
+export async function GET(request: NextRequest, props: LogsRouteProps) {
+  const { job_id } = await props.params;
 
   try {
-    const response = await fetch(`${API_SERVER}/jobs/${job_id}/logs`, {
-      method: 'GET'
-    });
+    const API_SERVER = process.env.NEXT_PUBLIC_API_SERVER!;
+    const endpoint = `${API_SERVER}/jobs/${job_id}/logs`;
+    console.log('Forwarding logs request to:', endpoint);
 
+    const response = await fetch(endpoint, { method: 'GET' });
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Error from API server:', errorText);

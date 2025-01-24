@@ -46,7 +46,7 @@ interface Branch {
 interface Job {
   job_id: string;
   status: string;
-  type?: 'generate' | 'train' | 'pipeline' | 'model-serve';
+  type?: 'generate' | 'train' | 'pipeline' | 'model-serve' | 'vllm-run';
   branch?: string;
   start_time: string; // ISO timestamp
   end_time?: string;
@@ -158,17 +158,8 @@ const FineTuning: React.FC = () => {
           .sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime());
 
         setJobs(updatedJobs);
-
-        // Reset retry counts on successful fetch
-        // Object.keys(retryCounts.current).forEach((jobId) => {
-        //   retryCounts.current[jobId] = 0;
-        // });
       } catch (error) {
         console.error('Error fetching jobs during polling:', error);
-        // Optionally, display a non-intrusive notification to the user
-
-        // Implement retry logic if needed
-        // For now, we'll avoid clearing the jobs list to maintain UI stability
       }
     }, 10000); // Poll every 10 seconds
 
@@ -188,8 +179,9 @@ const FineTuning: React.FC = () => {
     return format(date, 'PPpp');
   };
 
-  const handleToggleChange = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const id = event.currentTarget.id;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleToggleChange = (event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent, _selected: boolean) => {
+    const id = (event.currentTarget as HTMLButtonElement).id;
     setSelectedStatus(id);
   };
 
@@ -237,7 +229,8 @@ const FineTuning: React.FC = () => {
         const newJob: Job = {
           job_id: result.job_id,
           status: 'running',
-          type: result.job_id.startsWith('g-') ? 'generate' : result.job_id.startsWith('p-') ? 'pipeline' : 'train'
+          type: result.job_id.startsWith('g-') ? 'generate' : result.job_id.startsWith('p-') ? 'pipeline' : 'train',
+          start_time: new Date().toISOString()
         };
         setJobs((prevJobs) => [...prevJobs, newJob]);
       } else {
@@ -281,7 +274,8 @@ const FineTuning: React.FC = () => {
         const newJob: Job = {
           job_id: result.job_id,
           status: 'running',
-          type: result.job_id.startsWith('g-') ? 'generate' : result.job_id.startsWith('p-') ? 'pipeline' : 'train'
+          type: result.job_id.startsWith('g-') ? 'generate' : result.job_id.startsWith('p-') ? 'pipeline' : 'train',
+          start_time: new Date().toISOString()
         };
         setJobs((prevJobs) => [...prevJobs, newJob]);
       } else {
@@ -322,7 +316,8 @@ const FineTuning: React.FC = () => {
           job_id: result.pipeline_job_id,
           status: 'running',
           type: 'pipeline',
-          branch: selectedBranch
+          branch: selectedBranch,
+          start_time: new Date().toISOString()
         };
         setJobs((prevJobs) => [...prevJobs, newJob]);
         console.debug('New pipeline job added:', newJob);
@@ -445,22 +440,20 @@ const FineTuning: React.FC = () => {
                           : 'Train Job'}
                   </CardTitle>
                   <CardBody>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                      <p>
+                    {/* If fields are added, the percentages need to be tweaked to keep columns lined up across cards. */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <div style={{ width: '25%' }}>
                         <strong>Job ID:</strong> {job.job_id}
-                      </p>
-                      <p>
+                      </div>
+                      <div style={{ width: '25%' }}>
                         <strong>Status:</strong> {job.status}
-                      </p>
-                      <p>
-                        <strong>Branch:</strong> {job.branch || 'N/A'}
-                      </p>
-                      <p>
+                      </div>
+                      <div style={{ width: '25%' }}>
                         <strong>Start Time:</strong> {formatDate(job.start_time)}
-                      </p>
-                      <p>
+                      </div>
+                      <div style={{ width: '25%' }}>
                         <strong>End Time:</strong> {formatDate(job.end_time)}
-                      </p>
+                      </div>
                     </div>
                   </CardBody>
                   <CardFooter>

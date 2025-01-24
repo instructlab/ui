@@ -1,9 +1,10 @@
-// src/pages/api/fine-tune/models/route.ts
+// src/app/api/fine-tune/models/route.ts
 'use server';
 
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
+export async function GET(_request: NextRequest) {
+  // eslint-disable-line @typescript-eslint/no-unused-vars
   try {
     const API_SERVER = process.env.NEXT_PUBLIC_API_SERVER!;
 

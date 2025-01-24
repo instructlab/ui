@@ -44,7 +44,6 @@ import ModelStatusIndicator from '@/components/Experimental/ModelServeStatus/Mod
 
 // TODO: get nextjs app router server side render working with the patternfly chatbot component.
 const MODEL_SERVER_URL = process.env.NEXT_PUBLIC_MODEL_SERVER_URL;
-// const MODEL_SERVER_IP = 'http://128.31.20.81';
 
 const ChatModelEval: React.FC = () => {
   const [isUnifiedInput, setIsUnifiedInput] = useState(false);
@@ -115,8 +114,8 @@ const ChatModelEval: React.FC = () => {
   // Fetch models on component mount
   useEffect(() => {
     const fetchDefaultModels = async () => {
-      const response = await fetch('/api/envConfig');
-      const envConfig = await response.json();
+      // const response = await fetch('/api/envConfig');
+      // const envConfig = await response.json();
 
       const storedEndpoints = localStorage.getItem('endpoints');
       const cust: Model[] = storedEndpoints
@@ -210,7 +209,7 @@ const ChatModelEval: React.FC = () => {
       } else if (endpoint.includes('serve-latest')) {
         const servedModel: Model = {
           name: 'Granite fine tune checkpoint (Serving)',
-          apiURL: `${MODEL_SERVER_URL}:8001`, // endpoint for latest model
+          apiURL: `${MODEL_SERVER_URL}:8001`, // endpoint for latest checkpoint
           modelName: 'granite-latest-served'
         };
 
@@ -334,22 +333,6 @@ const ChatModelEval: React.FC = () => {
     setAlertMessageRight(undefined);
   };
 
-  // Common stream update handler
-  const handleStreamUpdate = (id: string, newContent: string, setMessagesFn: React.Dispatch<React.SetStateAction<MessageProps[]>>) => {
-    setMessagesFn((msgs) => {
-      if (!msgs) {
-        console.error('msgs is undefined in handleStreamUpdate');
-        return [];
-      }
-      const updated = [...msgs];
-      const idx = updated.findIndex((m) => m.id === id);
-      if (idx !== -1) {
-        updated[idx].content = newContent;
-      }
-      return updated;
-    });
-  };
-
   const handleSend = async (side: 'left' | 'right', message: string) => {
     const trimmedMessage = message.trim();
 
@@ -393,7 +376,7 @@ const ChatModelEval: React.FC = () => {
 
     if (side === 'left') {
       setMessagesLeft((msgs) => [...msgs, userMessage]);
-      setQuestionLeft(''); // Clear the input field
+      setQuestionLeft('');
     } else {
       setMessagesRight((msgs) => [...msgs, userMessage]);
       setQuestionRight('');
@@ -640,7 +623,6 @@ const ChatModelEval: React.FC = () => {
     if (shouldSendLeft) {
       handleSend('left', trimmedMessage);
     }
-
     if (shouldSendRight) {
       handleSend('right', trimmedMessage);
     }
@@ -681,12 +663,13 @@ const ChatModelEval: React.FC = () => {
         <div style={{ flex: '1 1 45%', maxWidth: '45%', marginBottom: '2rem' }}>
           <Chatbot isVisible={true} className="chatbot-ui-page">
             <ChatbotHeader className="pf-chatbot__header">
-              <ChatbotHeaderMain />
+              <ChatbotHeaderMain>{''}</ChatbotHeaderMain>
               <ChatbotHeaderActions className="pf-chatbot__header-actions">
                 <ModelStatusIndicator modelName={selectedModelLeft?.modelName || null} />
                 {freeGpus < 1 && !selectedModelLeft && <span style={{ color: 'red', marginRight: '0.5rem', padding: '0.5rem' }}>No GPUs free</span>}
+                {showModelLoadingLeft && <Spinner size="sm" />}
                 <ChatbotHeaderSelectorDropdown
-                  disabled={freeGpus < 1 && !selectedModelLeft}
+                  // disabled={(freeGpus < 1 && !selectedModelLeft) || showModelLoadingLeft}
                   value={selectedModelLeft?.name || 'Select a model'}
                   onSelect={onSelectModelLeft}
                 >
@@ -745,12 +728,12 @@ const ChatModelEval: React.FC = () => {
                     handleSendLeft(message);
                   }}
                   hasAttachButton={false}
-                  onChange={(event, val) => {
+                  onChange={(event: React.ChangeEvent<HTMLDivElement>, val: string) => {
                     console.debug(`Left MessageBar onChange: "${val}"`);
                     setQuestionLeft(val);
                   }}
-                  value={questionLeft}
-                  placeholder="Type your prompt for the left model..."
+                  // value={questionLeft}
+                  // placeholder="Type your prompt for the left model..."
                   // Disable send button if message is empty or no model is selected
                   isSendButtonDisabled={!questionLeft.trim() || !selectedModelLeft}
                 />
@@ -789,12 +772,13 @@ const ChatModelEval: React.FC = () => {
         <div style={{ flex: '1 1 45%', maxWidth: '55%', marginBottom: '2rem' }}>
           <Chatbot isVisible={true} className="chatbot-ui-page">
             <ChatbotHeader className="pf-chatbot__header">
-              <ChatbotHeaderMain />
+              <ChatbotHeaderMain>{''}</ChatbotHeaderMain>
               <ChatbotHeaderActions className="pf-chatbot__header-actions">
                 <ModelStatusIndicator modelName={selectedModelRight?.modelName || null} />
                 {freeGpus < 1 && !selectedModelRight && <span style={{ color: 'red', marginRight: '0.5rem', padding: '0.5rem' }}>No GPUs free</span>}
+                {showModelLoadingRight && <Spinner size="sm" />}
                 <ChatbotHeaderSelectorDropdown
-                  disabled={freeGpus < 1 && !selectedModelLeft}
+                  // disabled={(freeGpus < 1 && !selectedModelRight) || showModelLoadingRight}
                   value={selectedModelRight?.name || 'Select a model'}
                   onSelect={onSelectModelRight}
                 >
@@ -853,12 +837,12 @@ const ChatModelEval: React.FC = () => {
                     handleSendRight(message);
                   }}
                   hasAttachButton={false}
-                  onChange={(event, val) => {
+                  onChange={(event: React.ChangeEvent<HTMLDivElement>, val: string) => {
                     console.debug(`Right MessageBar onChange: "${val}"`);
                     setQuestionRight(val);
                   }}
-                  value={questionRight}
-                  placeholder="Type your prompt for the right model..."
+                  // value={questionRight}
+                  // placeholder="Type your prompt for the right model..."
                   // Disable send button if message is empty or no model is selected
                   isSendButtonDisabled={!questionRight.trim() || !selectedModelRight}
                 />
@@ -904,12 +888,12 @@ const ChatModelEval: React.FC = () => {
                 handleUnifiedSend(message);
               }}
               hasAttachButton={false}
-              onChange={(event, val) => {
+              onChange={(event: React.ChangeEvent<HTMLDivElement>, val: string) => {
                 console.debug(`Unified MessageBar onChange: "${val}"`);
                 setQuestionUnified(val);
               }}
-              value={questionUnified}
-              placeholder="Type your prompt here and send to both models..."
+              // value={questionUnified}
+              // placeholder="Type your prompt here and send to both models..."
               // Disable send button if message is empty or no models are selected
               isSendButtonDisabled={!questionUnified.trim() || !selectedModelLeft || !selectedModelRight}
             />

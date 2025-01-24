@@ -3,7 +3,8 @@
 
 import { NextResponse } from 'next/server';
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
+  // eslint-disable-line @typescript-eslint/no-unused-vars
   const API_SERVER = process.env.NEXT_PUBLIC_API_SERVER!;
 
   try {
