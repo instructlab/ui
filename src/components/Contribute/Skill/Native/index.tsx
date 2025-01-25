@@ -11,8 +11,8 @@ import Submit from '@/components/Contribute/Skill/Native/Submit/Submit';
 import { checkSkillFormCompletion } from '@/components/Contribute/Skill/validation';
 import { DownloadDropdown } from '@/components/Contribute/Skill/DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from '@/components/Contribute/Skill/ViewDropdown/ViewDropdown';
-import Update from '@/components/Contribute/Skill/Github/Update/Update';
-import { PullRequestFile, SkillSeedExample, SkillFormData, SkillYamlData } from '@/types';
+import Update from '@/components/Contribute/Skill/Native/Update/Update';
+import { SkillSeedExample, SkillFormData, SkillYamlData } from '@/types';
 import { useRouter } from 'next/navigation';
 import SkillsSeedExample from '@/components/Contribute/Skill/SkillsSeedExample/SkillsSeedExample';
 import SkillsInformation from '@/components/Contribute/Skill/SkillsInformation/SkillsInformation';
@@ -44,10 +44,8 @@ import ReviewSubmission from '../ReviewSubmission';
 export interface SkillEditFormData {
   isEditForm: boolean;
   skillVersion: number;
-  pullRequestNumber: number;
   branchName: string;
-  yamlFile: PullRequestFile;
-  attributionFile: PullRequestFile;
+  oldFilesPath: string;
   skillFormData: SkillFormData;
 }
 
@@ -68,7 +66,6 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
   const [devModeEnabled, setDevModeEnabled] = useState<boolean | undefined>();
 
   const { data: session } = useSession();
-  const [githubUsername] = useState<string>('');
   // Author Information
   const [email, setEmail] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -90,7 +87,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [activeStepIndex] = useState<number>(1);
+  const [activeStepIndex, setActiveStepIndex] = useState<number>(1);
   const router = useRouter();
 
   const emptySeedExample: SkillSeedExample = {
@@ -283,6 +280,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
     // setReset is just reset button, value has no impact.
     setReset(reset ? false : true);
+    setActiveStepIndex(1);
   };
 
   const autoFillForm = (): void => {
@@ -493,10 +491,9 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
             <Update
               disableAction={disableAction}
               skillFormData={skillFormData}
-              pullRequestNumber={skillEditFormData.pullRequestNumber}
               setActionGroupAlertContent={setActionGroupAlertContent}
-              yamlFile={skillEditFormData.yamlFile}
-              attributionFile={skillEditFormData.attributionFile}
+              oldFilesPath={skillEditFormData.oldFilesPath}
+              email={email}
               branchName={skillEditFormData.branchName}
             />
           )}
@@ -509,8 +506,8 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
               resetForm={resetForm}
             />
           )}
-          <DownloadDropdown skillFormData={skillFormData} githubUsername={githubUsername} />
-          <ViewDropdown skillFormData={skillFormData} githubUsername={githubUsername} />
+          <DownloadDropdown skillFormData={skillFormData} githubUsername={email} />
+          <ViewDropdown skillFormData={skillFormData} githubUsername={email} />
           <Button variant="link" type="button" onClick={handleCancel}>
             Cancel
           </Button>

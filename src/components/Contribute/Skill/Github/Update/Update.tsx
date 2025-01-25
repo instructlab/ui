@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActionGroupAlertContent } from '..';
-import { AttributionData, SkillYamlData, PullRequestFile, SkillFormData } from '@/types';
+import { AttributionData, SkillYamlData, SkillFormData } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '../../validation';
@@ -14,21 +14,12 @@ interface Props {
   disableAction: boolean;
   skillFormData: SkillFormData;
   pullRequestNumber: number;
-  yamlFile: PullRequestFile;
-  attributionFile: PullRequestFile;
+  oldFilesPath: string;
   branchName: string;
   setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
 }
 
-const Update: React.FC<Props> = ({
-  disableAction,
-  skillFormData,
-  pullRequestNumber,
-  yamlFile,
-  attributionFile,
-  branchName,
-  setActionGroupAlertContent
-}) => {
+const Update: React.FC<Props> = ({ disableAction, skillFormData, pullRequestNumber, oldFilesPath, branchName, setActionGroupAlertContent }) => {
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -83,14 +74,12 @@ Creator names: ${attributionData.creator_names}
         const commitMessage = `Amend commit with updated content\n\nSigned-off-by: ${skillFormData.name} <${skillFormData.email}>`;
 
         // Ensure proper file paths for the edit
-        const finalYamlPath = SKILLS_DIR + skillFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + yamlFile.filename.split('/').pop();
-        const finalAttributionPath =
-          SKILLS_DIR + skillFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + attributionFile.filename.split('/').pop();
+        const finalYamlPath = SKILLS_DIR + skillFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + 'qna.yaml';
+        const finalAttributionPath = SKILLS_DIR + skillFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + 'attribution.txt';
 
-        const origFilePath = yamlFile.filename.split('/').slice(0, -1).join('/');
         const oldFilePath = {
-          yaml: origFilePath.replace(/^\//, '').replace(/\/?$/, '/') + yamlFile.filename.split('/').pop(),
-          attribution: origFilePath.replace(/^\//, '').replace(/\/?$/, '/') + attributionFile.filename.split('/').pop()
+          yaml: oldFilesPath.replace(/^\//, '').replace(/\/?$/, '/') + 'qna.yaml',
+          attribution: oldFilesPath.replace(/^\//, '').replace(/\/?$/, '/') + 'attribution.txt'
         };
 
         const newFilePath = {

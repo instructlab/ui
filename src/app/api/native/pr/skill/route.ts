@@ -17,12 +17,14 @@ export async function POST(req: NextRequest) {
   const REPO_DIR = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
   try {
     // Extract the QnA data from the request body TODO: what is documentOutline?
-    const { content, attribution, name, email, submissionSummary, documentOutline, filePath } = await req.json(); // eslint-disable-line @typescript-eslint/no-unused-vars
+    const { action, branchName, content, attribution, name, email, submissionSummary, documentOutline, filePath, oldFilesPath } = await req.json(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
-    // Define file paths
-    const branchName = `skill-contribution-${Date.now()}`;
-    const newYamlFilePath = path.join(SKILLS_DIR, filePath, 'qna.yaml');
-    const newAttributionFilePath = path.join(SKILLS_DIR, filePath, 'attribution.txt');
+    let skillBranchName;
+    if (action == 'update' && branchName != '') {
+      skillBranchName = branchName;
+    } else {
+      skillBranchName = `skill-contribution-${Date.now()}`;
+    }
 
     const skillData = yaml.load(content) as SkillYamlData;
     const attributionData = attribution as AttributionData;
@@ -34,14 +36,23 @@ License of the work: ${attributionData.license_of_the_work}
 Creator names: ${attributionData.creator_names}
 `;
 
+    // Set the flag if commit needs to be amended
+    let amendCommit = false;
+
     // Initialize the repository if it doesn’t exist
     await git.init({ fs, dir: REPO_DIR });
 
-    // Create a new branch
-    await git.branch({ fs, dir: REPO_DIR, ref: branchName });
+    // Create a new branch if the skill is pushed for first time
+    if (action != 'update') {
+      await git.branch({ fs, dir: REPO_DIR, ref: skillBranchName });
+    }
 
     // Checkout the new branch
-    await git.checkout({ fs, dir: REPO_DIR, ref: branchName });
+    await git.checkout({ fs, dir: REPO_DIR, ref: skillBranchName });
+
+    // Define file paths
+    const newYamlFilePath = path.join(SKILLS_DIR, filePath, 'qna.yaml');
+    const newAttributionFilePath = path.join(SKILLS_DIR, filePath, 'attribution.txt');
 
     // Write the QnA YAML file
     const yamlFilePath = path.join(REPO_DIR, newYamlFilePath);
@@ -56,6 +67,28 @@ Creator names: ${attributionData.creator_names}
     await git.add({ fs, dir: REPO_DIR, filepath: newYamlFilePath });
     await git.add({ fs, dir: REPO_DIR, filepath: newAttributionFilePath });
 
+    if (action == 'update') {
+      // Define file paths
+      const oldYamlFilePath = path.join(SKILLS_DIR, oldFilesPath, 'qna.yaml');
+      const oldAttributionFilePath = path.join(SKILLS_DIR, oldFilesPath, 'attribution.txt');
+
+      if (oldYamlFilePath != newYamlFilePath) {
+        console.log('File path for the skill contribution is updated, removing the old files.');
+        // Write the QnA YAML file
+        const yamlFilePath = path.join(REPO_DIR, oldYamlFilePath);
+        fs.unlinkSync(yamlFilePath);
+
+        // Write the attribution text file
+        const attributionFilePath = path.join(REPO_DIR, oldAttributionFilePath);
+        fs.unlinkSync(attributionFilePath);
+
+        await git.remove({ fs, dir: REPO_DIR, filepath: oldYamlFilePath });
+        await git.remove({ fs, dir: REPO_DIR, filepath: oldAttributionFilePath });
+
+        amendCommit = true;
+      }
+    }
+
     // Commit files
     await git.commit({
       fs,
@@ -64,12 +97,13 @@ Creator names: ${attributionData.creator_names}
       author: {
         name: name,
         email: email
-      }
+      },
+      amend: amendCommit
     });
 
     // Respond with success
-    console.log('Skill contribution submitted successfully. Submission name is ', branchName);
-    return NextResponse.json({ message: 'Skill contribution submitted successfully.', branch: branchName }, { status: 201 });
+    console.log('Skill contribution submitted successfully. Submission name is ', skillBranchName);
+    return NextResponse.json({ message: 'Skill contribution submitted successfully.', branch: skillBranchName }, { status: 201 });
   } catch (error) {
     console.error('Failed to create local branch and commit:', error);
     return NextResponse.json({ error: 'Failed to submit skill contribution.' }, { status: 500 });

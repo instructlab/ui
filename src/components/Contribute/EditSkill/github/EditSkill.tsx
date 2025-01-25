@@ -49,8 +49,7 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
             branchName: '',
             skillFormData: skillExistingFormData,
             pullRequestNumber: prNumber,
-            yamlFile: { filename: '' },
-            attributionFile: { filename: '' }
+            oldFilesPath: ''
           };
 
           skillExistingFormData.submissionSummary = prData.title;
@@ -62,7 +61,11 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
           if (!foundYamlFile) {
             throw new Error('No YAML file found in the pull request.');
           }
-          skillEditFormData.yamlFile = foundYamlFile;
+
+          const existingFilesPath = foundYamlFile.filename.split('/').slice(1, -1).join('/');
+
+          // Set the current Yaml file path as a old files path
+          skillEditFormData.oldFilesPath = existingFilesPath + '/';
 
           const yamlContent = await fetchFileContent(session.accessToken, foundYamlFile.filename, prData.head.sha);
           const yamlData: SkillYamlData = yaml.load(yamlContent) as SkillYamlData;
@@ -98,7 +101,6 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
             const attributionData = parseAttributionContent(attributionContent);
             console.log('Parsed attribution data:', attributionData);
 
-            skillEditFormData.attributionFile = foundAttributionFile;
             // Populate the form fields with attribution data
             skillExistingFormData.titleWork = attributionData.title_of_work;
             skillExistingFormData.licenseWork = attributionData.license_of_the_work;

@@ -82,9 +82,9 @@ const DashboardGithub: React.FunctionComponent = () => {
     const hasSkillLabel = pr.labels.some((label) => label.name === 'skill');
 
     if (hasKnowledgeLabel) {
-      router.push(`/edit-submission/knowledge/${pr.number}`);
+      router.push(`/edit-submission/knowledge/github/${pr.number}`);
     } else if (hasSkillLabel) {
-      router.push(`/edit-submission/skill/${pr.number}`);
+      router.push(`/edit-submission/skill/github/${pr.number}`);
     }
   };
 

@@ -11,7 +11,7 @@ import axios from 'axios';
 import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, KnowledgeSeedExample } from '@/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import KnowledgeFormGithub from '../Knowledge/Github';
+import KnowledgeFormGithub from '../../Knowledge/Github';
 import { ValidatedOptions, Modal, ModalVariant } from '@patternfly/react-core';
 
 interface EditKnowledgeClientComponentProps {
