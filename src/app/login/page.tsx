@@ -10,6 +10,7 @@ import DevModeLogin from './devmodelogin';
 const Login: React.FunctionComponent = () => {
   const [deploymentType, setDeploymentType] = useState<string | 'github'>();
   const [isDevModeEnabled, setIsDevModeEnabled] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const chooseLoginPage = async () => {
@@ -21,16 +22,22 @@ const Login: React.FunctionComponent = () => {
       } catch (error) {
         console.error('Error fetching environment config:', error);
         setDeploymentType('github');
+      } finally {
+        setIsLoading(false);
       }
     };
     chooseLoginPage();
   }, []);
 
+  // Don't render the page until the useEffect finishes fetching environment data
+  if (isLoading || deploymentType === null) {
+    return <div style={{ color: 'white', padding: '1rem' }}>Loading...</div>;
+  }
+
   if (isDevModeEnabled) {
     return <DevModeLogin />;
   }
   if (deploymentType === 'native') {
-    // Render a loading indicator or null while determining the environment
     return <NativeLogin />;
   }
   return (
