@@ -40,6 +40,7 @@ Get started with the [development documentation](docs/development.md).
 ## Community Meeting
 
 We have a weekly community meeting to discuss the project and contributions. Meeting happens **every Wednesday 10AM PST**.
+
 Please subscribe to the InstructLab Community Calendar following the instructions [here](https://github.com/instructlab/community/blob/main/Collaboration.md). UI project meeting details are present in the calendar event.
 
 ## Slack channel
