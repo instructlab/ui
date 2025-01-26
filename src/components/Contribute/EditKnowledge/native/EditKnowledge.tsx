@@ -69,11 +69,16 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
             pullRequestNumber: 0,
             oldFilesPath: ''
           };
-          //TODO: read the signoff from the commit and set the name and email accordingly
-          // Meanwhile let's use the session email/name
+
           if (session?.user?.name && session?.user?.email) {
             knowledgeExistingFormData.name = session?.user?.name;
             knowledgeExistingFormData.email = session?.user?.email;
+          }
+
+          if (result?.commitDetails != null) {
+            knowledgeExistingFormData.submissionSummary = result?.commitDetails.message;
+            knowledgeExistingFormData.name = result?.commitDetails.name;
+            knowledgeExistingFormData.email = result?.commitDetails.email;
           }
 
           if (result?.changes.length > 0) {

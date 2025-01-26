@@ -9,6 +9,12 @@ const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR 
 const REMOTE_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || '';
 const REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR = '/tmp/.instructlab-ui';
 
+interface CommitDetails {
+  message: string;
+  email: string;
+  name: string;
+}
+
 interface Diffs {
   file: string;
   status: string;
@@ -131,6 +137,29 @@ async function handleDiff(branchName: string, localTaxonomyDir: string) {
       return NextResponse.json({ error: 'Invalid branch name for comparison' }, { status: 400 });
     }
 
+    // Resolve the reference to the branch's HEAD
+    const commitOid = await git.resolveRef({
+      fs,
+      dir: localTaxonomyDir,
+      ref: `refs/heads/${branchName}` // Resolve the branch reference
+    });
+
+    // Read the commit object using its OID
+    const commit = await git.readCommit({
+      fs,
+      dir: localTaxonomyDir,
+      oid: commitOid
+    });
+
+    const signoffMatch = commit.commit.message.split('Signed-off-by:');
+    const message = signoffMatch ? signoffMatch[0].trim() : '';
+
+    const commitDetails: CommitDetails = {
+      message: message,
+      email: commit.commit.author.email,
+      name: commit.commit.author.name
+    };
+
     const changes = await findDiff(branchName, localTaxonomyDir);
     const enrichedChanges: Diffs[] = [];
     for (const change of changes) {
@@ -142,7 +171,7 @@ async function handleDiff(branchName: string, localTaxonomyDir: string) {
       }
     }
 
-    return NextResponse.json({ changes: enrichedChanges }, { status: 200 });
+    return NextResponse.json({ changes: enrichedChanges, commitDetails: commitDetails }, { status: 200 });
   } catch (error) {
     console.error(`Failed to show contribution changes ${branchName}:`, error);
     return NextResponse.json(

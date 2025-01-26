@@ -62,11 +62,15 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
             oldFilesPath: ''
           };
 
-          //TODO: read the signoff from the commit and set the name and email accordingly
-          // Meanwhile let's use the session email/name
           if (session?.user?.name && session?.user?.email) {
             skillExistingFormData.name = session?.user?.name;
             skillExistingFormData.email = session?.user?.email;
+          }
+
+          if (result?.commitDetails != null) {
+            skillExistingFormData.submissionSummary = result?.commitDetails.message;
+            skillExistingFormData.name = result?.commitDetails.name;
+            skillExistingFormData.email = result?.commitDetails.email;
           }
 
           if (result?.changes.length > 0) {
