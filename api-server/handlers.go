@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -243,12 +244,21 @@ func (srv *ILabServer) getVllmStatusHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	srv.jobIDsMutex.RLock()
-	jobID, ok := srv.servedModelJobIDs[modelName]
-	srv.jobIDsMutex.RUnlock()
+	// Directly query the DB for the job associated with this model
+	var jobID string
+	err = srv.db.QueryRow(`
+        SELECT job_id
+        FROM jobs
+        WHERE served_model_name = ? AND status = 'running'
+        LIMIT 1
+    `, modelName).Scan(&jobID)
 
-	if !ok {
-		srv.log.Infof("WTF jobid not found for model '%s'", modelName)
+	if err == sql.ErrNoRows {
+		srv.log.Infof("No running job found for model '%s'", modelName)
+		_ = json.NewEncoder(w).Encode(map[string]string{"status": "loading"})
+		return
+	} else if err != nil {
+		srv.log.Errorf("Error querying job for model '%s': %v", modelName, err)
 		_ = json.NewEncoder(w).Encode(map[string]string{"status": "loading"})
 		return
 	}
@@ -629,6 +639,26 @@ func (srv *ILabServer) runVllmContainerHandler(
 	gpuIndex int, hostVolume, containerVolume string,
 	w http.ResponseWriter,
 ) {
+	// Check if a job is already running for the requested model
+	existingJob, err := srv.getRunningJobByModel(servedModelName)
+	if err != nil {
+		srv.log.Errorf("Error checking existing jobs for model '%s': %v", servedModelName, err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	if existingJob != nil {
+		srv.log.Infof("A job is already running for model '%s' with job_id: %s", servedModelName, existingJob.JobID)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"status":  "already_running",
+			"job_id":  existingJob.JobID,
+			"message": fmt.Sprintf("Model '%s' is already being served.", servedModelName),
+		})
+		return
+	}
+
+	srv.log.Infof("No existing job found for model '%s'. Starting a new job.", servedModelName)
+
 	cmdArgs := []string{
 		"run", "--rm",
 		fmt.Sprintf("--device=nvidia.com/gpu=%d", gpuIndex),
@@ -681,13 +711,14 @@ func (srv *ILabServer) runVllmContainerHandler(
 
 	// Create a Job record and store it in the DB
 	newJob := &Job{
-		JobID:     jobID,
-		Cmd:       "podman",
-		Args:      cmdArgs,
-		Status:    "running",
-		PID:       cmd.Process.Pid,
-		LogFile:   logFilePath,
-		StartTime: time.Now(),
+		JobID:           jobID,
+		Cmd:             "podman",
+		Args:            cmdArgs,
+		Status:          "running",
+		PID:             cmd.Process.Pid,
+		LogFile:         logFilePath,
+		StartTime:       time.Now(),
+		ServedModelName: servedModelName,
 	}
 	if err := srv.createJob(newJob); err != nil {
 		srv.log.Errorf("Failed to create job in DB for %s: %v", jobID, err)
@@ -857,6 +888,59 @@ func (srv *ILabServer) serveModelHandler(modelPath, port string, w http.Response
 	srv.log.Infof("Model serve started successfully on port %s, returning job_id: %s", port, jobID)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]string{"status": "model process started", "job_id": jobID})
+}
+
+// getRunningJobByModel retrieves a running job for the specified served_model_name.
+// Returns nil if no such job exists.
+func (srv *ILabServer) getRunningJobByModel(servedModelName string) (*Job, error) {
+	var job Job
+	var argsJSON string
+	var startTimeStr, endTimeStr sql.NullString
+
+	row := srv.db.QueryRow(`
+        SELECT job_id, cmd, args, status, pid, log_file, start_time, end_time, branch, served_model_name
+        FROM jobs
+        WHERE served_model_name = ? AND status = 'running'
+        LIMIT 1
+    `, servedModelName)
+
+	err := row.Scan(
+		&job.JobID,
+		&job.Cmd,
+		&argsJSON,
+		&job.Status,
+		&job.PID,
+		&job.LogFile,
+		&startTimeStr,
+		&endTimeStr,
+		&job.Branch,
+		&job.ServedModelName,
+	)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal([]byte(argsJSON), &job.Args); err != nil {
+		srv.log.Errorf("Failed to unmarshal Args for job '%s': %v", job.JobID, err)
+		return nil, fmt.Errorf("failed to unmarshal Args for job '%s': %v", job.JobID, err)
+	}
+
+	if startTimeStr.Valid {
+		t, err := time.Parse(time.RFC3339, startTimeStr.String)
+		if err == nil {
+			job.StartTime = t
+		}
+	}
+	if endTimeStr.Valid && endTimeStr.String != "" {
+		t, err := time.Parse(time.RFC3339, endTimeStr.String)
+		if err == nil {
+			job.EndTime = &t
+		}
+	}
+
+	return &job, nil
 }
 
 // listServedModelJobIDsHandler is a debug endpoint to list current model to jobID mappings.
