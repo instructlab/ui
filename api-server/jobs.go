@@ -33,7 +33,8 @@ func (srv *ILabServer) initDB() {
         log_file TEXT,
         start_time TEXT,
         end_time TEXT,
-        branch TEXT
+        branch TEXT,
+        served_model_name TEXT
     );
     `
 	_, err = srv.db.Exec(createTableSQL)
@@ -58,8 +59,8 @@ func (srv *ILabServer) createJob(job *Job) error {
 		endTimeStr = &s
 	}
 	_, err = srv.db.Exec(`
-        INSERT INTO jobs (job_id, cmd, args, status, pid, log_file, start_time, end_time, branch)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO jobs (job_id, cmd, args, status, pid, log_file, start_time, end_time, branch, served_model_name)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
 		job.JobID,
 		job.Cmd,
@@ -70,6 +71,7 @@ func (srv *ILabServer) createJob(job *Job) error {
 		job.StartTime.Format(time.RFC3339),
 		endTimeStr,
 		job.Branch,
+		job.ServedModelName,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to insert job: %v", err)
@@ -79,7 +81,7 @@ func (srv *ILabServer) createJob(job *Job) error {
 
 // getJob fetches a single job by job_id.
 func (srv *ILabServer) getJob(jobID string) (*Job, error) {
-	row := srv.db.QueryRow("SELECT job_id, cmd, args, status, pid, log_file, start_time, end_time, branch FROM jobs WHERE job_id = ?", jobID)
+	row := srv.db.QueryRow("SELECT job_id, cmd, args, status, pid, log_file, start_time, end_time, branch, served_model_name FROM jobs WHERE job_id = ?", jobID)
 
 	var j Job
 	var argsJSON string
@@ -95,6 +97,7 @@ func (srv *ILabServer) getJob(jobID string) (*Job, error) {
 		&startTimeStr,
 		&endTimeStr,
 		&j.Branch,
+		&j.ServedModelName,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil // not found
@@ -133,7 +136,7 @@ func (srv *ILabServer) updateJob(job *Job) error {
 	}
 	_, err = srv.db.Exec(`
         UPDATE jobs
-        SET cmd = ?, args = ?, status = ?, pid = ?, log_file = ?, start_time = ?, end_time = ?, branch = ?
+        SET cmd = ?, args = ?, status = ?, pid = ?, log_file = ?, start_time = ?, end_time = ?, branch = ?, served_model_name = ?
         WHERE job_id = ?
     `,
 		job.Cmd,
@@ -144,6 +147,7 @@ func (srv *ILabServer) updateJob(job *Job) error {
 		job.StartTime.Format(time.RFC3339),
 		endTimeStr,
 		job.Branch,
+		job.ServedModelName,
 		job.JobID,
 	)
 	if err != nil {

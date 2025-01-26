@@ -39,15 +39,16 @@ type Data struct {
 
 // Job represents a background job, including train/generate/pipeline/vllm-run jobs.
 type Job struct {
-	JobID     string     `json:"job_id"`
-	Cmd       string     `json:"cmd"`
-	Args      []string   `json:"args"`
-	Status    string     `json:"status"` // "running", "finished", "failed"
-	PID       int        `json:"pid"`
-	LogFile   string     `json:"log_file"`
-	StartTime time.Time  `json:"start_time"`
-	EndTime   *time.Time `json:"end_time,omitempty"`
-	Branch    string     `json:"branch"`
+	JobID           string     `json:"job_id"`
+	Cmd             string     `json:"cmd"`
+	Args            []string   `json:"args"`
+	Status          string     `json:"status"` // "running", "finished", "failed"
+	PID             int        `json:"pid"`
+	LogFile         string     `json:"log_file"`
+	StartTime       time.Time  `json:"start_time"`
+	EndTime         *time.Time `json:"end_time,omitempty"`
+	Branch          string     `json:"branch"`
+	ServedModelName string     `json:"served_model_name"`
 
 	// Lock is not serialized; it protects updates to the Job in memory.
 	Lock sync.Mutex `json:"-"`
@@ -94,7 +95,7 @@ type ILabServer struct {
 	useVllm      bool
 	pipelineType string
 	debugEnabled bool
-	homeDir      string // New field added
+	homeDir      string
 
 	// Logger
 	logger *zap.Logger
@@ -119,12 +120,7 @@ type ILabServer struct {
 	modelCache ModelCache
 }
 
-// -----------------------------------------------------------------------------
-// main(), flags and Cobra
-// -----------------------------------------------------------------------------
-
 func main() {
-	// We create an instance of ILabServer to hold all state and methods.
 	srv := &ILabServer{
 		baseModel:         "instructlab/granite-7b-lab",
 		servedModelJobIDs: make(map[string]string),
@@ -135,7 +131,6 @@ func main() {
 		Use:   "ilab-server",
 		Short: "ILab Server Application",
 		Run: func(cmd *cobra.Command, args []string) {
-			// Now that flags are set, run the server method on the struct.
 			srv.runServer(cmd, args)
 		},
 	}
@@ -248,6 +243,8 @@ func (srv *ILabServer) runServer(cmd *cobra.Command, args []string) {
 	// Initialize the model cache
 	srv.initializeModelCache()
 
+	srv.reconstructServedModelJobIDs()
+
 	// Create the logs directory if it doesn't exist
 	err = os.MkdirAll("logs", os.ModePerm)
 	if err != nil {
@@ -346,6 +343,48 @@ func (srv *ILabServer) refreshModelCache() {
 	srv.modelCache.Models = models
 	srv.modelCache.Time = time.Now()
 	srv.log.Infof("Model cache refreshed at %v with %d models.", srv.modelCache.Time, len(models))
+}
+
+// reconstructServedModelJobIDs rebuilds the servedModelJobIDs map by querying the database
+func (srv *ILabServer) reconstructServedModelJobIDs() {
+	srv.log.Info("Reconstructing servedModelJobIDs from the database...")
+
+	rows, err := srv.db.Query(`
+        SELECT job_id, served_model_name
+        FROM jobs
+        WHERE cmd = 'podman' AND status = 'running'
+    `)
+	if err != nil {
+		srv.log.Errorf("Error querying running vLLM jobs: %v", err)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var jobID, servedModelName string
+		if err := rows.Scan(&jobID, &servedModelName); err != nil {
+			srv.log.Errorf("Error scanning row: %v", err)
+			continue
+		}
+
+		// Validate servedModelName
+		if servedModelName != "pre-train" && servedModelName != "post-train" {
+			srv.log.Warnf("Invalid served_model_name '%s' for job_id '%s'", servedModelName, jobID)
+			continue
+		}
+
+		// Update the servedModelJobIDs map
+		srv.jobIDsMutex.Lock()
+		srv.servedModelJobIDs[servedModelName] = jobID
+		srv.jobIDsMutex.Unlock()
+		srv.log.Infof("Mapped model '%s' to job_id '%s'", servedModelName, jobID)
+	}
+
+	if err := rows.Err(); err != nil {
+		srv.log.Errorf("Error iterating over rows: %v", err)
+	}
+
+	srv.log.Info("Reconstruction of servedModelJobIDs completed.")
 }
 
 // -----------------------------------------------------------------------------
