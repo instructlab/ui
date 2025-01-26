@@ -166,7 +166,7 @@ Starts a training job.
   {
     "modelName": "name-of-the-model",
     "branchName": "name-of-the-branch",
-    "epochs": 10  // Optional
+    "epochs": 10
   }
   ```
 
@@ -199,7 +199,7 @@ Combines data generation and training into a single pipeline job.
   {
     "modelName": "name-of-the-model",
     "branchName": "name-of-the-branch",
-    "epochs": 10  // Optional
+    "epochs": 10
   }
   ```
 
@@ -230,7 +230,7 @@ Serves the latest model checkpoint on port `8001`.
 
   ```json
   {
-    "checkpoint": "samples_12345"  // Optional
+    "checkpoint": "samples_12345"
   }
   ```
 
@@ -353,7 +353,7 @@ Unloads a specific VLLM container.
 
   ```json
   {
-    "model_name": "pre-train"  // Must be either "pre-train" or "post-train" for meow
+    "model_name": "pre-train"
   }
   ```
 
@@ -387,7 +387,7 @@ Fetches the status of a specific VLLM model.
 
   ```json
   {
-    "status": "running"  // Possible values: "running", "loading", "stopped"
+    "status": "running"
   }
   ```
 
