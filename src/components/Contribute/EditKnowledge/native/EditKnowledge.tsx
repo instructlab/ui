@@ -3,16 +3,21 @@
 
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
-import { AttributionData, PullRequestFile, KnowledgeYamlData } from '@/types';
+import { AttributionData, KnowledgeYamlData } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
-import { fetchPullRequest, fetchFileContent, fetchPullRequestFiles } from '@/utils/github';
 import yaml from 'js-yaml';
-import axios from 'axios';
 import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, KnowledgeSeedExample } from '@/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import KnowledgeFormGithub from '../../Knowledge/Github';
-import { ValidatedOptions, Modal, ModalVariant } from '@patternfly/react-core';
+import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
+import KnowledgeFormNative from '../../Knowledge/Native';
+
+interface ChangeData {
+  file: string;
+  status: string;
+  content?: string;
+  commitSha?: string;
+}
 
 interface EditKnowledgeClientComponentProps {
   branchName: string;
@@ -27,11 +32,16 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
 
   useEffect(() => {
     setLoadingMsg('Fetching knowledge data from branch : ' + branchName);
-    const fetchPRData = async () => {
-      if (session?.accessToken) {
-        try {
-          const prData = await fetchPullRequest(session.accessToken, branchName);
+    const fetchBranchChanges = async () => {
+      try {
+        const response = await fetch('/api/native/git/branches', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ branchName, action: 'diff' })
+        });
 
+        const result = await response.json();
+        if (response.ok) {
           // Create KnowledgeFormData from existing form.
           const knowledgeExistingFormData: KnowledgeFormData = {
             email: '',
@@ -54,95 +64,87 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
           const knowledgeEditFormData: KnowledgeEditFormData = {
             isEditForm: true,
             knowledgeVersion: KnowledgeSchemaVersion,
-            branchName: '',
+            branchName: branchName,
             knowledgeFormData: knowledgeExistingFormData,
-            pullRequestNumber: prNumber,
-            yamlFile: { filename: '' },
-            attributionFile: { filename: '' }
+            pullRequestNumber: 0,
+            oldFilesPath: ''
           };
-
-          knowledgeExistingFormData.submissionSummary = prData.title;
-          knowledgeEditFormData.branchName = prData.head.ref; // Store the branch name from the pull request
-
-          const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, prNumber);
-
-          const foundYamlFile = prFiles.find((file: PullRequestFile) => file.filename.endsWith('.yaml'));
-          if (!foundYamlFile) {
-            throw new Error('No YAML file found in the pull request.');
+          //TODO: read the signoff from the commit and set the name and email accordingly
+          // Meanwhile let's use the session email/name
+          if (session?.user?.name && session?.user?.email) {
+            knowledgeExistingFormData.name = session?.user?.name;
+            knowledgeExistingFormData.email = session?.user?.email;
           }
-          knowledgeEditFormData.yamlFile = foundYamlFile;
 
-          const yamlContent = await fetchFileContent(session.accessToken, foundYamlFile.filename, prData.head.sha);
-          const yamlData: KnowledgeYamlData = yaml.load(yamlContent) as KnowledgeYamlData;
-          console.log('Parsed YAML data:', yamlData);
+          if (result?.changes.length > 0) {
+            result.changes.forEach((change: ChangeData) => {
+              if (change.status != 'deleted' && change.content) {
+                if (change.file.includes('qna.yaml')) {
+                  const yamlData: KnowledgeYamlData = yaml.load(change.content) as KnowledgeYamlData;
+                  console.log('Parsed Knowledge YAML data:', yamlData);
+                  // Populate the form fields with YAML data
+                  knowledgeExistingFormData.documentOutline = yamlData.document_outline;
+                  knowledgeExistingFormData.domain = yamlData.domain;
+                  knowledgeExistingFormData.knowledgeDocumentRepositoryUrl = yamlData.document.repo;
+                  knowledgeExistingFormData.knowledgeDocumentCommit = yamlData.document.commit;
+                  knowledgeExistingFormData.documentName = yamlData.document.patterns.join(', ');
 
-          // Populate the form fields with YAML data
-          knowledgeExistingFormData.documentOutline = yamlData.document_outline;
-          knowledgeExistingFormData.domain = yamlData.domain;
-          knowledgeExistingFormData.knowledgeDocumentRepositoryUrl = yamlData.document.repo;
-          knowledgeExistingFormData.knowledgeDocumentCommit = yamlData.document.commit;
-          knowledgeExistingFormData.documentName = yamlData.document.patterns.join(', ');
+                  const seedExamples: KnowledgeSeedExample[] = [];
+                  yamlData.seed_examples.forEach((seed, index) => {
+                    // iterate through questions_and_answers and create a new object for each
+                    const example: KnowledgeSeedExample = {
+                      immutable: index < 5 ? true : false,
+                      isExpanded: true,
+                      context: seed.context,
+                      isContextValid: ValidatedOptions.success,
+                      questionAndAnswers: []
+                    };
 
-          const seedExamples: KnowledgeSeedExample[] = [];
-          yamlData.seed_examples.forEach((seed, index) => {
-            // iterate through questions_and_answers and create a new object for each
-            const example: KnowledgeSeedExample = {
-              immutable: index < 5 ? true : false,
-              isExpanded: true,
-              context: seed.context,
-              isContextValid: ValidatedOptions.success,
-              questionAndAnswers: []
-            };
+                    const qnaExamples: QuestionAndAnswerPair[] = seed.questions_and_answers.map((qa, index) => {
+                      const qna: QuestionAndAnswerPair = {
+                        question: qa.question,
+                        answer: qa.answer,
+                        immutable: index < 3 ? true : false,
+                        isQuestionValid: ValidatedOptions.success,
+                        isAnswerValid: ValidatedOptions.success
+                      };
+                      return qna;
+                    });
+                    example.questionAndAnswers = qnaExamples;
+                    seedExamples.push(example);
+                  });
 
-            const qnaExamples: QuestionAndAnswerPair[] = seed.questions_and_answers.map((qa, index) => {
-              const qna: QuestionAndAnswerPair = {
-                question: qa.question,
-                answer: qa.answer,
-                immutable: index < 3 ? true : false,
-                isQuestionValid: ValidatedOptions.success,
-                isAnswerValid: ValidatedOptions.success
-              };
-              return qna;
+                  knowledgeExistingFormData.seedExamples = seedExamples;
+                  // Set the file path from the current YAML file (remove the root folder name from the path)
+                  const currentFilePath = change.file.split('/').slice(1, -1).join('/');
+                  knowledgeExistingFormData.filePath = currentFilePath + '/';
+
+                  // Set the oldFilesPath to the existing qna.yaml file path.
+                  knowledgeEditFormData.oldFilesPath = knowledgeExistingFormData.filePath;
+                }
+                if (change.file.includes('attribution.txt')) {
+                  const attributionData = parseAttributionContent(change.content);
+                  console.log('Parsed knowledge attribution data:', attributionData);
+
+                  // Populate the form fields with attribution data
+                  knowledgeExistingFormData.titleWork = attributionData.title_of_work;
+                  knowledgeExistingFormData.linkWork = attributionData.link_to_work ? attributionData.link_to_work : '';
+                  knowledgeExistingFormData.revision = attributionData.revision ? attributionData.revision : '';
+                  knowledgeExistingFormData.licenseWork = attributionData.license_of_the_work;
+                  knowledgeExistingFormData.creators = attributionData.creator_names;
+                }
+              }
             });
-            example.questionAndAnswers = qnaExamples;
-            seedExamples.push(example);
-          });
-          knowledgeExistingFormData.seedExamples = seedExamples;
-
-          // Set the file path from the current YAML file (remove the root folder name from the path)
-          const currentFilePath = foundYamlFile.filename.split('/').slice(1, -1).join('/');
-          knowledgeEditFormData.knowledgeFormData.filePath = currentFilePath + '/';
-
-          // Fetch and parse attribution file if it exists
-          const foundAttributionFile = prFiles.find((file: PullRequestFile) => file.filename.includes('attribution'));
-          if (foundAttributionFile) {
-            const attributionContent = await fetchFileContent(session.accessToken, foundAttributionFile.filename, prData.head.sha);
-            const attributionData = parseAttributionContent(attributionContent);
-            console.log('Parsed attribution data:', attributionData);
-
-            knowledgeEditFormData.attributionFile = foundAttributionFile;
-            // Populate the form fields with attribution data
-            knowledgeExistingFormData.titleWork = attributionData.title_of_work;
-            knowledgeExistingFormData.linkWork = attributionData.link_to_work ? attributionData.link_to_work : '';
-            knowledgeExistingFormData.revision = attributionData.revision ? attributionData.revision : '';
-            knowledgeExistingFormData.licenseWork = attributionData.license_of_the_work;
-            knowledgeExistingFormData.creators = attributionData.creator_names;
-          }
-          setKnowledgeEditFormData(knowledgeEditFormData);
-          setIsLoading(false);
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            console.error('Error fetching pull request data:', error.response ? error.response.data : error.message);
-            setLoadingMsg('Error fetching knowledge data from PR : ' + prNumber) + '. Please try again.';
-          } else if (error instanceof Error) {
-            console.error('Error fetching pull request data:', error.message);
-            setLoadingMsg('Error fetching knowledge data from PR : ' + prNumber + ' [' + error.message + ']') + '. Please try again.';
+            setKnowledgeEditFormData(knowledgeEditFormData);
+            setIsLoading(false);
           }
         }
+      } catch (error) {
+        console.error('Error fetching branch changes:', error);
       }
     };
-    fetchPRData();
-  }, [session, prNumber]);
+    fetchBranchChanges();
+  }, [branchName]);
 
   const parseAttributionContent = (content: string): AttributionData => {
     const lines = content.split('\n');
@@ -165,19 +167,15 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
 
   if (isLoading) {
     return (
-      // <AppLayout>
       <Modal variant={ModalVariant.small} title="Loading Knowledge Data" isOpen={isLoading} onClose={() => handleOnClose()}>
-        <div>{loadingMsg}</div>
+        <ModalBody>
+          <div>{loadingMsg}</div>
+        </ModalBody>
       </Modal>
-      // </AppLayout>
     );
   }
 
-  return (
-    // <AppLayout>
-    <KnowledgeFormGithub knowledgeEditFormData={knowledgeEditFormData} />
-    // </AppLayout>
-  );
+  return <KnowledgeFormNative knowledgeEditFormData={knowledgeEditFormData} />;
 };
 
 export default EditKnowledgeNative;

@@ -161,6 +161,8 @@ export const validateFields = (
   return true;
 };
 
+const optionalKeys = ['context', 'isContextValid', 'validationError', 'questionValidationError', 'answerValidationError'];
+
 export const checkKnowledgeFormCompletion = (knowledgeFormData: object): boolean => {
   // Helper function to check if a value is non-empty
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -178,6 +180,10 @@ export const checkKnowledgeFormCompletion = (knowledgeFormData: object): boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const checkObject = (obj: Record<string, any>): boolean => {
     return Object.keys(obj).every((key) => {
+      // Skip validation for optional keys
+      if (optionalKeys.includes(key)) {
+        return true;
+      }
       const value = obj[key];
       if (typeof value === 'object' && !Array.isArray(value)) {
         return checkObject(value); // Recursively check nested objects

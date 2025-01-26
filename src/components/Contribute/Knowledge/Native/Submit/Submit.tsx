@@ -71,13 +71,16 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
+        action: 'submit',
+        branch: '',
         content: yamlString,
         attribution: attributionData,
         name,
         email,
         submissionSummary,
         documentOutline,
-        filePath: sanitizedFilePath
+        filePath: sanitizedFilePath,
+        oldFilesPath: sanitizedFilePath
       })
     });
 

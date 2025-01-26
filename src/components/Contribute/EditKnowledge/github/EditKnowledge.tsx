@@ -12,7 +12,7 @@ import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, Knowle
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import KnowledgeFormGithub from '../../Knowledge/Github';
-import { ValidatedOptions, Modal, ModalVariant } from '@patternfly/react-core';
+import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 
 interface EditKnowledgeClientComponentProps {
   prNumber: number;
@@ -57,8 +57,7 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
             branchName: '',
             knowledgeFormData: knowledgeExistingFormData,
             pullRequestNumber: prNumber,
-            yamlFile: { filename: '' },
-            attributionFile: { filename: '' }
+            oldFilesPath: ''
           };
 
           knowledgeExistingFormData.submissionSummary = prData.title;
@@ -70,11 +69,14 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
           if (!foundYamlFile) {
             throw new Error('No YAML file found in the pull request.');
           }
-          knowledgeEditFormData.yamlFile = foundYamlFile;
+          const existingFilesPath = foundYamlFile.filename.split('/').slice(1, -1).join('/');
+
+          // Set the current Yaml file path as a old files path
+          knowledgeEditFormData.oldFilesPath = existingFilesPath + '/';
 
           const yamlContent = await fetchFileContent(session.accessToken, foundYamlFile.filename, prData.head.sha);
           const yamlData: KnowledgeYamlData = yaml.load(yamlContent) as KnowledgeYamlData;
-          console.log('Parsed YAML data:', yamlData);
+          console.log('Parsed Knowledge YAML data:', yamlData);
 
           // Populate the form fields with YAML data
           knowledgeExistingFormData.documentOutline = yamlData.document_outline;
@@ -118,9 +120,8 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
           if (foundAttributionFile) {
             const attributionContent = await fetchFileContent(session.accessToken, foundAttributionFile.filename, prData.head.sha);
             const attributionData = parseAttributionContent(attributionContent);
-            console.log('Parsed attribution data:', attributionData);
+            console.log('Parsed knowledge attribution data:', attributionData);
 
-            knowledgeEditFormData.attributionFile = foundAttributionFile;
             // Populate the form fields with attribution data
             knowledgeExistingFormData.titleWork = attributionData.title_of_work;
             knowledgeExistingFormData.linkWork = attributionData.link_to_work ? attributionData.link_to_work : '';
@@ -165,19 +166,15 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
 
   if (isLoading) {
     return (
-      // <AppLayout>
       <Modal variant={ModalVariant.small} title="Loading Knowledge Data" isOpen={isLoading} onClose={() => handleOnClose()}>
-        <div>{loadingMsg}</div>
+        <ModalBody>
+          <div>{loadingMsg}</div>
+        </ModalBody>
       </Modal>
-      // </AppLayout>
     );
   }
 
-  return (
-    // <AppLayout>
-    <KnowledgeFormGithub knowledgeEditFormData={knowledgeEditFormData} />
-    // </AppLayout>
-  );
+  return <KnowledgeFormGithub knowledgeEditFormData={knowledgeEditFormData} />;
 };
 
 export default EditKnowledge;

@@ -74,7 +74,7 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
               if (change.status != 'deleted' && change.content) {
                 if (change.file.includes('qna.yaml')) {
                   const yamlData: SkillYamlData = yaml.load(change.content) as SkillYamlData;
-                  console.log('Parsed YAML data:', yamlData);
+                  console.log('Parsed skill YAML data:', yamlData);
                   skillExistingFormData.documentOutline = yamlData.task_description;
                   const seedExamples: SkillSeedExample[] = [];
                   yamlData.seed_examples.forEach((seed, index) => {
@@ -101,7 +101,7 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
                 }
                 if (change.file.includes('attribution.txt')) {
                   const attributionData = parseAttributionContent(change.content);
-                  console.log('Parsed attribution data:', attributionData);
+                  console.log('Parsed skill attribution data:', attributionData);
                   // Populate the form fields with attribution data
                   skillExistingFormData.titleWork = attributionData.title_of_work;
                   skillExistingFormData.licenseWork = attributionData.license_of_the_work;

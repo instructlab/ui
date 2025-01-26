@@ -1,55 +1,64 @@
+// src/components/contribute/Knowledge/Native/Update/Update.tsx
 import React from 'react';
 import { ActionGroupAlertContent } from '..';
-import { AttributionData, SkillFormData, SkillYamlData } from '@/types';
-import { SkillSchemaVersion } from '@/types/const';
+import { AttributionData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
+import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
-import { validateFields } from '@/components/Contribute/Skill/validation';
+import { validateFields } from '@/components/Contribute/Knowledge/validation';
 import { Button } from '@patternfly/react-core';
 import { useRouter } from 'next/navigation';
 
 interface Props {
   disableAction: boolean;
-  skillFormData: SkillFormData;
+  knowledgeFormData: KnowledgeFormData;
   oldFilesPath: string;
   branchName: string;
   email: string;
   setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
 }
 
-const Update: React.FC<Props> = ({ disableAction, skillFormData, oldFilesPath, branchName, email, setActionGroupAlertContent }) => {
+const Update: React.FC<Props> = ({ disableAction, knowledgeFormData, oldFilesPath, branchName, email, setActionGroupAlertContent }) => {
   const router = useRouter();
 
   const handleUpdate = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!validateFields(skillFormData, setActionGroupAlertContent)) return;
+    if (!validateFields(knowledgeFormData, setActionGroupAlertContent)) return;
 
     // Strip leading slash and ensure trailing slash in the file path
-    let sanitizedFilePath = skillFormData.filePath!.startsWith('/') ? skillFormData.filePath!.slice(1) : skillFormData.filePath;
+    let sanitizedFilePath = knowledgeFormData.filePath!.startsWith('/') ? knowledgeFormData.filePath!.slice(1) : knowledgeFormData.filePath;
     sanitizedFilePath = sanitizedFilePath!.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
-    const skillYamlData: SkillYamlData = {
+    const knowledgeYamlData: KnowledgeYamlData = {
       created_by: email,
-      version: SkillSchemaVersion,
-      task_description: skillFormData.documentOutline!,
-      seed_examples: skillFormData.seedExamples.map((example) => ({
+      version: KnowledgeSchemaVersion,
+      domain: knowledgeFormData.domain!,
+      document_outline: knowledgeFormData.documentOutline!,
+      seed_examples: knowledgeFormData.seedExamples.map((example) => ({
         context: example.context,
-        question: example.question,
-        answer: example.answer
-      }))
+        questions_and_answers: example.questionAndAnswers.map((questionAndAnswer) => ({
+          question: questionAndAnswer.question,
+          answer: questionAndAnswer.answer
+        }))
+      })),
+      document: {
+        repo: knowledgeFormData.knowledgeDocumentRepositoryUrl!,
+        commit: knowledgeFormData.knowledgeDocumentCommit!,
+        patterns: knowledgeFormData.documentName!.split(',').map((pattern) => pattern.trim())
+      }
     };
 
-    const yamlString = dumpYaml(skillYamlData);
+    const yamlString = dumpYaml(knowledgeYamlData);
 
     const attributionData: AttributionData = {
-      title_of_work: skillFormData.titleWork!,
-      license_of_the_work: skillFormData.licenseWork!,
-      creator_names: skillFormData.creators!,
-      link_to_work: '',
-      revision: ''
+      title_of_work: knowledgeFormData.titleWork!,
+      link_to_work: knowledgeFormData.linkWork!,
+      revision: knowledgeFormData.revision!,
+      license_of_the_work: knowledgeFormData.licenseWork!,
+      creator_names: knowledgeFormData.creators!
     };
 
     const waitForSubmissionAlert: ActionGroupAlertContent = {
-      title: 'Skill contribution submission in progress!',
+      title: 'Knowledge contribution submission in progress!',
       message: `Once the submission is successful, it will provide the link to the newly created Pull Request.`,
       success: true,
       waitAlert: true,
@@ -57,10 +66,10 @@ const Update: React.FC<Props> = ({ disableAction, skillFormData, oldFilesPath, b
     };
     setActionGroupAlertContent(waitForSubmissionAlert);
 
-    const name = skillFormData.name;
-    const submissionSummary = skillFormData.submissionSummary;
-    const documentOutline = skillFormData.documentOutline;
-    const response = await fetch('/api/native/pr/skill/', {
+    const name = knowledgeFormData.name;
+    const submissionSummary = knowledgeFormData.submissionSummary;
+    const documentOutline = knowledgeFormData.documentOutline;
+    const response = await fetch('/api/native/pr/knowledge', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -91,9 +100,9 @@ const Update: React.FC<Props> = ({ disableAction, skillFormData, oldFilesPath, b
 
     await response.json();
     const actionGroupAlertContent: ActionGroupAlertContent = {
-      title: 'Skill contribution updated successfully!',
+      title: 'Knowledge contribution updated successfully!',
       message: `Thank you for your contribution!`,
-      url: '/dashboard',
+      url: '/dashboard/',
       success: true
     };
     setActionGroupAlertContent(actionGroupAlertContent);
