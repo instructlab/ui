@@ -22,28 +22,26 @@ import {
   EmptyStateBody,
   EmptyStateFooter,
   EmptyStateActions,
-  Stack,
-  StackItem,
   Card,
   CardBody,
   Flex,
   FlexItem,
-  Tooltip,
   Modal,
   ModalVariant,
   ModalBody,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
+  DropdownItem,
+  Dropdown,
+  MenuToggleElement,
+  MenuToggle,
+  DropdownList,
+  CardHeader,
+  CardTitle,
+  Gallery,
+  GalleryItem
 } from '@patternfly/react-core';
-import {
-  ExternalLinkAltIcon,
-  OutlinedQuestionCircleIcon,
-  GithubIcon,
-  CatalogIcon,
-  PencilAltIcon,
-  UploadIcon,
-  TrashIcon
-} from '@patternfly/react-icons';
+import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, EllipsisVIcon } from '@patternfly/react-icons';
 import { ExpandableSection } from '@patternfly/react-core/dist/esm/components/ExpandableSection/ExpandableSection';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -68,10 +66,11 @@ const DashboardNative: React.FunctionComponent = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [mergeStatus] = React.useState<{ branch: string; message: string; success: boolean } | null>(null);
   const [diffData, setDiffData] = React.useState<{ branch: string; changes: ChangeData[] } | null>(null);
-  const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
-  const [alerts, setAlerts] = React.useState<AlertItem[]>([]);
+  const [isActionMenuOpen, setIsActionMenuOpen] = React.useState<{ [key: string]: boolean }>({});
+  const [isChangeModalOpen, setIsChangeModalOpen] = React.useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = React.useState(false);
+  const [alerts, setAlerts] = React.useState<AlertItem[]>([]);
   const [selectedBranch, setSelectedBranch] = React.useState<string | null>(null);
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [expandedFiles, setExpandedFiles] = React.useState<Record<string, boolean>>({});
@@ -171,7 +170,7 @@ const DashboardNative: React.FunctionComponent = () => {
       const result = await response.json();
       if (response.ok) {
         setDiffData({ branch: branchName, changes: result.changes });
-        setIsModalOpen(true);
+        setIsChangeModalOpen(true);
       } else {
         console.error('Failed to get branch changes:', result.error);
       }
@@ -286,6 +285,20 @@ const DashboardNative: React.FunctionComponent = () => {
     }));
   };
 
+  const onActionMenuToggle = (id: string, isOpen: boolean) => {
+    setIsActionMenuOpen((prevState) => ({
+      ...prevState,
+      [id]: isOpen
+    }));
+  };
+
+  const onActionMenuSelect = (id: string) => {
+    setIsActionMenuOpen((prevState) => ({
+      ...prevState,
+      [id]: false
+    }));
+  };
+
   return (
     <div>
       <PageBreadcrumb hasBodyWrapper={false}>
@@ -330,6 +343,7 @@ const DashboardNative: React.FunctionComponent = () => {
             />
           ))}
         </AlertGroup>
+
         {isLoading ? (
           <Spinner size="lg" />
         ) : branches.length === 0 ? (
@@ -370,41 +384,73 @@ const DashboardNative: React.FunctionComponent = () => {
             </EmptyStateFooter>
           </EmptyState>
         ) : (
-          <Stack hasGutter>
+          <Gallery
+            hasGutter
+            minWidths={{
+              md: '400px',
+              lg: '450px',
+              xl: '500px',
+              '2xl': '600px'
+            }}
+          >
             {branches.map((branch) => (
-              <StackItem key={branch.name}>
-                <Card>
+              <GalleryItem key={branch.name}>
+                <Card key={branch.name}>
+                  <CardHeader
+                    actions={{
+                      actions: (
+                        <Dropdown
+                          onSelect={() => onActionMenuSelect(branch.name)}
+                          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                            <MenuToggle
+                              ref={toggleRef}
+                              isExpanded={isActionMenuOpen[branch.name] || false}
+                              onClick={() => onActionMenuToggle(branch.name, !isActionMenuOpen[branch.name])}
+                              variant="plain"
+                              aria-label="contribution action menu"
+                              icon={<EllipsisVIcon aria-hidden="true" />}
+                            />
+                          )}
+                          isOpen={isActionMenuOpen[branch.name] || false}
+                          onOpenChange={(isOpen: boolean) => onActionMenuToggle(branch.name, isOpen)}
+                        >
+                          <DropdownList>
+                            <DropdownItem key="show-changes" onClick={() => handleShowChanges(branch.name)}>
+                              Show Changes
+                            </DropdownItem>
+                            <DropdownItem key="edit-contribution" onClick={() => handleEditContribution(branch.name)}>
+                              Edit Contribution
+                            </DropdownItem>
+                            <DropdownItem key="publish-contribution" onClick={() => handlePublishContribution(branch.name)}>
+                              Publish Contribution
+                            </DropdownItem>
+                            <DropdownItem key="delete-contribution" onClick={() => handleDeleteContribution(branch.name)}>
+                              Delete Contribution
+                            </DropdownItem>
+                          </DropdownList>
+                        </Dropdown>
+                      )
+                    }}
+                  >
+                    <CardTitle>
+                      <b>{branch.message}</b>
+                    </CardTitle>
+                  </CardHeader>
                   <CardBody>
                     <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
                       <FlexItem>
                         Branch Name: {branch.name}
                         <br />
-                        Contribution Title: <b>{branch.message}</b>
-                        <br />
                         Author: {branch.author} {'    '}
                         <br />
                         Created on: {formatDateTime(branch.creationDate)}
                       </FlexItem>
-                      <FlexItem align={{ default: 'alignRight' }}>
-                        <Tooltip aria="none" aria-live="polite" content={<div>Show Changes</div>}>
-                          <Button icon={<CatalogIcon />} variant="plain" aria-label="show" onClick={() => handleShowChanges(branch.name)} />
-                        </Tooltip>
-                        <Tooltip aria="none" aria-live="polite" content={<div>Edit Contribution</div>}>
-                          <Button icon={<PencilAltIcon />} variant="plain" aria-label="edit" onClick={() => handleEditContribution(branch.name)} />
-                        </Tooltip>
-                        <Tooltip aria="none" aria-live="polite" content={<div>Publish Changes</div>}>
-                          <Button icon={<UploadIcon />} variant="plain" aria-label="publish" onClick={() => handlePublishContribution(branch.name)} />
-                        </Tooltip>
-                        <Tooltip aria="none" aria-live="polite" content={<div>Delete</div>}>
-                          <Button icon={<TrashIcon />} variant="plain" aria-label="delete" onClick={() => handleDeleteContribution(branch.name)} />
-                        </Tooltip>
-                      </FlexItem>
                     </Flex>
                   </CardBody>
                 </Card>
-              </StackItem>
+              </GalleryItem>
             ))}
-          </Stack>
+          </Gallery>
         )}
 
         {mergeStatus && (
@@ -416,8 +462,8 @@ const DashboardNative: React.FunctionComponent = () => {
         <Modal
           variant={ModalVariant.medium}
           title={`Files Contained in Branch: ${diffData?.branch}`}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          isOpen={isChangeModalOpen}
+          onClose={() => setIsChangeModalOpen(false)}
           aria-labelledby="changes-contribution-modal-title"
           aria-describedby="changes-contribution-body-variant"
         >
@@ -459,6 +505,7 @@ const DashboardNative: React.FunctionComponent = () => {
             )}
           </ModalBody>
         </Modal>
+
         <Modal
           variant={ModalVariant.small}
           title="Deleting Contribution"
