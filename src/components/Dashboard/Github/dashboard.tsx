@@ -22,17 +22,23 @@ import {
   EmptyStateBody,
   EmptyStateFooter,
   EmptyStateActions,
-  Stack,
-  StackItem,
   Card,
   CardTitle,
   CardBody,
   Flex,
   FlexItem,
   Label,
-  ModalBody
+  ModalBody,
+  CardHeader,
+  Dropdown,
+  MenuToggle,
+  DropdownList,
+  DropdownItem,
+  MenuToggleElement,
+  Gallery,
+  GalleryItem
 } from '@patternfly/react-core';
-import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon } from '@patternfly/react-icons';
+import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, EllipsisVIcon } from '@patternfly/react-icons';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
@@ -42,6 +48,7 @@ const DashboardGithub: React.FunctionComponent = () => {
   const [isFirstPullDone, setIsFirstPullDone] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   //const [error, setError] = React.useState<string | null>(null);
+  const [isActionMenuOpen, setIsActionMenuOpen] = React.useState<{ [key: number]: boolean }>({});
   const router = useRouter();
 
   const fetchAndSetPullRequests = React.useCallback(async () => {
@@ -95,6 +102,20 @@ const DashboardGithub: React.FunctionComponent = () => {
   if (!session) {
     return <div>Loading...</div>;
   }
+
+  const onActionMenuToggle = (id: number, isOpen: boolean) => {
+    setIsActionMenuOpen((prevState) => ({
+      ...prevState,
+      [id]: isOpen
+    }));
+  };
+
+  const onActionMenuSelect = (id: number) => {
+    setIsActionMenuOpen((prevState) => ({
+      ...prevState,
+      [id]: false
+    }));
+  };
 
   return (
     <div>
@@ -177,11 +198,57 @@ const DashboardGithub: React.FunctionComponent = () => {
             </EmptyStateFooter>
           </EmptyState>
         ) : (
-          <Stack hasGutter>
+          <Gallery
+            hasGutter
+            minWidths={{
+              md: '400px',
+              lg: '450px',
+              xl: '500px',
+              '2xl': '600px'
+            }}
+          >
             {pullRequests.map((pr) => (
-              <StackItem key={pr.number}>
+              <GalleryItem key={pr.number}>
                 <Card>
-                  <CardTitle>{pr.title}</CardTitle>
+                  <CardHeader
+                    actions={{
+                      actions: (
+                        <Dropdown
+                          onSelect={() => onActionMenuSelect(pr.number)}
+                          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                            <MenuToggle
+                              ref={toggleRef}
+                              isExpanded={isActionMenuOpen[pr.number] || false}
+                              onClick={() => onActionMenuToggle(pr.number, !isActionMenuOpen[pr.number])}
+                              variant="plain"
+                              aria-label="contribution action menu"
+                              icon={<EllipsisVIcon aria-hidden="true" />}
+                            />
+                          )}
+                          isOpen={isActionMenuOpen[pr.number] || false}
+                          onOpenChange={(isOpen: boolean) => onActionMenuToggle(pr.number, isOpen)}
+                        >
+                          <DropdownList>
+                            <DropdownItem key="view-pr" to={pr.html_url} target="_blank" rel="noopener noreferrer">
+                              View PR
+                            </DropdownItem>
+                            {pr.state === 'open' && (
+                              <DropdownItem key="edit-contribution" onClick={() => handleEditClick(pr)}>
+                                Edit Contribution
+                              </DropdownItem>
+                            )}
+                            {pr.state === 'closed' && (
+                              <DropdownItem key="edit-contribution" isDisabled>
+                                Edit Contribution
+                              </DropdownItem>
+                            )}
+                          </DropdownList>
+                        </Dropdown>
+                      )
+                    }}
+                  >
+                    <CardTitle>{pr.title}</CardTitle>
+                  </CardHeader>
                   <CardBody>
                     <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
                       <FlexItem>State: {pr.state}</FlexItem>
@@ -194,24 +261,12 @@ const DashboardGithub: React.FunctionComponent = () => {
                           </Label>
                         ))}
                       </FlexItem>
-                      <FlexItem alignSelf={{ default: 'alignSelfFlexEnd' }} flex={{ default: 'flexNone' }}>
-                        <Button variant="secondary" component="a" href={pr.html_url} target="_blank" rel="noopener noreferrer">
-                          View PR
-                        </Button>
-                      </FlexItem>
-                      <FlexItem alignSelf={{ default: 'alignSelfFlexEnd' }} flex={{ default: 'flexNone' }}>
-                        {pr.state === 'open' && (
-                          <Button variant="primary" onClick={() => handleEditClick(pr)}>
-                            Edit
-                          </Button>
-                        )}
-                      </FlexItem>
                     </Flex>
                   </CardBody>
                 </Card>
-              </StackItem>
+              </GalleryItem>
             ))}
-          </Stack>
+          </Gallery>
         )}
       </PageSection>
     </div>
