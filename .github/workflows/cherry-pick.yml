@@ -24,7 +24,7 @@ jobs:
       - name: Cherry-pick commit
         run: |
           git checkout release-1.0
-          git cherry-pick ${{ github.event.pull_request.merge_commit_sha }}
+          git cherry-pick -m 1 ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
