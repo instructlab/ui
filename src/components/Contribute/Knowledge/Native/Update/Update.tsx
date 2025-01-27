@@ -1,4 +1,4 @@
-// src/components/contribute/native/Knowledge/Submit/Submit.tsx
+// src/components/contribute/Knowledge/Native/Update/Update.tsx
 import React from 'react';
 import { ActionGroupAlertContent } from '..';
 import { AttributionData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
@@ -6,17 +6,21 @@ import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '@/components/Contribute/Knowledge/validation';
 import { Button } from '@patternfly/react-core';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   disableAction: boolean;
   knowledgeFormData: KnowledgeFormData;
-  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
+  oldFilesPath: string;
+  branchName: string;
   email: string;
-  resetForm: () => void;
+  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
 }
 
-const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGroupAlertContent, email, resetForm }) => {
-  const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
+const Update: React.FC<Props> = ({ disableAction, knowledgeFormData, oldFilesPath, branchName, email, setActionGroupAlertContent }) => {
+  const router = useRouter();
+
+  const handleUpdate = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!validateFields(knowledgeFormData, setActionGroupAlertContent)) return;
 
@@ -71,8 +75,8 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        action: 'submit',
-        branch: '',
+        action: 'update',
+        branchName: branchName,
         content: yamlString,
         attribution: attributionData,
         name,
@@ -80,7 +84,7 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
         submissionSummary,
         documentOutline,
         filePath: sanitizedFilePath,
-        oldFilesPath: sanitizedFilePath
+        oldFilesPath: oldFilesPath
       })
     });
 
@@ -96,19 +100,19 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
 
     await response.json();
     const actionGroupAlertContent: ActionGroupAlertContent = {
-      title: 'Knowledge contribution submitted successfully!',
+      title: 'Knowledge contribution updated successfully!',
       message: `Thank you for your contribution!`,
       url: '/dashboard/',
       success: true
     };
     setActionGroupAlertContent(actionGroupAlertContent);
-    resetForm();
+    router.push('/dashboard');
   };
   return (
-    <Button variant="primary" type="submit" isDisabled={disableAction} onClick={handleSubmit}>
-      Submit
+    <Button variant="primary" type="submit" isDisabled={disableAction} onClick={handleUpdate}>
+      Update
     </Button>
   );
 };
 
-export default Submit;
+export default Update;

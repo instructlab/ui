@@ -1,7 +1,7 @@
 // src/app/edit-submission/knowledge/[id]/page.tsx
 import * as React from 'react';
 import { AppLayout } from '@/components/AppLayout';
-import EditKnowledge from '@/components/Contribute/EditKnowledge/EditKnowledge';
+import EditKnowledge from '@/components/Contribute/EditKnowledge/github/EditKnowledge';
 
 type PageProps = {
   params: Promise<{ id: string }>;

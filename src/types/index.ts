@@ -150,7 +150,6 @@ export interface KnowledgeEditFormData {
   knowledgeVersion: number;
   pullRequestNumber: number;
   branchName: string;
-  yamlFile: PullRequestFile;
-  attributionFile: PullRequestFile;
+  oldFilesPath: string;
   knowledgeFormData: KnowledgeFormData;
 }

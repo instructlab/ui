@@ -504,22 +504,6 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
       )
     },
     {
-      id: 'seed-examples',
-      name: 'Seed Examples',
-      component: (
-        <KnowledgeSeedExample
-          seedExamples={seedExamples}
-          handleContextInputChange={handleContextInputChange}
-          handleContextBlur={handleContextBlur}
-          handleQuestionInputChange={handleQuestionInputChange}
-          handleQuestionBlur={handleQuestionBlur}
-          handleAnswerInputChange={handleAnswerInputChange}
-          handleAnswerBlur={handleAnswerBlur}
-          toggleSeedExampleExpansion={toggleSeedExampleExpansion}
-        />
-      )
-    },
-    {
       id: 'document-info',
       name: 'Document Information',
       component: (
@@ -534,6 +518,22 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
           setKnowledgeDocumentCommit={setKnowledgeDocumentCommit}
           documentName={documentName}
           setDocumentName={setDocumentName}
+        />
+      )
+    },
+    {
+      id: 'seed-examples',
+      name: 'Seed Examples',
+      component: (
+        <KnowledgeSeedExample
+          seedExamples={seedExamples}
+          handleContextInputChange={handleContextInputChange}
+          handleContextBlur={handleContextBlur}
+          handleQuestionInputChange={handleQuestionInputChange}
+          handleQuestionBlur={handleQuestionBlur}
+          handleAnswerInputChange={handleAnswerInputChange}
+          handleAnswerBlur={handleAnswerBlur}
+          toggleSeedExampleExpansion={toggleSeedExampleExpansion}
         />
       )
     },
@@ -648,8 +648,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
               knowledgeFormData={knowledgeFormData}
               pullRequestNumber={knowledgeEditFormData.pullRequestNumber}
               setActionGroupAlertContent={setActionGroupAlertContent}
-              yamlFile={knowledgeEditFormData.yamlFile}
-              attributionFile={knowledgeEditFormData.attributionFile}
+              oldFilesPath={knowledgeEditFormData.oldFilesPath}
               branchName={knowledgeEditFormData.branchName}
             />
           )}

@@ -1,8 +1,7 @@
 // src/components/Contribute/Native/Knowledge/index.tsx
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../knowledge.css';
-import { getGitHubUsername } from '@/utils/github';
 import { useSession } from 'next-auth/react';
 import AuthorInformation from '@/components/Contribute/AuthorInformation';
 import { FormType } from '@/components/Contribute/AuthorInformation';
@@ -16,7 +15,7 @@ import KnowledgeSeedExampleNative from '@/components/Contribute/Knowledge/Native
 import { checkKnowledgeFormCompletion } from '@/components/Contribute/Knowledge/validation';
 import { DownloadDropdown } from '@/components/Contribute/Knowledge/DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from '@/components/Contribute/Knowledge/ViewDropdown/ViewDropdown';
-import Update from '@/components/Contribute/Knowledge/Github/Update/Update';
+import Update from '@/components/Contribute/Knowledge/Native/Update/Update';
 import { KnowledgeEditFormData, KnowledgeFormData, KnowledgeSeedExample, KnowledgeYamlData, QuestionAndAnswerPair } from '@/types';
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from '@/components/Contribute/Knowledge/AutoFill';
@@ -61,7 +60,6 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
   const [devModeEnabled, setDevModeEnabled] = useState<boolean | undefined>();
 
   const { data: session } = useSession();
-  const [githubUsername, setGithubUsername] = useState<string>('');
   // Author Information
   const [email, setEmail] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -95,7 +93,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
   const router = useRouter();
 
-  const [activeStepIndex] = useState<number>(1);
+  const [activeStepIndex, setActiveStepIndex] = useState<number>(1);
 
   // Function to create a unique empty seed example
   const createEmptySeedExample = (): KnowledgeSeedExample => ({
@@ -159,28 +157,6 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
       setEmail(session?.user?.email);
     }
   }, [session?.user]);
-
-  useMemo(() => {
-    const fetchUsername = async () => {
-      if (session?.accessToken) {
-        try {
-          const headers = {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.accessToken}`,
-            Accept: 'application/vnd.github+json',
-            'X-GitHub-Api-Version': '2022-11-28'
-          };
-
-          const fetchedUsername = await getGitHubUsername(headers);
-          setGithubUsername(fetchedUsername);
-        } catch (error) {
-          console.error('Failed to fetch GitHub username:', error);
-        }
-      }
-    };
-
-    fetchUsername();
-  }, [session?.accessToken]);
 
   useEffect(() => {
     // Set all elements from the knowledgeFormData to the state
@@ -463,6 +439,8 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
     // setReset is just reset button, value has no impact.
     setReset((prev) => !prev);
+
+    setActiveStepIndex(1);
     devLog('Knowledge Form Reset.');
   };
 
@@ -762,11 +740,10 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
             <Update
               disableAction={disableAction}
               knowledgeFormData={knowledgeFormData}
-              pullRequestNumber={knowledgeEditFormData.pullRequestNumber}
-              setActionGroupAlertContent={setActionGroupAlertContent}
-              yamlFile={knowledgeEditFormData.yamlFile}
-              attributionFile={knowledgeEditFormData.attributionFile}
+              oldFilesPath={knowledgeEditFormData.oldFilesPath}
               branchName={knowledgeEditFormData.branchName}
+              email={email}
+              setActionGroupAlertContent={setActionGroupAlertContent}
             />
           )}
           {!knowledgeEditFormData?.isEditForm && (
@@ -778,8 +755,8 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
               resetForm={resetForm}
             />
           )}
-          <DownloadDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
-          <ViewDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
+          <DownloadDropdown knowledgeFormData={knowledgeFormData} githubUsername={email} />
+          <ViewDropdown knowledgeFormData={knowledgeFormData} githubUsername={email} />
           <Button variant="link" type="button" onClick={handleCancel}>
             Cancel
           </Button>

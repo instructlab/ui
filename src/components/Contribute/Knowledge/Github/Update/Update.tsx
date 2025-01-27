@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActionGroupAlertContent } from '..';
-import { AttributionData, KnowledgeFormData, KnowledgeYamlData, PullRequestFile } from '@/types';
+import { AttributionData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '../../validation';
@@ -14,21 +14,12 @@ interface Props {
   disableAction: boolean;
   knowledgeFormData: KnowledgeFormData;
   pullRequestNumber: number;
-  yamlFile: PullRequestFile;
-  attributionFile: PullRequestFile;
+  oldFilesPath: string;
   branchName: string;
   setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
 }
 
-const Update: React.FC<Props> = ({
-  disableAction,
-  knowledgeFormData,
-  pullRequestNumber,
-  yamlFile,
-  attributionFile,
-  branchName,
-  setActionGroupAlertContent
-}) => {
+const Update: React.FC<Props> = ({ disableAction, knowledgeFormData, pullRequestNumber, oldFilesPath, branchName, setActionGroupAlertContent }) => {
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -73,7 +64,7 @@ const Update: React.FC<Props> = ({
         };
 
         const yamlString = dumpYaml(knowledgeYamlData);
-        console.log('Updated YAML content:', yamlString);
+        console.log('Updated knowledge YAML content:', yamlString);
 
         const attributionData: AttributionData = {
           title_of_work: knowledgeFormData.titleWork!,
@@ -89,20 +80,17 @@ License of the work: ${attributionData.license_of_the_work}
 Creator names: ${attributionData.creator_names}
 `;
 
-        console.log('Updated Attribution content:', attributionData);
+        console.log('Updated knowledge attribution content:', attributionData);
 
         const commitMessage = `Amend commit with updated content\n\nSigned-off-by: ${knowledgeFormData.name} <${knowledgeFormData.email}>`;
 
         // Ensure proper file paths for the edit
-        const finalYamlPath = KNOWLEDGE_DIR + knowledgeFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + yamlFile.filename.split('/').pop();
-        const finalAttributionPath =
-          KNOWLEDGE_DIR + knowledgeFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + attributionFile.filename.split('/').pop();
-        console.log('finalYamlPath:', finalYamlPath);
+        const finalYamlPath = KNOWLEDGE_DIR + knowledgeFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + 'qna.yaml';
+        const finalAttributionPath = KNOWLEDGE_DIR + knowledgeFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + 'attribution.txt';
 
-        const origFilePath = yamlFile.filename.split('/').slice(0, -1).join('/');
         const oldFilePath = {
-          yaml: origFilePath.replace(/^\//, '').replace(/\/?$/, '/') + yamlFile.filename.split('/').pop(),
-          attribution: origFilePath.replace(/^\//, '').replace(/\/?$/, '/') + attributionFile.filename.split('/').pop()
+          yaml: oldFilesPath.replace(/^\//, '').replace(/\/?$/, '/') + 'qna.yaml',
+          attribution: oldFilesPath.replace(/^\//, '').replace(/\/?$/, '/') + 'qna.yaml'
         };
 
         const newFilePath = {

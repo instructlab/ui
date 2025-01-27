@@ -5,21 +5,24 @@ import { SkillSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '@/components/Contribute/Skill/validation';
 import { Button } from '@patternfly/react-core';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   disableAction: boolean;
   skillFormData: SkillFormData;
-  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
+  oldFilesPath: string;
+  branchName: string;
   email: string;
-  resetForm: () => void;
+  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
 }
 
-const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupAlertContent, email, resetForm }) => {
-  const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
+const Update: React.FC<Props> = ({ disableAction, skillFormData, oldFilesPath, branchName, email, setActionGroupAlertContent }) => {
+  const router = useRouter();
+
+  const handleUpdate = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!validateFields(skillFormData, setActionGroupAlertContent)) return;
 
-    console.log('skillFormData :' + skillFormData);
     // Strip leading slash and ensure trailing slash in the file path
     let sanitizedFilePath = skillFormData.filePath!.startsWith('/') ? skillFormData.filePath!.slice(1) : skillFormData.filePath;
     sanitizedFilePath = sanitizedFilePath!.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
@@ -63,8 +66,8 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        action: 'submit',
-        branchName: '',
+        action: 'update',
+        branchName: branchName,
         content: yamlString,
         attribution: attributionData,
         name,
@@ -72,7 +75,7 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
         submissionSummary,
         documentOutline,
         filePath: sanitizedFilePath,
-        oldFilesPath: sanitizedFilePath
+        oldFilesPath: oldFilesPath
       })
     });
 
@@ -88,19 +91,19 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
 
     await response.json();
     const actionGroupAlertContent: ActionGroupAlertContent = {
-      title: 'Skill contribution submitted successfully!',
+      title: 'Skill contribution updated successfully!',
       message: `Thank you for your contribution!`,
       url: '/dashboard',
       success: true
     };
     setActionGroupAlertContent(actionGroupAlertContent);
-    resetForm();
+    router.push('/dashboard');
   };
   return (
-    <Button variant="primary" type="submit" isDisabled={disableAction} onClick={handleSubmit}>
-      Submit
+    <Button variant="primary" type="submit" isDisabled={disableAction} onClick={handleUpdate}>
+      Update
     </Button>
   );
 };
 
-export default Submit;
+export default Update;

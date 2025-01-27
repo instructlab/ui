@@ -74,7 +74,6 @@ const DashboardNative: React.FunctionComponent = () => {
   const [isPublishModalOpen, setIsPublishModalOpen] = React.useState(false);
   const [selectedBranch, setSelectedBranch] = React.useState<string | null>(null);
   const [isPublishing, setIsPublishing] = React.useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const [expandedFiles, setExpandedFiles] = React.useState<Record<string, boolean>>({});
 
   const router = useRouter();
@@ -229,11 +228,13 @@ const DashboardNative: React.FunctionComponent = () => {
 
   const handleEditContribution = (branchName: string) => {
     setSelectedBranch(branchName);
-    setIsEditModalOpen(true);
-  };
 
-  const closeEditModal = () => {
-    setIsEditModalOpen(false);
+    // Check if branchName contains string "knowledge"
+    if (branchName.includes('knowledge')) {
+      router.push(`/edit-submission/knowledge/native/${branchName}`);
+    } else {
+      router.push(`/edit-submission/skill/native/${branchName}`);
+    }
   };
 
   const handlePublishContribution = async (branchName: string) => {
@@ -456,26 +457,6 @@ const DashboardNative: React.FunctionComponent = () => {
             <p>No differences found.</p>
           )}
         </Modal>
-
-        <Modal
-          variant={ModalVariant.small}
-          title="Edit Contribution"
-          isOpen={isEditModalOpen}
-          onClose={closeEditModal}
-          aria-labelledby="edit-contribution-modal-title"
-          aria-describedby="edit-contribution-body-variant"
-        >
-          <ModalHeader title="Edit Contribution" labelId="edit-contribution-modal-title" titleIconVariant="info" />
-          <ModalBody id="edit-contribution-body-variant">
-            <p>Not yet implemented for native mode.</p>
-          </ModalBody>
-          <ModalFooter>
-            <Button key="close" variant="primary" onClick={closeEditModal}>
-              Close
-            </Button>
-          </ModalFooter>
-        </Modal>
-
         <Modal
           variant={ModalVariant.small}
           title="Deleting Contribution"

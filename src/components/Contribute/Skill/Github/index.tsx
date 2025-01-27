@@ -11,7 +11,7 @@ import { checkSkillFormCompletion } from '../validation';
 import { DownloadDropdown } from '../DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from '../ViewDropdown/ViewDropdown';
 import Update from './Update/Update';
-import { SkillYamlData, PullRequestFile, SkillFormData, SkillSeedExample } from '@/types';
+import { SkillYamlData, SkillFormData, SkillSeedExample } from '@/types';
 import { useRouter } from 'next/navigation';
 import SkillsSeedExample from '../SkillsSeedExample/SkillsSeedExample';
 import SkillsInformation from '../SkillsInformation/SkillsInformation';
@@ -46,8 +46,7 @@ export interface SkillEditFormData {
   skillVersion: number;
   pullRequestNumber: number;
   branchName: string;
-  yamlFile: PullRequestFile;
-  attributionFile: PullRequestFile;
+  oldFilesPath: string;
   skillFormData: SkillFormData;
 }
 
@@ -518,8 +517,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
               skillFormData={skillFormData}
               pullRequestNumber={skillEditFormData.pullRequestNumber}
               setActionGroupAlertContent={setActionGroupAlertContent}
-              yamlFile={skillEditFormData.yamlFile}
-              attributionFile={skillEditFormData.attributionFile}
+              oldFilesPath={skillEditFormData.oldFilesPath}
               branchName={skillEditFormData.branchName}
             />
           )}
