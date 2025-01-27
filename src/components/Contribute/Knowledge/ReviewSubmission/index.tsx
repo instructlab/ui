@@ -1,5 +1,6 @@
 // src/components/Contribute/Knowledge/ReviewSubmission/ReviewSubmission.tsx
 import { KnowledgeFormData } from '@/types';
+import { Content, ContentVariants } from '@patternfly/react-core';
 import React from 'react';
 
 interface ReviewSubmissionProps {
@@ -9,50 +10,60 @@ interface ReviewSubmissionProps {
 export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ knowledgeFormData }) => {
   return (
     <div>
-      <h2>Review Submission</h2>
-
+      <Content component={ContentVariants.h2}>Review Submission</Content>
       {/* Author Information */}
-      <h3>Author Information</h3>
       <p>
-        <strong>Name:</strong> {knowledgeFormData.name}
+        <strong>Author Information</strong>
       </p>
       <p>
-        <strong>Email:</strong> {knowledgeFormData.email}
+        <i>Name:</i> {knowledgeFormData.name}
+      </p>
+      <p>
+        <i>Email:</i> {knowledgeFormData.email}
       </p>
 
       {/* Knowledge Information */}
       <h3>Knowledge Information</h3>
       <p>
-        <strong>Submission Summary:</strong> {knowledgeFormData.submissionSummary}
+        <strong>Knowledge Information</strong>
       </p>
       <p>
-        <strong>Domain:</strong> {knowledgeFormData.domain}
+        <i>Submission Summary:</i> {knowledgeFormData.submissionSummary}
       </p>
       <p>
-        <strong>Document Outline:</strong> {knowledgeFormData.documentOutline}
+        <i>Domain:</i> {knowledgeFormData.domain}
+      </p>
+      <p>
+        <i>Document Outline:</i> {knowledgeFormData.documentOutline}
       </p>
 
       {/* File Path Information */}
-      <h3>File Path Information</h3>
       <p>
-        <strong>File Path:</strong> {knowledgeFormData.filePath}
+        <strong>File Path Information</strong>
+      </p>
+
+      <p>
+        <i>File Path:</i> {knowledgeFormData.filePath}
       </p>
 
       {/* Seed Examples */}
-      <h3>Seed Examples</h3>
+      <p>
+        <strong>Seed Examples</strong>
+      </p>
+
       {knowledgeFormData.seedExamples.map((seedExample, index) => (
         <div key={index}>
-          <h4>Seed Example {index + 1}</h4>
+          <strong>Seed Example {index + 1}</strong>
           <p>
-            <strong>Context:</strong> {seedExample.context}
+            <i>Context:</i> {seedExample.context}
           </p>
           {seedExample.questionAndAnswers.map((qa, qaIndex) => (
             <div key={qaIndex}>
               <p>
-                <strong>Question {qaIndex + 1}:</strong> {qa.question}
+                <i>Question {qaIndex + 1}:</i> {qa.question}
               </p>
               <p>
-                <strong>Answer {qaIndex + 1}:</strong> {qa.answer}
+                <i>Answer {qaIndex + 1}:</i> {qa.answer}
               </p>
             </div>
           ))}
@@ -60,33 +71,39 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ knowledgeFor
       ))}
 
       {/* Document Information */}
-      <h3>Document Information</h3>
       <p>
-        <strong>Repository URL:</strong> {knowledgeFormData.knowledgeDocumentRepositoryUrl}
+        <strong>Document Information</strong>
+      </p>
+
+      <p>
+        <i>Repository URL:</i> {knowledgeFormData.knowledgeDocumentRepositoryUrl}
       </p>
       <p>
-        <strong>Commit:</strong> {knowledgeFormData.knowledgeDocumentCommit}
+        <i>Commit:</i> {knowledgeFormData.knowledgeDocumentCommit}
       </p>
       <p>
-        <strong>Document Name:</strong> {knowledgeFormData.documentName}
+        <i>Document Name:</i> {knowledgeFormData.documentName}
       </p>
 
       {/* Attribution Information */}
-      <h3>Attribution Information</h3>
       <p>
-        <strong>Title of Work:</strong> {knowledgeFormData.titleWork}
+        <strong>Attribution Information</strong>
+      </p>
+
+      <p>
+        <i>Title of Work:</i> {knowledgeFormData.titleWork}
       </p>
       <p>
-        <strong>Link to Work:</strong> {knowledgeFormData.linkWork}
+        <i>Link to Work:</i> {knowledgeFormData.linkWork}
       </p>
       <p>
-        <strong>Revision:</strong> {knowledgeFormData.revision}
+        <i>Revision:</i> {knowledgeFormData.revision}
       </p>
       <p>
-        <strong>License of Work:</strong> {knowledgeFormData.licenseWork}
+        <i>License of Work:</i> {knowledgeFormData.licenseWork}
       </p>
       <p>
-        <strong>Creators:</strong> {knowledgeFormData.creators}
+        <i>Creators:</i> {knowledgeFormData.creators}
       </p>
     </div>
   );

@@ -414,6 +414,19 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     });
   };
 
+  const addSeedExample = (): void => {
+    const seedExample = createEmptySeedExample();
+    seedExample.immutable = false;
+    seedExample.isExpanded = true;
+    setSeedExamples([...seedExamples, seedExample]);
+    setDisableAction(true);
+  };
+
+  const deleteSeedExample = (seedExampleIndex: number): void => {
+    setSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
+    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+  };
+
   const onCloseActionGroupAlert = () => {
     setActionGroupAlertContent(undefined);
   };
@@ -625,6 +638,8 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
             toggleSeedExampleExpansion(idx);
           }}
           addDocumentInfo={addDocumentInfoHandler}
+          addSeedExample={addSeedExample}
+          deleteSeedExample={deleteSeedExample}
           repositoryUrl={knowledgeDocumentRepositoryUrl}
           commitSha={knowledgeDocumentCommit}
         />
