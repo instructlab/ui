@@ -421,41 +421,43 @@ const DashboardNative: React.FunctionComponent = () => {
           aria-labelledby="changes-contribution-modal-title"
           aria-describedby="changes-contribution-body-variant"
         >
-          {diffData?.changes.length ? (
-            <ul style={{ listStyle: 'none', paddingLeft: '0' }}>
-              {diffData.changes.map((change) => (
-                <li key={`${change.file}-${change.commitSha}`} style={{ marginBottom: '1rem' }}>
-                  <div>
-                    <strong>{change.file}</strong> - <em>{change.status}</em> - Commit SHA: {change.commitSha}
-                  </div>
-                  {change.status !== 'deleted' && change.content && (
-                    <ExpandableSection
-                      toggleText={expandedFiles[change.file] ? 'Hide file contents' : 'Show file contents'}
-                      onToggle={() => toggleFileContent(change.file)}
-                      isExpanded={expandedFiles[change.file] || false}
-                    >
-                      <pre
-                        style={{
-                          whiteSpace: 'pre-wrap',
-                          wordBreak: 'break-word',
-                          backgroundColor: '#f5f5f5',
-                          padding: '10px',
-                          borderRadius: '4px',
-                          maxHeight: '700px',
-                          overflowY: 'auto',
-                          userSelect: 'text'
-                        }}
+          <ModalBody>
+            {diffData?.changes.length ? (
+              <ul style={{ listStyle: 'none', paddingLeft: '0' }}>
+                {diffData.changes.map((change) => (
+                  <li key={`${change.file}-${change.commitSha}`} style={{ marginBottom: '1rem' }}>
+                    <div>
+                      <strong>{change.file}</strong> - <em>{change.status}</em> - Commit SHA: {change.commitSha}
+                    </div>
+                    {change.status !== 'deleted' && change.content && (
+                      <ExpandableSection
+                        toggleText={expandedFiles[change.file] ? 'Hide file contents' : 'Show file contents'}
+                        onToggle={() => toggleFileContent(change.file)}
+                        isExpanded={expandedFiles[change.file] || false}
                       >
-                        {change.content}
-                      </pre>
-                    </ExpandableSection>
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No differences found.</p>
-          )}
+                        <pre
+                          style={{
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
+                            backgroundColor: '#f5f5f5',
+                            padding: '10px',
+                            borderRadius: '4px',
+                            maxHeight: '700px',
+                            overflowY: 'auto',
+                            userSelect: 'text'
+                          }}
+                        >
+                          {change.content}
+                        </pre>
+                      </ExpandableSection>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No differences found.</p>
+            )}
+          </ModalBody>
         </Modal>
         <Modal
           variant={ModalVariant.small}
