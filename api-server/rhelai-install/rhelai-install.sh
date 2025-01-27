@@ -10,12 +10,12 @@ set -o pipefail
 
 ### installations
 
-if [ -z $(command -v git) ]; then
+if [ -z "$(command -v git)" ]; then
     echo "please make sure \`git\` is installed."
     exit 1 
 fi
 
-if [ -z $(command -v go) ]; then
+if [ -z "$(command -v go)" ]; then
     echo "\`go\` is not installed, installing."
     ./install-go.sh
 fi
@@ -25,7 +25,7 @@ if [ -z "$TAXONOMY_PATH" ]; then
     export TAXONOMY_PATH="$HOME/.local/share/instructlab/taxonomy"
 fi
 
-if [ ! -d "$TAXONOMY_PATH"]; then
+if [ ! -d "$TAXONOMY_PATH" ]; then
     echo "\$TAXONOMY_PATH was set as $TAXONOMY_PATH, but path does not exist."
     exit 1
 fi
@@ -43,8 +43,8 @@ go build -o ilab-api-router
 
 CUDA_FLAG=""
 
-if [ $(command -v nvcc) ] && [ -n $(nvcc --version) ]; then
+if [ "$(command -v nvcc)" ] && [ -n "$(nvcc --version)" ]; then
     CUDA_FLAG="--cuda"
 fi
 
-./ilab-api-router  --taxonomy-path $TAXONOMY_PATH $CUDA_FLAG --rhelai --vllm
+./ilab-api-router  --taxonomy-path "$TAXONOMY_PATH" $CUDA_FLAG --rhelai --vllm
