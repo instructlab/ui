@@ -21,24 +21,34 @@ go mod download
 
 ### Run the Server
 
+### Build
+
+```bash
+go build -o ilab-api-server
+```
+
 #### For macOS with Metal (MPS)
 
 ```bash
-go run main.go --base-dir /path/to/base-dir --taxonomy-path /path/to/taxonomy --osx
+./ilab-api-server --base-dir /path/to/base-dir --taxonomy-path /path/to/taxonomy --osx  --pipeline simple
+# Or the full pipeline
+./ilab-api-server --base-dir /path/to/base-dir --taxonomy-path /path/to/taxonomy --osx  --pipeline full
 ```
 
 #### For CUDA-enabled environments
 
+Since the device type is cuda, only the accelerated pipeline option is available and set as the default.
+
 ```bash
-go run main.go --base-dir /path/to/base-dir --taxonomy-path /path/to/taxonomy --cuda
+./ilab-api-server --base-dir /path/to/base-dir --taxonomy-path /path/to/taxonomy --cuda
 ```
 
 #### For a RHEL AI machine
 
-- If you're operating on a Red Hat Enterprise Linux AI (RHEL AI) machine, and the ilab binary is already available in your $PATH, you don't need to specify the --base-dir. Additionally, pass CUDA support with `--cuda`.
+- If you're operating on a Red Hat Enterprise Linux AI (RHEL AI) machine, and the ilab binary is already available in your $PATH, you don't need to specify the --base-dir. Additionally, pass CUDA support with `--cuda`. The `accelerated` pipeline is the only option here and also  the default.
 
 ```bash
-go run main.go --taxonomy-path ~/.local/share/instructlab/taxonomy/ --rhelai --cuda
+./ilab-api-server --taxonomy-path ~/.local/share/instructlab/taxonomy/ --rhelai --cuda
 ```
 
 The `--rhelai` flag indicates that the ilab binary is available in the system's $PATH and does not require a virtual environment.
@@ -46,10 +56,10 @@ When using `--rhelai`, the `--base-dir` flag is not required since it will be in
 
 ### Example command with paths
 
-Here's an example command for running the server on a macOS machine with Metal support:
+Here's an example command for running the server on a macOS machine with Metal support and debugging enabled:
 
 ```bash
-go run main.go --base-dir /Users/user/code/instructlab --taxonomy-path ~/.local/share/instructlab/taxonomy/ --osx
+./ilab-api-server --base-dir /Users/<USERNAME>/<PATH_TO_ILAB>/instructlab/ --taxonomy-path ~/.local/share/instructlab/taxonomy/ --pipeline simple --osx --debug
 ```
 
 ## API Documentation

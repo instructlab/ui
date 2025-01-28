@@ -509,40 +509,20 @@ func (srv *ILabServer) startTrainJob(modelName, branchName string, epochs *int) 
 		srv.log.Info("No epochs specified; using default number of epochs.")
 	}
 
-	// Additional logic if pipelineType == "simple" (and not rhelai)
 	if srv.pipelineType == "simple" && !srv.rhelai {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return "", fmt.Errorf("failed to get user home directory: %v", err)
-		}
-		datasetDir := filepath.Join(homeDir, ".local", "share", "instructlab", "datasets")
+		// TODO: Works on RHEL not from ilab main. --model-path seems to only accept the repo/name here and not the full path. Commenting for now.
+		//homeDir, err := os.UserHomeDir()
+		//if err != nil {
+		//  return "", fmt.Errorf("failed to get user home directory: %v", err)
+		//}
+		//datasetDir := filepath.Join(homeDir, ".local", "share", "instructlab", "datasets")
 
-		// Copy the latest knowledge_train_msgs_*.jsonl => train_gen.jsonl
-		latestTrainFile, err := srv.findLatestFileWithPrefix(datasetDir, "knowledge_train_msgs_")
-		if err != nil {
-			return "", fmt.Errorf("failed to find knowledge_train_msgs_*.jsonl file: %v", err)
-		}
-		trainGenPath := filepath.Join(datasetDir, "train_gen.jsonl")
-		if err := srv.overwriteCopy(latestTrainFile, trainGenPath); err != nil {
-			return "", fmt.Errorf("failed to copy %s to %s: %v", latestTrainFile, trainGenPath, err)
-		}
-
-		// Copy the latest test_ggml-model-*.jsonl => test_gen.jsonl
-		latestTestFile, err := srv.findLatestFileWithPrefix(datasetDir, "test_ggml-model")
-		if err != nil {
-			return "", fmt.Errorf("failed to find test_ggml-model*.jsonl file: %v", err)
-		}
-		testGenPath := filepath.Join(datasetDir, "test_gen.jsonl")
-		if err := srv.overwriteCopy(latestTestFile, testGenPath); err != nil {
-			return "", fmt.Errorf("failed to copy %s to %s: %v", latestTestFile, testGenPath, err)
-		}
-
-		// Reset cmdArgs to a simpler set
 		cmdArgs = []string{
 			"model", "train",
 			"--pipeline", srv.pipelineType,
-			fmt.Sprintf("--data-path=%s", datasetDir),
-			fmt.Sprintf("--model-path=%s", fullModelPath),
+			"--optimize-memory",
+			//fmt.Sprintf("--data-path=%s", datasetDir), // Leaving commented out for now until the above todo is resolved.
+			fmt.Sprintf("--model-path=%s", modelName),
 		}
 		if srv.isOSX {
 			cmdArgs = append(cmdArgs, "--device=mps")
