@@ -23,6 +23,7 @@ go.work.sum
 
 # binary
 api-server
+ilab-api-server
 
 # app specific
 logs/
