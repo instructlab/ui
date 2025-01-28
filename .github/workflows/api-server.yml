@@ -114,7 +114,7 @@ jobs:
           aws-region: us-east-1
       - name: copy binaries to s3
         run: |
-          aws s3 sync dist/packages s3://instructlab-io/apiserver
+          aws s3 sync dist/packages s3://instructlab-ui/apiserver
 
   build-workflow-complete:
     needs: ["build-packages", "upload-s3-packages"]
