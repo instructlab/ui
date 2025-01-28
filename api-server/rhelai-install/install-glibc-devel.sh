@@ -1,5 +1,5 @@
 #!/bin/bash
-# -*- indent-tabs-mode: nil; tab-width: 2; sh-indentation: 2; -*-
+# -*- indent-tabs-mode: nil; tab-width: 4; sh-indentation: 4; -*-
 
 # Dependency installations for RHELAI APIserver install
 

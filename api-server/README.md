@@ -64,11 +64,10 @@ We have provided some scripts that should facilitate installation of the API ser
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/instructlab/ui/refs/heads/main/api-server/rhelai-install/install-glibc-devel.sh)"
 ```
 
-After the reboot has finished we can download the other two install scripts and run the `rhelai-install.sh` as the entrypoint. Make sure to return to your directory before you start:
+After the reboot has finished we can download and run the `rhelai-install.sh` script. Make sure to return to your directory before you start:
 
 ```bash
 cd ~/temp-apiserver-install
-curl -fsSL https://raw.githubusercontent.com/instructlab/ui/refs/heads/main/api-server/rhelai-install/install-go.sh
 bash -c  "$(curl -fsSL https://raw.githubusercontent.com/instructlab/ui/refs/heads/main/api-server/rhelai-install/rhelai-install.sh)"
 ```
 
