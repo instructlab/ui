@@ -44,6 +44,26 @@ go run main.go --taxonomy-path ~/.local/share/instructlab/taxonomy/ --rhelai --c
 The `--rhelai` flag indicates that the ilab binary is available in the system's $PATH and does not require a virtual environment.
 When using `--rhelai`, the `--base-dir` flag is not required since it will be in a known location at least for meow.
 
+#### RHELAI API server easy-install
+
+It is recommended that you make a temporary directory for yourself to facilitate the install: `mkdir -p ~/temp-apiserver-install && cd ~/temp-apiserver-install`.
+
+We have provided some scripts that should facilitate installation of the API server on RHEL-AI. First, we will download and run a script to install `glibc-devel` as a dependency and reboot the system.
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/instructlab/ui/refs/heads/main/api-server/rhelai-install/install-glibc-devel.sh)"
+```
+
+After the reboot has finished we can download the other two install scripts and run the `rhelai-install.sh` as the entrypoint. Make sure to return to your directory before you start:
+
+```bash
+cd ~/temp-apiserver-install
+curl -fsSL https://raw.githubusercontent.com/instructlab/ui/refs/heads/main/api-server/rhelai-install/install-go.sh
+bash -c  "$(curl -fsSL https://raw.githubusercontent.com/instructlab/ui/refs/heads/main/api-server/rhelai-install/rhelai-install.sh)"
+```
+
+After this, we can cleanup our temp directory as it is no longer required: `rm -rf ~/temp-apiserver-install`.
+
 ### Example command with paths
 
 Here's an example command for running the server on a macOS machine with Metal support:
