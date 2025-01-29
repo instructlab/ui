@@ -14,10 +14,10 @@ spec:
           imagePullPolicy: Always
           resources:
             requests:
-              cpu: 100m
-              memory: 200Mi
+              cpu: 1000m
+              memory: 2000Mi
           ports:
             - name: http
               protocol: TCP
-              containerPort: 5000
+              containerPort: 5001
       restartPolicy: Always

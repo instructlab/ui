@@ -46,8 +46,8 @@ spec:
             cpu: "1000m"
             memory: "2000Mi"
         ports:
-        - containerPort: 5000
-          hostPort: 5000
+        - containerPort: 5001
+          hostPort: 5001
         imagePullPolicy: Always
 ---
 apiVersion: apps/v1
