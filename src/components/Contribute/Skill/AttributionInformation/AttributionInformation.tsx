@@ -7,6 +7,7 @@ import { ExclamationCircleIcon } from '@patternfly/react-icons';
 interface Props {
   reset: boolean;
   isEditForm?: boolean;
+  isNativeMode: boolean;
   skillFormData: SkillFormData;
   setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   titleWork: string;
@@ -20,6 +21,7 @@ interface Props {
 const AttributionInformation: React.FC<Props> = ({
   reset,
   isEditForm,
+  isNativeMode,
   skillFormData,
   setDisableAction,
   titleWork,
@@ -48,10 +50,13 @@ const AttributionInformation: React.FC<Props> = ({
   }, [isEditForm]);
 
   const validateTitle = (titleStr: string) => {
+    if (isNativeMode) {
+      return;
+    }
     const title = titleStr.trim();
     if (title.length > 0) {
       setValidTitle(ValidatedOptions.success);
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
+      setDisableAction(!checkSkillFormCompletion(skillFormData, isNativeMode));
       return;
     }
     setDisableAction(true);
@@ -60,10 +65,13 @@ const AttributionInformation: React.FC<Props> = ({
   };
 
   const validateLicense = (licenseStr: string) => {
+    if (isNativeMode) {
+      return;
+    }
     const license = licenseStr.trim();
     if (license.length > 0) {
       setValidLicense(ValidatedOptions.success);
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
+      setDisableAction(!checkSkillFormCompletion(skillFormData, isNativeMode));
       return;
     }
     setDisableAction(true);
@@ -72,10 +80,13 @@ const AttributionInformation: React.FC<Props> = ({
   };
 
   const validateCreators = (creatorsStr: string) => {
+    if (isNativeMode) {
+      return;
+    }
     const creators = creatorsStr.trim();
     if (creators.length > 0) {
       setValidCreators(ValidatedOptions.success);
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
+      setDisableAction(!checkSkillFormCompletion(skillFormData, isNativeMode));
       return;
     }
     setDisableAction(true);
@@ -86,13 +97,14 @@ const AttributionInformation: React.FC<Props> = ({
   return (
     <>
       <h2>
-        <strong>Attribution Information</strong> <span style={{ color: 'red' }}>*</span>
+        <strong>Attribution Information</strong>
+        {!isNativeMode && <span style={{ color: 'red' }}>*</span>}
       </h2>
       <p>Provide attribution information for the skill.</p>
 
-      <FormGroup isRequired key={'attribution-info-details-title_work'} label="Work title">
+      <FormGroup isRequired={!isNativeMode} key={'attribution-info-details-title_work'} label="Work title">
         <TextInput
-          isRequired
+          isRequired={!isNativeMode}
           type="text"
           aria-label="title_work"
           placeholder="Enter title of work"
@@ -111,9 +123,9 @@ const AttributionInformation: React.FC<Props> = ({
           </FormHelperText>
         )}
       </FormGroup>
-      <FormGroup isRequired key={'attribution-info-details-license_work'} label="Work License">
+      <FormGroup isRequired={!isNativeMode} key={'attribution-info-details-license_work'} label="Work License">
         <TextInput
-          isRequired
+          isRequired={!isNativeMode}
           type="text"
           aria-label="license_work"
           placeholder="Enter license of the work"
@@ -132,9 +144,9 @@ const AttributionInformation: React.FC<Props> = ({
           </FormHelperText>
         )}
       </FormGroup>
-      <FormGroup isRequired key={'attribution-info-details-creators'} label="Creators name">
+      <FormGroup isRequired={!isNativeMode} key={'attribution-info-details-creators'} label="Creators name">
         <TextInput
-          isRequired
+          isRequired={!isNativeMode}
           type="text"
           aria-label="creators"
           placeholder="Enter creators Name"

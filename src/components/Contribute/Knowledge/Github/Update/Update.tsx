@@ -25,7 +25,7 @@ const Update: React.FC<Props> = ({ disableAction, knowledgeFormData, pullRequest
 
   const handleUpdate = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!validateFields(knowledgeFormData, setActionGroupAlertContent)) return;
+    if (!validateFields(knowledgeFormData, setActionGroupAlertContent, false)) return;
     if (session?.accessToken) {
       try {
         console.log(`Updating PR with number: ${pullRequestNumber}`);

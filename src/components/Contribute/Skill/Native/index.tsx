@@ -148,7 +148,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const validateQuestion = (question: string): ValidatedOptions => {
     if (question.length > 0 && question.length < 250) {
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
+      setDisableAction(!checkSkillFormCompletion(skillFormData, true));
       return ValidatedOptions.success;
     }
     setDisableAction(true);
@@ -157,7 +157,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const validateAnswer = (answer: string): ValidatedOptions => {
     if (answer.length > 0 && answer.length < 250) {
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
+      setDisableAction(!checkSkillFormCompletion(skillFormData, true));
       return ValidatedOptions.success;
     }
     setDisableAction(true);
@@ -259,7 +259,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const deleteSeedExample = (seedExampleIndex: number): void => {
     setSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
-    setDisableAction(!checkSkillFormCompletion(skillFormData));
+    setDisableAction(!checkSkillFormCompletion(skillFormData, true));
   };
 
   const onCloseActionGroupAlert = () => {
@@ -325,7 +325,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
   };
 
   useEffect(() => {
-    setDisableAction(!checkSkillFormCompletion(skillFormData));
+    setDisableAction(!checkSkillFormCompletion(skillFormData, true));
   }, [skillFormData]);
 
   const handleCancel = () => {
@@ -393,6 +393,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
         <AttributionInformation
           reset={reset}
           isEditForm={skillEditFormData?.isEditForm}
+          isNativeMode={true}
           skillFormData={skillFormData}
           setDisableAction={setDisableAction}
           titleWork={titleWork}

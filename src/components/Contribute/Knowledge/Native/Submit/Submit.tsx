@@ -18,7 +18,7 @@ interface Props {
 const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGroupAlertContent, email, resetForm }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!validateFields(knowledgeFormData, setActionGroupAlertContent)) return;
+    if (!validateFields(knowledgeFormData, setActionGroupAlertContent, true)) return;
 
     // Strip leading slash and ensure trailing slash in the file path
     let sanitizedFilePath = knowledgeFormData.filePath!.startsWith('/') ? knowledgeFormData.filePath!.slice(1) : knowledgeFormData.filePath;

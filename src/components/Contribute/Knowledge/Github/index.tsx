@@ -230,7 +230,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     }
     const tokens = contextStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length <= 500) {
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, false));
       return { msg: 'Valid Input', status: ValidatedOptions.success };
     }
     setDisableAction(true);
@@ -246,7 +246,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     }
     const tokens = questionStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length < 250) {
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, false));
       return { msg: 'Valid input', status: ValidatedOptions.success };
     }
     setDisableAction(true);
@@ -261,7 +261,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     }
     const tokens = answerStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length < 250) {
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, false));
       return { msg: 'Valid input', status: ValidatedOptions.success };
     }
     setDisableAction(true);
@@ -563,7 +563,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
   }, [seedExamples]);
 
   useEffect(() => {
-    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, false));
   }, [knowledgeFormData]);
 
   const handleCancel = () => {
@@ -676,6 +676,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
         <AttributionInformation
           reset={reset}
           isEditForm={knowledgeEditFormData?.isEditForm}
+          isNativeMode={false}
           knowledgeFormData={knowledgeFormData}
           setDisableAction={setDisableAction}
           titleWork={titleWork}

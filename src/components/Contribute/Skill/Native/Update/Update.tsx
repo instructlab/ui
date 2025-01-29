@@ -21,7 +21,7 @@ const Update: React.FC<Props> = ({ disableAction, skillFormData, oldFilesPath, b
 
   const handleUpdate = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!validateFields(skillFormData, setActionGroupAlertContent)) return;
+    if (!validateFields(skillFormData, setActionGroupAlertContent, true)) return;
 
     // Strip leading slash and ensure trailing slash in the file path
     let sanitizedFilePath = skillFormData.filePath!.startsWith('/') ? skillFormData.filePath!.slice(1) : skillFormData.filePath;

@@ -7,6 +7,7 @@ import { ExclamationCircleIcon } from '@patternfly/react-icons';
 interface Props {
   reset: boolean;
   isEditForm?: boolean;
+  isNativeMode: boolean;
   knowledgeFormData: KnowledgeFormData;
   setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   titleWork: string;
@@ -24,6 +25,7 @@ interface Props {
 const AttributionInformation: React.FC<Props> = ({
   reset,
   isEditForm,
+  isNativeMode,
   knowledgeFormData,
   setDisableAction,
   titleWork,
@@ -63,10 +65,13 @@ const AttributionInformation: React.FC<Props> = ({
   }, [isEditForm]);
 
   const validateTitle = (titleStr: string) => {
+    if (isNativeMode) {
+      return;
+    }
     const title = titleStr.trim();
     if (title.length > 0) {
       setValidTitle(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, true));
       return;
     }
     setDisableAction(true);
@@ -75,6 +80,9 @@ const AttributionInformation: React.FC<Props> = ({
   };
 
   const validateLink = (linkStr: string) => {
+    if (isNativeMode) {
+      return;
+    }
     const link = linkStr.trim();
     if (link.length === 0) {
       setDisableAction(true);
@@ -84,7 +92,7 @@ const AttributionInformation: React.FC<Props> = ({
     try {
       new URL(link);
       setValidLink(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, isNativeMode));
       return;
     } catch (e) {
       setDisableAction(true);
@@ -94,10 +102,13 @@ const AttributionInformation: React.FC<Props> = ({
   };
 
   const validateRevision = (revisionStr: string) => {
+    if (isNativeMode) {
+      return;
+    }
     const revision = revisionStr.trim();
     if (revision.length > 0) {
       setValidRevision(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, isNativeMode));
       return;
     }
     setDisableAction(true);
@@ -106,10 +117,13 @@ const AttributionInformation: React.FC<Props> = ({
   };
 
   const validateLicense = (licenseStr: string) => {
+    if (isNativeMode) {
+      return;
+    }
     const license = licenseStr.trim();
     if (license.length > 0) {
       setValidLicense(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, isNativeMode));
       return;
     }
     setDisableAction(true);
@@ -118,10 +132,13 @@ const AttributionInformation: React.FC<Props> = ({
   };
 
   const validateCreators = (creatorsStr: string) => {
+    if (isNativeMode) {
+      return;
+    }
     const creators = creatorsStr.trim();
     if (creators.length > 0) {
       setValidCreators(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, isNativeMode));
       return;
     }
     setDisableAction(true);
@@ -135,16 +152,17 @@ const AttributionInformation: React.FC<Props> = ({
         titleText={{
           text: (
             <p>
-              Attribution Information <span style={{ color: 'red' }}>*</span>
+              Attribution Information
+              {!isNativeMode && <span style={{ color: 'red' }}>*</span>}
             </p>
           ),
           id: 'attribution-info-id'
         }}
         titleDescription="Provide attribution information."
       />
-      <FormGroup isRequired key={'attribution-info-details-work_link'} label="Work link or URL">
+      <FormGroup isRequired={!isNativeMode} key={'attribution-info-details-work_link'} label="Work link or URL">
         <TextInput
-          isRequired
+          isRequired={!isNativeMode}
           type="url"
           aria-label="link_work"
           placeholder="Enter link to work"
@@ -172,7 +190,7 @@ const AttributionInformation: React.FC<Props> = ({
           </FormHelperText>
         )}
       </FormGroup>
-      <FormGroup isRequired key={'attribution-info-details-title_work'} label="Work title">
+      <FormGroup isRequired={!isNativeMode} key={'attribution-info-details-title_work'} label="Work title">
         <TextInput
           isRequired
           type="text"
@@ -193,7 +211,7 @@ const AttributionInformation: React.FC<Props> = ({
           </FormHelperText>
         )}
       </FormGroup>
-      <FormGroup isRequired key={'attribution-info-details-document_revision'} label="Document revision">
+      <FormGroup isRequired={!isNativeMode} key={'attribution-info-details-document_revision'} label="Document revision">
         <TextInput
           isRequired
           type="text"
@@ -214,9 +232,9 @@ const AttributionInformation: React.FC<Props> = ({
           </FormHelperText>
         )}
       </FormGroup>
-      <FormGroup isRequired key={'attribution-info-details-license'} label="License">
+      <FormGroup isRequired={!isNativeMode} key={'attribution-info-details-license'} label="License">
         <TextInput
-          isRequired
+          isRequired={!isNativeMode}
           type="text"
           aria-label="license_work"
           placeholder="Enter license of the work"
@@ -235,9 +253,9 @@ const AttributionInformation: React.FC<Props> = ({
           </FormHelperText>
         )}
       </FormGroup>
-      <FormGroup isRequired key={'attribution-info-details-creators'} label="Creators name">
+      <FormGroup isRequired={!isNativeMode} key={'attribution-info-details-creators'} label="Creators name">
         <TextInput
-          isRequired
+          isRequired={!isNativeMode}
           type="text"
           aria-label="creators"
           placeholder="Enter creators Name"

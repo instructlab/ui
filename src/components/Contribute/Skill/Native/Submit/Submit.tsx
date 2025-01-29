@@ -17,7 +17,7 @@ interface Props {
 const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupAlertContent, email, resetForm }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!validateFields(skillFormData, setActionGroupAlertContent)) return;
+    if (!validateFields(skillFormData, setActionGroupAlertContent, true)) return;
 
     console.log('skillFormData :' + skillFormData);
     // Strip leading slash and ensure trailing slash in the file path
