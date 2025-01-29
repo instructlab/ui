@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
-import { Alert, AlertActionLink, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Alert, AlertActionLink, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
@@ -327,30 +327,40 @@ const DocumentInformation: React.FC<Props> = ({
         </>
       )}
       {alertInfo && (
-        <Alert variant={alertInfo.type} title={alertInfo.title} actionClose={<AlertActionCloseButton onClose={() => setAlertInfo(undefined)} />}>
-          {alertInfo.message}
-          {alertInfo.link && (
-            <AlertActionLink href={alertInfo.link} target="_blank" rel="noopener noreferrer">
-              View it here
-            </AlertActionLink>
-          )}
-        </Alert>
-      )}
-      {successAlertTitle && successAlertMessage && (
-        <Alert
-          variant="success"
-          title={successAlertTitle}
-          actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}
-          actionLinks={
-            successAlertLink ? (
-              <AlertActionLink component="a" href={successAlertLink} target="_blank" rel="noopener noreferrer">
+        <AlertGroup isToast isLiveRegion>
+          <Alert
+            timeout
+            variant={alertInfo.type}
+            title={alertInfo.title}
+            actionClose={<AlertActionCloseButton onClose={() => setAlertInfo(undefined)} />}
+          >
+            {alertInfo.message}
+            {alertInfo.link && (
+              <AlertActionLink href={alertInfo.link} target="_blank" rel="noopener noreferrer">
                 View it here
               </AlertActionLink>
-            ) : null
-          }
-        >
-          {successAlertMessage}
-        </Alert>
+            )}
+          </Alert>
+        </AlertGroup>
+      )}
+      {successAlertTitle && successAlertMessage && (
+        <AlertGroup isToast isLiveRegion>
+          <Alert
+            timeout
+            variant="success"
+            title={successAlertTitle}
+            actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}
+            actionLinks={
+              successAlertLink ? (
+                <AlertActionLink component="a" href={successAlertLink} target="_blank" rel="noopener noreferrer">
+                  View it here
+                </AlertActionLink>
+              ) : null
+            }
+          >
+            {successAlertMessage}
+          </Alert>
+        </AlertGroup>
       )}
       {failureAlertTitle && failureAlertMessage && (
         <Alert variant="danger" title={failureAlertTitle} actionClose={<AlertActionCloseButton onClose={onCloseFailureAlert} />}>

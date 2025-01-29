@@ -20,7 +20,9 @@ import {
   Form,
   FormGroup,
   TextInput,
-  Alert
+  Alert,
+  AlertGroup,
+  AlertActionCloseButton
 } from '@patternfly/react-core/';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBroom } from '@fortawesome/free-solid-svg-icons';
@@ -38,11 +40,11 @@ const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSelectOpen, setIsSelectOpen] = useState(false);
-  const [isModelSelectedOnSend, setIsModelSelectedOnSend] = useState(true);
-  const [isPromptOnSend, setIsPromptOnSend] = useState(true);
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
   const [customModels, setCustomModels] = useState<Model[]>([]);
   const [defaultModels, setDefaultModels] = useState<Model[]>([]);
+  const [showNoModelAlert, setShowNoModelAlert] = useState<boolean>(false);
+  const [showNoQuestionAlert, setShowNoQuestionAlert] = useState<boolean>(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -80,7 +82,7 @@ const ChatPage: React.FC = () => {
     const selected = [...defaultModels, ...customModels].find((model) => model.name === value) || null;
     setSelectedModel(selected);
     setIsSelectOpen(false);
-    setIsModelSelectedOnSend(true);
+    setShowNoModelAlert(false);
   };
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
@@ -102,17 +104,17 @@ const ChatPage: React.FC = () => {
   };
 
   const handleQuestionFieldSelected = () => {
-    setIsPromptOnSend(true);
+    setShowNoQuestionAlert(false);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!selectedModel) {
-      setIsModelSelectedOnSend(false);
+      setShowNoModelAlert(true);
       return;
     }
     if (!question.trim()) {
-      setIsPromptOnSend(false);
+      setShowNoQuestionAlert(true);
       return;
     }
 
@@ -326,14 +328,30 @@ const ChatPage: React.FC = () => {
           <Button variant="primary" type="submit">
             Send
           </Button>
-          {!isModelSelectedOnSend && (
+          {showNoModelAlert && (
             <div>
-              <Alert variant="danger" title="No Model Selected" ouiaId="DangerAlert" />
+              <AlertGroup isToast isLiveRegion>
+                <Alert
+                  timeout
+                  variant="danger"
+                  title="No Model Selected. Please select the model from the dropdown list."
+                  ouiaId="DangerAlert"
+                  actionClose={<AlertActionCloseButton onClose={() => setShowNoModelAlert(false)} />}
+                ></Alert>
+              </AlertGroup>
             </div>
           )}
-          {!isPromptOnSend && (
+          {showNoQuestionAlert && (
             <div>
-              <Alert variant="danger" title="No Question Added!" ouiaId="DangerAlert" />
+              <AlertGroup isToast isLiveRegion>
+                <Alert
+                  timeout
+                  variant="danger"
+                  title="No Question Added. Please write a question in the provided text box."
+                  ouiaId="DangerAlert"
+                  actionClose={<AlertActionCloseButton onClose={() => setShowNoQuestionAlert(false)} />}
+                />
+              </AlertGroup>
             </div>
           )}
         </Form>
