@@ -15,6 +15,8 @@ import {
   DataListItem,
   DataListItemCells,
   DataListItemRow,
+  Flex,
+  FlexItem,
   Form,
   FormGroup,
   InputGroup,
@@ -23,7 +25,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalVariant,
-  Page,
   PageBreadcrumb,
   PageSection,
   TextInput,
@@ -137,107 +138,109 @@ const EndpointsPage: React.FC = () => {
       </PageBreadcrumb>
 
       <PageSection hasBodyWrapper={false}>
-        <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10' }}>
-          Custom Model Endpoints
-        </Title>
+        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+          <FlexItem>
+            <Title headingLevel="h1" size="2xl" style={{ paddingTop: '5' }}>
+              Custom Model Endpoints
+            </Title>
+          </FlexItem>
+        </Flex>
         <Content>
           <br />
           Manage your own customer model endpoints. If you have a custom model that is served by an endpoint, you can add it here. This will allow you
           to use the custom model in the playground chat.
         </Content>
       </PageSection>
-      <Page>
-        <PageSection hasBodyWrapper={false}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Title headingLevel="h1">Manage Endpoints</Title>
-            <Button onClick={handleAddEndpoint}>Add Endpoint</Button>
-          </div>
-          <DataList aria-label="Endpoints list">
-            {endpoints.map((endpoint) => (
-              <DataListItem key={endpoint.id}>
-                <DataListItemRow wrapModifier="breakWord">
-                  <DataListItemCells
-                    dataListCells={[
-                      <DataListCell key="url">
-                        <strong>URL:</strong> {endpoint.url}
-                      </DataListCell>,
-                      <DataListCell key="modelName">
-                        <strong>Model Name:</strong> {endpoint.modelName}
-                      </DataListCell>,
-                      <DataListCell key="apiKey">
-                        <strong>API Key:</strong> {renderApiKey(endpoint.apiKey, endpoint.isApiKeyVisible || false)}
-                        <Button variant="link" onClick={() => toggleApiKeyVisibility(endpoint.id)}>
-                          {endpoint.isApiKeyVisible ? <EyeSlashIcon /> : <EyeIcon />}
-                        </Button>
-                      </DataListCell>
-                    ]}
-                  />
-                  <DataListAction aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
-                    <Button variant="primary" onClick={() => handleEditEndpoint(endpoint)}>
-                      Edit
-                    </Button>
-                    <Button variant="danger" onClick={() => handleDeleteEndpoint(endpoint.id)}>
-                      Delete
-                    </Button>
-                  </DataListAction>
-                </DataListItemRow>
-              </DataListItem>
-            ))}
-          </DataList>
-        </PageSection>
-        {isModalOpen && (
-          <Modal
-            variant={ModalVariant.medium}
-            title={currentEndpoint?.id ? 'Edit Endpoint' : 'Add Endpoint'}
-            isOpen={isModalOpen}
-            onClose={() => handleModalToggle()}
-            aria-labelledby="endpoint-modal-title"
-            aria-describedby="endpoint-body-variant"
-          >
-            <ModalHeader title={currentEndpoint?.id ? 'Edit Endpoint' : 'Add Endpoint'} labelId="endpoint-modal-title" titleIconVariant="info" />
-            <ModalBody id="endpoint-body-variant">
-              <Form>
-                <FormGroup label="URL" isRequired fieldId="url">
-                  <TextInput isRequired type="text" id="url" name="url" value={url} onChange={(_, value) => setUrl(value)} placeholder="Enter URL" />
-                </FormGroup>
-                <FormGroup label="Model Name" isRequired fieldId="modelName">
+      <PageSection hasBodyWrapper={false}>
+        <Flex justifyContent={{ default: 'justifyContentFlexEnd' }} alignItems={{ default: 'alignItemsFlexEnd' }}>
+          <FlexItem>
+            <Button onClick={handleAddEndpoint}>Add Custom Endpoint</Button>
+          </FlexItem>
+        </Flex>
+        <DataList aria-label="Endpoints list">
+          {endpoints.map((endpoint) => (
+            <DataListItem key={endpoint.id}>
+              <DataListItemRow wrapModifier="breakWord">
+                <DataListItemCells
+                  dataListCells={[
+                    <DataListCell key="url">
+                      <strong>URL:</strong> {endpoint.url}
+                    </DataListCell>,
+                    <DataListCell key="modelName">
+                      <strong>Model Name:</strong> {endpoint.modelName}
+                    </DataListCell>,
+                    <DataListCell key="apiKey">
+                      <strong>API Key:</strong> {renderApiKey(endpoint.apiKey, endpoint.isApiKeyVisible || false)}
+                      <Button variant="link" onClick={() => toggleApiKeyVisibility(endpoint.id)}>
+                        {endpoint.isApiKeyVisible ? <EyeSlashIcon /> : <EyeIcon />}
+                      </Button>
+                    </DataListCell>
+                  ]}
+                />
+                <DataListAction aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
+                  <Button variant="primary" onClick={() => handleEditEndpoint(endpoint)}>
+                    Edit
+                  </Button>
+                  <Button variant="danger" onClick={() => handleDeleteEndpoint(endpoint.id)}>
+                    Delete
+                  </Button>
+                </DataListAction>
+              </DataListItemRow>
+            </DataListItem>
+          ))}
+        </DataList>
+      </PageSection>
+      {isModalOpen && (
+        <Modal
+          variant={ModalVariant.medium}
+          title={currentEndpoint?.id ? 'Edit Endpoint' : 'Add Endpoint'}
+          isOpen={isModalOpen}
+          onClose={() => handleModalToggle()}
+          aria-labelledby="endpoint-modal-title"
+          aria-describedby="endpoint-body-variant"
+        >
+          <ModalHeader title={currentEndpoint?.id ? 'Edit Endpoint' : 'Add Endpoint'} labelId="endpoint-modal-title" titleIconVariant="info" />
+          <ModalBody id="endpoint-body-variant">
+            <Form>
+              <FormGroup label="URL" isRequired fieldId="url">
+                <TextInput isRequired type="text" id="url" name="url" value={url} onChange={(_, value) => setUrl(value)} placeholder="Enter URL" />
+              </FormGroup>
+              <FormGroup label="Model Name" isRequired fieldId="modelName">
+                <TextInput
+                  isRequired
+                  type="text"
+                  id="modelName"
+                  name="modelName"
+                  value={modelName}
+                  onChange={(_, value) => setModelName(value)}
+                  placeholder="Enter Model Name"
+                />
+              </FormGroup>
+              <FormGroup label="API Key" isRequired fieldId="apiKey">
+                <InputGroup>
                   <TextInput
                     isRequired
-                    type="text"
-                    id="modelName"
-                    name="modelName"
-                    value={modelName}
-                    onChange={(_, value) => setModelName(value)}
-                    placeholder="Enter Model Name"
+                    type="password"
+                    id="apiKey"
+                    name="apiKey"
+                    value={apiKey}
+                    onChange={(_, value) => setApiKey(value)}
+                    placeholder="Enter API Key"
                   />
-                </FormGroup>
-                <FormGroup label="API Key" isRequired fieldId="apiKey">
-                  <InputGroup>
-                    <TextInput
-                      isRequired
-                      type="password"
-                      id="apiKey"
-                      name="apiKey"
-                      value={apiKey}
-                      onChange={(_, value) => setApiKey(value)}
-                      placeholder="Enter API Key"
-                    />
-                  </InputGroup>
-                </FormGroup>
-              </Form>
-            </ModalBody>
-            <ModalFooter>
-              <Button key="save" variant="primary" onClick={handleSaveEndpoint}>
-                Save
-              </Button>
-              ,
-              <Button key="cancel" variant="link" onClick={handleModalToggle}>
-                Cancel
-              </Button>
-            </ModalFooter>
-          </Modal>
-        )}
-      </Page>
+                </InputGroup>
+              </FormGroup>
+            </Form>
+          </ModalBody>
+          <ModalFooter>
+            <Button key="save" variant="primary" onClick={handleSaveEndpoint}>
+              Save
+            </Button>
+            <Button key="cancel" variant="link" onClick={handleModalToggle}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
+      )}
     </AppLayout>
   );
 };
