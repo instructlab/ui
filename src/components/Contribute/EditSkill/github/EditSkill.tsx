@@ -11,7 +11,7 @@ import yaml from 'js-yaml';
 import axios from 'axios';
 import { SkillYamlData, AttributionData, PullRequestFile, SkillFormData, SkillSeedExample } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
-import { ValidatedOptions, Modal, ModalVariant } from '@patternfly/react-core';
+import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 
 interface EditSkillClientComponentProps {
   prNumber: number;
@@ -143,7 +143,9 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
   if (isLoading) {
     return (
       <Modal variant={ModalVariant.small} title="Loading Skill Data" isOpen={isLoading} onClose={handleOnClose}>
-        <div>{loadingMsg}</div>
+        <ModalBody>
+          <div>{loadingMsg}</div>
+        </ModalBody>
       </Modal>
     );
   }

@@ -5,21 +5,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as git from 'isomorphic-git';
 import fs from 'fs';
 import path from 'path';
+import http from 'isomorphic-git/http/node';
 
 // Constants for repository paths
 const TAXONOMY_DOCS_ROOT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || '';
 const TAXONOMY_DOCS_CONTAINER_MOUNT_DIR = '/tmp/.instructlab-ui';
+const TAXONOMY_KNOWLEDGE_DOCS_REPO_URL = process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO || 'github.com/instructlab-public/taxonomy-knowledge-docs';
+const BASE_BRANCH = 'main';
 
 // Interface for the response
 interface KnowledgeFile {
   filename: string;
   content: string;
-  commitSha: string;
-  commitDate: string;
-}
-
-interface Branch {
-  name: string;
   commitSha: string;
   commitDate: string;
 }
@@ -44,45 +41,6 @@ function findTaxonomyDocRepoPath(): string {
   const taxonomyDocsDirectoryPath = path.join(remoteTaxonomyDocsRepoDirFinal, '/taxonomy-knowledge-docs');
   return taxonomyDocsDirectoryPath;
 }
-
-/**
- * Function to list all branches.
- */
-const listAllBranches = async (): Promise<Branch[]> => {
-  const REPO_DIR = findTaxonomyDocRepoPath();
-
-  if (!fs.existsSync(REPO_DIR)) {
-    throw new Error('Repository path does not exist.');
-  }
-
-  const branches = await git.listBranches({ fs, dir: REPO_DIR });
-
-  const branchDetails: Branch[] = [];
-
-  for (const branch of branches) {
-    try {
-      const latestCommit = await git.log({ fs, dir: REPO_DIR, ref: branch, depth: 1 });
-      if (latestCommit.length === 0) {
-        continue; // No commits on this branch
-      }
-
-      const commit = latestCommit[0];
-      const commitSha = commit.oid;
-      const commitDate = new Date(commit.commit.committer.timestamp * 1000).toISOString();
-
-      branchDetails.push({
-        name: branch,
-        commitSha: commitSha,
-        commitDate: commitDate
-      });
-    } catch (error) {
-      console.error(`Failed to retrieve commit for branch ${branch}:`, error);
-      continue;
-    }
-  }
-
-  return branchDetails;
-};
 
 /**
  * Function to retrieve knowledge files from a specific branch.
@@ -162,72 +120,132 @@ const getKnowledgeFiles = async (branchName: string): Promise<KnowledgeFile[]> =
 };
 
 /**
- * Handler for GET requests.
- * - If 'action=list-branches' is present, return all branches.
- * - Else, return knowledge files from the 'main' branch.
+ * Handler for GET requests to read the knowledge files and their content.
  */
-const getKnowledgeFilesHandler = async (req: NextRequest): Promise<NextResponse> => {
+const getKnowledgeFilesHandler = async (): Promise<NextResponse> => {
   try {
-    const { searchParams } = new URL(req.url);
-    const action = searchParams.get('action');
-
-    if (action === 'list-branches') {
-      const branches = await listAllBranches();
-      return NextResponse.json({ branches }, { status: 200 });
-    }
-
-    // Default behavior: fetch files from 'main' branch
-    const branchName = 'main';
-    const knowledgeFiles = await getKnowledgeFiles(branchName);
+    const knowledgeFiles = await getKnowledgeFiles(BASE_BRANCH);
     return NextResponse.json({ files: knowledgeFiles }, { status: 200 });
   } catch (error) {
-    console.error('Failed to retrieve knowledge files:', error);
+    console.error('Failed to process GET request to fetch knowledge files:', error);
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 };
 
 /**
- * Handler for POST requests.
- * - If 'branchName' is provided, fetch files for that branch.
- * - If 'action=diff', fetch files from the 'main' branch.
- * - Else, return an error.
+ * GET handler to retrieve knowledge files from the taxonomy-knowledge-doc main branch.
  */
-const postKnowledgeFilesHandler = async (req: NextRequest): Promise<NextResponse> => {
-  try {
-    const body = await req.json();
-    const { action, branchName } = body;
-
-    if (action === 'diff') {
-      // fetch files from main
-      const branchNameForDiff = 'main';
-      const knowledgeFiles = await getKnowledgeFiles(branchNameForDiff);
-      return NextResponse.json({ files: knowledgeFiles }, { status: 200 });
-    }
-
-    if (branchName && typeof branchName === 'string') {
-      // Fetch files from a specified branch
-      const knowledgeFiles = await getKnowledgeFiles(branchName);
-      return NextResponse.json({ files: knowledgeFiles }, { status: 200 });
-    }
-
-    // If no valid action or branchName is provided
-    return NextResponse.json({ error: 'Invalid request. Provide an action or branchName.' }, { status: 400 });
-  } catch (error) {
-    console.error('Failed to process POST request:', error);
-    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
-  }
-};
-
-/**
- * GET handler to retrieve knowledge files or list branches based on 'action' query parameter.
- */
-export async function GET(req: NextRequest) {
-  return await getKnowledgeFilesHandler(req);
+export async function GET() {
+  return await getKnowledgeFilesHandler();
 }
 
 /**
- * POST handler to retrieve knowledge files based on 'branchName' or 'action'.
+ * POST handler to commit knowledge files to taxonomy-knowledge-doc repo's main branch.
  */
 export async function POST(req: NextRequest) {
-  return await postKnowledgeFilesHandler(req);
+  try {
+    const body = await req.json();
+    const { files } = body;
+    const docsRepoUrl = await cloneTaxonomyDocsRepo();
+
+    // If the repository was not cloned, return an error
+    if (!docsRepoUrl) {
+      return NextResponse.json({ error: 'Failed to clone taxonomy knowledge docs repository' }, { status: 500 });
+    }
+
+    const timestamp = new Date().toISOString().replace(/[-:.]/g, '').replace('T', 'T').slice(0, -1);
+    const filesWithTimestamp = files.map((file: { fileName: string; fileContent: string }) => {
+      const [name, extension] = file.fileName.split(/\.(?=[^.]+$)/);
+      return {
+        fileName: `${name}-${timestamp}.${extension}`,
+        fileContent: file.fileContent
+      };
+    });
+
+    // Write the files to the repository
+    const docsRepoUrlTmp = path.join(docsRepoUrl, '/');
+    for (const file of filesWithTimestamp) {
+      const filePath = path.join(docsRepoUrlTmp, file.fileName);
+      console.log(`Writing file to ${filePath} in taxonomy knowledge docs repository.`);
+      fs.writeFileSync(filePath, file.fileContent);
+    }
+
+    // Checkout the main branch
+    await git.checkout({ fs, dir: docsRepoUrl, ref: 'main' });
+
+    // Stage the files
+    await git.add({ fs, dir: docsRepoUrl, filepath: '.' });
+
+    // Commit the files
+    const commitSha = await git.commit({
+      fs,
+      dir: docsRepoUrl,
+      author: { name: 'instructlab-ui', email: 'ui@instructlab.ai' },
+      message: `Add files: ${files
+        .map((file: { fileName: string; fileContent: string }) => file.fileName)
+        .join(', ')}\n\nSigned-off-by: ui@instructlab.ai`
+    });
+
+    console.log(`Successfully committed files to taxonomy knowledge docs repository with commit SHA: ${commitSha}`);
+
+    const origTaxonomyDocsRepoDir = path.join(TAXONOMY_DOCS_ROOT_DIR, '/taxonomy-knowledge-docs');
+    return NextResponse.json(
+      {
+        repoUrl: origTaxonomyDocsRepoDir,
+        commitSha,
+        documentNames: filesWithTimestamp.map((file: { fileName: string }) => file.fileName)
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Failed to upload knowledge documents:', error);
+    return NextResponse.json({ error: 'Failed to upload knowledge documents' }, { status: 500 });
+  }
+}
+
+async function cloneTaxonomyDocsRepo() {
+  // Check the location of the taxonomy repository and create the taxonomy-knowledge-doc repository parallel to that.
+  let remoteTaxonomyRepoDirFinal: string = '';
+  // Check if directory pointed by remoteTaxonomyRepoDir exists and not empty
+  const remoteTaxonomyRepoContainerMountDir = path.join(TAXONOMY_DOCS_CONTAINER_MOUNT_DIR, '/taxonomy');
+  const remoteTaxonomyRepoDir = path.join(TAXONOMY_DOCS_ROOT_DIR, '/taxonomy');
+  if (fs.existsSync(remoteTaxonomyRepoContainerMountDir) && fs.readdirSync(remoteTaxonomyRepoContainerMountDir).length !== 0) {
+    remoteTaxonomyRepoDirFinal = TAXONOMY_DOCS_CONTAINER_MOUNT_DIR;
+  } else {
+    if (fs.existsSync(remoteTaxonomyRepoDir) && fs.readdirSync(remoteTaxonomyRepoDir).length !== 0) {
+      remoteTaxonomyRepoDirFinal = TAXONOMY_DOCS_ROOT_DIR;
+    }
+  }
+  if (remoteTaxonomyRepoDirFinal === '') {
+    return null;
+  }
+
+  const taxonomyDocsDirectoryPath = path.join(remoteTaxonomyRepoDirFinal, '/taxonomy-knowledge-docs');
+
+  if (fs.existsSync(taxonomyDocsDirectoryPath)) {
+    console.log(`Using existing taxonomy knowledge docs repository at ${remoteTaxonomyRepoDir}/taxonomy-knowledge-docs.`);
+    return taxonomyDocsDirectoryPath;
+  } else {
+    console.log(`Taxonomy knowledge docs repository not found at ${taxonomyDocsDirectoryPath}. Cloning...`);
+  }
+
+  try {
+    await git.clone({
+      fs,
+      http,
+      dir: taxonomyDocsDirectoryPath,
+      url: TAXONOMY_KNOWLEDGE_DOCS_REPO_URL,
+      singleBranch: true
+    });
+
+    // Include the full path in the response for client display. Path displayed here is the one
+    // that user set in the environment variable.
+    console.log(`Taxonomy knowledge docs repository cloned successfully to ${remoteTaxonomyRepoDir}.`);
+    // Return the path that the UI sees (direct or mounted)
+    return taxonomyDocsDirectoryPath;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error(`Failed to clone taxonomy docs repository: ${errorMessage}`);
+    return null;
+  }
 }

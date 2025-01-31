@@ -153,7 +153,7 @@ const DocumentInformation: React.FC<Props> = ({
       );
 
       if (fileContents.length === uploadedFiles.length) {
-        const response = await fetch('/api/upload', {
+        const response = await fetch('/api/github/knowledge-files', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

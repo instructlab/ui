@@ -67,8 +67,8 @@ spec:
       containers:
       - name: ui
         image: ghcr.io/instructlab/ui/ui:main
-#        securityContext:
-#          runAsGroup: 1000
+        securityContext:
+          runAsGroup: 1000
         volumeMounts:
         - name: taxonomy-repo
           mountPath: /tmp/.instructlab-ui

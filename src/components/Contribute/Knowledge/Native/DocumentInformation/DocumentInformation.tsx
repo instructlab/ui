@@ -53,12 +53,6 @@ const DocumentInformation: React.FC<Props> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalText, setModalText] = useState<string | undefined>();
 
-  const [successAlertTitle, setSuccessAlertTitle] = useState<string | undefined>();
-  const [successAlertMessage, setSuccessAlertMessage] = useState<string | undefined>();
-  const [successAlertLink, setSuccessAlertLink] = useState<string | undefined>();
-
-  const [failureAlertTitle, setFailureAlertTitle] = useState<string | undefined>();
-  const [failureAlertMessage, setFailureAlertMessage] = useState<string | undefined>();
   const [alertInfo, setAlertInfo] = useState<AlertInfo | undefined>();
 
   const [validRepo, setValidRepo] = useState<ValidatedOptions>(ValidatedOptions.default);
@@ -136,7 +130,7 @@ const DocumentInformation: React.FC<Props> = ({
 
       if (fileContents.length === uploadedFiles.length) {
         try {
-          const response = await fetch('/api/native/upload', {
+          const response = await fetch('/api/native/git/knowledge-files', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -148,36 +142,32 @@ const DocumentInformation: React.FC<Props> = ({
             const result = await response.json();
             console.log('Files uploaded result:', result);
 
-            setSuccessAlertTitle('Document uploaded successfully!');
-            setSuccessAlertMessage('Documents have been uploaded to your repo to be referenced in the knowledge submission.');
-            if (result.prUrl && result.prUrl.trim() !== '') {
-              setSuccessAlertLink(result.prUrl);
-            } else {
-              setSuccessAlertLink(undefined);
-            }
+            const alertInfo: AlertInfo = {
+              type: 'success',
+              title: 'Document uploaded successfully!',
+              message: 'Documents have been submitted to local taxonomy knowledge docs repo to be referenced in the knowledge submission.'
+            };
+            setAlertInfo(alertInfo);
           } else {
-            console.error('Upload failed:', response.statusText);
-            setFailureAlertTitle('Failed to upload document');
-            setFailureAlertMessage(`This upload failed. ${response.statusText}`);
+            console.error('Knowledge document upload failed:', response.statusText);
+            const alertInfo: AlertInfo = {
+              type: 'danger',
+              title: 'Failed to upload document!',
+              message: `This upload failed. ${response.statusText}`
+            };
+            setAlertInfo(alertInfo);
           }
         } catch (error) {
-          console.error('Upload error:', error);
-          setFailureAlertTitle('Failed to upload document');
-          setFailureAlertMessage(`This upload failed. ${(error as Error).message}`);
+          console.error('Knowledge document upload encountered an error:', error);
+          const alertInfo: AlertInfo = {
+            type: 'danger',
+            title: 'Failed to upload document!',
+            message: `This upload failed. ${(error as Error).message}`
+          };
+          setAlertInfo(alertInfo);
         }
       }
     }
-  };
-
-  const onCloseSuccessAlert = () => {
-    setSuccessAlertTitle(undefined);
-    setSuccessAlertMessage(undefined);
-    setSuccessAlertLink(undefined);
-  };
-
-  const onCloseFailureAlert = () => {
-    setFailureAlertTitle(undefined);
-    setFailureAlertMessage(undefined);
   };
 
   const handleAutomaticUpload = () => {
@@ -342,30 +332,6 @@ const DocumentInformation: React.FC<Props> = ({
             )}
           </Alert>
         </AlertGroup>
-      )}
-      {successAlertTitle && successAlertMessage && (
-        <AlertGroup isToast isLiveRegion>
-          <Alert
-            timeout
-            variant="success"
-            title={successAlertTitle}
-            actionClose={<AlertActionCloseButton onClose={onCloseSuccessAlert} />}
-            actionLinks={
-              successAlertLink ? (
-                <AlertActionLink component="a" href={successAlertLink} target="_blank" rel="noopener noreferrer">
-                  View it here
-                </AlertActionLink>
-              ) : null
-            }
-          >
-            {successAlertMessage}
-          </Alert>
-        </AlertGroup>
-      )}
-      {failureAlertTitle && failureAlertMessage && (
-        <Alert variant="danger" title={failureAlertTitle} actionClose={<AlertActionCloseButton onClose={onCloseFailureAlert} />}>
-          {failureAlertMessage}
-        </Alert>
       )}
     </div>
   );

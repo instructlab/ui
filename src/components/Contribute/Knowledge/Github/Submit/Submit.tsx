@@ -5,6 +5,7 @@ import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '../../validation';
 import { Button } from '@patternfly/react-core';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   disableAction: boolean;
@@ -17,6 +18,8 @@ interface Props {
 // temporary location of these validation functions. Once the Skills form has been refactored then these can be moved out to the utils file.
 
 const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGroupAlertContent, githubUsername, resetForm }) => {
+  const router = useRouter();
+
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!validateFields(knowledgeFormData, setActionGroupAlertContent)) return;
@@ -67,7 +70,7 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
     const email = knowledgeFormData.email;
     const submissionSummary = knowledgeFormData.submissionSummary;
     const documentOutline = knowledgeFormData.documentOutline;
-    const response = await fetch('/api/pr/knowledge', {
+    const response = await fetch('/api/github/pr/knowledge', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -102,6 +105,7 @@ const Submit: React.FC<Props> = ({ disableAction, knowledgeFormData, setActionGr
     };
     setActionGroupAlertContent(actionGroupAlertContent);
     resetForm();
+    router.push('/dashboard');
   };
   return (
     <Button variant="primary" type="submit" isDisabled={disableAction} onClick={handleSubmit}>
