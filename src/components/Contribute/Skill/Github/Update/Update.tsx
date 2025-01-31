@@ -78,8 +78,8 @@ Creator names: ${attributionData.creator_names}
         const finalAttributionPath = SKILLS_DIR + skillFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + 'attribution.txt';
 
         const oldFilePath = {
-          yaml: oldFilesPath.replace(/^\//, '').replace(/\/?$/, '/') + 'qna.yaml',
-          attribution: oldFilesPath.replace(/^\//, '').replace(/\/?$/, '/') + 'attribution.txt'
+          yaml: SKILLS_DIR + oldFilesPath.replace(/^\//, '').replace(/\/?$/, '/') + 'qna.yaml',
+          attribution: SKILLS_DIR + oldFilesPath.replace(/^\//, '').replace(/\/?$/, '/') + 'attribution.txt'
         };
 
         const newFilePath = {

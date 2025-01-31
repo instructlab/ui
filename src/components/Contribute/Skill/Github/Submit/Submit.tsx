@@ -60,7 +60,7 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
     const email = skillFormData.email;
     const submissionSummary = skillFormData.submissionSummary;
     const documentOutline = skillFormData.documentOutline;
-    const response = await fetch('/api/pr/skill', {
+    const response = await fetch('/api/github/pr/skill', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

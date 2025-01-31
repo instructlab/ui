@@ -89,14 +89,17 @@ Creator names: ${attributionData.creator_names}
         const finalAttributionPath = KNOWLEDGE_DIR + knowledgeFormData.filePath.replace(/^\//, '').replace(/\/?$/, '/') + 'attribution.txt';
 
         const oldFilePath = {
-          yaml: oldFilesPath.replace(/^\//, '').replace(/\/?$/, '/') + 'qna.yaml',
-          attribution: oldFilesPath.replace(/^\//, '').replace(/\/?$/, '/') + 'qna.yaml'
+          yaml: KNOWLEDGE_DIR + oldFilesPath.replace(/^\//, '').replace(/\/?$/, '/') + 'qna.yaml',
+          attribution: KNOWLEDGE_DIR + oldFilesPath.replace(/^\//, '').replace(/\/?$/, '/') + 'attribution.txt'
         };
+
+        console.log('Knowledge update old file path : ', oldFilePath);
 
         const newFilePath = {
           yaml: finalYamlPath,
           attribution: finalAttributionPath
         };
+        console.log('Knowledge update new file path : ', oldFilePath);
 
         const waitForSubmissionAlert: ActionGroupAlertContent = {
           title: 'Knowledge contribution update is in progress.!',

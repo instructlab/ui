@@ -1,4 +1,4 @@
-// src/app/api/pr/knowledge/route.ts
+// src/app/api/github/pr/knowledge/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import yaml from 'js-yaml';

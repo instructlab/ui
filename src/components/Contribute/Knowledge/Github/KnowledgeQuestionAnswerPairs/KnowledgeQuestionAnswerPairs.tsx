@@ -47,7 +47,7 @@ interface Props {
   commitSha: string;
 }
 
-const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
+const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
   seedExample,
   seedExampleIndex,
   handleContextInputChange,
@@ -80,7 +80,7 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/native/git/knowledge-files', {
+      const response = await fetch('/api/github/knowledge-files', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -489,4 +489,4 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
   );
 };
 
-export default KnowledgeQuestionAnswerPairsNative;
+export default KnowledgeQuestionAnswerPairs;
