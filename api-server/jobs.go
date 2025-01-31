@@ -120,6 +120,7 @@ func (srv *ILabServer) getJob(jobID string) (*Job, error) {
 			j.EndTime = &t
 		}
 	}
+
 	return &j, nil
 }
 
