@@ -14,8 +14,8 @@ spec:
           imagePullPolicy: Always
           resources:
             requests:
-              cpu: 1000m
-              memory: 2000Mi
+              cpu: 500m
+              memory: 1000Mi
           ports:
             - name: http
               protocol: TCP
