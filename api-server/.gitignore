@@ -25,6 +25,8 @@ go.work.sum
 api-server
 ilab-api-server
 
+# db file
+jobs.db
+
 # app specific
 logs/
-jobs.json
