@@ -64,7 +64,6 @@ jobs:
     defaults:
       run:
         working-directory: api-server
-
     steps:
       - uses: actions/checkout@v4
       - name: Set up Go
@@ -93,8 +92,7 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     environment: registry-creds
-#    if: github.ref == 'refs/heads/main'
-
+    if: ${{ github.event_name == 'push' }}
     steps:
       - name: download tar.gz binary artifacts
         uses: actions/download-artifact@v4
@@ -115,10 +113,3 @@ jobs:
       - name: copy binaries to s3
         run: |
           aws s3 sync dist/packages s3://instructlab-ui/apiserver
-
-  build-workflow-complete:
-    needs: ["build-packages", "upload-s3-packages"]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Build Complete
-        run: echo "Build Complete"
