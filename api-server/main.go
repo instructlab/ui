@@ -214,7 +214,7 @@ func (srv *ILabServer) runServer(cmd *cobra.Command, args []string) {
 		srv.ilabCmd = ilabPath
 	} else {
 		// Use ilab from virtual environment
-		srv.ilabCmd = filepath.Join(srv.baseDir, "venv", "bin", "ilab")
+		srv.ilabCmd = filepath.Join(srv.baseDir, "bin", "ilab")
 		if _, err := os.Stat(srv.ilabCmd); os.IsNotExist(err) {
 			srv.log.Fatalf("ilab binary not found at %s. Please ensure the virtual environment is set up correctly.", srv.ilabCmd)
 		}

@@ -58,7 +58,63 @@ jobs:
         run: |
           go build ./...
 
-  build-packages:
+  build-darwin-packages:
+    needs: [ fmt-build-test ]
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: api-server
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21.6'
+
+      - name: Build apiserver darwin packages
+        id: build
+        shell: bash
+        run: |
+          make -j dist/packages
+
+      - name: Upload apiserver tar.gz packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: apiserver-darwin-packages-tar
+          if-no-files-found: error
+          path: |
+            ./api-server/dist/packages/*.tar.gz
+
+  upload-s3-darwin-packages:
+    needs: ["build-darwin-packages"]
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    environment: registry-creds
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - name: download tar.gz binary artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: apiserver-darwin-packages-tar
+          path: ./dist/packages
+
+      - name: Display structure of downloaded files
+        run: ls -lah -R
+        working-directory: ./dist/packages
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          role-session-name: apiserver-ci-deploy
+          aws-region: us-east-1
+      - name: copy binaries to s3
+        run: |
+          aws s3 sync dist/packages s3://instructlab-ui/apiserver
+
+  build-linux-packages:
     needs: [ fmt-build-test ]
     runs-on: ubuntu-latest
     defaults:
@@ -80,13 +136,13 @@ jobs:
       - name: Upload apiserver tar.gz packages
         uses: actions/upload-artifact@v4
         with:
-          name: apiserver-packages-tar
+          name: apiserver-linux-packages-tar
           if-no-files-found: error
           path: |
             ./api-server/dist/packages/*.tar.gz
 
-  upload-s3-packages:
-    needs: ["build-packages"]
+  upload-s3-linux-packages:
+    needs: ["build-linux-packages"]
     permissions:
       id-token: write
       contents: read
@@ -97,7 +153,7 @@ jobs:
       - name: download tar.gz binary artifacts
         uses: actions/download-artifact@v4
         with:
-          name: apiserver-packages-tar
+          name: apiserver-linux-packages-tar
           path: ./dist/packages
 
       - name: Display structure of downloaded files

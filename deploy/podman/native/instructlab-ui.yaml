@@ -127,5 +127,5 @@ spec:
       volumes:
       - name: taxonomy-repo
         hostPath:
-          path: <TAXONOMY_REPO_ROOT_DIR>
+          path: <TAXONOMY_ROOT_DIR>
           type: Directory
