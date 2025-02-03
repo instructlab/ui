@@ -300,6 +300,17 @@ This will generate the new encrypted sealed-secret manifest in the file you spec
 BE CERTAIN to delete the un-encrypted secret file, we do not want to leak these values in `git`. Finally you can move the `sealed-secret`
 to its correct location within this repo.
 
-## Common issues
+The goal, however, is to keep these secrets updated with the contents of the `.env` file.
+You can do this using the command below from the root of the repo, however be sure to subsitute your environment (`prod` or `qa`)
+where it asks you to:
+
+```bash
+kubectl create secret generic <environment>.env --from-file .env --dry-run=client -o yaml | kubeseal \
+   --controller-name=sealed-secrets-controller \
+   --controller-namespace=kube-system \
+   --format yaml > deploy/k8s/overlays/openshift/<environment>/<environment>.env.sealedsecret.yaml
+```
+
+### Common issues
 
 - `error: cannot get sealed secret service: Unauthorized`: You must be signed in to the qa cluster to be able to communicate with the sealed secrets controller.
