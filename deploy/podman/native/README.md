@@ -11,7 +11,7 @@ Make a temporary directory and download the installer
 mkdir instructlab-ui
 cd instructlab-ui
 
-curl -fsSL https://raw.githubusercontent.com/instructlab/ui/refs/heads/main/installers/podman/ilab-ui-native-installer.sh
+curl -o ilab-ui-native-installer.sh -fsSL https://raw.githubusercontent.com/instructlab/ui/refs/heads/main/installers/podman/ilab-ui-native-installer.sh
 ```
 
 Give execution permission to the install
