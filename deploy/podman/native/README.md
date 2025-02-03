@@ -3,11 +3,62 @@
 
 Please follow the below instructions to deploy UI stack with Native mode enabled in Podman.
 
-## Generate Secret
+## Deploy using the installer (Recommended)
+
+Make a temporary directory and download the installer
+
+```shell
+mkdir instructlab-ui
+cd instructlab-ui
+
+curl -fsSL https://raw.githubusercontent.com/instructlab/ui/refs/heads/main/installers/podman/ilab-ui-native-installer.sh
+```
+
+Give execution permission to the install
+
+```shell
+chmod a+x ilab-ui-native-installer.sh
+```
+
+Execute the installer and follow the instructions prompted on the terminal.
+
+If your deployment machine has InstructLab (ilab CLI) setup, either on the host or in python virtual environment, use the following command
+
+```shell
+./ilab-ui-native-installer.sh --username <USERNAME> --password <PASSWORD>
+
+e.g ./ilab-ui-native-installer.sh --username admin --password passw0rd
+```
+
+If your deployment machine don't have InstructLab CLI setup, please clone the taxonomy repo and fire the following command.
+
+```shell
+./ilab-ui-native-installer.sh --username <USERNAME> --password <PASSWORD> --taxonomy-dir <TAXONOMY_DIR>
+
+e.g ./ilab-ui-native-installer.sh --username admin --password passw0rd --taxonomy-dir /Users/johndoe/instructlab/taxonomy
+```
+
+>[!NOTE]
+> In the absence of InstructLab CLI, UI won't be able to support the synthetic data generation and fine tuning, but skill and knowledge contribution should work as expected.
+
+If you are deploying the UI stack on a remote machine, please provide the auth url in the input
+
+```shell
+./ilab-ui-native-installer.sh --username <USERNAME> --password <PASSWORD> --taxonomy-dir <TAXONOMY_DIR> --auth-url http://<REMOTE-IP>:3000
+```
+
+Please use `--help` to see more options supported by the installer.
+
+## Deploy manually
+
+If you would like to install the UI stack manually, it's a two step process
+
+- Generate the secret file with the required input
+- Deploy the UI stack manifest file using podman.
 
 A secret is required to provide required input to the UI stack in a secure way.
 
-Two options exist to generate the secret, either using `kubectl` or filling in values in the `secret.yaml` provided.
+There are two options to generate the secret's file, either using `kubectl` or filling in values in the `secret.yaml` provided.
 
 ### Generate secrets using kubectl
 
@@ -46,7 +97,7 @@ echo "password" | base64
 
 Using the above to fill in all the required input fields.
 
-## Deploy the secret
+### Deploy the secret
 
 Now that the `secret.yaml` has been generated, use `podman kube play` to load the secret.
 
@@ -54,9 +105,9 @@ Now that the `secret.yaml` has been generated, use `podman kube play` to load th
 podman kube play secret.yaml
 ```
 
-## Deploying the InstructLab UI Stack
+### Deploy the InstructLab UI Stack
 
-One last step before you launch the InstructLab UI. A file named [instructlab-ui.yaml](instructlab-ui.yaml) present in the [native](../native/) directory. Search for <TAXONOMY_REPO_ROOT_DIR> in the yaml file and replace it with the same value that is used while creating the secret.yaml file. Now with the secret in place and deployment yaml updated, use `podman kube play` to launch the containers. UI will look for the taxonomy repo in this directory to submit the skill and knowledge contributions.
+One last step before you launch the InstructLab UI. A file named [instructlab-ui.yaml](instructlab-ui.yaml) present in the [native](../native/) directory. Search for <TAXONOMY_ROOT_DIR> in the yaml file and replace it with the same value that is used while creating the secret.yaml file. Now with the secret in place and deployment yaml updated, use `podman kube play` to launch the containers. UI will look for the taxonomy repo in this directory to submit the skill and knowledge contributions.
 
 ```bash
 podman kube play instructlab-ui.yaml
