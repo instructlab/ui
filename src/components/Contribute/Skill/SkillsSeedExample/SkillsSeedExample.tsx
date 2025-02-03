@@ -65,75 +65,81 @@ const SkillsSeedExample: React.FC<Props> = ({
       />
       <Accordion asDefinitionList={false}>
         {seedExamples.map((seedExample: SkillSeedExample, seedExampleIndex: number) => (
-          <AccordionItem key={seedExampleIndex} isExpanded={seedExample.isExpanded}>
-            <AccordionToggle onClick={() => toggleSeedExampleExpansion(seedExampleIndex)} id={`seed-example-toggle-${seedExampleIndex}`}>
-              <span style={{ display: 'flex', alignItems: 'normal', justifyContent: 'space-between', width: '100%' }}>
-                Seed Example {seedExampleIndex + 1} {seedExample.immutable && '*'}
-                {!seedExample.immutable && (
-                  <Button icon={<TrashIcon />} variant="plain" aria-label="Remove" onClick={() => deleteSeedExample(seedExampleIndex)} />
-                )}
-              </span>
-            </AccordionToggle>
-            <AccordionContent id={`seed-example-content-${seedExampleIndex}`}>
-              <FormGroup isRequired key={seedExampleIndex + '-question'} label="Question">
-                <TextArea
-                  key={seedExampleIndex * 10 + 2}
-                  isRequired
-                  type="text"
-                  aria-label={`Question ${seedExampleIndex + 1}`}
-                  placeholder={`Enter question ${seedExampleIndex + 1}`}
-                  value={seedExample.question}
-                  validated={seedExample.isQuestionValid}
-                  onChange={(_event, questionValue) => handleQuestionInputChange(seedExampleIndex, questionValue)}
-                  onBlur={() => handleQuestionBlur(seedExampleIndex)}
-                />
-                {seedExample.isQuestionValid === ValidatedOptions.error && (
-                  <FormHelperText key={seedExampleIndex * 100 + 2}>
-                    <HelperText>
-                      <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isQuestionValid}>
-                        {seedExample.questionValidationError || 'Required field '}
-                      </HelperTextItem>
-                    </HelperText>
-                  </FormHelperText>
-                )}
-              </FormGroup>
-              <FormGroup key={seedExampleIndex + '-context'} label="Context">
-                <TextArea
-                  key={seedExampleIndex * 10 + 1}
-                  isRequired
-                  type="text"
-                  aria-label={`Context ${seedExampleIndex + 1}`}
-                  placeholder="Enter the context for the question and answer pair. (optional)"
-                  value={seedExample.context}
-                  validated={seedExample.isContextValid}
-                  onChange={(_event, contextValue: string) => handleContextInputChange(seedExampleIndex, contextValue)}
-                  onBlur={() => handleContextBlur(seedExampleIndex)}
-                />
-              </FormGroup>
-              <FormGroup isRequired key={seedExampleIndex + '-answer'} label="Answer">
-                <TextArea
-                  key={seedExampleIndex * 10 + 3}
-                  isRequired
-                  type="text"
-                  aria-label={`Answer ${seedExampleIndex + 1}`}
-                  placeholder={`Enter answer ${seedExampleIndex + 1}`}
-                  value={seedExample.answer}
-                  validated={seedExample.isAnswerValid}
-                  onChange={(_event, answerValue) => handleAnswerInputChange(seedExampleIndex, answerValue)}
-                  onBlur={() => handleAnswerBlur(seedExampleIndex)}
-                />
-                {seedExample.isAnswerValid === ValidatedOptions.error && (
-                  <FormHelperText key={seedExampleIndex * 100 + 4}>
-                    <HelperText>
-                      <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isAnswerValid}>
-                        {seedExample.answerValidationError || 'Required field'}
-                      </HelperTextItem>
-                    </HelperText>
-                  </FormHelperText>
-                )}
-              </FormGroup>
-            </AccordionContent>
-          </AccordionItem>
+          <div key={seedExampleIndex} style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+            <div style={{ flex: 9 }}>
+              <AccordionItem key={seedExampleIndex} isExpanded={seedExample.isExpanded}>
+                <AccordionToggle onClick={() => toggleSeedExampleExpansion(seedExampleIndex)} id={`seed-example-toggle-${seedExampleIndex}`}>
+                  <span style={{ display: 'flex', alignItems: 'normal', justifyContent: 'space-between', width: '100%' }}>
+                    Seed Example {seedExampleIndex + 1} {seedExample.immutable && '*'}
+                  </span>
+                </AccordionToggle>
+                <AccordionContent id={`seed-example-content-${seedExampleIndex}`}>
+                  <FormGroup isRequired key={seedExampleIndex + '-question'} label="Question">
+                    <TextArea
+                      key={seedExampleIndex * 10 + 2}
+                      isRequired
+                      type="text"
+                      aria-label={`Question ${seedExampleIndex + 1}`}
+                      placeholder={`Enter question ${seedExampleIndex + 1}`}
+                      value={seedExample.question}
+                      validated={seedExample.isQuestionValid}
+                      onChange={(_event, questionValue) => handleQuestionInputChange(seedExampleIndex, questionValue)}
+                      onBlur={() => handleQuestionBlur(seedExampleIndex)}
+                    />
+                    {seedExample.isQuestionValid === ValidatedOptions.error && (
+                      <FormHelperText key={seedExampleIndex * 100 + 2}>
+                        <HelperText>
+                          <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isQuestionValid}>
+                            {seedExample.questionValidationError || 'Required field '}
+                          </HelperTextItem>
+                        </HelperText>
+                      </FormHelperText>
+                    )}
+                  </FormGroup>
+                  <FormGroup key={seedExampleIndex + '-context'} label="Context">
+                    <TextArea
+                      key={seedExampleIndex * 10 + 1}
+                      isRequired
+                      type="text"
+                      aria-label={`Context ${seedExampleIndex + 1}`}
+                      placeholder="Enter the context for the question and answer pair. (optional)"
+                      value={seedExample.context}
+                      validated={seedExample.isContextValid}
+                      onChange={(_event, contextValue: string) => handleContextInputChange(seedExampleIndex, contextValue)}
+                      onBlur={() => handleContextBlur(seedExampleIndex)}
+                    />
+                  </FormGroup>
+                  <FormGroup isRequired key={seedExampleIndex + '-answer'} label="Answer">
+                    <TextArea
+                      key={seedExampleIndex * 10 + 3}
+                      isRequired
+                      type="text"
+                      aria-label={`Answer ${seedExampleIndex + 1}`}
+                      placeholder={`Enter answer ${seedExampleIndex + 1}`}
+                      value={seedExample.answer}
+                      validated={seedExample.isAnswerValid}
+                      onChange={(_event, answerValue) => handleAnswerInputChange(seedExampleIndex, answerValue)}
+                      onBlur={() => handleAnswerBlur(seedExampleIndex)}
+                    />
+                    {seedExample.isAnswerValid === ValidatedOptions.error && (
+                      <FormHelperText key={seedExampleIndex * 100 + 4}>
+                        <HelperText>
+                          <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isAnswerValid}>
+                            {seedExample.answerValidationError || 'Required field'}
+                          </HelperTextItem>
+                        </HelperText>
+                      </FormHelperText>
+                    )}
+                  </FormGroup>
+                </AccordionContent>
+              </AccordionItem>
+            </div>
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              {!seedExample.immutable && (
+                <Button icon={<TrashIcon />} variant="plain" aria-label="Remove" onClick={() => deleteSeedExample(seedExampleIndex)} />
+              )}
+            </div>
+          </div>
         ))}
       </Accordion>
       <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
