@@ -73,7 +73,7 @@ dist/packages: $(TARGET_PACKAGES)
 
 dist/packages/%: apiserver
 	$(CMD_PREFIX) mkdir -p $(basename $(basename $@))
-	$(CMD_PREFIX) cp dist/apiserver-$(subst apiserver-,,$(basename $(basename $(@F)))) $(basename $(basename $@))/ilab-apiserver$
+	$(CMD_PREFIX) cp dist/apiserver-$(subst apiserver-,,$(basename $(basename $(@F)))) $(basename $(basename $@))/ilab-apiserver
 	$(CMD_PREFIX) printf "  %-12s dist/packages/$(@F)\n" "[TAR]" ;
 	$(CMD_PREFIX) cd dist/packages && tar -czf $(@F) $(basename $(basename $(@F)));
 

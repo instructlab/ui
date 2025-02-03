@@ -270,7 +270,7 @@ if [[ "$COMMAND" == "install" ]]; then
 		verify_user_pyenv
 	else
 		discover_ilab
-		echo -e "\n${blue}NOTE: To skip the virtual environment discovery, you can use --python-venv-dir option to provide the python virtual environment path.${reset}\n"
+		echo -e "\n${blue}NOTE: If you are using python virtual environment for InstructLab setup, you can use --python-venv-dir option to skip the discovery.${reset}\n"
 	fi
 
 	# ilab is not set up and the user didn't provide that taxonomy info as well. Exit with warning info.
@@ -468,15 +468,23 @@ elif [[ "$COMMAND" == "uninstall" ]]; then
 	else
 		# Run Podman commands to uninstall UI containers
 		echo -e "${green}Deleting the UI stack containers from Podman...${reset}\n"
-		podman kube down instructlab-ui.yaml
+		if [ -f "instructlab-ui.yaml" ]; then
+    			podman kube down instructlab-ui.yaml
+		else
+			echo -e "${red}instructlab-ui.yaml file does not exist, can't stop the relevant containers (if running). Continuing with cleanup...${reset}\n"
+		fi
 		echo -e "${green}Deleting the UI stack secrets from Podman...${reset}\n"
-		podman kube down secret.yaml
+		if [ -f "secret.yaml" ]; then
+    			podman kube down secret.yaml
+		else
+			echo -e "${red}secret.yaml file does not exist, can't unload the podman secrets. Continuing with cleanup...${reset}\n"
+		fi
 	fi
 
 	echo -e "${green}Stopping API server (if installed)...${reset}\n"
 	pkill -f ilab-apiserver || true
 	echo -e "${green}Cleaning up all the downloaded and temporary files${reset}\n"
-	rm -f secret.yaml instructlab-ui.yaml apiserver.tar.gz ilab-apiserver
+	rm -f secret.yaml instructlab-ui.yaml apiserver.tar.gz ilab-apiserver*
 	echo -e "${green}Uninstallation successfully completed.${reset}\n"
 else
 	usage
