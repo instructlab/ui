@@ -25,17 +25,17 @@ Execute the installer and follow the instructions prompted on the terminal.
 If your deployment machine has InstructLab (ilab CLI) setup, either on the host or in python virtual environment, use the following command
 
 ```shell
-./ilab-ui-native-installer.sh --username <USERNAME> --password <PASSWORD>
+./ilab-ui-native-installer.sh install --username <USERNAME> --password <PASSWORD>
 
-e.g ./ilab-ui-native-installer.sh --username admin --password passw0rd
+e.g ./ilab-ui-native-installer.sh install --username admin --password passw0rd
 ```
 
 If your deployment machine don't have InstructLab CLI setup, please clone the taxonomy repo and fire the following command.
 
 ```shell
-./ilab-ui-native-installer.sh --username <USERNAME> --password <PASSWORD> --taxonomy-dir <TAXONOMY_DIR>
+./ilab-ui-native-installer.sh install --username <USERNAME> --password <PASSWORD> --taxonomy-dir <TAXONOMY_DIR>
 
-e.g ./ilab-ui-native-installer.sh --username admin --password passw0rd --taxonomy-dir /Users/johndoe/instructlab/taxonomy
+e.g ./ilab-ui-native-installer.sh install --username admin --password passw0rd --taxonomy-dir /Users/johndoe/instructlab/taxonomy
 ```
 
 >[!NOTE]
@@ -44,7 +44,7 @@ e.g ./ilab-ui-native-installer.sh --username admin --password passw0rd --taxonom
 If you are deploying the UI stack on a remote machine, please provide the auth url in the input
 
 ```shell
-./ilab-ui-native-installer.sh --username <USERNAME> --password <PASSWORD> --taxonomy-dir <TAXONOMY_DIR> --auth-url http://<REMOTE-IP>:3000
+./ilab-ui-native-installer.sh install --username <USERNAME> --password <PASSWORD> --taxonomy-dir <TAXONOMY_DIR> --auth-url http://<REMOTE-IP>:3000
 ```
 
 Please use `--help` to see more options supported by the installer.
@@ -133,6 +133,12 @@ podman kube play instructlab-ui.yaml
 The Instructlab UI should now be accessible from `http://localhost:3000` or `http://<host-ip>:3000` depending on where the UI stack is deployed.
 
 ## Cleaning up
+
+If you used installer to install the UI stack, fire the following command
+
+```shell
+./ilab-ui-native-installer.sh uninstall
+```
 
 To clean up the deployment, use `podman kube down` to delete the deployment.
 
