@@ -52,20 +52,27 @@ const validateQuestionAndAnswerPairs = (seedExample: KnowledgeSeedExample): { su
   return { success: true, currLength: totalLength };
 };
 
+const nativeOptionalKeys = ['titleWork', 'linkWork', 'revision', 'licenseWork', 'creators'];
+
 export const validateFields = (
   knowledgeFormData: KnowledgeFormData,
-  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>
+  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>,
+  isNativeMode: boolean
 ): boolean => {
   // validate that data has been entered into all fields
   for (const [key, value] of Object.entries(knowledgeFormData)) {
     if (!value) {
-      const actionGroupAlertContent: ActionGroupAlertContent = {
-        title: `Please make sure you complete the ${key} field`,
-        message: `Some fields are not filled out`,
-        success: false
-      };
-      setActionGroupAlertContent(actionGroupAlertContent);
-      return false;
+      if (isNativeMode && nativeOptionalKeys.includes(key)) {
+        continue;
+      } else {
+        const actionGroupAlertContent: ActionGroupAlertContent = {
+          title: `Please make sure you complete the ${key} field`,
+          message: `Some fields are not filled out`,
+          success: false
+        };
+        setActionGroupAlertContent(actionGroupAlertContent);
+        return false;
+      }
     }
   }
 
@@ -163,7 +170,7 @@ export const validateFields = (
 
 const optionalKeys = ['context', 'isContextValid', 'validationError', 'questionValidationError', 'answerValidationError'];
 
-export const checkKnowledgeFormCompletion = (knowledgeFormData: object): boolean => {
+export const checkKnowledgeFormCompletion = (knowledgeFormData: object, isNativeMode?: boolean): boolean => {
   // Helper function to check if a value is non-empty
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isNonEmpty = (value: any): boolean => {
@@ -182,6 +189,10 @@ export const checkKnowledgeFormCompletion = (knowledgeFormData: object): boolean
     return Object.keys(obj).every((key) => {
       // Skip validation for optional keys
       if (optionalKeys.includes(key)) {
+        return true;
+      }
+      // Skip validation for keys that are optional only for native mode
+      if (isNativeMode && nativeOptionalKeys.includes(key)) {
         return true;
       }
       const value = obj[key];

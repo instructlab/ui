@@ -8,7 +8,6 @@ import { FormType } from '@/components/Contribute/AuthorInformation';
 import KnowledgeInformation from '@/components/Contribute/Knowledge/KnowledgeInformation/KnowledgeInformation';
 import FilePathInformation from '@/components/Contribute/Knowledge/FilePathInformation/FilePathInformation';
 import DocumentInformation from '@/components/Contribute/Knowledge/Native/DocumentInformation/DocumentInformation';
-import AttributionInformation from '@/components/Contribute/Knowledge/AttributionInformation/AttributionInformation';
 import Submit from './Submit/Submit';
 import KnowledgeDescriptionContent from '@/components/Contribute/Knowledge/KnowledgeDescription/KnowledgeDescriptionContent';
 import KnowledgeSeedExampleNative from '@/components/Contribute/Knowledge/Native/KnowledgeSeedExampleNative/KnowledgeSeedExampleNative';
@@ -206,7 +205,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     }
     const tokens = contextStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length <= 500) {
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, true));
       return { msg: 'Valid Input', status: ValidatedOptions.success };
     }
     setDisableAction(true);
@@ -222,7 +221,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     }
     const tokens = questionStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length < 250) {
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, true));
       return { msg: 'Valid input', status: ValidatedOptions.success };
     }
     setDisableAction(true);
@@ -237,7 +236,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
     }
     const tokens = answerStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length < 250) {
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, true));
       return { msg: 'Valid input', status: ValidatedOptions.success };
     }
     setDisableAction(true);
@@ -424,7 +423,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
 
   const deleteSeedExample = (seedExampleIndex: number): void => {
     setSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
-    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, true));
   };
 
   const onCloseActionGroupAlert = () => {
@@ -539,7 +538,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
   }, [seedExamples]);
 
   useEffect(() => {
-    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, true));
   }, [knowledgeFormData]);
 
   const handleCancel = () => {
@@ -646,31 +645,9 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
       )
     },
     {
-      id: 'attribution-info',
-      name: 'Attribution Information',
-      component: (
-        <AttributionInformation
-          reset={reset}
-          isEditForm={knowledgeEditFormData?.isEditForm}
-          knowledgeFormData={knowledgeFormData}
-          setDisableAction={setDisableAction}
-          titleWork={titleWork}
-          setTitleWork={setTitleWork}
-          linkWork={linkWork}
-          setLinkWork={setLinkWork}
-          revision={revision}
-          setRevision={setRevision}
-          licenseWork={licenseWork}
-          setLicenseWork={setLicenseWork}
-          creators={creators}
-          setCreators={setCreators}
-        />
-      )
-    },
-    {
       id: 'review-submission',
       name: 'Review Submission',
-      component: <ReviewSubmission knowledgeFormData={knowledgeFormData} />,
+      component: <ReviewSubmission knowledgeFormData={knowledgeFormData} isGithubMode={false} />,
       footer: {
         isNextDisabled: true
       }

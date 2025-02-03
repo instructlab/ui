@@ -424,7 +424,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
     {
       id: 'review-submission',
       name: 'Review Submission',
-      component: <ReviewSubmission skillFormData={skillFormData} />,
+      component: <ReviewSubmission skillFormData={skillFormData} isGithubMode={false} />,
       footer: {
         isNextDisabled: true
       }

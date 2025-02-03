@@ -5,9 +5,10 @@ import React from 'react';
 
 interface ReviewSubmissionProps {
   knowledgeFormData: KnowledgeFormData;
+  isGithubMode: boolean;
 }
 
-export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ knowledgeFormData }) => {
+export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ knowledgeFormData, isGithubMode }) => {
   return (
     <div>
       <Content component={ContentVariants.h2}>Review Submission</Content>
@@ -86,25 +87,28 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ knowledgeFor
       </p>
 
       {/* Attribution Information */}
-      <p>
-        <strong>Attribution Information</strong>
-      </p>
-
-      <p>
-        <i>Title of Work:</i> {knowledgeFormData.titleWork}
-      </p>
-      <p>
-        <i>Link to Work:</i> {knowledgeFormData.linkWork}
-      </p>
-      <p>
-        <i>Revision:</i> {knowledgeFormData.revision}
-      </p>
-      <p>
-        <i>License of Work:</i> {knowledgeFormData.licenseWork}
-      </p>
-      <p>
-        <i>Creators:</i> {knowledgeFormData.creators}
-      </p>
+      {isGithubMode && (
+        <div>
+          <p>
+            <strong>Attribution Information</strong>
+          </p>
+          <p>
+            <i>Title of Work:</i> {knowledgeFormData.titleWork}
+          </p>
+          <p>
+            <i>Link to Work:</i> {knowledgeFormData.linkWork}
+          </p>
+          <p>
+            <i>Revision:</i> {knowledgeFormData.revision}
+          </p>
+          <p>
+            <i>License of Work:</i> {knowledgeFormData.licenseWork}
+          </p>
+          <p>
+            <i>Creators:</i> {knowledgeFormData.creators}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

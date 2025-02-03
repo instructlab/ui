@@ -688,7 +688,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     {
       id: 'review-submission',
       name: 'Review Submission',
-      component: <ReviewSubmission knowledgeFormData={knowledgeFormData} />,
+      component: <ReviewSubmission knowledgeFormData={knowledgeFormData} isGithubMode={true} />,
       footer: {
         isNextDisabled: true
       }

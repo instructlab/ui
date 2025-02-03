@@ -5,9 +5,10 @@ import React from 'react';
 
 interface ReviewSubmissionProps {
   skillFormData: SkillFormData;
+  isGithubMode: boolean;
 }
 
-export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormData }) => {
+export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormData, isGithubMode }) => {
   return (
     <div>
       <Content component={ContentVariants.h2}>Review Submission</Content>
@@ -63,18 +64,22 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
       ))}
 
       {/* Attribution Information */}
-      <p>
-        <strong>Attribution Information</strong>
-      </p>
-      <p>
-        <i>Title of Work:</i> {skillFormData.titleWork}
-      </p>
-      <p>
-        <i>License of Work:</i> {skillFormData.licenseWork}
-      </p>
-      <p>
-        <i>Creators:</i> {skillFormData.creators}
-      </p>
+      {isGithubMode && (
+        <div>
+          <p>
+            <strong>Attribution Information</strong>
+          </p>
+          <p>
+            <i>Title of Work:</i> {skillFormData.titleWork}
+          </p>
+          <p>
+            <i>License of Work:</i> {skillFormData.licenseWork}
+          </p>
+          <p>
+            <i>Creators:</i> {skillFormData.creators}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

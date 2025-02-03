@@ -25,7 +25,7 @@ const Update: React.FC<Props> = ({ disableAction, skillFormData, pullRequestNumb
 
   const handleUpdate = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!validateFields(skillFormData, setActionGroupAlertContent)) return;
+    if (!validateFields(skillFormData, setActionGroupAlertContent, false)) return;
     if (session?.accessToken) {
       try {
         console.log(`Updating PR with number: ${pullRequestNumber}`);

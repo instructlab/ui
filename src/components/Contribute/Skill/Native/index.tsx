@@ -6,7 +6,6 @@ import { useSession } from 'next-auth/react';
 import AuthorInformation from '@/components/Contribute/AuthorInformation';
 import { FormType } from '@/components/Contribute/AuthorInformation';
 import FilePathInformation from '@/components/Contribute/Skill/FilePathInformation/FilePathInformation';
-import AttributionInformation from '@/components/Contribute/Skill/AttributionInformation/AttributionInformation';
 import Submit from '@/components/Contribute/Skill/Native/Submit/Submit';
 import { checkSkillFormCompletion } from '@/components/Contribute/Skill/validation';
 import { DownloadDropdown } from '@/components/Contribute/Skill/DownloadDropdown/DownloadDropdown';
@@ -77,12 +76,6 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
   // File Path Information
   const [filePath, setFilePath] = useState<string>('');
 
-  // Attribution Information
-  // State
-  const [titleWork, setTitleWork] = useState<string>('');
-  const [licenseWork, setLicenseWork] = useState<string>('');
-  const [creators, setCreators] = useState<string>('');
-
   const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
   const [disableAction, setDisableAction] = useState<boolean>(true);
   const [reset, setReset] = useState<boolean>(false);
@@ -133,9 +126,6 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
       setSubmissionSummary(skillEditFormData.skillFormData.submissionSummary);
       setDocumentOutline(skillEditFormData.skillFormData.documentOutline);
       setFilePath(skillEditFormData.skillFormData.filePath);
-      setTitleWork(skillEditFormData.skillFormData.titleWork);
-      setLicenseWork(skillEditFormData.skillFormData.licenseWork);
-      setCreators(skillEditFormData.skillFormData.creators);
       setSeedExamples(skillEditFormData.skillFormData.seedExamples);
     }
   }, [skillEditFormData]);
@@ -148,7 +138,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const validateQuestion = (question: string): ValidatedOptions => {
     if (question.length > 0 && question.length < 250) {
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
+      setDisableAction(!checkSkillFormCompletion(skillFormData, true));
       return ValidatedOptions.success;
     }
     setDisableAction(true);
@@ -157,7 +147,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const validateAnswer = (answer: string): ValidatedOptions => {
     if (answer.length > 0 && answer.length < 250) {
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
+      setDisableAction(!checkSkillFormCompletion(skillFormData, true));
       return ValidatedOptions.success;
     }
     setDisableAction(true);
@@ -259,7 +249,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const deleteSeedExample = (seedExampleIndex: number): void => {
     setSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
-    setDisableAction(!checkSkillFormCompletion(skillFormData));
+    setDisableAction(!checkSkillFormCompletion(skillFormData, true));
   };
 
   const onCloseActionGroupAlert = () => {
@@ -271,9 +261,6 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
     setName('');
     setDocumentOutline('');
     setSubmissionSummary('');
-    setTitleWork('');
-    setLicenseWork('');
-    setCreators('');
     setFilePath('');
     setSeedExamples([emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample, emptySeedExample]);
     setDisableAction(true);
@@ -288,9 +275,6 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
     setName(autoFillSkillsFields.name);
     setDocumentOutline(autoFillSkillsFields.documentOutline);
     setSubmissionSummary(autoFillSkillsFields.submissionSummary);
-    setTitleWork(autoFillSkillsFields.titleWork);
-    setLicenseWork(autoFillSkillsFields.licenseWork);
-    setCreators(autoFillSkillsFields.creators);
     setFilePath(autoFillSkillsFields.filePath);
     setSeedExamples(autoFillSkillsFields.seedExamples);
   };
@@ -319,13 +303,13 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
     documentOutline: documentOutline,
     filePath: filePath,
     seedExamples: seedExamples,
-    titleWork: titleWork,
-    licenseWork: licenseWork,
-    creators: creators
+    titleWork: '',
+    licenseWork: '',
+    creators: ''
   };
 
   useEffect(() => {
-    setDisableAction(!checkSkillFormCompletion(skillFormData));
+    setDisableAction(!checkSkillFormCompletion(skillFormData, true));
   }, [skillFormData]);
 
   const handleCancel = () => {
@@ -387,27 +371,9 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
       )
     },
     {
-      id: 'attribution-info',
-      name: 'Attribution',
-      component: (
-        <AttributionInformation
-          reset={reset}
-          isEditForm={skillEditFormData?.isEditForm}
-          skillFormData={skillFormData}
-          setDisableAction={setDisableAction}
-          titleWork={titleWork}
-          setTitleWork={setTitleWork}
-          licenseWork={licenseWork}
-          setLicenseWork={setLicenseWork}
-          creators={creators}
-          setCreators={setCreators}
-        />
-      )
-    },
-    {
       id: 'review-submission',
       name: 'Review Submission',
-      component: <ReviewSubmission skillFormData={skillFormData} />,
+      component: <ReviewSubmission skillFormData={skillFormData} isGithubMode={false} />,
       footer: {
         isNextDisabled: true
       }

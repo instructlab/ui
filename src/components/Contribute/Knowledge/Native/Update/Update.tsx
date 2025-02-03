@@ -1,7 +1,7 @@
 // src/components/contribute/Knowledge/Native/Update/Update.tsx
 import React from 'react';
 import { ActionGroupAlertContent } from '..';
-import { AttributionData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
+import { KnowledgeFormData, KnowledgeYamlData } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '@/components/Contribute/Knowledge/validation';
@@ -22,7 +22,7 @@ const Update: React.FC<Props> = ({ disableAction, knowledgeFormData, oldFilesPat
 
   const handleUpdate = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!validateFields(knowledgeFormData, setActionGroupAlertContent)) return;
+    if (!validateFields(knowledgeFormData, setActionGroupAlertContent, true)) return;
 
     // Strip leading slash and ensure trailing slash in the file path
     let sanitizedFilePath = knowledgeFormData.filePath!.startsWith('/') ? knowledgeFormData.filePath!.slice(1) : knowledgeFormData.filePath;
@@ -49,14 +49,6 @@ const Update: React.FC<Props> = ({ disableAction, knowledgeFormData, oldFilesPat
 
     const yamlString = dumpYaml(knowledgeYamlData);
 
-    const attributionData: AttributionData = {
-      title_of_work: knowledgeFormData.titleWork!,
-      link_to_work: knowledgeFormData.linkWork!,
-      revision: knowledgeFormData.revision!,
-      license_of_the_work: knowledgeFormData.licenseWork!,
-      creator_names: knowledgeFormData.creators!
-    };
-
     const waitForSubmissionAlert: ActionGroupAlertContent = {
       title: 'Knowledge contribution submission in progress!',
       message: `Once the submission is successful, it will provide the link to the newly created Pull Request.`,
@@ -78,7 +70,6 @@ const Update: React.FC<Props> = ({ disableAction, knowledgeFormData, oldFilesPat
         action: 'update',
         branchName: branchName,
         content: yamlString,
-        attribution: attributionData,
         name,
         email,
         submissionSummary,
