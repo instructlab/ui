@@ -24,13 +24,13 @@ patches:
       - op: replace
         path: /spec/tls/0/hosts/0
         value: ui.instructlab.ai
-  # - target:
-  #     kind: Deployment
-  #     name: ui
-  #   patch: |-
-  #     - op: replace
-  #       path: /spec/template/spec/containers/0/envFrom/0/secretRef/name
-  #       value: prod.env
+  - target:
+      kind: Deployment
+      name: ui
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/envFrom/0/secretRef/name
+        value: prod.env
   #     - op: add 
   #       path: /spec/template/spec/containers/0/readinessProbe
   #       value:
