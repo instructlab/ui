@@ -5,7 +5,7 @@ import './skills.css';
 import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { getGitHubUsername } from '../../../utils/github';
+import { getGitHubUserInfo } from '../../../utils/github';
 import { useSession } from 'next-auth/react';
 import AuthorInformation from '../AuthorInformation';
 import { FormType } from '../AuthorInformation';
@@ -139,32 +139,28 @@ export const SkillForm: React.FunctionComponent<SkillFormProps> = ({ skillEditFo
     getEnvVariables();
   }, []);
 
-  useEffect(() => {
-    if (session?.user?.name && session?.user?.email) {
-      setName(session?.user?.name);
-      setEmail(session?.user?.email);
-    }
-  }, [session?.user]);
-
   useMemo(() => {
-    const fetchUsername = async () => {
+    const fetchUserInfo = async () => {
       if (session?.accessToken) {
         try {
-          const header = {
+          const headers = {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session.accessToken}`,
             Accept: 'application/vnd.github+json',
             'X-GitHub-Api-Version': '2022-11-28'
           };
-          const fetchedUsername = await getGitHubUsername(header);
-          setGithubUsername(fetchedUsername);
+
+          const fetchedUsername = await getGitHubUserInfo(headers);
+          setGithubUsername(fetchedUsername.login);
+          setName(fetchedUsername.name);
+          setEmail(fetchedUsername.email);
         } catch (error) {
-          console.error('Failed to fetch GitHub username:', error);
+          console.error('Failed to fetch GitHub user info:', error);
         }
       }
     };
 
-    fetchUsername();
+    fetchUserInfo();
   }, [session?.accessToken]);
 
   useEffect(() => {

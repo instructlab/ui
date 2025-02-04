@@ -3,6 +3,12 @@ import axios from 'axios';
 import { PullRequestUpdateData } from '@/types';
 import { BASE_BRANCH, FORK_CLONE_CHECK_RETRY_COUNT, FORK_CLONE_CHECK_RETRY_TIMEOUT, GITHUB_API_URL } from '@/types/const';
 
+type GithubUserInfo = {
+  login: string;
+  name: string;
+  email: string;
+};
+
 export async function fetchPullRequests(token: string) {
   try {
     console.log('Refreshing PR Listing');
@@ -298,6 +304,29 @@ export const amendCommit = async (
   }
 };
 
+export async function getGitHubUserInfo(headers: HeadersInit): Promise<GithubUserInfo> {
+  const response = await fetch(`${GITHUB_API_URL}/user`, {
+    headers
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to fetch GitHub user info:', response.status, errorText);
+    throw new Error('Failed to fetch GitHub user info');
+  }
+
+  const data = await response.json();
+
+  const userInfo: GithubUserInfo = {
+    name: data.name,
+    login: data.login,
+    email: ''
+  };
+
+  userInfo.email = await getGitHubUserPrimaryEmail(headers);
+  return userInfo;
+}
+
 export async function getGitHubUsername(headers: HeadersInit): Promise<string> {
   const response = await fetch(`${GITHUB_API_URL}/user`, {
     headers
@@ -311,6 +340,22 @@ export async function getGitHubUsername(headers: HeadersInit): Promise<string> {
 
   const data = await response.json();
   return data.login;
+}
+
+export async function getGitHubUserPrimaryEmail(headers: HeadersInit): Promise<string> {
+  const response = await fetch(`${GITHUB_API_URL}/user/public_emails`, {
+    headers
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to fetch GitHub email address:', response.status, errorText);
+    throw new Error('Failed to fetch GitHub email address');
+  }
+
+  const data = await response.json();
+  const emailInfo = data.find((emailObj: { primary: boolean }) => emailObj.primary === true);
+  return emailInfo.email;
 }
 
 export async function createFork(headers: HeadersInit, upstreamRepoOwner: string, upstreamRepoName: string, username: string) {
