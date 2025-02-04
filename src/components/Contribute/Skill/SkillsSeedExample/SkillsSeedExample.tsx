@@ -66,7 +66,7 @@ const SkillsSeedExample: React.FC<Props> = ({
       <Accordion asDefinitionList={false}>
         {seedExamples.map((seedExample: SkillSeedExample, seedExampleIndex: number) => (
           <div key={seedExampleIndex} style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-            <div style={{ flex: 9 }}>
+            <div style={{ flex: 9.5 }}>
               <AccordionItem key={seedExampleIndex} isExpanded={seedExample.isExpanded}>
                 <AccordionToggle onClick={() => toggleSeedExampleExpansion(seedExampleIndex)} id={`seed-example-toggle-${seedExampleIndex}`}>
                   <span style={{ display: 'flex', alignItems: 'normal', justifyContent: 'space-between', width: '100%' }}>
@@ -134,8 +134,8 @@ const SkillsSeedExample: React.FC<Props> = ({
                 </AccordionContent>
               </AccordionItem>
             </div>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              {!seedExample.immutable && (
+            <div style={{ flex: 0.5, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              {!seedExample.immutable && !seedExample.isExpanded && (
                 <Button icon={<TrashIcon />} variant="plain" aria-label="Remove" onClick={() => deleteSeedExample(seedExampleIndex)} />
               )}
             </div>
