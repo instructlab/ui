@@ -118,9 +118,10 @@ const ChatPage: React.FC = () => {
       return;
     }
 
-    setMessages((messages) => [...messages, { text: question, isUser: true }]);
+    // Add user's message to the chat
+    setMessages((prevMessages) => [...prevMessages, { text: question, isUser: true }]);
+    // Clear the input field
     setQuestion('');
-
     setIsLoading(true);
 
     const messagesPayload = [
@@ -134,76 +135,80 @@ const ChatPage: React.FC = () => {
       stream: true
     };
 
+    // If the selected model is a custom endpoint, use client-side fetch with streaming
     if (customModels.some((model) => model.name === selectedModel.name)) {
       // Client-side fetch if the selected model is a custom endpoint
       try {
-        const chatResponse = await fetch(`${selectedModel.apiURL}/v1/chat/completions`, {
+        const response = await fetch(`${selectedModel.apiURL}/v1/chat/completions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            accept: 'application/json'
+            Accept: 'text/event-stream'
           },
           body: JSON.stringify(requestData)
         });
 
-        if (!chatResponse.body) {
-          setMessages((messages) => [...messages, { text: 'Failed to fetch chat response', isUser: false }]);
+        if (!response.ok) {
+          const errorText = await response.text();
+          setMessages((prevMessages) => [...prevMessages, { text: `Error ${response.status}: ${errorText}`, isUser: false }]);
           setIsLoading(false);
           return;
         }
 
-        const reader = chatResponse.body.getReader();
-        const textDecoder = new TextDecoder('utf-8');
+        if (!response.body) {
+          setMessages((prevMessages) => [...prevMessages, { text: 'No response body received from the server.', isUser: false }]);
+          setIsLoading(false);
+          return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let doneReading = false;
         let botMessage = '';
 
-        setMessages((messages) => [...messages, { text: '', isUser: false }]);
+        // Add an empty bot message to update as chunks come in
+        setMessages((prevMessages) => [...prevMessages, { text: '', isUser: false }]);
 
-        let done = false;
-        while (!done) {
+        while (!doneReading) {
           const { value, done: isDone } = await reader.read();
-          done = isDone;
+          doneReading = isDone;
           if (value) {
-            const chunk = textDecoder.decode(value, { stream: true });
+            const chunk = decoder.decode(value, { stream: true });
             const lines = chunk.split('\n').filter((line) => line.trim() !== '');
-
             for (const line of lines) {
               if (line.startsWith('data: ')) {
-                const json = line.replace('data: ', '');
-                if (json === '[DONE]') {
-                  setIsLoading(false);
-                  return;
+                const dataStr = line.substring('data: '.length).trim();
+                if (dataStr === '[DONE]') {
+                  doneReading = true;
+                  break;
                 }
-
                 try {
-                  const parsed = JSON.parse(json);
+                  const parsed = JSON.parse(dataStr);
                   const deltaContent = parsed.choices[0].delta?.content;
-
                   if (deltaContent) {
                     botMessage += deltaContent;
-
-                    setMessages((messages) => {
-                      const updatedMessages = [...messages];
-                      if (updatedMessages.length > 1) {
-                        updatedMessages[updatedMessages.length - 1].text = botMessage;
-                      }
+                    setMessages((prevMessages) => {
+                      const updatedMessages = [...prevMessages];
+                      // Update the last bot message with the new content
+                      updatedMessages[updatedMessages.length - 1].text = botMessage;
                       return updatedMessages;
                     });
                   }
-                } catch (err) {
-                  console.error('Error parsing chunk:', err);
+                } catch (e) {
+                  console.error('Error parsing JSON:', e);
                 }
               }
             }
           }
         }
-
         setIsLoading(false);
       } catch (error) {
-        setMessages((messages) => [...messages, { text: 'Error fetching chat response', isUser: false }]);
+        console.error('Error fetching chat response:', error);
+        setMessages((prevMessages) => [...prevMessages, { text: 'Error fetching chat response', isUser: false }]);
         setIsLoading(false);
       }
     } else {
-      // Server-side fetch for default endpoints
+      // Default endpoints (server-side fetch)
       const response = await fetch(
         `/api/playground/chat?apiURL=${encodeURIComponent(selectedModel.apiURL)}&modelName=${encodeURIComponent(selectedModel.modelName)}`,
         {
@@ -220,7 +225,7 @@ const ChatPage: React.FC = () => {
         const textDecoder = new TextDecoder('utf-8');
         let botMessage = '';
 
-        setMessages((messages) => [...messages, { text: '', isUser: false }]);
+        setMessages((prevMessages) => [...prevMessages, { text: '', isUser: false }]);
 
         (async () => {
           for (;;) {
@@ -229,8 +234,8 @@ const ChatPage: React.FC = () => {
             const chunk = textDecoder.decode(value, { stream: true });
             botMessage += chunk;
 
-            setMessages((messages) => {
-              const updatedMessages = [...messages];
+            setMessages((prevMessages) => {
+              const updatedMessages = [...prevMessages];
               updatedMessages[updatedMessages.length - 1].text = botMessage;
               return updatedMessages;
             });
@@ -238,7 +243,7 @@ const ChatPage: React.FC = () => {
           setIsLoading(false);
         })();
       } else {
-        setMessages((messages) => [...messages, { text: 'Failed to fetch response from the server.', isUser: false }]);
+        setMessages((prevMessages) => [...prevMessages, { text: 'Failed to fetch response from the server.', isUser: false }]);
         setIsLoading(false);
       }
     }
@@ -317,7 +322,6 @@ const ChatPage: React.FC = () => {
         <Form onSubmit={handleSubmit} className={styles.chatForm}>
           <FormGroup fieldId="question-field">
             <TextInput
-              // isRequired
               type="text"
               id="question-field"
               name="question-field"
