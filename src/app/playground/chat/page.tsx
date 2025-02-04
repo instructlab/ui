@@ -269,14 +269,16 @@ const ChatPage: React.FC = () => {
         </Title>
         <Content>
           <br />
-          Chat with the served models. Currently it allows you to chat with Merlinite-7b and Granite-7B models hosted on your Cloud. Users can add
-          their own custom endpoint using the &quot;Custom Model Endpoints&quot; feature. Once the custom endpoint is configured, it will be available
-          in the model selector dropdown with the pre hosted models.
+          Chat with a language model that&apos;s hosted on your cloud. Choose a supported model from the model selector or configure your own custom
+          endpoint using the{' '}
+          <a href="/playground/endpoints" target="_blank">
+            Custom Model Endpoints
+          </a>{' '}
+          feature.
         </Content>
       </PageSection>
       <div className={styles.chatContainer}>
         <div className={styles.modelSelector}>
-          <span className={styles.modelSelectorLabel}>Model Selector</span>
           <Select
             id="single-select"
             isOpen={isSelectOpen}
@@ -322,7 +324,7 @@ const ChatPage: React.FC = () => {
               value={question}
               onChange={handleQuestionChange}
               onSelect={handleQuestionFieldSelected}
-              placeholder="Type your question here..."
+              placeholder="Enter a question..."
             />
           </FormGroup>
           <Button variant="primary" type="submit">
