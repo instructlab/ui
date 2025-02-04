@@ -3,6 +3,7 @@ import yaml from 'js-yaml';
 import { KnowledgeYamlData, SkillYamlData } from '@/types';
 import { DropEvent, MultipleFileUpload, MultipleFileUploadMain } from '@patternfly/react-core';
 import { UploadIcon } from '@patternfly/react-icons';
+import { ActionGroupAlertContent } from './Knowledge/Github';
 
 interface readFile {
   fileName: string;
@@ -16,13 +17,15 @@ interface YamlFileUploadProps {
   isKnowledgeForm: boolean;
   onYamlUploadKnowledgeFillForm?: (data: KnowledgeYamlData) => void;
   onYamlUploadSkillsFillForm?: (data: SkillYamlData) => void;
+  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
 }
 
 const YamlFileUpload: React.FC<YamlFileUploadProps> = ({
   setIsModalOpen,
   isKnowledgeForm,
   onYamlUploadKnowledgeFillForm,
-  onYamlUploadSkillsFillForm
+  onYamlUploadSkillsFillForm,
+  setActionGroupAlertContent
 }) => {
   const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
   const [readFileData, setReadFileData] = React.useState<readFile[]>([]);
@@ -51,9 +54,23 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({
           onYamlUploadSkillsFillForm?.(parsedData);
           setIsModalOpen(false);
         } else {
+          const yamlFileSchemaIssueAlertContent: ActionGroupAlertContent = {
+            title: 'YAML file upload error!',
+            message: `This yaml file does not match the Skills or Knowledge schema.`,
+            success: false,
+            timeout: false
+          };
+          setActionGroupAlertContent(yamlFileSchemaIssueAlertContent);
           console.error('This yaml file does not match the Skills or Knowledge schema');
         }
       } catch (error) {
+        const yamlFileParsingIssueAlertContent: ActionGroupAlertContent = {
+          title: 'YAML file upload error!',
+          message: `This yaml file is not correct and cannot be parsed.`,
+          success: false,
+          timeout: false
+        };
+        setActionGroupAlertContent(yamlFileParsingIssueAlertContent);
         console.error('Error parsing YAML file:', error);
       }
     };
