@@ -1,4 +1,4 @@
-// src/app/edit-submission/knowledge/native/[id]/EditKnowledge.tsx
+// src/app/components/contribute/EditKnowledge/native/EditKnowledge.tsx
 'use client';
 
 import * as React from 'react';

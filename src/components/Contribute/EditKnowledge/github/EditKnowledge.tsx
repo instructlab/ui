@@ -1,4 +1,4 @@
-// src/app/edit-submission/knowledge/[id]/page.tsx
+// src/app/components/contribute/EditKnowledge/github/EditKnowledge.tsx
 'use client';
 
 import * as React from 'react';

@@ -2,7 +2,7 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 import '../knowledge.css';
-import { getGitHubUsername } from '@/utils/github';
+import { getGitHubUserInfo } from '@/utils/github';
 import { useSession } from 'next-auth/react';
 import AuthorInformation from '@/components/Contribute/AuthorInformation';
 import { FormType } from '@/components/Contribute/AuthorInformation';
@@ -153,15 +153,8 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     getEnvVariables();
   }, []);
 
-  useEffect(() => {
-    if (session?.user?.name && session?.user?.email) {
-      setName(session?.user?.name);
-      setEmail(session?.user?.email);
-    }
-  }, [session?.user]);
-
   useMemo(() => {
-    const fetchUsername = async () => {
+    const fetchUserInfo = async () => {
       if (session?.accessToken) {
         try {
           const headers = {
@@ -171,15 +164,17 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
             'X-GitHub-Api-Version': '2022-11-28'
           };
 
-          const fetchedUsername = await getGitHubUsername(headers);
-          setGithubUsername(fetchedUsername);
+          const fetchedUserInfo = await getGitHubUserInfo(headers);
+          setGithubUsername(fetchedUserInfo.login);
+          setName(fetchedUserInfo.name);
+          setEmail(fetchedUserInfo.email);
         } catch (error) {
-          console.error('Failed to fetch GitHub username:', error);
+          console.error('Failed to fetch GitHub user info:', error);
         }
       }
     };
 
-    fetchUsername();
+    fetchUserInfo();
   }, [session?.accessToken]);
 
   useEffect(() => {
@@ -523,7 +518,6 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
   };
 
   const onYamlUploadKnowledgeFillForm = (data: KnowledgeYamlData): void => {
-    setName(data.created_by ?? '');
     setDocumentOutline(data.document_outline ?? '');
     setSubmissionSummary(data.document_outline ?? '');
     setDomain(data.domain ?? '');
