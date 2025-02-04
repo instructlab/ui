@@ -468,6 +468,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
           setIsModalOpen={setIsModalOpen}
           isKnowledgeForm={false}
           onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
+          setActionGroupAlertContent={setActionGroupAlertContent}
         />
 
         <Wizard startIndex={activeStepIndex} onClose={handleCancel} height={600}>

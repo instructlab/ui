@@ -714,6 +714,7 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
           setIsModalOpen={setIsYamlModalOpen}
           isKnowledgeForm={true}
           onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
+          setActionGroupAlertContent={setActionGroupAlertContent}
         />
 
         <Wizard startIndex={activeStepIndex} onClose={handleCancel} height={600}>
