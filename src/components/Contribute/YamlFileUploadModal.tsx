@@ -2,6 +2,7 @@ import React from 'react';
 import YamlFileUpload from './YamlFileUpload';
 import { KnowledgeYamlData, SkillYamlData } from '@/types';
 import { Modal, ModalVariant, ModalHeader, ModalBody } from '@patternfly/react-core';
+import { ActionGroupAlertContent } from './Knowledge/Github';
 
 interface Props {
   isModalOpen: boolean;
@@ -9,6 +10,7 @@ interface Props {
   isKnowledgeForm: boolean;
   onYamlUploadKnowledgeFillForm?: (data: KnowledgeYamlData) => void;
   onYamlUploadSkillsFillForm?: (data: SkillYamlData) => void;
+  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
 }
 
 export const YamlFileUploadModal: React.FunctionComponent<Props> = ({
@@ -16,7 +18,8 @@ export const YamlFileUploadModal: React.FunctionComponent<Props> = ({
   setIsModalOpen,
   isKnowledgeForm,
   onYamlUploadKnowledgeFillForm,
-  onYamlUploadSkillsFillForm
+  onYamlUploadSkillsFillForm,
+  setActionGroupAlertContent
 }) => {
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
@@ -40,6 +43,7 @@ export const YamlFileUploadModal: React.FunctionComponent<Props> = ({
             isKnowledgeForm={isKnowledgeForm}
             onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
             onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
+            setActionGroupAlertContent={setActionGroupAlertContent}
           />
         </ModalBody>
       </Modal>
