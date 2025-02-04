@@ -1,4 +1,4 @@
-// src/app/edit-submission/skill/[id]/EditSkillClientComponent.tsx
+// src/app/components/contribute/EditSkill/github/EditSkill.tsx
 'use client';
 
 import * as React from 'react';
