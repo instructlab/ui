@@ -8,9 +8,10 @@ import { DownloadIcon } from '@patternfly/react-icons';
 interface Props {
   knowledgeFormData: KnowledgeFormData;
   githubUsername: string | undefined;
+  isGithubMode: boolean;
 }
 
-export const DownloadDropdown: React.FunctionComponent<Props> = ({ knowledgeFormData, githubUsername }) => {
+export const DownloadDropdown: React.FunctionComponent<Props> = ({ knowledgeFormData, githubUsername, isGithubMode }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const onToggleClick = () => {
@@ -47,7 +48,7 @@ export const DownloadDropdown: React.FunctionComponent<Props> = ({ knowledgeForm
     >
       <DropdownList>
         <DownloadYaml knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
-        <DownloadAttribution knowledgeFormData={knowledgeFormData} />
+        {isGithubMode && <DownloadAttribution knowledgeFormData={knowledgeFormData} />}
       </DropdownList>
     </Dropdown>
   );

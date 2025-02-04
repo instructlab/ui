@@ -748,8 +748,8 @@ export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = 
               resetForm={resetForm}
             />
           )}
-          <DownloadDropdown knowledgeFormData={knowledgeFormData} githubUsername={email} />
-          <ViewDropdown knowledgeFormData={knowledgeFormData} githubUsername={email} />
+          <DownloadDropdown knowledgeFormData={knowledgeFormData} githubUsername={email} isGithubMode={false} />
+          <ViewDropdown knowledgeFormData={knowledgeFormData} githubUsername={email} isGithubMode={false} />
           <Button variant="link" type="button" onClick={handleCancel}>
             Cancel
           </Button>

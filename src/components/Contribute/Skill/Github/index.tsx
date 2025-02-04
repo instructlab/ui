@@ -525,8 +525,8 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
               resetForm={resetForm}
             />
           )}
-          <DownloadDropdown skillFormData={skillFormData} githubUsername={githubUsername} />
-          <ViewDropdown skillFormData={skillFormData} githubUsername={githubUsername} />
+          <DownloadDropdown skillFormData={skillFormData} githubUsername={githubUsername} isGithubMode={true} />
+          <ViewDropdown skillFormData={skillFormData} githubUsername={githubUsername} isGithubMode={true} />
           <Button variant="link" type="button" onClick={handleCancel}>
             Cancel
           </Button>
