@@ -1,14 +1,21 @@
-// src/app/api/upload/route.ts
+// src/app/api/github/knowledge-files/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 const GITHUB_API_URL = 'https://api.github.com';
-const TAXONOMY_DOCUMENTS_REPO = process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO!;
+const TAXONOMY_DOCUMENTS_REPO = process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO || 'github.com/instructlab-public/taxonomy-knowledge-docs';
 const BASE_BRANCH = 'main';
+
+// Interface for the response
+interface KnowledgeFile {
+  filename: string;
+  content: string;
+  commitSha: string;
+  commitDate: string;
+}
 
 export async function POST(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET! });
-  console.log('GitHub Token:', token);
 
   if (!token || !token.accessToken) {
     console.error('Unauthorized: Missing or invalid access token');
@@ -29,15 +36,10 @@ export async function POST(req: NextRequest) {
 
     // Fetch GitHub username and email
     const { githubUsername, userEmail } = await getGitHubUsernameAndEmail(headers);
-    console.log('GitHub Username:', githubUsername);
-    console.log('User Email:', userEmail);
 
     // Split the TAXONOMY_DOCUMENTS_REPO into owner and repo name
     const repoPath = TAXONOMY_DOCUMENTS_REPO.replace('github.com/', '');
     const [repoOwner, repoName] = repoPath.split('/');
-
-    console.log(`Repo Owner: ${repoOwner}`);
-    console.log(`Repo Name: ${repoName}`);
 
     // Check if the repository is already forked
     const repoForked = await checkIfRepoExists(headers, githubUsername, repoName);
@@ -241,4 +243,118 @@ async function createFilesCommit(
   console.log('Branch reference updated');
 
   return commitData.sha;
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET! });
+
+    if (!token || !token.accessToken) {
+      console.error('Unauthorized: Missing or invalid access token');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const githubToken = token.accessToken as string;
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${githubToken}`,
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+
+    // Fetch GitHub username and email
+    const { githubUsername } = await getGitHubUsernameAndEmail(headers);
+
+    // Split the TAXONOMY_DOCUMENTS_REPO into owner and repo name
+    const repoPath = TAXONOMY_DOCUMENTS_REPO.replace('github.com/', '');
+    const [_, repoName] = repoPath.split('/');
+
+    const files = await fetchMarkdownFiles(headers, githubUsername, repoName, BASE_BRANCH);
+    const knowledgeFiles: KnowledgeFile[] = [];
+
+    for (const file of files) {
+      const commitInfo = await fetchCommitInfo(headers, githubUsername, repoName, file.path);
+      if (commitInfo) {
+        const { sha, date } = commitInfo;
+        const content = await fetchFileContent(headers, githubUsername, repoName, file.path);
+        knowledgeFiles.push({
+          filename: file.path,
+          content: content,
+          commitSha: sha,
+          commitDate: date
+        });
+      }
+    }
+    return NextResponse.json({ files: knowledgeFiles }, { status: 200 });
+  } catch (error) {
+    console.error('Failed to process GET request:', error);
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
+}
+
+// Fetch all markdown files from the main branch
+async function fetchMarkdownFiles(
+  headers: HeadersInit,
+  owner: string,
+  repo: string,
+  branchName: string
+): Promise<{ path: string; content: string }[]> {
+  try {
+    const response = await fetch(`${GITHUB_API_URL}/repos/${owner}/${repo}/git/trees/${branchName}?recursive=1`, { headers });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to fetch files from knowledge document repository:', response.status, errorText);
+      throw new Error('Failed to fetch file from knowledge document  repository:');
+    }
+
+    const data = await response.json();
+    const files = data.tree.filter(
+      (item: { type: string; path: string }) => item.type === 'blob' && item.path.endsWith('.md') && item.path !== 'README.md'
+    );
+    return files.map((file: { path: string; content: string }) => ({ path: file.path, content: file.content }));
+  } catch (error) {
+    console.error('Error fetching files from knowledge document repository:', error);
+    return [];
+  }
+}
+
+// Fetch the latest commit info for a file
+async function fetchCommitInfo(headers: HeadersInit, owner: string, repo: string, filePath: string): Promise<{ sha: string; date: string } | null> {
+  try {
+    const response = await fetch(`${GITHUB_API_URL}/repos/${owner}/${repo}/commits?path=${filePath}`, { headers });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to fetch commit information for file:', response.status, errorText);
+      throw new Error('Failed to fetch commit information for file.');
+    }
+
+    const data = await response.json();
+    if (data.length === 0) return null;
+
+    return {
+      sha: data[0].sha,
+      date: data[0].commit.committer.date
+    };
+  } catch (error) {
+    console.error(`Error fetching commit info for ${filePath}:`, error);
+    return null;
+  }
+}
+
+// Fetch the content of a file from the repository
+async function fetchFileContent(headers: HeadersInit, owner: string, repo: string, filePath: string): Promise<string> {
+  try {
+    const response = await fetch(`${GITHUB_API_URL}/repos/${owner}/${repo}/contents/${filePath}`, { headers });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Failed to fetch content of file ${filePath} :`, response.status, errorText);
+      throw new Error(`Failed to fetch content of file ${filePath}.`);
+    }
+
+    const data = await response.json();
+    return Buffer.from(data.content, 'base64').toString('utf-8');
+  } catch (error) {
+    console.error(`Error fetching content for ${filePath}:`, error);
+    return '';
+  }
 }

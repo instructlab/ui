@@ -1,12 +1,9 @@
 // src/components/Contribute/Knowledge/Native/KnowledgeSeedExampleNative/KnowledgeQuestionAnswerPairsNative.tsx
 import React from 'react';
-import { Accordion, AccordionItem, AccordionContent, AccordionToggle } from '@patternfly/react-core/dist/dynamic/components/Accordion';
-import { FormFieldGroupHeader } from '@patternfly/react-core/dist/dynamic/components/Form';
 import KnowledgeQuestionAnswerPairsNative from '../KnowledgeQuestionAnswerPairsNative/KnowledgeQuestionAnswerPairs';
 import type { KnowledgeSeedExample } from '@/types';
-import ExternalLinkAltIcon from '@patternfly/react-icons/dist/esm/icons/external-link-alt-icon';
-import { Button } from '@patternfly/react-core';
-import { PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
+import { Accordion, AccordionContent, AccordionItem, AccordionToggle, Button, FormFieldGroupHeader } from '@patternfly/react-core';
+import { ExternalLinkAltIcon, PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
 
 interface Props {
   seedExamples: KnowledgeSeedExample[];

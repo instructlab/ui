@@ -1,9 +1,9 @@
-// src/components/Contribute/Knowledge/KnowledgeSeedExample/KnowledgeSeedExample.tsx
+// src/components/Contribute/Knowledge/Native/KnowledgeSeedExampleNative/KnowledgeQuestionAnswerPairsNative.tsx
 import React from 'react';
 import KnowledgeQuestionAnswerPairs from '../KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs';
 import type { KnowledgeSeedExample } from '@/types';
-import { FormFieldGroupHeader, Accordion, AccordionItem, AccordionToggle, AccordionContent } from '@patternfly/react-core';
-import { ExternalLinkAltIcon } from '@patternfly/react-icons';
+import { Accordion, AccordionContent, AccordionItem, AccordionToggle, Button, FormFieldGroupHeader } from '@patternfly/react-core';
+import { ExternalLinkAltIcon, PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
 
 interface Props {
   seedExamples: KnowledgeSeedExample[];
@@ -14,6 +14,11 @@ interface Props {
   handleAnswerInputChange: (seedExampleIndex: number, questionAndAnswerIndex: number, answerValue: string) => void;
   handleAnswerBlur: (seedExampleIndex: number, questionAndAnswerIndex: number) => void;
   toggleSeedExampleExpansion?: (index: number) => void;
+  addDocumentInfo: (repoUrl: string, commitSha: string, docName: string) => void;
+  addSeedExample: () => void;
+  deleteSeedExample: (seedExampleIndex: number) => void;
+  repositoryUrl: string;
+  commitSha: string;
 }
 
 const KnowledgeSeedExample: React.FC<Props> = ({
@@ -24,7 +29,12 @@ const KnowledgeSeedExample: React.FC<Props> = ({
   handleQuestionBlur,
   handleAnswerInputChange,
   handleAnswerBlur,
-  toggleSeedExampleExpansion = () => {}
+  toggleSeedExampleExpansion = () => {},
+  addDocumentInfo,
+  addSeedExample,
+  deleteSeedExample,
+  repositoryUrl,
+  commitSha
 }) => {
   return (
     <div>
@@ -53,7 +63,12 @@ const KnowledgeSeedExample: React.FC<Props> = ({
         {seedExamples.map((seedExample: KnowledgeSeedExample, seedExampleIndex: number) => (
           <AccordionItem key={seedExampleIndex} isExpanded={seedExample.isExpanded}>
             <AccordionToggle onClick={() => toggleSeedExampleExpansion(seedExampleIndex)} id={`seed-example-toggle-${seedExampleIndex}`}>
-              Seed Example {seedExampleIndex + 1} {seedExample.immutable && <span style={{ color: 'red' }}>*</span>}
+              <span style={{ display: 'flex', alignItems: 'normal', justifyContent: 'space-between', width: '100%' }}>
+                Seed Example {seedExampleIndex + 1} {seedExample.immutable && '*'}
+                {!seedExample.immutable && (
+                  <Button icon={<TrashIcon />} variant="plain" aria-label="Remove" onClick={() => deleteSeedExample(seedExampleIndex)} />
+                )}
+              </span>
             </AccordionToggle>
             <AccordionContent id={`seed-example-content-${seedExampleIndex}`}>
               <KnowledgeQuestionAnswerPairs
@@ -65,11 +80,19 @@ const KnowledgeSeedExample: React.FC<Props> = ({
                 handleQuestionBlur={handleQuestionBlur}
                 handleAnswerInputChange={handleAnswerInputChange}
                 handleAnswerBlur={handleAnswerBlur}
+                addDocumentInfo={addDocumentInfo}
+                repositoryUrl={repositoryUrl}
+                commitSha={commitSha}
               />
             </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>
+      <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+        <Button icon={<PlusCircleIcon />} variant="link" type="button" onClick={addSeedExample}>
+          Add Seed Example
+        </Button>
+      </div>
     </div>
   );
 };

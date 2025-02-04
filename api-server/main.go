@@ -214,7 +214,7 @@ func (srv *ILabServer) runServer(cmd *cobra.Command, args []string) {
 		srv.ilabCmd = ilabPath
 	} else {
 		// Use ilab from virtual environment
-		srv.ilabCmd = filepath.Join(srv.baseDir, "venv", "bin", "ilab")
+		srv.ilabCmd = filepath.Join(srv.baseDir, "bin", "ilab")
 		if _, err := os.Stat(srv.ilabCmd); os.IsNotExist(err) {
 			srv.log.Fatalf("ilab binary not found at %s. Please ensure the virtual environment is set up correctly.", srv.ilabCmd)
 		}
@@ -270,6 +270,7 @@ func (srv *ILabServer) runServer(cmd *cobra.Command, args []string) {
 	r.HandleFunc("/vllm-status", srv.getVllmStatusHandler).Methods("GET")
 	r.HandleFunc("/gpu-free", srv.getGpuFreeHandler).Methods("GET")
 	r.HandleFunc("/served-model-jobids", srv.listServedModelJobIDsHandler).Methods("GET")
+	r.HandleFunc("/model/convert", srv.convertModelHandler).Methods("POST")
 
 	srv.log.Info("Server starting on port 8080... (Taxonomy path: ", srv.taxonomyPath, ")")
 	if err := http.ListenAndServe("0.0.0.0:8080", r); err != nil {
@@ -510,19 +511,17 @@ func (srv *ILabServer) startTrainJob(modelName, branchName string, epochs *int) 
 	}
 
 	if srv.pipelineType == "simple" && !srv.rhelai {
-		// TODO: Works on RHEL not from ilab main. --model-path seems to only accept the repo/name here and not the full path. Commenting for now.
-		//homeDir, err := os.UserHomeDir()
-		//if err != nil {
-		//  return "", fmt.Errorf("failed to get user home directory: %v", err)
-		//}
-		//datasetDir := filepath.Join(homeDir, ".local", "share", "instructlab", "datasets")
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return "", fmt.Errorf("failed to get user home directory: %v", err)
+		}
+		modelDir := filepath.Join(homeDir, ".cache", "instructlab", "models")
 
 		cmdArgs = []string{
 			"model", "train",
 			"--pipeline", srv.pipelineType,
 			"--optimize-memory",
-			//fmt.Sprintf("--data-path=%s", datasetDir), // Leaving commented out for now until the above todo is resolved.
-			fmt.Sprintf("--model-path=%s", modelName),
+			fmt.Sprintf("--gguf-model-path=%s/%s", modelDir, modelName),
 		}
 		if srv.isOSX {
 			cmdArgs = append(cmdArgs, "--device=mps")
@@ -561,7 +560,8 @@ func (srv *ILabServer) startTrainJob(modelName, branchName string, epochs *int) 
 		}
 	}
 
-	srv.log.Infof("[ILAB TRAIN COMMAND] %s %v", ilabPath, cmdArgs)
+	finalCmdString := fmt.Sprintf("[ILAB TRAIN COMMAND] %s %v", ilabPath, cmdArgs)
+	srv.log.Info(finalCmdString)
 
 	cmd := exec.Command(ilabPath, cmdArgs...)
 	if !srv.rhelai {
@@ -577,12 +577,15 @@ func (srv *ILabServer) startTrainJob(modelName, branchName string, epochs *int) 
 	cmd.Stdout = logFile
 	cmd.Stderr = logFile
 
+	fmt.Fprintln(logFile, finalCmdString)
+
 	srv.log.Infof("[ILAB TRAIN COMMAND] %s %v", ilabPath, cmdArgs)
 	if err := cmd.Start(); err != nil {
 		return "", fmt.Errorf("error starting training command: %v", err)
 	}
 	srv.log.Infof("Training process started with PID: %d", cmd.Process.Pid)
 
+	// Create a DB record for this job
 	newJob := &Job{
 		JobID:     jobID,
 		Cmd:       ilabPath,
@@ -597,6 +600,7 @@ func (srv *ILabServer) startTrainJob(modelName, branchName string, epochs *int) 
 		return "", fmt.Errorf("failed to create job in DB: %v", err)
 	}
 
+	// Wait in a goroutine for the job to complete
 	go func() {
 		defer logFile.Close()
 		err := cmd.Wait()

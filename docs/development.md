@@ -286,7 +286,8 @@ to port `3000`.
 ## Updating the Sealed Secrets for the ArgoCD Application
 
 To update the sealed secret, you must communicate with the controller that lives in the `kube-system` namespace of the qa cluster.
-After signing in to the cluster, you can re-writing the secret file that you want to seal. Then you simply `cat` the secret file,
+After signing in to the cluster, make certain you are in the correct namespace in which you want your sealed-secret to live (`instructlab`).
+You can re-writing the secret file that you want to seal. Then you simply `cat` the secret file,
 and pipe that to the `kubeseal` binary as follows:
 
 ```bash
@@ -300,6 +301,17 @@ This will generate the new encrypted sealed-secret manifest in the file you spec
 BE CERTAIN to delete the un-encrypted secret file, we do not want to leak these values in `git`. Finally you can move the `sealed-secret`
 to its correct location within this repo.
 
-## Common issues
+The goal, however, is to keep these secrets updated with the contents of the `.env` file.
+You can do this using the command below from the root of the repo, however be sure to subsitute your environment (`prod` or `qa`)
+where it asks you to:
+
+```bash
+kubectl create secret generic <environment>.env --from-env-file .env --dry-run=client -o yaml | kubeseal \
+   --controller-name=sealed-secrets-controller \
+   --controller-namespace=kube-system \
+   --format yaml > deploy/k8s/overlays/openshift/<environment>/<environment>.env.sealedsecret.yaml
+```
+
+### Common issues
 
 - `error: cannot get sealed secret service: Unauthorized`: You must be signed in to the qa cluster to be able to communicate with the sealed secrets controller.
