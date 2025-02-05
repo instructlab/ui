@@ -141,6 +141,9 @@ const DocumentInformation: React.FC<Props> = ({
           if (response.status === 201) {
             const result = await response.json();
             console.log('Files uploaded result:', result);
+            setKnowledgeDocumentRepositoryUrl(result.repoUrl);
+            setKnowledgeDocumentCommit(result.commitSha);
+            setDocumentName(result.documentNames.join(', ')); // Populate the patterns field
 
             const alertInfo: AlertInfo = {
               type: 'success',

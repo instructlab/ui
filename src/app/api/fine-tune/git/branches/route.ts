@@ -5,9 +5,10 @@ import fs from 'fs';
 import path from 'path';
 
 const REMOTE_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || '';
+const REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR = '/tmp/.instructlab-ui';
 
 export async function GET() {
-  const REPO_DIR = path.join(REMOTE_TAXONOMY_ROOT_DIR, '/taxonomy');
+  const REPO_DIR = findTaxonomyRepoPath();
   try {
     console.log(`Checking local taxonomy directory for branches: ${REPO_DIR}`);
 
@@ -62,4 +63,29 @@ export async function GET() {
     console.error('Failed to list branches from local taxonomy (fine-tune):', error);
     return NextResponse.json({ error: 'Failed to list branches from local taxonomy (fine-tune)' }, { status: 500 });
   }
+}
+
+function findTaxonomyRepoPath(): string {
+  let remoteTaxonomyRepoDirFinal: string = '';
+
+  const remoteTaxonomyRepoContainerMountDir = path.join(REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR, '/taxonomy');
+  const remoteTaxonomyRepoDir = path.join(REMOTE_TAXONOMY_ROOT_DIR, '/taxonomy');
+
+  // Check if there is taxonomy repository mounted in the container
+  if (fs.existsSync(remoteTaxonomyRepoContainerMountDir) && fs.readdirSync(remoteTaxonomyRepoContainerMountDir).length !== 0) {
+    remoteTaxonomyRepoDirFinal = remoteTaxonomyRepoContainerMountDir;
+    console.log('Remote taxonomy repository ', remoteTaxonomyRepoDir, ' is mounted at:', remoteTaxonomyRepoDirFinal);
+  } else {
+    // If remote taxonomy is not mounted, it means it's local deployment and we can directly use the paths
+    if (fs.existsSync(remoteTaxonomyRepoDir) && fs.readdirSync(remoteTaxonomyRepoDir).length !== 0) {
+      remoteTaxonomyRepoDirFinal = remoteTaxonomyRepoDir;
+    }
+  }
+  if (remoteTaxonomyRepoDirFinal === '') {
+    console.warn('Remote taxonomy repository path does not exist.');
+    return remoteTaxonomyRepoDirFinal;
+  }
+
+  console.log('Remote taxonomy repository path:', remoteTaxonomyRepoDirFinal);
+  return remoteTaxonomyRepoDirFinal;
 }

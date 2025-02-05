@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 const GITHUB_API_URL = 'https://api.github.com';
-const TAXONOMY_DOCUMENTS_REPO = process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO || 'github.com/instructlab-public/taxonomy-knowledge-docs';
+const TAXONOMY_DOCUMENTS_REPO = process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO || 'https://github.com/instructlab-public/taxonomy-knowledge-docs';
 const BASE_BRANCH = 'main';
 
 // Interface for the response

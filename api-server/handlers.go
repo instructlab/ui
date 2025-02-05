@@ -807,8 +807,8 @@ func (srv *ILabServer) serveModelHandler(modelPath, port string, w http.Response
 	}
 
 	cmdArgs := []string{
-		"serve", "model",
-		"--model", modelPath,
+		"serve",
+		"--model-path", modelPath,
 		"--host", "0.0.0.0",
 		"--port", port,
 	}
