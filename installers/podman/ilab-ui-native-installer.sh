@@ -15,7 +15,7 @@ declare USER_TAXONOMY_DIR
 declare AUTH_URL="http://localhost:3000"
 declare AUTH_SECRET="your_super_secret_random_string"
 declare DEV_MODE="false"
-declare EXPERIMENTAL_FEATURES="false"
+declare EXPERIMENTAL_FEATURES=""
 declare PYENV_DIR=""
 
 BINARY_INSTALL_DIR=./
@@ -45,13 +45,14 @@ usage_install() {
 	echo -e "${green}  --username TEXT${reset}              (Required) Set username for authentication."
 	echo -e "${green}  --password TEXT${reset}              (Required) Set password for authentication."
 	echo -e "${green}  --taxonomy-dir PATH${reset}          (Optional) Path of the taxonomy repo directory."
-	echo -e "                                                          e.g /var/home/cloud-user/.local/share/instructlab/taxonomy."
+	echo -e "                                        e.g /var/home/cloud-user/.local/share/instructlab/taxonomy."
 	echo -e "${green}  --auth-url URL${reset}               (Optional) Authentication URL. (default: https://localhost:3000)."
 	echo -e "${green}  --auth-secret TEXT${reset}           (Optional) Authentication secret."
 	echo -e "${green}  --dev-mode ${reset}                  (Optional)Enable development mode. Deploys assistive features for Developers."
 	echo -e "${green}  --experimental-features ${reset}     (Optional)Enable experimental features available in Native mode."
+	echo -e "                                         Installer auto enable these features if InstructLab is setup on host."
 	echo -e "${green}  --python-venv-dir ${reset}           (Optional)Path to the InstructLab Python virtual environment directory."
-	echo -e "                                                         e.g /var/home/cloud-user/instructlab/venv \n"
+	echo -e "                                         e.g /var/home/cloud-user/instructlab/venv \n"
 	exit 1
 }
 
@@ -127,7 +128,7 @@ verify_user_taxonomy() {
 					SELECTED_TAXONOMY_DIR=$USER_TAXONOMY_DIR
 				fi
 			else
-				echo -e "${green}User provided taxonomy and the ilab configured taxonomy directory is same.{reset}\n"
+				echo -e "${green}User provided taxonomy and the ilab configured taxonomy directory is same.${reset}\n"
 			fi
 			return
 		fi
@@ -140,7 +141,10 @@ discover_pyenv() {
 	echo -e "${green}Discovering python virtual environment present on the host...${reset}\n"
 	results=()
 	while IFS= read -r line; do
-		results+=("$line")
+		# Skip paths containing "containers/storage/overlay"
+		if [[ "$line" != *"containers/storage/overlay"* ]]; then
+			results+=("$line")
+		fi
 	done < <(find "$HOME" -type d -name "bin" -exec test -f {}/activate \; -print 2>/dev/null)
 
 	# Check if any results were found
@@ -178,14 +182,14 @@ discover_taxonomy_path() {
 	taxonomy_path=""
 	if [[ "$IS_ILAB_INSTALLED" == "true" ]]; then
 		if [[ "$PYENV_DIR" == "" && "$DISCOVERED_PYENV_DIR" == "" ]]; then
-			taxonomy_path=$(ilab config show 2>/dev/null | grep "taxonomy_path" | head -n 1 | cut -d ':' -f 2)
+			taxonomy_path=$(ilab config show 2>/dev/null | grep "taxonomy_path" | head -n 1 | cut -d ':' -f 2 | sed 's/^ *//;s/ *$//' | tr -d '\r\n')
 		else
 			# Always use discovered python virtual environment,
 			venv_ilab="$DISCOVERED_PYENV_DIR/bin/ilab"
-			taxonomy_path=$($venv_ilab config show 2>/dev/null | grep "taxonomy_path" | head -n 1 | cut -d ':' -f 2)
+			taxonomy_path=$($venv_ilab config show 2>/dev/null | grep "taxonomy_path" | head -n 1 | cut -d ':' -f 2 | sed 's/^ *//;s/ *$//' | tr -d '\r\n')
 		fi
 	else
-		echo -e "${red}ilab is not set up on the host. Skip taxonomy path discovery.{reset}\n"
+		echo -e "${red}ilab is not set up on the host. Skip taxonomy path discovery.${reset}\n"
 		return
 	fi
 	if [[ -n "$taxonomy_path" ]]; then
@@ -226,7 +230,7 @@ if [[ "$COMMAND" == "install" ]]; then
 			shift 2
 			;;
 		--taxonomy-dir)
-			USER_TAXONOMY_DIR="$2"
+			USER_TAXONOMY_DIR=$(echo "$2" | sed 's/^ *//;s/ *$//')
 			shift 2
 			;;
 		--auth-url)
@@ -246,7 +250,7 @@ if [[ "$COMMAND" == "install" ]]; then
 			shift 2
 			;;
 		--python-venv-dir)
-			PYENV_DIR="$2"
+			PYENV_DIR=$(echo "$2" | sed 's/^ *//;s/ *$//')
 			shift 2
 			;;
 		--help)
@@ -325,7 +329,26 @@ if [[ "$COMMAND" == "install" ]]; then
 	AUTH_URL_B64=$(echo -n "$AUTH_URL" | base64)
 	AUTH_SECRET_B64=$(echo -n "$AUTH_SECRET" | base64)
 	DEV_MODE_B64=$(echo -n "$DEV_MODE" | base64)
-	EXPERIMENTAL_FEATURES_B64=$(echo -n "$EXPERIMENTAL_FEATURES" | base64)
+
+	if [[ "$EXPERIMENTAL_FEATURES" == "" ]]; then
+		if [[ "$IS_ILAB_INSTALLED" == "true" ]]; then
+			echo -e "${green}InstructLab is set up on the host, enabling experimental features.${reset}\n"
+			EXPERIMENTAL_FEATURES_B64=$(echo -n "true" | base64)
+		else
+			echo -e "${green}InstructLab is not set up on the host, not enabling experimental features.${reset}\n"
+			EXPERIMENTAL_FEATURES_B64=$(echo -n "false" | base64)
+		fi
+	elif [[ "$EXPERIMENTAL_FEATURES" == "true" ]]; then
+		if [[ "$IS_ILAB_INSTALLED" == "true" ]]; then
+			echo -e "${green}InstructLab is set up on the host, enabling experimental features.${reset}\n"
+		else
+			echo -e "${red}InstructLab is not set up on the host, enabling experimental features but they might not work as expected.${reset}\n"
+
+		fi
+		EXPERIMENTAL_FEATURES_B64=$(echo -n "true" | base64)
+	else
+		EXPERIMENTAL_FEATURES_B64=$(echo -n "false" | base64)
+	fi
 
 	# Download secret.yaml file
 	echo -e "${green}Downloading the secret.yaml sample file...${reset}\n"
@@ -469,13 +492,13 @@ elif [[ "$COMMAND" == "uninstall" ]]; then
 		# Run Podman commands to uninstall UI containers
 		echo -e "${green}Deleting the UI stack containers from Podman...${reset}\n"
 		if [ -f "instructlab-ui.yaml" ]; then
-    			podman kube down instructlab-ui.yaml
+			podman kube down instructlab-ui.yaml
 		else
 			echo -e "${red}instructlab-ui.yaml file does not exist, can't stop the relevant containers (if running). Continuing with cleanup...${reset}\n"
 		fi
 		echo -e "${green}Deleting the UI stack secrets from Podman...${reset}\n"
 		if [ -f "secret.yaml" ]; then
-    			podman kube down secret.yaml
+			podman kube down secret.yaml
 		else
 			echo -e "${red}secret.yaml file does not exist, can't unload the podman secrets. Continuing with cleanup...${reset}\n"
 		fi
