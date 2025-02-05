@@ -1,0 +1,15 @@
+/* Chat Bot Container */
+.chatHeader {
+  border-top: 1px solid var(--pf-t--global--border--color--100);
+  border-bottom: 1px solid var(--pf-t--global--border--color--100);
+}
+.chatBotMessageBar {
+  border: 1px solid var(--pf-t--global--border--color--100);
+}
+.chatBotContainer {
+  flex: 1;
+  overflow-y: hidden;
+}
+.chatBotContainer > div {
+  height: 100%;
+}

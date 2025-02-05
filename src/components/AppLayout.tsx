@@ -35,6 +35,7 @@ import '../styles/globals.scss';
 
 interface IAppLayout {
   children: React.ReactNode;
+  className?: string;
 }
 
 type Route = {
@@ -43,7 +44,7 @@ type Route = {
   children?: Route[];
 };
 
-const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
+const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className }) => {
   const { data: session, status } = useSession();
   const [isExperimentalEnabled, setExperimental] = useState(false);
 
@@ -184,7 +185,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const PageSkipToContent = <SkipToContent href={`#${pageId}`}>Skip to Content</SkipToContent>;
 
   return (
-    <Page mainContainerId={pageId} masthead={Header} isManagedSidebar sidebar={Sidebar} skipToContent={PageSkipToContent}>
+    <Page className={className} mainContainerId={pageId} masthead={Header} isManagedSidebar sidebar={Sidebar} skipToContent={PageSkipToContent}>
       {children}
     </Page>
   );
