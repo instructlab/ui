@@ -688,7 +688,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     {
       id: 'review-submission',
       name: 'Review Submission',
-      component: <ReviewSubmission knowledgeFormData={knowledgeFormData} />,
+      component: <ReviewSubmission knowledgeFormData={knowledgeFormData} isGithubMode={true} />,
       footer: {
         isNextDisabled: true
       }
@@ -789,8 +789,8 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
               resetForm={resetForm}
             />
           )}
-          <DownloadDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
-          <ViewDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} />
+          <DownloadDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} isGithubMode={true} />
+          <ViewDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} isGithubMode={true} />
           <Button variant="link" type="button" onClick={handleCancel}>
             Cancel
           </Button>

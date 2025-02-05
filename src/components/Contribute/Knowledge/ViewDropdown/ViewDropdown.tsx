@@ -9,9 +9,10 @@ import { EyeIcon, CodeIcon, FileIcon } from '@patternfly/react-icons';
 interface Props {
   knowledgeFormData: KnowledgeFormData;
   githubUsername: string | undefined;
+  isGithubMode: boolean;
 }
 
-export const ViewDropdown: React.FunctionComponent<Props> = ({ knowledgeFormData, githubUsername }) => {
+export const ViewDropdown: React.FunctionComponent<Props> = ({ knowledgeFormData, githubUsername, isGithubMode }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalContent, setModalContent] = useState<string>('');
@@ -100,18 +101,20 @@ export const ViewDropdown: React.FunctionComponent<Props> = ({ knowledgeFormData
             {' '}
             YAML Content
           </DropdownItem>
-          <DropdownItem
-            key="view-attribution"
-            onClick={handleViewAttribution}
-            icon={
-              <Icon>
-                <FileIcon />
-              </Icon>
-            }
-          >
-            {' '}
-            Attribution Content
-          </DropdownItem>
+          {isGithubMode && (
+            <DropdownItem
+              key="view-attribution"
+              onClick={handleViewAttribution}
+              icon={
+                <Icon>
+                  <FileIcon />
+                </Icon>
+              }
+            >
+              {' '}
+              Attribution Content
+            </DropdownItem>
+          )}
         </DropdownList>
       </Dropdown>
     </>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActionGroupAlertContent } from '..';
-import { AttributionData, SkillFormData, SkillYamlData } from '@/types';
+import { SkillFormData, SkillYamlData } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { validateFields } from '@/components/Contribute/Skill/validation';
@@ -17,7 +17,7 @@ interface Props {
 const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupAlertContent, email, resetForm }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!validateFields(skillFormData, setActionGroupAlertContent)) return;
+    if (!validateFields(skillFormData, setActionGroupAlertContent, true)) return;
 
     console.log('skillFormData :' + skillFormData);
     // Strip leading slash and ensure trailing slash in the file path
@@ -36,14 +36,6 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
     };
 
     const yamlString = dumpYaml(skillYamlData);
-
-    const attributionData: AttributionData = {
-      title_of_work: skillFormData.titleWork!,
-      license_of_the_work: skillFormData.licenseWork!,
-      creator_names: skillFormData.creators!,
-      link_to_work: '',
-      revision: ''
-    };
 
     const waitForSubmissionAlert: ActionGroupAlertContent = {
       title: 'Skill contribution submission in progress!',
@@ -66,7 +58,6 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
         action: 'submit',
         branchName: '',
         content: yamlString,
-        attribution: attributionData,
         name,
         email,
         submissionSummary,

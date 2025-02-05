@@ -20,20 +20,27 @@ const hasDuplicateSeedExamples = (seedExamples: SkillSeedExample[]): { duplicate
   return { duplicate: false, index: -1 };
 };
 
+const nativeOptionalKeys = ['titleWork', 'licenseWork', 'creators'];
+
 export const validateFields = (
   skillFormData: SkillFormData,
-  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>
+  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>,
+  isNativeMode: boolean
 ): boolean => {
   // validate that data has been entered into all fields
   for (const [key, value] of Object.entries(skillFormData)) {
     if (!value) {
-      const actionGroupAlertContent: ActionGroupAlertContent = {
-        title: `Please make sure you complete the ${key} field`,
-        message: `Some fields are not filled out`,
-        success: false
-      };
-      setActionGroupAlertContent(actionGroupAlertContent);
-      return false;
+      if (isNativeMode && nativeOptionalKeys.includes(key)) {
+        continue;
+      } else {
+        const actionGroupAlertContent: ActionGroupAlertContent = {
+          title: `Please make sure you complete the ${key} field`,
+          message: `Some fields are not filled out`,
+          success: false
+        };
+        setActionGroupAlertContent(actionGroupAlertContent);
+        return false;
+      }
     }
   }
 
@@ -86,7 +93,7 @@ export const validateFields = (
 
 const optionalKeys = ['context', 'isContextValid', 'validationError', 'questionValidationError', 'answerValidationError'];
 
-export const checkSkillFormCompletion = (skillFormData: object): boolean => {
+export const checkSkillFormCompletion = (skillFormData: object, isNativeMode?: boolean): boolean => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isObject = (value: Record<string, any>): boolean => {
     return value && typeof value === 'object' && !Array.isArray(value);
@@ -104,6 +111,11 @@ export const checkSkillFormCompletion = (skillFormData: object): boolean => {
 
         // Skip validation for optional keys
         if (optionalKeys.includes(key)) {
+          return true;
+        }
+
+        // Skip validation for keys that are optional only for native mode
+        if (isNativeMode && nativeOptionalKeys.includes(key)) {
           return true;
         }
 
