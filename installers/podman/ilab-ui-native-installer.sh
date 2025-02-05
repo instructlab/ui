@@ -17,6 +17,7 @@ declare AUTH_SECRET="your_super_secret_random_string"
 declare DEV_MODE="false"
 declare EXPERIMENTAL_FEATURES=""
 declare PYENV_DIR=""
+declare API_SERVER_URL=""
 
 BINARY_INSTALL_DIR=./
 IS_ILAB_INSTALLED="true"
@@ -350,6 +351,8 @@ if [[ "$COMMAND" == "install" ]]; then
 		EXPERIMENTAL_FEATURES_B64=$(echo -n "false" | base64)
 	fi
 
+	API_SERVER_URL_B64=$(echo -n "$API_SERVER_URL" | base64)
+
 	# Download secret.yaml file
 	echo -e "${green}Downloading the secret.yaml sample file...${reset}\n"
 	curl -o secret.yaml https://raw.githubusercontent.com/instructlab/ui/main/deploy/podman/native/secret.yaml.example
@@ -370,6 +373,7 @@ if [[ "$COMMAND" == "install" ]]; then
 		sed -i "" "s|<AUTH_SECRET>|$AUTH_SECRET_B64|g" secret.yaml
 		sed -i "" "s|<DEV_MODE>|$DEV_MODE_B64|g" secret.yaml
 		sed -i "" "s|<EXPERIMENTAL_FEATURES>|$EXPERIMENTAL_FEATURES_B64|g" secret.yaml
+		sed -i "" "s|<API_SERVER_URL>|$API_SERVER_URL_B64|g" secret.yaml
 	else
 		sed -i "s|<UI_DEPLOYMENT>|$UI_DEPLOYMENT_B64|g" secret.yaml
 		sed -i "s|<USERNAME>|$USERNAME_B64|g" secret.yaml
@@ -379,6 +383,7 @@ if [[ "$COMMAND" == "install" ]]; then
 		sed -i "s|<AUTH_SECRET>|$AUTH_SECRET_B64|g" secret.yaml
 		sed -i "s|<DEV_MODE>|$DEV_MODE_B64|g" secret.yaml
 		sed -i "s|<EXPERIMENTAL_FEATURES>|$EXPERIMENTAL_FEATURES_B64|g" secret.yaml
+		sed -i "s|<API_SERVER_URL>|$API_SERVER_URL_B64|g" secret.yaml
 	fi
 
 	if [[ "$IS_ILAB_INSTALLED" == "true" ]]; then
@@ -420,7 +425,7 @@ if [[ "$COMMAND" == "install" ]]; then
 			# Check if VARIANT_ID is "rhel_ai"
 			if [ "$VARIANT_ID" == "rhel_ai" ]; then
 				echo -e "${green}Starting API server on OS: RHEL AI running on arch $ARCH ${reset}\n"
-				nohup ./ilab-apiserver --taxonomy-path "$SELECTED_TAXONOMY_DIR" --rhelai "$CUDA_FLAG" >$ILAB_APISERVER_LOG_FILE 2>&1 &
+				nohup ./ilab-apiserver --taxonomy-path "$SELECTED_TAXONOMY_DIR" --rhelai --vllm "$CUDA_FLAG" >$ILAB_APISERVER_LOG_FILE 2>&1 &
 			else
 				echo -e "${green}Starting API server on OS: $OS running on arch $ARCH ${reset}\n"
 				nohup ./ilab-apiserver --base-dir "$DISCOVERED_PYENV_DIR" --taxonomy-path "$SELECTED_TAXONOMY_DIR" "$CUDA_FLAG" >$ILAB_APISERVER_LOG_FILE 2>&1 &
@@ -479,7 +484,7 @@ elif [[ "$COMMAND" == "uninstall" ]]; then
 
 	read -r -p "Are you sure you want to uninstall the InstructLab UI stack? (yes/no): " CONFIRM
 	if [[ "$CONFIRM" != "yes" && "$CONFIRM" != "y" ]]; then
-		echo -e "${green}Uninstallation aborted.${reset}\n"
+		echo -e "${red}Uninstallation aborted.${reset}\n"
 		exit 0
 	fi
 
