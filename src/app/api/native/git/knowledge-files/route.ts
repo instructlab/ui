@@ -10,7 +10,8 @@ import http from 'isomorphic-git/http/node';
 // Constants for repository paths
 const TAXONOMY_DOCS_ROOT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || '';
 const TAXONOMY_DOCS_CONTAINER_MOUNT_DIR = '/tmp/.instructlab-ui';
-const TAXONOMY_KNOWLEDGE_DOCS_REPO_URL = process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO || 'github.com/instructlab-public/taxonomy-knowledge-docs';
+const TAXONOMY_KNOWLEDGE_DOCS_REPO_URL =
+  process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO || 'https://github.com/instructlab-public/taxonomy-knowledge-docs';
 const BASE_BRANCH = 'main';
 
 // Interface for the response
@@ -223,10 +224,10 @@ async function cloneTaxonomyDocsRepo() {
   const taxonomyDocsDirectoryPath = path.join(remoteTaxonomyRepoDirFinal, '/taxonomy-knowledge-docs');
 
   if (fs.existsSync(taxonomyDocsDirectoryPath)) {
-    console.log(`Using existing taxonomy knowledge docs repository at ${remoteTaxonomyRepoDir}/taxonomy-knowledge-docs.`);
+    console.log(`Using existing taxonomy knowledge docs repository at ${TAXONOMY_DOCS_ROOT_DIR}/taxonomy-knowledge-docs.`);
     return taxonomyDocsDirectoryPath;
   } else {
-    console.log(`Taxonomy knowledge docs repository not found at ${taxonomyDocsDirectoryPath}. Cloning...`);
+    console.log(`Taxonomy knowledge docs repository not found at ${TAXONOMY_DOCS_ROOT_DIR}/taxonomy-knowledge-docs. Cloning...`);
   }
 
   try {

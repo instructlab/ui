@@ -18,7 +18,9 @@ export async function GET() {
     ENABLE_DEV_MODE: process.env.IL_ENABLE_DEV_MODE || 'false',
     EXPERIMENTAL_FEATURES: process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES || '',
     TAXONOMY_ROOT_DIR: process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || '',
-    TAXONOMY_KNOWLEDGE_DOCUMENT_REPO: process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO || 'github.com/instructlab-public/taxonomy-knowledge-docs'
+    TAXONOMY_KNOWLEDGE_DOCUMENT_REPO:
+      process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO || 'https://github.com/instructlab-public/taxonomy-knowledge-docs',
+    API_SERVER: process.env.NEXT_PUBLIC_API_SERVER
   };
 
   return NextResponse.json(envConfig);

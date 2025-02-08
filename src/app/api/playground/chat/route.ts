@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     const requestData = {
       model: modelName,
-      messages,
+      messages: messages,
       stream: true
     };
 

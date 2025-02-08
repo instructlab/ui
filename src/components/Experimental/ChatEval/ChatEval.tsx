@@ -42,11 +42,9 @@ import logo from '../../../../public/bot-icon-chat-32x32.svg';
 import userLogo from '../../../../public/default-avatar.svg';
 import ModelStatusIndicator from '@/components/Experimental/ModelServeStatus/ModelServeStatus';
 
-// TODO: get nextjs app router server side render working with the patternfly chatbot component.
-const MODEL_SERVER_URL = process.env.NEXT_PUBLIC_MODEL_SERVER_URL;
-
 const ChatModelEval: React.FC = () => {
   const [isUnifiedInput, setIsUnifiedInput] = useState(false);
+  const [modelServerURL, setModelServerURL] = useState<string>('');
 
   // States for unified input
   const [questionUnified, setQuestionUnified] = useState('');
@@ -54,14 +52,17 @@ const ChatModelEval: React.FC = () => {
   // States for left chat
   const [questionLeft, setQuestionLeft] = useState('');
   const [messagesLeft, setMessagesLeft] = useState<MessageProps[]>([]);
+  const [currentMessageLeft, setCurrentMessageLeft] = React.useState<string[]>([]);
   const [selectedModelLeft, setSelectedModelLeft] = useState<Model | null>(null);
   const [alertMessageLeft, setAlertMessageLeft] = useState<{ title: string; message: string; variant: 'danger' | 'info' } | undefined>(undefined);
 
   // States for right chat
   const [questionRight, setQuestionRight] = useState('');
   const [messagesRight, setMessagesRight] = useState<MessageProps[]>([]);
+  const [currentMessageRight, setCurrentMessageRight] = React.useState<string[]>([]);
   const [selectedModelRight, setSelectedModelRight] = useState<Model | null>(null);
   const [alertMessageRight, setAlertMessageRight] = useState<{ title: string; message: string; variant: 'danger' | 'info' } | undefined>(undefined);
+
   const [freeGpus, setFreeGpus] = useState<number>(0);
   const [totalGpus, setTotalGpus] = useState<number>(0);
 
@@ -107,15 +108,19 @@ const ChatModelEval: React.FC = () => {
     };
 
     fetchGpus();
-    const intervalId = setInterval(fetchGpus, 20000);
+    const intervalId = setInterval(fetchGpus, 5000);
     return () => clearInterval(intervalId);
   }, []);
 
   // Fetch models on component mount
   useEffect(() => {
     const fetchDefaultModels = async () => {
-      // const response = await fetch('/api/envConfig');
-      // const envConfig = await response.json();
+      const response = await fetch('/api/envConfig');
+      const envConfig = await response.json();
+
+      const modelServerURL = envConfig.API_SERVER.replace(/:\d+/, '');
+      console.log('Model server url is set to :', modelServerURL);
+      setModelServerURL(modelServerURL);
 
       const storedEndpoints = localStorage.getItem('endpoints');
       const cust: Model[] = storedEndpoints
@@ -135,14 +140,14 @@ const ChatModelEval: React.FC = () => {
 
   /**
    * Helper function to map internal model identifiers to chat model names.
-   * "granite-base-served" => "pre-train"
-   * "granite-latest-served" => "post-train"
+   * "granite-base" => "pre-train"
+   * "granite-latest" => "post-train"
    * Custom models retain their original modelName.
    */
   const mapModelName = (modelName: string): string => {
-    if (modelName === 'granite-base-served') {
+    if (modelName === 'granite-base') {
       return 'pre-train';
-    } else if (modelName === 'granite-latest-served') {
+    } else if (modelName === 'granite-latest') {
       return 'post-train';
     }
     return modelName;
@@ -197,8 +202,8 @@ const ChatModelEval: React.FC = () => {
       if (endpoint.includes('serve-base')) {
         const servedModel: Model = {
           name: 'Granite base model (Serving)',
-          apiURL: `${MODEL_SERVER_URL}:8000`, // endpoint for base model
-          modelName: 'granite-base-served'
+          apiURL: `${modelServerURL}:8000`, // endpoint for base model
+          modelName: 'granite-base'
         };
 
         if (side === 'left') {
@@ -209,8 +214,8 @@ const ChatModelEval: React.FC = () => {
       } else if (endpoint.includes('serve-latest')) {
         const servedModel: Model = {
           name: 'Granite fine tune checkpoint (Serving)',
-          apiURL: `${MODEL_SERVER_URL}:8001`, // endpoint for latest checkpoint
-          modelName: 'granite-latest-served'
+          apiURL: `${modelServerURL}:8001`, // endpoint for latest checkpoint
+          modelName: 'granite-latest'
         };
 
         if (side === 'left') {
@@ -268,19 +273,20 @@ const ChatModelEval: React.FC = () => {
         body: JSON.stringify({ model_name: 'pre-train' })
       });
       if (!resp.ok) {
-        console.error('Failed to unload pre-train:', resp.status, resp.statusText);
+        console.error('Failed to unload granite base model:', resp.status, resp.statusText);
         return;
       }
       const data = await resp.json();
-      console.log('Unload left success:', data);
+      console.log('Successfully unloaded model served in left:', data);
 
       // Optionally clear out the selected model and job logs on the left
       setSelectedModelLeft(null);
       setModelJobIdLeft(undefined);
       setMessagesLeft([]);
+      setCurrentMessageLeft([]);
       setAlertMessageLeft({
         title: 'Model Unloaded',
-        message: 'Successfully unloaded the pre-train model.',
+        message: 'Successfully unloaded the granite-base model.',
         variant: 'info'
       });
       setTimeout(() => {
@@ -299,19 +305,20 @@ const ChatModelEval: React.FC = () => {
         body: JSON.stringify({ model_name: 'post-train' })
       });
       if (!resp.ok) {
-        console.error('Failed to unload post-train:', resp.status, resp.statusText);
+        console.error('Failed to unload granite latest model:', resp.status, resp.statusText);
         return;
       }
       const data = await resp.json();
-      console.log('Unload right success:', data);
+      console.log('Successfully unloaded model served in right:', data);
 
       // Optionally clear out the selected model and job logs on the right
       setSelectedModelRight(null);
       setModelJobIdRight(undefined);
       setMessagesRight([]);
+      setCurrentMessageRight([]);
       setAlertMessageRight({
         title: 'Model Unloaded',
-        message: 'Successfully unloaded the post-train model.',
+        message: 'Successfully unloaded the granite latest model.',
         variant: 'info'
       });
       setTimeout(() => {
@@ -325,19 +332,23 @@ const ChatModelEval: React.FC = () => {
   // =============== Cleanup (Left / Right) ===============
   const handleCleanupLeft = () => {
     setMessagesLeft([]);
+    setCurrentMessageLeft([]);
     setAlertMessageLeft(undefined);
   };
 
   const handleCleanupRight = () => {
     setMessagesRight([]);
+    setCurrentMessageRight([]);
     setAlertMessageRight(undefined);
   };
 
   const handleSend = async (side: 'left' | 'right', message: string) => {
-    const trimmedMessage = message.trim();
+    const question = message.trim();
+    const userMsgId = `${Date.now()}_user_${side}`;
+    const botMsgId = `${Date.now()}_bot_${side}`;
 
     // Prevent sending empty messages
-    if (!trimmedMessage) {
+    if (!question) {
       console.warn(`Attempted to send an empty message on the ${side} side.`);
       return;
     }
@@ -363,12 +374,47 @@ const ChatModelEval: React.FC = () => {
       return;
     }
 
+    if (side === 'left') {
+      if (currentMessageLeft.length > 0) {
+        const botMessage: MessageProps = {
+          avatar: logo.src,
+          id: botMsgId,
+          name: 'Bot',
+          role: 'bot',
+          content: currentMessageLeft.join(''),
+          timestamp: new Date().toLocaleTimeString(),
+          isLoading: false,
+          actions: {
+            copy: { onClick: () => navigator.clipboard.writeText(currentMessageLeft.join('') || '') }
+          }
+        };
+        setCurrentMessageLeft([]);
+        setMessagesLeft((msgs) => [...msgs, botMessage]);
+      }
+    } else {
+      if (currentMessageRight.length > 0) {
+        const botMessage: MessageProps = {
+          avatar: logo.src,
+          id: botMsgId,
+          name: 'Bot',
+          role: 'bot',
+          content: currentMessageRight.join(''),
+          timestamp: new Date().toLocaleTimeString(),
+          isLoading: false,
+          actions: {
+            copy: { onClick: () => navigator.clipboard.writeText(currentMessageRight.join('') || '') }
+          }
+        };
+        setCurrentMessageRight([]);
+        setMessagesRight((msgs) => [...msgs, botMessage]);
+      }
+    }
+
     // Add the user's message to the chat
-    const userMsgId = `${Date.now()}_user_${side}`;
     const userMessage: MessageProps = {
       id: userMsgId,
       role: 'user',
-      content: trimmedMessage,
+      content: question,
       name: 'User',
       avatar: userLogo.src,
       timestamp: new Date().toLocaleTimeString()
@@ -382,28 +428,10 @@ const ChatModelEval: React.FC = () => {
       setQuestionRight('');
     }
 
-    // Add a loading message from the bot
-    const botMsgId = `${Date.now()}_bot_${side}`;
-    const botMessage: MessageProps = {
-      id: botMsgId,
-      role: 'bot',
-      content: '',
-      name: 'Bot',
-      avatar: logo.src,
-      timestamp: new Date().toLocaleTimeString(),
-      isLoading: true
-    };
-
-    if (side === 'left') {
-      setMessagesLeft((msgs) => [...msgs, botMessage]);
-    } else {
-      setMessagesRight((msgs) => [...msgs, botMessage]);
-    }
-
     // Prepare the payload for the backend
     const messagesPayload = [
       { role: 'system', content: systemRole },
-      { role: 'user', content: trimmedMessage }
+      { role: 'user', content: question }
     ];
 
     const chatModelName = mapModelName(selectedModel.modelName);
@@ -415,17 +443,18 @@ const ChatModelEval: React.FC = () => {
     };
 
     console.log('Sending message to chat endpoint:', selectedModel.apiURL);
-
     try {
-      // Send the message to the backend
-      const response = await fetch(`${selectedModel.apiURL}/v1/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'text/event-stream'
-        },
-        body: JSON.stringify(requestData)
-      });
+      // Default endpoints (server-side fetch)
+      const response = await fetch(
+        `/api/playground/chat?apiURL=${encodeURIComponent(selectedModel.apiURL)}&modelName=${encodeURIComponent(requestData.model)}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ question, systemRole })
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -441,62 +470,35 @@ const ChatModelEval: React.FC = () => {
           timestamp: new Date().toLocaleTimeString(),
           isLoading: false
         };
-
         if (side === 'left') {
-          setMessagesLeft((msgs) => msgs.map((msg) => (msg.id === botMsgId ? errorMessage : msg)));
+          setMessagesLeft((msgs) => [...msgs, errorMessage]);
         } else {
-          setMessagesRight((msgs) => msgs.map((msg) => (msg.id === botMsgId ? errorMessage : msg)));
+          setMessagesRight((msgs) => [...msgs, errorMessage]);
         }
         return;
       }
+      if (response.body) {
+        const reader = response.body.getReader();
+        const textDecoder = new TextDecoder('utf-8');
+        let botMessage = '';
 
-      if (!response.body) {
-        console.error(`No response body received from ${side} side.`);
-        return;
-      }
+        (async () => {
+          for (;;) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            const chunk = textDecoder.decode(value, { stream: true });
+            botMessage = chunk;
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let doneReading = false;
-      let botContent = '';
-
-      while (!doneReading) {
-        const { value, done: isDone } = await reader.read();
-        doneReading = isDone;
-        if (value) {
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n').filter((line) => line.trim() !== '');
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.replace('data: ', '');
-              if (data === '[DONE]') {
-                doneReading = true;
-                break;
-              }
-              try {
-                const parsed = JSON.parse(data);
-                const delta = parsed.choices[0].delta?.content;
-                if (delta) {
-                  botContent += delta;
-                  if (side === 'left') {
-                    setMessagesLeft((msgs) => msgs.map((msg) => (msg.id === botMsgId ? { ...msg, content: botContent } : msg)));
-                  } else {
-                    setMessagesRight((msgs) => msgs.map((msg) => (msg.id === botMsgId ? { ...msg, content: botContent } : msg)));
-                  }
-                }
-              } catch (e) {
-                console.error('Error parsing JSON:', e);
-              }
+            if (side === 'left') {
+              setCurrentMessageLeft((prevMsg) => [...prevMsg, botMessage]);
+            } else {
+              setCurrentMessageRight((prevMsg) => [...prevMsg, botMessage]);
             }
           }
-        }
-      }
-
-      // Finalize the bot message by removing the loading state
-      if (side === 'left') {
-        setMessagesLeft((msgs) => msgs.map((msg) => (msg.id === botMsgId ? { ...msg, isLoading: false } : msg)));
+        })();
       } else {
-        setMessagesRight((msgs) => msgs.map((msg) => (msg.id === botMsgId ? { ...msg, isLoading: false } : msg)));
+        console.error(`No response body received from ${side} side.`);
+        return;
       }
     } catch (error) {
       console.error(`Error fetching chat response on the ${side} side:`, error);
@@ -513,9 +515,9 @@ const ChatModelEval: React.FC = () => {
       };
 
       if (side === 'left') {
-        setMessagesLeft((msgs) => msgs.map((msg) => (msg.id === botMsgId ? errorMessage : msg)));
+        setMessagesLeft((msgs) => [...msgs, errorMessage]);
       } else {
-        setMessagesRight((msgs) => msgs.map((msg) => (msg.id === botMsgId ? errorMessage : msg)));
+        setMessagesRight((msgs) => [...msgs, errorMessage]);
       }
     }
   };
@@ -527,31 +529,6 @@ const ChatModelEval: React.FC = () => {
   const handleSendRight = (message: string) => {
     handleSend('right', message);
   };
-
-  // Add a copy action to bot messages when they are fully loaded
-  const transformedMessagesLeft = messagesLeft.map((m) => {
-    if (m.role === 'bot' && m.content && !m.isLoading) {
-      return {
-        ...m,
-        actions: {
-          copy: { onClick: () => navigator.clipboard.writeText(m.content || '') }
-        }
-      };
-    }
-    return m;
-  });
-
-  const transformedMessagesRight = messagesRight.map((m) => {
-    if (m.role === 'bot' && m.content && !m.isLoading) {
-      return {
-        ...m,
-        actions: {
-          copy: { onClick: () => navigator.clipboard.writeText(m.content || '') }
-        }
-      };
-    }
-    return m;
-  });
 
   const handleToggleLogsLeft = async (jobId: string, isExpanding: boolean) => {
     setExpandedJobsLeft((prev) => ({ ...prev, [jobId]: isExpanding }));
@@ -687,6 +664,7 @@ const ChatModelEval: React.FC = () => {
                 {/* Unload button (pre-train) */}
                 <Button
                   variant="secondary"
+                  size="sm"
                   onClick={handleUnloadLeft}
                   aria-label="Unload left model"
                   style={{ marginLeft: '1rem' }}
@@ -698,6 +676,7 @@ const ChatModelEval: React.FC = () => {
                 {/* Clear chat button */}
                 <Button
                   variant="secondary"
+                  size="sm"
                   onClick={handleCleanupLeft}
                   aria-label="Clear chat"
                   style={{ marginLeft: '1rem' }}
@@ -711,25 +690,38 @@ const ChatModelEval: React.FC = () => {
               <MessageBox>
                 <ChatbotWelcomePrompt title="" description="" />
                 {alertMessageLeft && (
-                  <ChatbotAlert variant={alertMessageLeft.variant} onClose={() => setAlertMessageLeft(undefined)} title={alertMessageLeft.title}>
+                  <ChatbotAlert
+                    isLiveRegion
+                    variant={alertMessageLeft.variant}
+                    onClose={() => setAlertMessageLeft(undefined)}
+                    title={alertMessageLeft.title}
+                  >
                     {alertMessageLeft.message}
                   </ChatbotAlert>
                 )}
-                {transformedMessagesLeft.map((msg) => (
+                {messagesLeft.map((msg) => (
                   <Message key={msg.id} {...msg} />
                 ))}
+                {currentMessageLeft.length > 0 && (
+                  <Message
+                    avatar={logo.src}
+                    name="Bot"
+                    key="currentMessage"
+                    role="bot"
+                    content={currentMessageLeft.join('')}
+                    timestamp={new Date().toLocaleTimeString()}
+                  />
+                )}
               </MessageBox>
             </ChatbotContent>
             {!isUnifiedInput && (
               <ChatbotFooter className="pf-chatbot__footer">
                 <MessageBar
                   onSendMessage={(message) => {
-                    console.debug(`onSendMessage triggered for left side with message: "${message}"`);
                     handleSendLeft(message);
                   }}
                   hasAttachButton={false}
                   onChange={(event: React.ChangeEvent<HTMLDivElement>, val: string) => {
-                    console.debug(`Left MessageBar onChange: "${val}"`);
                     setQuestionLeft(val);
                   }}
                   // value={questionLeft}
@@ -743,7 +735,7 @@ const ChatModelEval: React.FC = () => {
                     title: 'Verify Accuracy',
                     description: 'While the model strives for accuracy, there can be errors. Verify critical info.',
                     link: { label: 'Learn more', url: 'https://www.redhat.com/' },
-                    cta: { label: 'Got it', onClick: () => {} }
+                    cta: { label: 'Close', onClick: () => {} }
                   }}
                 />
               </ChatbotFooter>
@@ -769,7 +761,7 @@ const ChatModelEval: React.FC = () => {
         </div>
 
         {/* Right Chat */}
-        <div style={{ flex: '1 1 45%', maxWidth: '55%', marginBottom: '2rem' }}>
+        <div style={{ flex: '1 1 45%', marginBottom: '2rem' }}>
           <Chatbot isVisible={true} className="chatbot-ui-page">
             <ChatbotHeader className="pf-chatbot__header">
               <ChatbotHeaderMain>{''}</ChatbotHeaderMain>
@@ -796,6 +788,7 @@ const ChatModelEval: React.FC = () => {
                 {/* Unload button (post-train) */}
                 <Button
                   variant="secondary"
+                  size="sm"
                   onClick={handleUnloadRight}
                   aria-label="Unload right model"
                   style={{ marginLeft: '1rem' }}
@@ -807,6 +800,7 @@ const ChatModelEval: React.FC = () => {
                 {/* Clear chat button */}
                 <Button
                   variant="secondary"
+                  size="sm"
                   onClick={handleCleanupRight}
                   aria-label="Clear chat"
                   style={{ marginLeft: '1rem' }}
@@ -820,25 +814,38 @@ const ChatModelEval: React.FC = () => {
               <MessageBox>
                 <ChatbotWelcomePrompt title="" description="" />
                 {alertMessageRight && (
-                  <ChatbotAlert variant={alertMessageRight.variant} onClose={() => setAlertMessageRight(undefined)} title={alertMessageRight.title}>
+                  <ChatbotAlert
+                    isLiveRegion
+                    variant={alertMessageRight.variant}
+                    onClose={() => setAlertMessageRight(undefined)}
+                    title={alertMessageRight.title}
+                  >
                     {alertMessageRight.message}
                   </ChatbotAlert>
                 )}
-                {transformedMessagesRight.map((msg) => (
+                {messagesRight.map((msg) => (
                   <Message key={msg.id} {...msg} />
                 ))}
+                {currentMessageRight.length > 0 && (
+                  <Message
+                    avatar={logo.src}
+                    name="Bot"
+                    key="currentMessage"
+                    role="bot"
+                    content={currentMessageRight.join('')}
+                    timestamp={new Date().toLocaleTimeString()}
+                  />
+                )}
               </MessageBox>
             </ChatbotContent>
             {!isUnifiedInput && (
               <ChatbotFooter className="pf-chatbot__footer">
                 <MessageBar
                   onSendMessage={(message) => {
-                    console.debug(`onSendMessage triggered for right side with message: "${message}"`);
                     handleSendRight(message);
                   }}
                   hasAttachButton={false}
                   onChange={(event: React.ChangeEvent<HTMLDivElement>, val: string) => {
-                    console.debug(`Right MessageBar onChange: "${val}"`);
                     setQuestionRight(val);
                   }}
                   // value={questionRight}
@@ -852,7 +859,7 @@ const ChatModelEval: React.FC = () => {
                     title: 'Verify Accuracy',
                     description: 'While the model strives for accuracy, there can be errors. Verify critical info.',
                     link: { label: 'Learn more', url: 'https://www.redhat.com/' },
-                    cta: { label: 'Got it', onClick: () => {} }
+                    cta: { label: 'Close', onClick: () => {} }
                   }}
                 />
               </ChatbotFooter>
@@ -884,12 +891,10 @@ const ChatModelEval: React.FC = () => {
           <ChatbotFooter className="pf-chatbot__footer">
             <MessageBar
               onSendMessage={(message) => {
-                console.debug(`onSendMessage triggered for unified input with message: "${message}"`);
                 handleUnifiedSend(message);
               }}
               hasAttachButton={false}
               onChange={(event: React.ChangeEvent<HTMLDivElement>, val: string) => {
-                console.debug(`Unified MessageBar onChange: "${val}"`);
                 setQuestionUnified(val);
               }}
               // value={questionUnified}
