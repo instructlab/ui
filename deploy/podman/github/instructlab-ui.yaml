@@ -15,10 +15,6 @@ spec:
       containers:
       - name: pathservice
         image: ghcr.io/instructlab/ui/pathservice:main
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "200Mi"
         ports:
         - containerPort: 4000
           hostPort: 4000
@@ -41,10 +37,6 @@ spec:
       containers:
       - name: doclingserve
         image: ghcr.io/ds4sd/docling-serve-cpu:main
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "200Mi"
         ports:
         - containerPort: 5001
           hostPort: 5001
@@ -67,10 +59,6 @@ spec:
       containers:
       - name: ui
         image: ghcr.io/instructlab/ui/ui:main
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "200Mi"
         env:
         - name: IL_UI_DEPLOYMENT
           valueFrom:
