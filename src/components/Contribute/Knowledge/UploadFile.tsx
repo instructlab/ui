@@ -261,16 +261,15 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ onFilesCh
           accept: allowedFileTypes,
           onDropRejected: handleDropRejected
         }}
+        isHorizontal
       >
         <MultipleFileUploadMain
           titleIcon={<UploadIcon />}
-          titleText="Drag and drop files here"
-          titleTextSeparator="or"
+          titleText="Drag and drop files here or use upload button."
           infoText={
             <>
-              Accepted file types: PDF, DOCX, PPTX, XLSX, Images, HTML, AsciiDoc & Markdown.
-              <br />
-              Non-Markdown files will be automatically converted to Markdown for context selection.
+              Accepted file types: PDF, DOCX, PPTX, XLSX, Images, HTML, AsciiDoc & Markdown. <br />
+              <strong>Non-Markdown files will be automatically converted to Markdown for context selection.</strong>
             </>
           }
         />
