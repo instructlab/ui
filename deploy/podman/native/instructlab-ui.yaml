@@ -15,10 +15,6 @@ spec:
       containers:
       - name: pathservice
         image: ghcr.io/instructlab/ui/pathservice:main
-        resources:
-          requests:
-            cpu: "1000m"
-            memory: "1000Mi"
         ports:
         - containerPort: 4000
           hostPort: 4000
@@ -41,10 +37,6 @@ spec:
       containers:
       - name: doclingserve
         image: ghcr.io/ds4sd/docling-serve-cpu:main
-        resources:
-          requests:
-            cpu: "1000m"
-            memory: "2000Mi"
         ports:
         - containerPort: 5001
           hostPort: 5001
@@ -72,13 +64,6 @@ spec:
         volumeMounts:
         - name: taxonomy-repo
           mountPath: /tmp/.instructlab-ui
-        resources:
-          limits:
-            cpu: "1000m"
-            memory: "2000Mi"
-          requests:
-            cpu: "1000m"
-            memory: "2000Mi"
         env:
         - name: IL_UI_DEPLOYMENT
           valueFrom:
