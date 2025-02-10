@@ -166,22 +166,34 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
     return ValidatedOptions.success;
   };
 
-  const validateQuestion = (question: string): ValidatedOptions => {
-    if (question.length > 0 && question.length < 250) {
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
-      return ValidatedOptions.success;
+  const validateQuestion = (question: string) => {
+    const questionStr = question.trim();
+    if (questionStr.length === 0) {
+      setDisableAction(true);
+      return { msg: 'Question is required', status: ValidatedOptions.error };
+    }
+    const tokens = questionStr.split(/\s+/);
+    if (tokens.length > 0 && tokens.length < 250) {
+      setDisableAction(!checkSkillFormCompletion(skillFormData, true));
+      return { msg: 'Valid input', status: ValidatedOptions.success };
     }
     setDisableAction(true);
-    return ValidatedOptions.error;
+    return { msg: 'Question must be less than 250 words. Current word count: ' + tokens.length, status: ValidatedOptions.error };
   };
 
-  const validateAnswer = (answer: string): ValidatedOptions => {
-    if (answer.length > 0 && answer.length < 250) {
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
-      return ValidatedOptions.success;
+  const validateAnswer = (answer: string) => {
+    const answerStr = answer.trim();
+    if (answerStr.length === 0) {
+      setDisableAction(true);
+      return { msg: 'Answer is required', status: ValidatedOptions.error };
+    }
+    const tokens = answerStr.split(/\s+/);
+    if (tokens.length > 0 && tokens.length < 250) {
+      setDisableAction(!checkSkillFormCompletion(skillFormData, true));
+      return { msg: 'Valid input', status: ValidatedOptions.success };
     }
     setDisableAction(true);
-    return ValidatedOptions.error;
+    return { msg: 'Answer must be less than 250 words. Current word count: ' + tokens.length, status: ValidatedOptions.error };
   };
 
   const handleContextInputChange = (seedExampleIndex: number, contextValue: string): void => {
@@ -225,14 +237,17 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleAnswerBlur = (seedExampleIndex: number): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) =>
-        index === seedExampleIndex
-          ? {
-              ...seedExample,
-              isAnswerValid: validateAnswer(seedExample.answer)
-            }
-          : seedExample
-      )
+      seedExamples.map((seedExample: SkillSeedExample, index: number) => {
+        if (index === seedExampleIndex) {
+          const { msg, status } = validateAnswer(seedExample.answer);
+          return {
+            ...seedExample,
+            isAnswerValid: status,
+            answerValidationError: msg
+          };
+        }
+        return seedExample;
+      })
     );
   };
 
@@ -251,14 +266,17 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleQuestionBlur = (seedExampleIndex: number): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) =>
-        index === seedExampleIndex
-          ? {
-              ...seedExample,
-              isQuestionValid: validateQuestion(seedExample.question)
-            }
-          : seedExample
-      )
+      seedExamples.map((seedExample: SkillSeedExample, index: number) => {
+        if (index === seedExampleIndex) {
+          const { msg, status } = validateQuestion(seedExample.question);
+          return {
+            ...seedExample,
+            isQuestionValid: status,
+            questionValidationError: msg
+          };
+        }
+        return seedExample;
+      })
     );
   };
 
