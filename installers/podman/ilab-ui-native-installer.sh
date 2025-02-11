@@ -73,8 +73,27 @@ check_podman() {
 	fi
 }
 
-# Check if UI stack is already running
+# Find host ip address
+find_hostip() {
+	OS=$(uname -s)
 
+	ip_address=""
+	if [ "$OS" == "Darwin" ]; then
+	# macOS (Darwin) - Use ipconfig
+	ip_address=$(ipconfig getifaddr en0)
+	elif [ "$OS" == "Linux" ]; then
+	# Linux - Use hostname or ip command
+	if command -v ip &>/dev/null; then
+		ip_address=$(ip -4 addr show scope global | awk '/inet / {print $2}' | cut -d/ -f1 | head -n 1)
+	fi
+	else
+	echo "Unsupported OS: $OS"
+	exit 1
+	fi
+	API_SERVER_URL=${ip_address}
+}
+
+# Check if UI stack is already running
 check_ui_stack() {
 	# Check if UI containers are already running
 	containers=("ui-pod-ui" "doclingserve-pod-doclingserve" "pathservice-pod-pathservice")
@@ -351,7 +370,9 @@ if [[ "$COMMAND" == "install" ]]; then
 		EXPERIMENTAL_FEATURES_B64=$(echo -n "false" | base64)
 	fi
 
-	API_SERVER_URL_B64=$(echo -n "$API_SERVER_URL" | base64)
+	find_hostip
+
+	API_SERVER_URL_B64=$(echo -n "http://$API_SERVER_URL:8080" | base64)
 
 	# Download secret.yaml file
 	echo -e "${green}Downloading the secret.yaml sample file...${reset}\n"
