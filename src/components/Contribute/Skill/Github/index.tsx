@@ -437,7 +437,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
       <PageBreadcrumb>
         <Breadcrumb>
           <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
-          <BreadcrumbItem isActive>Skill Contribution</BreadcrumbItem>
+          <BreadcrumbItem isActive>Create Skill Contribution</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
 
@@ -445,7 +445,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
         <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
           <FlexItem>
             <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>
-              Skill Contribution
+              Create Skill Contribution
             </Title>
           </FlexItem>
           <FlexItem>

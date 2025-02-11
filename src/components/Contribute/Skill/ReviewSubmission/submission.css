@@ -1,0 +1,23 @@
+.review-submission-container {
+  .contributors-wrapper {
+    line-height: 2;
+    padding-top: 15px;
+  }
+  .info-wrapper {
+    padding-bottom: 15px;
+  }
+
+  .submission-titles {
+    font-size: var(--pf-t--global--font--size--sm) !important;
+  }
+
+  .submission-subtitles {
+    line-height: 1;
+    font-size: var(--pf-t--global--font--size--xs) !important;
+  }
+
+  .category-titles {
+    font-weight: 600;
+    font-size: var(--pf-t--global--font--size--xs) !important;
+  }
+}

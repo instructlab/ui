@@ -2,6 +2,8 @@
 import { SkillFormData } from '@/types';
 import { Content, ContentVariants } from '@patternfly/react-core';
 import React from 'react';
+import './submission.css';
+import { Accordion, AccordionContent, AccordionItem, AccordionToggle, Button, FormFieldGroupHeader } from '@patternfly/react-core';
 
 interface ReviewSubmissionProps {
   skillFormData: SkillFormData;
@@ -10,39 +12,50 @@ interface ReviewSubmissionProps {
 
 export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormData, isGithubMode }) => {
   return (
-    <section>
+    <section className="review-submission-container">
       <Content component={ContentVariants.h3}>Review</Content>
-      <p>Review the information below and click finish to submit your knowledge contribution. Use the back button to make changes</p>
+      <p>Review the information below and click finish to submit your knowledge contribution. Use the back button to make changes.</p>
       {/* Author Information */}
       <article>
-        <p>Contributor Information</p>
-        <p>Information required for a Github Developer Certificate of Origin (OC)) sign-off.</p>
+        <div className="info-wrapper">
+          <p className="submission-titles">Contributor Information</p>
+          <p className="submission-subtitles">Information required for a Github Developer Certificate of Origin (OC) sign-off.</p>
 
-        <strong>Contributors</strong>
-        <p>{skillFormData.name}</p>
-        <p>{skillFormData.email}</p>
+          <div className="contributors-wrapper">
+            <h5 className="category-titles">Contributors</h5>
+            <p>{skillFormData.name}</p>
+            <p>{skillFormData.email}</p>
+          </div>
+        </div>
       </article>
 
       {/* Knowledge Information */}
       <article>
-        <p>Knowledge Information</p>
-        <p>Brief information about the Knowledge and the directory path for the QnA and Attribution files.</p>
+        <div className="info-wrapper">
+          <p className="submission-titles">Knowledge Information</p>
+          <p className="submission-subtitles">Brief information about the Knowledge and the directory path for the QnA and Attribution files.</p>
+        </div>
 
-        <strong>Submission summary</strong>
+        <h5 className="category-titles">Submission summary</h5>
         <p>{skillFormData.submissionSummary}</p>
 
-        <strong>Directory path</strong>
+        <h5 className="category-titles">Directory path</h5>
         <p>{skillFormData.filePath}</p>
       </article>
 
       {/* Seed Examples */}
       <article>
-        <p>Seed data</p>
-        <p>Data that will be used to start teaching your model.</p>
+        <div className="info-wrapper">
+          <p>Seed data</p>
+          <p className="submission-subtitles">Data that will be used to start teaching your model.</p>
+        </div>
+
+        
+
         {skillFormData.seedExamples.map((seedExample, index) => (
           <div key={index}>
             <p>
-              <strong>Seed Examples {index + 1}</strong>
+              <strong>Sample {index + 1}</strong>
             </p>
             <p>
               <i>Context:</i> {seedExample.context}
@@ -57,7 +70,7 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
         ))}
       </article>
 
-      <article>
+      <article className="info-wrapper">
         {/* Attribution Information */}
         {isGithubMode && (
           <div>
