@@ -20,4 +20,8 @@
     font-weight: 600;
     font-size: var(--pf-t--global--font--size--xs) !important;
   }
+
+  .accordion-wrapper {
+    padding-bottom: 15px;
+  }
 }
