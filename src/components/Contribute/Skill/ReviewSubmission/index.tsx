@@ -10,77 +10,73 @@ interface ReviewSubmissionProps {
 
 export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormData, isGithubMode }) => {
   return (
-    <div>
-      <Content component={ContentVariants.h2}>Review Submission</Content>
+    <section>
+      <Content component={ContentVariants.h3}>Review</Content>
+      <p>Review the information below and click finish to submit your knowledge contribution. Use the back button to make changes</p>
       {/* Author Information */}
-      <p>
-        <strong>Author Information</strong>
-      </p>
-      <p>
-        <i>Name:</i> {skillFormData.name}
-      </p>
-      <p>
-        <i>Email:</i> {skillFormData.email}
-      </p>
+      <article>
+        <p>Contributor Information</p>
+        <p>Information required for a Github Developer Certificate of Origin (OC)) sign-off.</p>
 
-      {/* Skill Information */}
-      <p>
-        <strong>Skill Information</strong>
-      </p>
-      <p>
-        <i>Submission Summary:</i> {skillFormData.submissionSummary}
-      </p>
-      <p>
-        <i>Document Outline:</i> {skillFormData.documentOutline}
-      </p>
+        <strong>Contributors</strong>
+        <p>{skillFormData.name}</p>
+        <p>{skillFormData.email}</p>
+      </article>
 
-      {/* File Path Information */}
-      <p>
-        <strong>File Path Information</strong>
-      </p>
-      <p>
-        <i>File Path:</i> {skillFormData.filePath}
-      </p>
+      {/* Knowledge Information */}
+      <article>
+        <p>Knowledge Information</p>
+        <p>Brief information about the Knowledge and the directory path for the QnA and Attribution files.</p>
+
+        <strong>Submission summary</strong>
+        <p>{skillFormData.submissionSummary}</p>
+
+        <strong>Directory path</strong>
+        <p>{skillFormData.filePath}</p>
+      </article>
 
       {/* Seed Examples */}
-      <p>
-        <strong>Seed Examples</strong>
-      </p>
-      {skillFormData.seedExamples.map((seedExample, index) => (
-        <div key={index}>
-          <p>
-            <strong>Seed Examples {index + 1}</strong>
-          </p>
-          <p>
-            <i>Context:</i> {seedExample.context}
-          </p>
-          <p>
-            <i>Question {index + 1}:</i> {seedExample.question}
-          </p>
-          <p>
-            <i>Answer {index + 1}:</i> {seedExample.answer}
-          </p>
-        </div>
-      ))}
+      <article>
+        <p>Seed data</p>
+        <p>Data that will be used to start teaching your model.</p>
+        {skillFormData.seedExamples.map((seedExample, index) => (
+          <div key={index}>
+            <p>
+              <strong>Seed Examples {index + 1}</strong>
+            </p>
+            <p>
+              <i>Context:</i> {seedExample.context}
+            </p>
+            <p>
+              <i>Question {index + 1}:</i> {seedExample.question}
+            </p>
+            <p>
+              <i>Answer {index + 1}:</i> {seedExample.answer}
+            </p>
+          </div>
+        ))}
+      </article>
 
-      {/* Attribution Information */}
-      {isGithubMode && (
-        <div>
-          <p>
-            <strong>Attribution Information</strong>
-          </p>
-          <p>
-            <i>Title of Work:</i> {skillFormData.titleWork}
-          </p>
-          <p>
-            <i>License of Work:</i> {skillFormData.licenseWork}
-          </p>
-          <p>
-            <i>Creators:</i> {skillFormData.creators}
-          </p>
-        </div>
-      )}
-    </div>
+      <article>
+        {/* Attribution Information */}
+        {isGithubMode && (
+          <div>
+            <p>
+              <strong>Attribution Information</strong>
+            </p>
+            <p>
+              <i>Title of Work:</i> {skillFormData.titleWork}
+            </p>
+            <p>
+              <i>License of Work:</i> {skillFormData.licenseWork}
+            </p>
+            <p>
+              <i>Creators:</i> {skillFormData.creators}
+            </p>
+          </div>
+        )}
+      </article>
+    </section>
   );
 };
 
