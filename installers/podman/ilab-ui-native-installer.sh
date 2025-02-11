@@ -79,18 +79,28 @@ find_hostip() {
 
 	ip_address=""
 	if [ "$OS" == "Darwin" ]; then
-	# macOS (Darwin) - Use ipconfig
-	ip_address=$(ipconfig getifaddr en0)
+		ip_address=$(ipconfig getifaddr en0)
 	elif [ "$OS" == "Linux" ]; then
-	# Linux - Use hostname or ip command
-	if command -v ip &>/dev/null; then
-		ip_address=$(ip -4 addr show scope global | awk '/inet / {print $2}' | cut -d/ -f1 | head -n 1)
-	fi
+		if command -v ip &>/dev/null; then
+			ip_address=$(ip -4 addr show scope global | awk '/inet / {print $2}' | cut -d/ -f1 | head -n 1)
+		fi
 	else
-	echo "Unsupported OS: $OS"
-	exit 1
+		echo -e "${red}Unsupported OS: $OS ${reset}"
+		exit 1
 	fi
 	API_SERVER_URL=${ip_address}
+}
+
+# Check if the ports required by UI stacks are free
+check_ports() {
+	ports=(3000 4000 5001 8080)
+	for port in "${ports[@]}"; do
+		if lsof -i :"$port" &>/dev/null || netstat -an 2>/dev/null | grep -q ":$port "; then
+			echo -e "${red}Warning: Port $port is required by the InstructLab UI and it's currently in use.${reset}"
+			echo -e "${red}Warning: Please ensure that $port is free before attempting the insatllation again.${reset}"
+			exit 1
+		fi
+	done
 }
 
 # Check if UI stack is already running
@@ -287,6 +297,7 @@ if [[ "$COMMAND" == "install" ]]; then
 	fi
 
 	check_podman
+	check_ports
 	check_ui_stack
 
 	# Verify user provided python virtual environment
