@@ -73,8 +73,37 @@ check_podman() {
 	fi
 }
 
-# Check if UI stack is already running
+# Find host ip address
+find_hostip() {
+	OS=$(uname -s)
 
+	ip_address=""
+	if [ "$OS" == "Darwin" ]; then
+		ip_address=$(ipconfig getifaddr en0)
+	elif [ "$OS" == "Linux" ]; then
+		if command -v ip &>/dev/null; then
+			ip_address=$(ip -4 addr show scope global | awk '/inet / {print $2}' | cut -d/ -f1 | head -n 1)
+		fi
+	else
+		echo -e "${red}Unsupported OS: $OS ${reset}"
+		exit 1
+	fi
+	API_SERVER_URL=${ip_address}
+}
+
+# Check if the ports required by UI stacks are free
+check_ports() {
+	ports=(3000 4000 5001 8080)
+	for port in "${ports[@]}"; do
+		if lsof -i :"$port" &>/dev/null || netstat -an 2>/dev/null | grep -q ":$port "; then
+			echo -e "${red}Warning: Port $port is required by the InstructLab UI and it's currently in use.${reset}"
+			echo -e "${red}Warning: Please ensure that $port is free before attempting the insatllation again.${reset}"
+			exit 1
+		fi
+	done
+}
+
+# Check if UI stack is already running
 check_ui_stack() {
 	# Check if UI containers are already running
 	containers=("ui-pod-ui" "doclingserve-pod-doclingserve" "pathservice-pod-pathservice")
@@ -268,6 +297,7 @@ if [[ "$COMMAND" == "install" ]]; then
 	fi
 
 	check_podman
+	check_ports
 	check_ui_stack
 
 	# Verify user provided python virtual environment
@@ -351,7 +381,9 @@ if [[ "$COMMAND" == "install" ]]; then
 		EXPERIMENTAL_FEATURES_B64=$(echo -n "false" | base64)
 	fi
 
-	API_SERVER_URL_B64=$(echo -n "$API_SERVER_URL" | base64)
+	find_hostip
+
+	API_SERVER_URL_B64=$(echo -n "http://$API_SERVER_URL:8080" | base64)
 
 	# Download secret.yaml file
 	echo -e "${green}Downloading the secret.yaml sample file...${reset}\n"
