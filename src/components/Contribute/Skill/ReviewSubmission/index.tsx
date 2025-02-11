@@ -13,7 +13,7 @@ interface ReviewSubmissionProps {
 export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormData, isGithubMode }) => {
   const [expanded, setExpanded] = React.useState('ex-toggle2');
 
-  const onToggle = (id: string) => {
+  const onToggle = (id: any) => {
     if (id === expanded) {
       setExpanded('');
     } else {
@@ -21,91 +21,88 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
     }
   };
   return (
-    <section className="review-submission-container">
-      <Content component={ContentVariants.h3}>Review</Content>
-      <p>Review the information below and click finish to submit your knowledge contribution. Use the back button to make changes.</p>
-      {/* Author Information */}
-      <article>
-        <div className="info-wrapper">
-          <p className="submission-titles">Contributor Information</p>
-          <p className="submission-subtitles">Information required for a Github Developer Certificate of Origin (OC) sign-off.</p>
+    <>
+      <section className="review-submission-container">
+        <Content component={ContentVariants.h3}>Review</Content>
+        <p>Review the information below and click finish to submit your knowledge contribution. Use the back button to make changes.</p>
+        {/* Author Information */}
+        <article>
+          <div className="info-wrapper">
+            <p className="submission-titles">Contributor Information</p>
+            <p className="submission-subtitles">Information required for a Github Developer Certificate of Origin (OC) sign-off.</p>
 
-          <div className="contributors-wrapper">
-            <h5 className="category-titles">Contributors</h5>
-            <p>{skillFormData.name}</p>
-            <p>{skillFormData.email}</p>
+            <div className="contributors-wrapper">
+              <h5 className="category-titles">Contributors</h5>
+              <p>{skillFormData.name}</p>
+              <p>{skillFormData.email}</p>
+            </div>
           </div>
-        </div>
-      </article>
+        </article>
 
-      {/* Knowledge Information */}
-      <article>
-        <div className="info-wrapper">
-          <p className="submission-titles">Knowledge Information</p>
-          <p className="submission-subtitles">Brief information about the Knowledge and the directory path for the QnA and Attribution files.</p>
-        </div>
-
-        <h5 className="category-titles">Submission summary</h5>
-        <p>{skillFormData.submissionSummary}</p>
-
-        <h5 className="category-titles">Directory path</h5>
-        <p>{skillFormData.filePath}</p>
-      </article>
-
-      {/* Seed Examples */}
-      <article>
-        <div className="info-wrapper">
-          <p>Seed data</p>
-          <p className="submission-subtitles">Data that will be used to start teaching your model.</p>
-        </div>
-
-        {skillFormData.seedExamples.map((seedExample, index) => (
-          <Accordion asDefinitionList={false} className="accordion-wrapper">
-            <AccordionItem isExpanded={expanded === 'ex-toggle1'}>
-              <AccordionToggle
-                onClick={() => {
-                  onToggle('ex-toggle1');
-                }}
-                id="ex-toggle1"
-              >
-                Sample {index + 1}
-              </AccordionToggle>
-              <AccordionContent id={`seed-example-content-${index}`}>
-                <p>
-                  <i>Context:</i> {seedExample.context}
-                </p>
-                <p>
-                  <i>Question {index + 1}:</i> {seedExample.question}
-                </p>
-                <p>
-                  <i>Answer {index + 1}:</i> {seedExample.answer}
-                </p>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        ))}
-      </article>
-
-      <article className="info-wrapper">
-        {/* Attribution Information */}
-        {isGithubMode && (
-          <div>
-            <p>
-              <strong>Attribution Information</strong>
-            </p>
-            <p>
-              <i>Title of Work:</i> {skillFormData.titleWork}
-            </p>
-            <p>
-              <i>License of Work:</i> {skillFormData.licenseWork}
-            </p>
-            <p>
-              <i>Creators:</i> {skillFormData.creators}
-            </p>
+        {/* Knowledge Information */}
+        <article>
+          <div className="info-wrapper">
+            <p className="submission-titles">Knowledge Information</p>
+            <p className="submission-subtitles">Brief information about the Knowledge and the directory path for the QnA and Attribution files.</p>
           </div>
-        )}
-      </article>
-    </section>
+
+          <h5 className="category-titles">Submission summary</h5>
+          <p>{skillFormData.submissionSummary}</p>
+
+          <h5 className="category-titles">Directory path</h5>
+          <p>{skillFormData.filePath}</p>
+        </article>
+
+        {/* Seed Examples */}
+        <article>
+          <div className="info-wrapper">
+            <p>Seed data</p>
+            <p className="submission-subtitles">Data that will be used to start teaching your model.</p>
+          </div>
+
+          {skillFormData.seedExamples.map((seedExample, index) => (
+            <Accordion asDefinitionList={false} className="accordion-wrapper">
+              <AccordionItem isExpanded={seedExample.isExpanded} key={index}>
+                <AccordionToggle onClick={() => onToggle(index)} id={`seed-example-toggle-${index}`}>
+                  Sample {index + 1}
+                </AccordionToggle>
+                <AccordionContent id={`seed-example-content-${index}`}>
+                  <p>
+                    <i>Context:</i> {seedExample.context}
+                  </p>
+                  <p>
+                    <i>Question {index + 1}:</i> {seedExample.question}
+                  </p>
+                  <p>
+                    <i>Answer {index + 1}:</i> {seedExample.answer}
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          ))}
+        </article>
+
+        <article className="info-wrapper">
+          {/* Attribution Information */}
+          {isGithubMode && (
+            <div>
+              <p>
+                <strong>Attribution Information</strong>
+              </p>
+              <p>
+                <i>Title of Work:</i> {skillFormData.titleWork}
+              </p>
+              <p>
+                <i>License of Work:</i> {skillFormData.licenseWork}
+              </p>
+              <p>
+                <i>Creators:</i> {skillFormData.creators}
+              </p>
+            </div>
+          )}
+        </article>
+      </section>
+    </>
   );
 };
 
