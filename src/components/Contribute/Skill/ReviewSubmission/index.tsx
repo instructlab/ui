@@ -11,6 +11,15 @@ interface ReviewSubmissionProps {
 }
 
 export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormData, isGithubMode }) => {
+  const [expanded, setExpanded] = React.useState('ex-toggle2');
+
+  const onToggle = (id: string) => {
+    if (id === expanded) {
+      setExpanded('');
+    } else {
+      setExpanded(id);
+    }
+  };
   return (
     <section className="review-submission-container">
       <Content component={ContentVariants.h3}>Review</Content>
@@ -50,23 +59,30 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
           <p className="submission-subtitles">Data that will be used to start teaching your model.</p>
         </div>
 
-        
-
         {skillFormData.seedExamples.map((seedExample, index) => (
-          <div key={index}>
-            <p>
-              <strong>Sample {index + 1}</strong>
-            </p>
-            <p>
-              <i>Context:</i> {seedExample.context}
-            </p>
-            <p>
-              <i>Question {index + 1}:</i> {seedExample.question}
-            </p>
-            <p>
-              <i>Answer {index + 1}:</i> {seedExample.answer}
-            </p>
-          </div>
+          <Accordion asDefinitionList={false} className="accordion-wrapper">
+            <AccordionItem isExpanded={expanded === 'ex-toggle1'}>
+              <AccordionToggle
+                onClick={() => {
+                  onToggle('ex-toggle1');
+                }}
+                id="ex-toggle1"
+              >
+                Sample {index + 1}
+              </AccordionToggle>
+              <AccordionContent id={`seed-example-content-${index}`}>
+                <p>
+                  <i>Context:</i> {seedExample.context}
+                </p>
+                <p>
+                  <i>Question {index + 1}:</i> {seedExample.question}
+                </p>
+                <p>
+                  <i>Answer {index + 1}:</i> {seedExample.answer}
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         ))}
       </article>
 
