@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
       - name: doclingserve
-        image: ghcr.io/ds4sd/docling-serve-cpu:main
+        image: ghcr.io/ds4sd/docling-serve-cpu:release-alpha
         ports:
         - containerPort: 5001
           hostPort: 5001
