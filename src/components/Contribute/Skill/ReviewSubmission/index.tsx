@@ -11,15 +11,15 @@ interface ReviewSubmissionProps {
 }
 
 export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormData, isGithubMode }) => {
-  const [expanded, setExpanded] = React.useState('ex-toggle2');
+  const [expanded, setExpanded] = React.useState<{ [key: string]: boolean }>({});
 
-  const onToggle = (id: any) => {
-    if (id === expanded) {
-      setExpanded('');
-    } else {
-      setExpanded(id);
-    }
+  const onToggle = (id: number) => {
+    setExpanded((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id]
+    }));
   };
+
   return (
     <>
       <section className="review-submission-container">
@@ -62,19 +62,19 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
 
           {skillFormData.seedExamples.map((seedExample, index) => (
             <Accordion asDefinitionList={false} className="accordion-wrapper">
-              <AccordionItem isExpanded={seedExample.isExpanded} key={index}>
+              <AccordionItem isExpanded={!!expanded[index]} key={index}>
                 <AccordionToggle onClick={() => onToggle(index)} id={`seed-example-toggle-${index}`}>
                   Sample {index + 1}
                 </AccordionToggle>
-                <AccordionContent id={`seed-example-content-${index}`}>
+                <AccordionContent id={`seed-example-content-${index}`} className='accordion-content'>
                   <p>
-                    <i>Context:</i> {seedExample.context}
+                    <h5 className="category-titles">Context:</h5> {seedExample.context}
                   </p>
                   <p>
-                    <i>Question {index + 1}:</i> {seedExample.question}
+                    <h5 className="category-titles">Question {index + 1}:</h5> {seedExample.question}
                   </p>
                   <p>
-                    <i>Answer {index + 1}:</i> {seedExample.answer}
+                    <h5 className="category-titles">Answer {index + 1}:</h5> {seedExample.answer}
                   </p>
                 </AccordionContent>
               </AccordionItem>
