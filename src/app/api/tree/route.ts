@@ -1,15 +1,16 @@
 // src/app/api/tree/route.ts
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
+import path from 'path';
 
-const PATH_SERVICE_URL = process.env.IL_PATH_SERVICE_URL || 'http://pathservice:4000/tree/';
+const PATH_SERVICE_URL = process.env.IL_PATH_SERVICE_URL || 'http://pathservice:4000';
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { root_path, dir_name } = body;
 
   try {
-    const apiBaseUrl = PATH_SERVICE_URL;
+    const apiBaseUrl = path.join(PATH_SERVICE_URL, '/tree');
     const response = await axios.get<string[]>(apiBaseUrl + root_path, {
       params: { dir_name: dir_name }
     });

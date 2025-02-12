@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     }
 
     // 4. Service is healthy, proceed with md conversion
-    const res = await fetch(`${baseUrl}/convert/markdown`, {
+    const res = await fetch(`${baseUrl}/v1alpha/convert/source`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     }
 
     // 5. Wait for the docling service to return the user submitted file converted to markdown
-    const data = await res.text();
+    const data = await res.json();
 
     // Return the markdown wrapped in JSON so the client side can parse it
     return NextResponse.json({ content: data }, { status: 200 });

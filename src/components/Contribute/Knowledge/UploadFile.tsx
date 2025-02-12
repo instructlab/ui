@@ -121,13 +121,21 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ onFilesCh
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           options: {
-            output_markdown: true,
+            from_formats: ['docx', 'pptx', 'html', 'image', 'pdf', 'asciidoc', 'md', 'xlsx'],
+            to_formats: ['md'],
+            image_export_mode: 'placeholder',
+            table_mode: 'fast',
+            abort_on_error: false,
+            return_as_file: false,
+            do_table_structure: true,
             include_images: false
           },
-          file_source: {
-            base64_string: base64String,
-            filename: file.name
-          }
+          file_sources: [
+            {
+              base64_string: base64String,
+              filename: file.name
+            }
+          ]
         })
       });
 
@@ -145,7 +153,7 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ onFilesCh
 
       // 3) We expect JSON-wrapped markdown => { content: "..." }
       const data = await res.json();
-      const mdContent = data.content;
+      const mdContent = data.content.document.md_content;
 
       // 4) Create a new `.md` File object
       const newName = file.name.replace(/\.[^/.]+$/, '') + '.md';
