@@ -1,0 +1,27 @@
+/* Chat Bot Page */
+.chatBotPage .pf-v6-c-page__main-container {
+  height: 100%;
+}
+.chatBotPage .pf-chatbot__compare-container {
+  overflow-y: hidden;
+}
+.chatBotPage .pf-chatbot__compare {
+  overflow-y: hidden;
+}
+.chatBotPage .pf-chatbot--embedded {
+  overflow-y: hidden;
+  flex: 1;
+  height: 100%;
+}
+.chatBotPage .pf-chatbot__content {
+  overflow-y: auto;
+}
+.chatBotPage .pf-chatbot__message.pf-chatbot__message--bot {
+  padding-bottom: 0;
+}
+.chatBotPage .pf-chatbot__header,
+.chatBotPage .pf-chatbot__footer,
+.chatBotPage .pf-chatbot__content,
+.chatBotPage .pf-chatbot--embedded {
+  background-color: transparent;
+}

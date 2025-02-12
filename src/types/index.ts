@@ -7,12 +7,8 @@ export interface Endpoint {
   modelName: string;
 }
 
-export interface Message {
-  text: string;
-  isUser: boolean;
-}
-
 export interface Model {
+  isDefault?: boolean;
   name: string;
   apiURL: string;
   modelName: string;
