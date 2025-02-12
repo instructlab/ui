@@ -2,11 +2,17 @@
 # ║                       KIND Targets                       ║
 # ╚══════════════════════════════════════════════════════════╝
 
+.PHONY: help
+help:
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+
 #################### VARIABLE DEFINITIONS ####################
 
 ILAB_KUBE_CONTEXT?=kind-instructlab-ui
 ILAB_KUBE_NAMESPACE?=instructlab
 ILAB_KUBE_CLUSTER_NAME?=instructlab-ui
+
+##@ Kind Deployment - Helper commands for deploying UI stack in Kind cluster
 
 #################### VALIDATION FUNCTIONS ####################
 
