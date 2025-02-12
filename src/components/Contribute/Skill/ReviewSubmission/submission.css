@@ -24,4 +24,8 @@
   .accordion-wrapper {
     padding-bottom: 15px;
   }
+
+  .accordion-content {
+    padding: 15px;
+  }
 }
