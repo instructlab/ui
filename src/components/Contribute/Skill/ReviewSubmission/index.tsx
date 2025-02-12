@@ -3,7 +3,7 @@ import { SkillFormData } from '@/types';
 import { Content, ContentVariants } from '@patternfly/react-core';
 import React from 'react';
 import './submission.css';
-import { Accordion, AccordionContent, AccordionItem, AccordionToggle, Button, FormFieldGroupHeader } from '@patternfly/react-core';
+import { Accordion, AccordionContent, AccordionItem, AccordionToggle } from '@patternfly/react-core';
 
 interface ReviewSubmissionProps {
   skillFormData: SkillFormData;
@@ -61,7 +61,7 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
           </div>
 
           {skillFormData.seedExamples.map((seedExample, index) => (
-            <Accordion asDefinitionList={false} className="accordion-wrapper">
+            <Accordion asDefinitionList={false} className="accordion-wrapper" key={index}>
               <AccordionItem isExpanded={!!expanded[index]} key={index}>
                 <AccordionToggle onClick={() => onToggle(index)} id={`seed-example-toggle-${index}`}>
                   Sample {index + 1}
