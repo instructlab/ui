@@ -9,7 +9,6 @@ import { AppLayout } from '@/components/AppLayout';
 import ModelsContextProvider from '../../../components/Chat/ModelsContext';
 import ChatBotContainer from '../../../components/Chat/ChatBotContainer';
 
-import '@patternfly/chatbot/dist/css/main.css';
 import './chatbotPage.css';
 
 const ChatPage: React.FC = () => {

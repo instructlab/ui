@@ -36,11 +36,14 @@ import {
   ChatbotWelcomePrompt,
   ChatbotFooter,
   ChatbotFootnote,
-  ChatbotAlert
+  ChatbotAlert,
+  ChatbotDisplayMode
 } from '@patternfly/chatbot';
 import logo from '../../../../public/bot-icon-chat-32x32.svg';
 import userLogo from '../../../../public/default-avatar.svg';
 import ModelStatusIndicator from '@/components/Experimental/ModelServeStatus/ModelServeStatus';
+
+import './ChatEval.css';
 
 const ChatModelEval: React.FC = () => {
   const [isUnifiedInput, setIsUnifiedInput] = useState(false);
@@ -635,15 +638,17 @@ const ChatModelEval: React.FC = () => {
         <Switch id="toggle-unified-input" label="Single Input Box" isChecked={isUnifiedInput} onChange={() => setIsUnifiedInput(!isUnifiedInput)} />
       </PageSection>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '0.25rem', marginLeft: '1rem', marginRight: '1rem' }}>
+      <div className="chat-eval__chatbots-container">
         {/* Left Chat */}
-        <div style={{ flex: '1 1 45%', maxWidth: '45%', marginBottom: '2rem' }}>
-          <Chatbot isVisible={true} className="chatbot-ui-page">
+        <div style={{ flex: '1 1 45%', marginBottom: '2rem' }}>
+          <Chatbot displayMode={ChatbotDisplayMode.embedded} isVisible={true} className="chatbot-ui-page">
             <ChatbotHeader className="pf-chatbot__header">
               <ChatbotHeaderMain>{''}</ChatbotHeaderMain>
               <ChatbotHeaderActions className="pf-chatbot__header-actions">
                 <ModelStatusIndicator modelName={selectedModelLeft?.modelName || null} />
-                {freeGpus < 1 && !selectedModelLeft && <span style={{ color: 'red', marginRight: '0.5rem', padding: '0.5rem' }}>No GPUs free</span>}
+                {freeGpus < 1 && !selectedModelLeft && (
+                  <span style={{ color: 'red', marginRight: '0.5rem', padding: '0.5rem', whiteSpace: 'nowrap' }}>No GPUs free</span>
+                )}
                 {showModelLoadingLeft && <Spinner size="sm" />}
                 <ChatbotHeaderSelectorDropdown
                   // disabled={(freeGpus < 1 && !selectedModelLeft) || showModelLoadingLeft}
@@ -762,12 +767,14 @@ const ChatModelEval: React.FC = () => {
 
         {/* Right Chat */}
         <div style={{ flex: '1 1 45%', marginBottom: '2rem' }}>
-          <Chatbot isVisible={true} className="chatbot-ui-page">
+          <Chatbot displayMode={ChatbotDisplayMode.embedded} isVisible={true} className="chatbot-ui-page">
             <ChatbotHeader className="pf-chatbot__header">
               <ChatbotHeaderMain>{''}</ChatbotHeaderMain>
               <ChatbotHeaderActions className="pf-chatbot__header-actions">
                 <ModelStatusIndicator modelName={selectedModelRight?.modelName || null} />
-                {freeGpus < 1 && !selectedModelRight && <span style={{ color: 'red', marginRight: '0.5rem', padding: '0.5rem' }}>No GPUs free</span>}
+                {freeGpus < 1 && !selectedModelRight && (
+                  <span style={{ color: 'red', marginRight: '0.5rem', padding: '0.5rem', whiteSpace: 'nowrap' }}>No GPUs free</span>
+                )}
                 {showModelLoadingRight && <Spinner size="sm" />}
                 <ChatbotHeaderSelectorDropdown
                   // disabled={(freeGpus < 1 && !selectedModelRight) || showModelLoadingRight}
