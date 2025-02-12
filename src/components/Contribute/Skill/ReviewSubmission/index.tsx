@@ -66,7 +66,7 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
                 <AccordionToggle onClick={() => onToggle(index)} id={`seed-example-toggle-${index}`}>
                   Sample {index + 1}
                 </AccordionToggle>
-                <AccordionContent id={`seed-example-content-${index}`} className='accordion-content'>
+                <AccordionContent id={`seed-example-content-${index}`} className="accordion-content">
                   <p>
                     <h5 className="category-titles">Context:</h5> {seedExample.context}
                   </p>
