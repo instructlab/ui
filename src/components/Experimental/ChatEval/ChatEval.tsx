@@ -747,7 +747,7 @@ const ChatModelEval: React.FC = () => {
             )}
           </Chatbot>
           {modelJobIdLeft && (
-            <div style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: '1rem', maxHeight: 400, overflowY: 'auto' }}>
               <ExpandableSection
                 toggleText={expandedJobsLeft[modelJobIdLeft] ? 'Hide Logs' : 'View Logs'}
                 onToggle={(_event, expanded) => handleToggleLogsLeft(modelJobIdLeft, expanded)}
@@ -873,7 +873,7 @@ const ChatModelEval: React.FC = () => {
             )}
           </Chatbot>
           {modelJobIdRight && (
-            <div style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: '1rem', maxHeight: 400, overflowY: 'auto' }}>
               <ExpandableSection
                 toggleText={expandedJobsRight[modelJobIdRight] ? 'Hide Logs' : 'View Logs'}
                 onToggle={(_event, expanded) => handleToggleLogsRight(modelJobIdRight, expanded)}

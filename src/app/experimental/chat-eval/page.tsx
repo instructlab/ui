@@ -8,7 +8,7 @@ import ChatModelEval from '@/components/Experimental/ChatEval/ChatEval';
 
 const ChatEval: React.FunctionComponent = () => {
   return (
-    <AppLayout>
+    <AppLayout className="chat-eval-page">
       <ChatModelEval />
     </AppLayout>
   );
