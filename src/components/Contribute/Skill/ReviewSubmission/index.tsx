@@ -63,19 +63,19 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
           {skillFormData.seedExamples.map((seedExample, index) => (
             <Accordion asDefinitionList={false} className="accordion-wrapper" key={index}>
               <AccordionItem isExpanded={!!expanded[index]} key={index}>
-                <AccordionToggle onClick={() => onToggle(index)} id={`seed-example-toggle-${index}`}>
+                <AccordionToggle onClick={() => onToggle(index)} id={`seed-example-toggle-${index}`} className="accordion-toggle-item">
                   Sample {index + 1}
                 </AccordionToggle>
-                <AccordionContent id={`seed-example-content-${index}`} className="accordion-content">
-                  <p>
-                    <h5 className="category-titles">Context:</h5> {seedExample.context}
-                  </p>
-                  <p>
-                    <h5 className="category-titles">Question {index + 1}:</h5> {seedExample.question}
-                  </p>
-                  <p>
-                    <h5 className="category-titles">Answer {index + 1}:</h5> {seedExample.answer}
-                  </p>
+                <AccordionContent id={`seed-example-content-${index}`}>
+                  <div className="accordion-content">
+                    <h5 className="seed-category-titles">Context:</h5> {seedExample.context}
+                  </div>
+                  <div className="accordion-content">
+                    <h5 className="seed-category-titles">Question:</h5> {seedExample.question}
+                  </div>
+                  <div className="accordion-content">
+                    <h5 className="seed-category-titles">Answer:</h5> {seedExample.answer}
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
