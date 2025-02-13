@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: pathservice
-        image: ghcr.io/instructlab/ui/pathservice:main
+        image: ghcr.io/instructlab/ui/pathservice:latest
         ports:
         - containerPort: 4000
           hostPort: 4000
@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
       - name: doclingserve
-        image: ghcr.io/ds4sd/docling-serve-cpu:main
+        image: ghcr.io/ds4sd/docling-serve-cpu:latest
         ports:
         - containerPort: 5001
           hostPort: 5001
@@ -58,7 +58,7 @@ spec:
     spec:
       containers:
       - name: ui
-        image: ghcr.io/instructlab/ui/ui:main
+        image: ghcr.io/instructlab/ui/ui:latest
         env:
         - name: IL_UI_DEPLOYMENT
           valueFrom:
