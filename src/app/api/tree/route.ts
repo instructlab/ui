@@ -10,8 +10,8 @@ export async function POST(req: NextRequest) {
   const { root_path, dir_name } = body;
 
   try {
-    const apiBaseUrl = path.join(PATH_SERVICE_URL, '/tree');
-    const response = await axios.get<string[]>(apiBaseUrl + root_path, {
+    const apiUrl = path.join(PATH_SERVICE_URL, 'tree', root_path);
+    const response = await axios.get<string[]>(apiUrl, {
       params: { dir_name: dir_name }
     });
     return NextResponse.json({ data: response.data }, { status: 201 });
