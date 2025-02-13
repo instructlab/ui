@@ -133,7 +133,7 @@ jobs:
           git push origin main
 
   build_and_publish_ps_prod_image:
-    name: Push UI container image to GHCR and QUAY
+    name: Push Pathservice container image to GHCR and QUAY
     runs-on: ubuntu-latest
     environment: registry-creds
     permissions:
