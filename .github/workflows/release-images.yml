@@ -14,7 +14,7 @@ env:
 jobs:
   build_and_publish_ui_prod_image:
     name: Push UI container image to GHCR and QUAY
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     environment: registry-creds
     permissions:
       packages: write
