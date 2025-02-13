@@ -61,31 +61,37 @@ const KnowledgeSeedExample: React.FC<Props> = ({
 
       <Accordion asDefinitionList={false}>
         {seedExamples.map((seedExample: KnowledgeSeedExample, seedExampleIndex: number) => (
-          <AccordionItem key={seedExampleIndex} isExpanded={seedExample.isExpanded}>
-            <AccordionToggle onClick={() => toggleSeedExampleExpansion(seedExampleIndex)} id={`seed-example-toggle-${seedExampleIndex}`}>
-              <span style={{ display: 'flex', alignItems: 'normal', justifyContent: 'space-between', width: '100%' }}>
-                Seed Example {seedExampleIndex + 1} {seedExample.immutable && '*'}
-                {!seedExample.immutable && (
-                  <Button icon={<TrashIcon />} variant="plain" aria-label="Remove" onClick={() => deleteSeedExample(seedExampleIndex)} />
-                )}
-              </span>
-            </AccordionToggle>
-            <AccordionContent id={`seed-example-content-${seedExampleIndex}`}>
-              <KnowledgeQuestionAnswerPairs
-                seedExample={seedExample}
-                seedExampleIndex={seedExampleIndex}
-                handleContextInputChange={handleContextInputChange}
-                handleContextBlur={handleContextBlur}
-                handleQuestionInputChange={handleQuestionInputChange}
-                handleQuestionBlur={handleQuestionBlur}
-                handleAnswerInputChange={handleAnswerInputChange}
-                handleAnswerBlur={handleAnswerBlur}
-                addDocumentInfo={addDocumentInfo}
-                repositoryUrl={repositoryUrl}
-                commitSha={commitSha}
-              />
-            </AccordionContent>
-          </AccordionItem>
+          <div key={seedExampleIndex} style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+            <div style={{ flex: 9.5 }}>
+              <AccordionItem key={seedExampleIndex} isExpanded={seedExample.isExpanded}>
+                <AccordionToggle onClick={() => toggleSeedExampleExpansion(seedExampleIndex)} id={`seed-example-toggle-${seedExampleIndex}`}>
+                  <span style={{ display: 'flex', alignItems: 'normal', justifyContent: 'space-between', width: '100%' }}>
+                    Seed Example {seedExampleIndex + 1} {seedExample.immutable && '*'}
+                  </span>
+                </AccordionToggle>
+                <AccordionContent id={`seed-example-content-${seedExampleIndex}`}>
+                  <KnowledgeQuestionAnswerPairs
+                    seedExample={seedExample}
+                    seedExampleIndex={seedExampleIndex}
+                    handleContextInputChange={handleContextInputChange}
+                    handleContextBlur={handleContextBlur}
+                    handleQuestionInputChange={handleQuestionInputChange}
+                    handleQuestionBlur={handleQuestionBlur}
+                    handleAnswerInputChange={handleAnswerInputChange}
+                    handleAnswerBlur={handleAnswerBlur}
+                    addDocumentInfo={addDocumentInfo}
+                    repositoryUrl={repositoryUrl}
+                    commitSha={commitSha}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </div>
+            <div style={{ flex: 0.5, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              {!seedExample.immutable && !seedExample.isExpanded && (
+                <Button icon={<TrashIcon />} variant="plain" aria-label="Remove" onClick={() => deleteSeedExample(seedExampleIndex)} />
+              )}
+            </div>
+          </div>
         ))}
       </Accordion>
       <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
