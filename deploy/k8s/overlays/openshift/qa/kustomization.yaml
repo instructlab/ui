@@ -32,6 +32,6 @@ images:
   - name: quay.io/instructlab-ui/ui
     newTag: pr-587
   - name: quay.io/instructlab-ui/pathservice
-    newTag: pr-587
+    newTag: pr-588
   - name: quay.io/instructlab-ui/healthcheck-sidecar
     newTag: pr-375
