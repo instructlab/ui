@@ -134,7 +134,7 @@ jobs:
 
   build_and_publish_ps_prod_image:
     name: Push pathservice container image to GHCR and QUAY
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     environment: registry-creds
     permissions:
       packages: write
