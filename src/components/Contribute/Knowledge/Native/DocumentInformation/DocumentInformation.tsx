@@ -1,32 +1,38 @@
 // src/components/Contribute/Knowledge/Native/DocumentInformation/DocumentInformation.tsx
 import React, { useEffect, useState } from 'react';
-import { FormFieldGroupHeader, FormGroup, FormHelperText } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { TextInput } from '@patternfly/react-core/dist/dynamic/components/TextInput';
-import { Alert, AlertActionLink, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { HelperText } from '@patternfly/react-core/dist/dynamic/components/HelperText';
-import { HelperTextItem } from '@patternfly/react-core/dist/dynamic/components/HelperText';
+import {
+  Alert,
+  AlertActionLink,
+  AlertActionCloseButton,
+  AlertGroup,
+  Button,
+  Content,
+  Flex,
+  FlexItem,
+  Form,
+  FormGroup,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  TextInput
+} from '@patternfly/react-core';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
 import { UploadFile } from '@/components/Contribute/Knowledge/UploadFile';
-import { checkKnowledgeFormCompletion } from '@/components/Contribute/Knowledge/validation';
-import { KnowledgeFormData } from '@/types';
 
 interface Props {
-  reset: boolean;
   isEditForm?: boolean;
-  knowledgeFormData: KnowledgeFormData;
-  setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
-
   knowledgeDocumentRepositoryUrl: string;
-  setKnowledgeDocumentRepositoryUrl: React.Dispatch<React.SetStateAction<string>>;
-
+  setKnowledgeDocumentRepositoryUrl: (val: string) => void;
   knowledgeDocumentCommit: string;
-  setKnowledgeDocumentCommit: React.Dispatch<React.SetStateAction<string>>;
-
+  setKnowledgeDocumentCommit: (val: string) => void;
   documentName: string;
-  setDocumentName: React.Dispatch<React.SetStateAction<string>>;
+  setDocumentName: (val: string) => void;
 }
 
 interface AlertInfo {
@@ -37,10 +43,7 @@ interface AlertInfo {
 }
 
 const DocumentInformation: React.FC<Props> = ({
-  reset,
   isEditForm,
-  knowledgeFormData,
-  setDisableAction,
   knowledgeDocumentRepositoryUrl,
   setKnowledgeDocumentRepositoryUrl,
   knowledgeDocumentCommit,
@@ -60,12 +63,6 @@ const DocumentInformation: React.FC<Props> = ({
   const [validDocumentName, setValidDocumentName] = useState<ValidatedOptions>(ValidatedOptions.default);
 
   useEffect(() => {
-    setValidRepo(ValidatedOptions.default);
-    setValidCommit(ValidatedOptions.default);
-    setValidDocumentName(ValidatedOptions.default);
-  }, [reset]);
-
-  useEffect(() => {
     if (isEditForm) {
       setValidRepo(ValidatedOptions.success);
       setValidCommit(ValidatedOptions.success);
@@ -75,26 +72,12 @@ const DocumentInformation: React.FC<Props> = ({
 
   const validateCommit = (commitStr: string) => {
     const commit = commitStr.trim();
-    if (commit.length > 0) {
-      setValidCommit(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
-      return;
-    }
-    setDisableAction(true);
-    setValidCommit(ValidatedOptions.error);
-    return;
+    setValidCommit(commit.length > 0 ? ValidatedOptions.success : ValidatedOptions.error);
   };
 
   const validateDocumentName = (document: string) => {
     const documentNameStr = document.trim();
-    if (documentNameStr.length > 0) {
-      setValidDocumentName(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
-      return;
-    }
-    setDisableAction(true);
-    setValidDocumentName(ValidatedOptions.error);
-    return;
+    setValidDocumentName(documentNameStr.length > 0 ? ValidatedOptions.success : ValidatedOptions.error);
   };
 
   const handleFilesChange = (files: File[]) => {
@@ -208,117 +191,101 @@ const DocumentInformation: React.FC<Props> = ({
   };
 
   return (
-    <div>
-      <FormFieldGroupHeader
-        titleText={{
-          text: (
-            <p>
-              Document Information <span style={{ color: 'red' }}>*</span>
-            </p>
-          ),
-          id: 'doc-info-id'
-        }}
-        titleDescription="Add the relevant document's information"
-      />
-      <FormGroup>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <Button
-            variant={useFileUpload ? 'primary' : 'secondary'}
-            className={useFileUpload ? 'button-active' : 'button-secondary'}
-            onClick={handleAutomaticUpload}
-          >
-            Automatically Upload Documents
-          </Button>
-          <Button
-            variant={useFileUpload ? 'secondary' : 'primary'}
-            className={!useFileUpload ? 'button-active' : 'button-secondary'}
-            onClick={handleManualUpload}
-          >
-            Manually Enter Document Details
-          </Button>
-        </div>
-      </FormGroup>
-      <Modal
-        variant={ModalVariant.medium}
-        title="Data Loss Warning"
-        titleIconVariant="warning"
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        actions={[
-          <Button key="Continue" variant="secondary" onClick={handleModalContinue}>
-            Continue
-          </Button>,
-          <Button key="cancel" variant="secondary" onClick={() => setIsModalOpen(false)}>
-            Cancel
-          </Button>
-        ]}
-      >
-        <p>{modalText}</p>
-      </Modal>
-      {!useFileUpload ? (
-        <>
-          <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL or Server Side File Path">
-            <TextInput
-              isRequired
-              type="url"
-              aria-label="repo"
-              validated={validRepo}
-              placeholder="Enter repo URL where document exists"
-              value={knowledgeDocumentRepositoryUrl}
-              onChange={(_event, value) => setKnowledgeDocumentRepositoryUrl(value)}
-            />
+    <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
+      <FlexItem>
+        <Content component="h4">Document Information</Content>
+        <Content component="p">{`Add the relevant document's information.`}</Content>
+      </FlexItem>
+      <FlexItem>
+        <Form>
+          <FormGroup>
+            <Flex gap={{ default: 'gapSm' }}>
+              <FlexItem>
+                <Button
+                  variant={useFileUpload ? 'primary' : 'secondary'}
+                  className={useFileUpload ? 'button-active' : 'button-secondary'}
+                  onClick={handleAutomaticUpload}
+                >
+                  Automatically Upload Documents
+                </Button>
+              </FlexItem>
+              <FlexItem>
+                <Button
+                  variant={useFileUpload ? 'secondary' : 'primary'}
+                  className={!useFileUpload ? 'button-active' : 'button-secondary'}
+                  onClick={handleManualUpload}
+                >
+                  Manually Enter Document Details
+                </Button>
+              </FlexItem>
+            </Flex>
           </FormGroup>
-          <FormGroup isRequired key={'doc-info-details-commit_sha'} label="Commit SHA">
-            <TextInput
-              isRequired
-              type="text"
-              aria-label="commit"
-              placeholder="Enter the commit SHA of the document in that repo"
-              value={knowledgeDocumentCommit}
-              validated={validCommit}
-              onChange={(_event, value) => setKnowledgeDocumentCommit(value)}
-              onBlur={() => validateCommit(knowledgeDocumentCommit)}
-            />
-            {validCommit === ValidatedOptions.error && (
-              <FormHelperText>
-                <HelperText>
-                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCommit}>
-                    Valid commit SHA is required.
-                  </HelperTextItem>
-                </HelperText>
-              </FormHelperText>
-            )}
-          </FormGroup>
-          <FormGroup isRequired key={'doc-info-details-patterns'} label="Document names">
-            <TextInput
-              isRequired
-              type="text"
-              aria-label="patterns"
-              placeholder="Enter the document names (comma separated)"
-              value={documentName}
-              validated={validDocumentName}
-              onChange={(_event, value) => setDocumentName(value)}
-              onBlur={() => validateDocumentName(documentName)}
-            />
-            {validDocumentName === ValidatedOptions.error && (
-              <FormHelperText>
-                <HelperText>
-                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validDocumentName}>
-                    Required field
-                  </HelperTextItem>
-                </HelperText>
-              </FormHelperText>
-            )}
-          </FormGroup>
-        </>
-      ) : (
-        <>
-          <UploadFile onFilesChange={handleFilesChange} />
-          <Button variant="primary" onClick={handleDocumentUpload} isDisabled={uploadedFiles.length === 0}>
-            Submit Files
-          </Button>
-        </>
-      )}
+          {!useFileUpload ? (
+            <>
+              <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL or Server Side File Path">
+                <TextInput
+                  isRequired
+                  type="url"
+                  aria-label="repo"
+                  validated={validRepo}
+                  placeholder="Enter repo URL where document exists"
+                  value={knowledgeDocumentRepositoryUrl}
+                  onChange={(_event, value) => setKnowledgeDocumentRepositoryUrl(value)}
+                />
+              </FormGroup>
+              <FormGroup isRequired key={'doc-info-details-commit_sha'} label="Commit SHA">
+                <TextInput
+                  isRequired
+                  type="text"
+                  aria-label="commit"
+                  placeholder="Enter the commit SHA of the document in that repo"
+                  value={knowledgeDocumentCommit}
+                  validated={validCommit}
+                  onChange={(_event, value) => setKnowledgeDocumentCommit(value)}
+                  onBlur={() => validateCommit(knowledgeDocumentCommit)}
+                />
+                {validCommit === ValidatedOptions.error && (
+                  <FormHelperText>
+                    <HelperText>
+                      <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCommit}>
+                        Valid commit SHA is required.
+                      </HelperTextItem>
+                    </HelperText>
+                  </FormHelperText>
+                )}
+              </FormGroup>
+              <FormGroup isRequired key={'doc-info-details-patterns'} label="Document names">
+                <TextInput
+                  isRequired
+                  type="text"
+                  aria-label="patterns"
+                  placeholder="Enter the document names (comma separated)"
+                  value={documentName}
+                  validated={validDocumentName}
+                  onChange={(_event, value) => setDocumentName(value)}
+                  onBlur={() => validateDocumentName(documentName)}
+                />
+                {validDocumentName === ValidatedOptions.error && (
+                  <FormHelperText>
+                    <HelperText>
+                      <HelperTextItem icon={<ExclamationCircleIcon />} variant={validDocumentName}>
+                        Required field
+                      </HelperTextItem>
+                    </HelperText>
+                  </FormHelperText>
+                )}
+              </FormGroup>
+            </>
+          ) : (
+            <FormGroup isRequired label="Uploaded files">
+              <UploadFile onFilesChange={handleFilesChange} />
+              <Button variant="primary" onClick={handleDocumentUpload} isDisabled={uploadedFiles.length === 0}>
+                Submit Files
+              </Button>
+            </FormGroup>
+          )}
+        </Form>
+      </FlexItem>
       {alertInfo && (
         <AlertGroup isToast isLiveRegion>
           <Alert
@@ -336,7 +303,21 @@ const DocumentInformation: React.FC<Props> = ({
           </Alert>
         </AlertGroup>
       )}
-    </div>
+      {isModalOpen ? (
+        <Modal variant={ModalVariant.medium} isOpen onClose={() => setIsModalOpen(false)}>
+          <ModalHeader title="Data Loss Warning" titleIconVariant="warning" />
+          <ModalBody>{modalText}</ModalBody>
+          <ModalFooter>
+            <Button key="Continue" variant="secondary" onClick={handleModalContinue}>
+              Continue
+            </Button>
+            <Button key="cancel" variant="secondary" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
+      ) : null}
+    </Flex>
   );
 };
 

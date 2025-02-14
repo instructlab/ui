@@ -1,11 +1,11 @@
 import React from 'react';
-import { ActionGroupAlertContent } from '..';
+import { useRouter } from 'next/navigation';
+import { Button } from '@patternfly/react-core';
 import { AttributionData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
+import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { validateFields } from '../../validation';
-import { Button } from '@patternfly/react-core';
-import { useRouter } from 'next/navigation';
 
 interface Props {
   disableAction: boolean;

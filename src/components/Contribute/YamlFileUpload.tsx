@@ -3,7 +3,7 @@ import yaml from 'js-yaml';
 import { KnowledgeYamlData, SkillYamlData } from '@/types';
 import { DropEvent, MultipleFileUpload, MultipleFileUploadMain } from '@patternfly/react-core';
 import { UploadIcon } from '@patternfly/react-icons';
-import { ActionGroupAlertContent } from './Knowledge/Github';
+import { ActionGroupAlertContent } from '@/components/Contribute/types';
 
 interface readFile {
   fileName: string;

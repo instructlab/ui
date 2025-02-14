@@ -1,6 +1,6 @@
 // src/components/Contribute/Knowledge/ReviewSubmission/ReviewSubmission.tsx
 import { KnowledgeFormData } from '@/types';
-import { Content, ContentVariants } from '@patternfly/react-core';
+import { Content, ContentVariants, Form } from '@patternfly/react-core';
 import React from 'react';
 
 interface ReviewSubmissionProps {
@@ -10,7 +10,7 @@ interface ReviewSubmissionProps {
 
 export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ knowledgeFormData, isGithubMode }) => {
   return (
-    <div>
+    <Form>
       <Content component={ContentVariants.h2}>Review Submission</Content>
       {/* Author Information */}
       <p>
@@ -109,7 +109,7 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ knowledgeFor
           </p>
         </div>
       )}
-    </div>
+    </Form>
   );
 };
 

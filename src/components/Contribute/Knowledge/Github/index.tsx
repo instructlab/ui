@@ -4,8 +4,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import '../knowledge.css';
 import { getGitHubUserInfo } from '@/utils/github';
 import { useSession } from 'next-auth/react';
-import AuthorInformation from '@/components/Contribute/AuthorInformation';
-import { FormType } from '@/components/Contribute/AuthorInformation';
 import KnowledgeInformation from '@/components/Contribute/Knowledge/KnowledgeInformation/KnowledgeInformation';
 import FilePathInformation from '@/components/Contribute/Knowledge/FilePathInformation/FilePathInformation';
 import DocumentInformation from '@/components/Contribute/Knowledge/Github/DocumentInformation/DocumentInformation';
@@ -43,15 +41,8 @@ import {
   ActionGroup
 } from '@patternfly/react-core';
 import { devLog } from '@/utils/devlog';
-
-export interface ActionGroupAlertContent {
-  title: string;
-  message: string;
-  waitAlert?: boolean;
-  url?: string;
-  success: boolean;
-  timeout?: number | boolean;
-}
+import { ActionGroupAlertContent } from '@/components/Contribute/types';
+import { createEmptySeedExample } from '@/components/Contribute/seedExampleUtils';
 
 export interface KnowledgeFormProps {
   knowledgeEditFormData?: KnowledgeEditFormData;
@@ -96,44 +87,6 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
   const router = useRouter();
 
   const [activeStepIndex, setActiveStepIndex] = useState<number>(1);
-
-  // Function to create a unique empty seed example
-  const createEmptySeedExample = (): KnowledgeSeedExample => ({
-    immutable: true,
-    isExpanded: false,
-    context: '',
-    isContextValid: ValidatedOptions.default,
-    validationError: '',
-    questionAndAnswers: [
-      {
-        immutable: true,
-        question: '',
-        isQuestionValid: ValidatedOptions.default,
-        questionValidationError: '',
-        answer: '',
-        isAnswerValid: ValidatedOptions.default,
-        answerValidationError: ''
-      },
-      {
-        immutable: true,
-        question: '',
-        isQuestionValid: ValidatedOptions.default,
-        questionValidationError: '',
-        answer: '',
-        isAnswerValid: ValidatedOptions.default,
-        answerValidationError: ''
-      },
-      {
-        immutable: true,
-        question: '',
-        isQuestionValid: ValidatedOptions.default,
-        questionValidationError: '',
-        answer: '',
-        isAnswerValid: ValidatedOptions.default,
-        answerValidationError: ''
-      }
-    ]
-  });
 
   // Initialize seedExamples with unique objects
   const [seedExamples, setSeedExamples] = useState<KnowledgeSeedExample[]>([
@@ -566,30 +519,11 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
 
   const steps = [
     {
-      id: 'author-info',
-      name: 'Author Information',
-      component: (
-        <AuthorInformation
-          formType={FormType.Knowledge}
-          reset={reset}
-          formData={knowledgeFormData}
-          setDisableAction={setDisableAction}
-          email={email}
-          setEmail={setEmail}
-          name={name}
-          setName={setName}
-        />
-      )
-    },
-    {
       id: 'knowledge-info',
       name: 'Knowledge Information',
       component: (
         <KnowledgeInformation
-          reset={reset}
           isEditForm={knowledgeEditFormData?.isEditForm}
-          knowledgeFormData={knowledgeFormData}
-          setDisableAction={setDisableAction}
           submissionSummary={submissionSummary}
           setSubmissionSummary={setSubmissionSummary}
           domain={domain}
@@ -603,11 +537,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
       id: 'file-path-info',
       name: 'File Path Information',
       component: (
-        <FilePathInformation
-          reset={reset}
-          path={knowledgeEditFormData ? knowledgeEditFormData.knowledgeFormData.filePath : filePath}
-          setFilePath={setFilePath}
-        />
+        <FilePathInformation path={knowledgeEditFormData ? knowledgeEditFormData.knowledgeFormData.filePath : filePath} setFilePath={setFilePath} />
       )
     },
     {
@@ -704,7 +634,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
         </Breadcrumb>
       </PageBreadcrumb>
 
-      <PageSection className="knowledge-form">
+      <PageSection className="knowledge-form" isFilled>
         <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
           <FlexItem>
             <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>

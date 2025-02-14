@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActionGroupAlertContent } from '..';
+import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { SkillFormData, SkillYamlData } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';

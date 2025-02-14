@@ -1,5 +1,4 @@
 import React from 'react';
-import { ActionGroupAlertContent } from '..';
 import { AttributionData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
@@ -8,6 +7,7 @@ import { amendCommit, getGitHubUsername, updatePullRequest } from '@/utils/githu
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@patternfly/react-core';
+import { ActionGroupAlertContent } from '@/components/Contribute/types';
 
 const KNOWLEDGE_DIR = 'knowledge/';
 interface Props {
