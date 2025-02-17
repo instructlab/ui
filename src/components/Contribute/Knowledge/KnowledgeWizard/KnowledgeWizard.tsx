@@ -31,23 +31,23 @@ import {
 import { devLog } from '@/utils/devlog';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import KnowledgeWizardFooter from '@/components/Contribute/Knowledge/KnowledgeWizardFooter/KnowledgeWizardFooter';
-import { addDocumentInfoToKnowledgeFormData } from '@/components/Contribute/documentUtils';
-import { addYamlUploadKnowledge } from '@/components/Contribute/uploadUtils';
-import { createEmptySeedExample } from '@/components/Contribute/seedExampleUtils';
+import { addDocumentInfoToKnowledgeFormData } from '@/components/Contribute/Knowledge/documentUtils';
+import { addYamlUploadKnowledge } from '@/components/Contribute/Knowledge/uploadUtils';
+import { createEmptySeedExample } from '@/components/Contribute/Knowledge/seedExampleUtils';
 import {
   isAuthInfoValid,
   isDocumentInfoValid,
   isFilePathInfoValid,
   isKnowledgeInfoValid,
   isSeedExamplesValid
-} from '@/components/Contribute/validationUtils';
+} from '@/components/Contribute/Knowledge/validationUtils';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
 import {
   submitGithubKnowledgeData,
   submitNativeKnowledgeData,
   updateGithubKnowledgeData,
   updateNativeKnowledgeData
-} from '@/components/Contribute/submitUtils';
+} from '@/components/Contribute/Knowledge/submitUtils';
 import { getGitHubUserInfo } from '@/utils/github';
 import AttributionInformation from '@/components/Contribute/Knowledge/AttributionInformation/AttributionInformation';
 

@@ -1,5 +1,5 @@
 import { KnowledgeFormData, KnowledgeYamlData } from '@/types';
-import { yamlSeedExampleToFormSeedExample } from '@/components/Contribute/seedExampleUtils';
+import { yamlSeedExampleToFormSeedExample } from '@/components/Contribute/Knowledge/seedExampleUtils';
 
 export const addYamlUploadKnowledge = (knowledgeFormData: KnowledgeFormData, data: KnowledgeYamlData): KnowledgeFormData => ({
   ...knowledgeFormData,

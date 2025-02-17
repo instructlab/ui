@@ -13,7 +13,7 @@ import {
   handleSeedExamplesQuestionBlur,
   handleSeedExamplesQuestionInputChange,
   toggleSeedExamplesExpansion
-} from '@/components/Contribute/seedExampleUtils';
+} from '@/components/Contribute/Knowledge/seedExampleUtils';
 
 interface Props {
   isGithubMode: boolean;

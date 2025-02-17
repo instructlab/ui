@@ -5,7 +5,7 @@ export const isAuthInfoValid = (knowledgeFormData: KnowledgeFormData): boolean =
 
 export const isKnowledgeInfoValid = (knowledgeFormData: KnowledgeFormData): boolean => {
   const description = knowledgeFormData.submissionSummary.trim();
-  if (!description.length || description.length > 60) {
+  if (!description.length) {
     return false;
   }
 
