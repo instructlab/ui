@@ -15,7 +15,7 @@ import {
   FlexItem
 } from '@patternfly/react-core';
 import { CatalogIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
-import KnowledgeFileSelectModal from '@/components/Contribute/Knowledge/Native/KnowledgeQuestionAnswerPairsNative/KnowledgeFileSelectModal';
+import KnowledgeFileSelectModal from '@/components/Contribute/Knowledge/SeedExamples/KnowledgeFileSelectModal';
 
 interface KnowledgeFile {
   filename: string;
@@ -24,7 +24,11 @@ interface KnowledgeFile {
   commitDate?: string;
 }
 
+const GITHUB_KNOWLEDGE_FILES_API = '/api/github/knowledge-files';
+const NATIVE_GIT_KNOWLEDGE_FILES_API = '/api/native/git/knowledge-files';
+
 interface Props {
+  isGithubMode: boolean;
   seedExample: KnowledgeSeedExample;
   seedExampleIndex: number;
   handleContextInputChange: (seedExampleIndex: number, contextValue: string) => void;
@@ -39,6 +43,7 @@ interface Props {
 }
 
 const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
+  isGithubMode,
   seedExample,
   seedExampleIndex,
   handleContextInputChange,
@@ -62,7 +67,7 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/native/git/knowledge-files', {
+      const response = await fetch(isGithubMode ? GITHUB_KNOWLEDGE_FILES_API : NATIVE_GIT_KNOWLEDGE_FILES_API, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });

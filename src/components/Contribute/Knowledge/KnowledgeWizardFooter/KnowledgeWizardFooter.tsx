@@ -21,11 +21,12 @@ interface KnowledgeWizardFooterProps {
   knowledgeFormData: KnowledgeFormData;
   isGithubMode: boolean;
   showSubmit: boolean;
+  isEdit: boolean;
   onSubmit: () => Promise<boolean>;
   onCancel: () => void;
 }
 
-const KnowledgeWizardFooter: React.FC<KnowledgeWizardFooterProps> = ({ isValid, knowledgeFormData, isGithubMode, showSubmit, onSubmit }) => {
+const KnowledgeWizardFooter: React.FC<KnowledgeWizardFooterProps> = ({ isValid, knowledgeFormData, isGithubMode, showSubmit, onSubmit, isEdit }) => {
   const { steps, activeStep, goToNextStep, goToPrevStep, goToStepByIndex, close } = useWizardContext();
 
   const prevDisabled = steps.indexOf(activeStep) < 1;
@@ -93,7 +94,7 @@ const KnowledgeWizardFooter: React.FC<KnowledgeWizardFooterProps> = ({ isValid, 
                 <ActionListItem>
                   <Button variant={ButtonVariant.primary} type="submit" onClick={handleSubmit}>
                     <Flex gap={{ default: 'gapXs' }}>
-                      <FlexItem>Submit</FlexItem>
+                      <FlexItem>{isEdit ? 'Update' : 'Submit'}</FlexItem>
                       <FlexItem>
                         <ArrowRightIcon />
                       </FlexItem>

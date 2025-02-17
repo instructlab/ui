@@ -1,41 +1,69 @@
 // src/components/Contribute/Knowledge/Native/KnowledgeSeedExampleNative/KnowledgeQuestionAnswerPairsNative.tsx
 import React from 'react';
-import KnowledgeQuestionAnswerPairsNative from '../KnowledgeQuestionAnswerPairsNative/KnowledgeQuestionAnswerPairs';
 import type { KnowledgeSeedExample } from '@/types';
 import { Accordion, AccordionContent, AccordionItem, AccordionToggle, Button, Content, Flex, FlexItem } from '@patternfly/react-core';
 import { ExternalLinkAltIcon, PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
+import QuestionAnswerPairs from '@/components/Contribute/Knowledge/SeedExamples/QuestionAnswerPairs';
+import {
+  createEmptySeedExample,
+  handleSeedExamplesAnswerBlur,
+  handleSeedExamplesAnswerInputChange,
+  handleSeedExamplesContextBlur,
+  handleSeedExamplesContextInputChange,
+  handleSeedExamplesQuestionBlur,
+  handleSeedExamplesQuestionInputChange,
+  toggleSeedExamplesExpansion
+} from '@/components/Contribute/seedExampleUtils';
 
 interface Props {
+  isGithubMode: boolean;
   seedExamples: KnowledgeSeedExample[];
-  handleContextInputChange: (seedExampleIndex: number, contextValue: string) => void;
-  handleContextBlur: (seedExampleIndex: number) => void;
-  handleQuestionInputChange: (seedExampleIndex: number, questionAndAnswerIndex: number, questionValue: string) => void;
-  handleQuestionBlur: (seedExampleIndex: number, questionAndAnswerIndex: number) => void;
-  handleAnswerInputChange: (seedExampleIndex: number, questionAndAnswerIndex: number, answerValue: string) => void;
-  handleAnswerBlur: (seedExampleIndex: number, questionAndAnswerIndex: number) => void;
-  toggleSeedExampleExpansion?: (index: number) => void;
+  onUpdateSeedExamples: (seedExamples: KnowledgeSeedExample[]) => void;
   addDocumentInfo: (repoUrl: string, commitSha: string, docName: string) => void;
-  addSeedExample: () => void;
-  deleteSeedExample: (seedExampleIndex: number) => void;
   repositoryUrl: string;
   commitSha: string;
 }
 
-const KnowledgeSeedExampleNative: React.FC<Props> = ({
-  seedExamples,
-  handleContextInputChange,
-  handleContextBlur,
-  handleQuestionInputChange,
-  handleQuestionBlur,
-  handleAnswerInputChange,
-  handleAnswerBlur,
-  toggleSeedExampleExpansion = () => {},
-  addDocumentInfo,
-  addSeedExample,
-  deleteSeedExample,
-  repositoryUrl,
-  commitSha
-}) => {
+const SeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, onUpdateSeedExamples, addDocumentInfo, repositoryUrl, commitSha }) => {
+  const handleContextInputChange = (seedExampleIndex: number, contextValue: string): void => {
+    onUpdateSeedExamples(handleSeedExamplesContextInputChange(seedExamples, seedExampleIndex, contextValue));
+  };
+
+  const handleContextBlur = (seedExampleIndex: number): void => {
+    onUpdateSeedExamples(handleSeedExamplesContextBlur(seedExamples, seedExampleIndex));
+  };
+
+  const handleQuestionInputChange = (seedExampleIndex: number, questionAndAnswerIndex: number, questionValue: string): void => {
+    onUpdateSeedExamples(handleSeedExamplesQuestionInputChange(seedExamples, seedExampleIndex, questionAndAnswerIndex, questionValue));
+  };
+
+  const handleQuestionBlur = (seedExampleIndex: number, questionAndAnswerIndex: number): void => {
+    onUpdateSeedExamples(handleSeedExamplesQuestionBlur(seedExamples, seedExampleIndex, questionAndAnswerIndex));
+  };
+
+  const handleAnswerInputChange = (seedExampleIndex: number, questionAndAnswerIndex: number, answerValue: string): void => {
+    onUpdateSeedExamples(handleSeedExamplesAnswerInputChange(seedExamples, seedExampleIndex, questionAndAnswerIndex, answerValue));
+  };
+
+  const handleAnswerBlur = (seedExampleIndex: number, questionAndAnswerIndex: number): void => {
+    onUpdateSeedExamples(handleSeedExamplesAnswerBlur(seedExamples, seedExampleIndex, questionAndAnswerIndex));
+  };
+
+  const toggleSeedExampleExpansion = (index: number): void => {
+    onUpdateSeedExamples(toggleSeedExamplesExpansion(seedExamples, index));
+  };
+
+  const addSeedExample = (): void => {
+    const seedExample = createEmptySeedExample();
+    seedExample.immutable = false;
+    seedExample.isExpanded = true;
+    onUpdateSeedExamples([...seedExamples, seedExample]);
+  };
+
+  const deleteSeedExample = (seedExampleIndex: number): void => {
+    onUpdateSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
+  };
+
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
@@ -72,7 +100,8 @@ const KnowledgeSeedExampleNative: React.FC<Props> = ({
                 </span>
               </AccordionToggle>
               <AccordionContent id={`seed-example-content-${seedExampleIndex}`}>
-                <KnowledgeQuestionAnswerPairsNative
+                <QuestionAnswerPairs
+                  isGithubMode={isGithubMode}
                   seedExample={seedExample}
                   seedExampleIndex={seedExampleIndex}
                   handleContextInputChange={handleContextInputChange}
@@ -99,4 +128,4 @@ const KnowledgeSeedExampleNative: React.FC<Props> = ({
   );
 };
 
-export default KnowledgeSeedExampleNative;
+export default SeedExamples;

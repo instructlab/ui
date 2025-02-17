@@ -25,8 +25,12 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/ex
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { UploadFile } from '@/components/Contribute/Knowledge/UploadFile';
 
+const GITHUB_KNOWLEDGE_FILES_URL = '/api/github/knowledge-files';
+const NATIVE_GIT_KNOWLEDGE_FILES_URL = '/api/native/git/knowledge-files';
+
 interface Props {
   isEditForm?: boolean;
+  isGithubMode: boolean;
   knowledgeDocumentRepositoryUrl: string;
   setKnowledgeDocumentRepositoryUrl: (val: string) => void;
   knowledgeDocumentCommit: string;
@@ -44,6 +48,7 @@ interface AlertInfo {
 
 const DocumentInformation: React.FC<Props> = ({
   isEditForm,
+  isGithubMode,
   knowledgeDocumentRepositoryUrl,
   setKnowledgeDocumentRepositoryUrl,
   knowledgeDocumentCommit,
@@ -69,6 +74,22 @@ const DocumentInformation: React.FC<Props> = ({
       setValidDocumentName(ValidatedOptions.success);
     }
   }, [isEditForm]);
+
+  const validateRepo = (repoStr: string) => {
+    const repo = repoStr.trim();
+    if (repo.length === 0) {
+      setValidRepo(ValidatedOptions.error);
+      return;
+    }
+    try {
+      new URL(repo);
+      setValidRepo(ValidatedOptions.success);
+      return;
+    } catch (e) {
+      setValidRepo(ValidatedOptions.warning);
+      return;
+    }
+  };
 
   const validateCommit = (commitStr: string) => {
     const commit = commitStr.trim();
@@ -113,7 +134,7 @@ const DocumentInformation: React.FC<Props> = ({
 
       if (fileContents.length === uploadedFiles.length) {
         try {
-          const response = await fetch('/api/native/git/knowledge-files', {
+          const response = await fetch(isGithubMode ? GITHUB_KNOWLEDGE_FILES_URL : NATIVE_GIT_KNOWLEDGE_FILES_URL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -121,7 +142,7 @@ const DocumentInformation: React.FC<Props> = ({
             body: JSON.stringify({ files: fileContents })
           });
 
-          if (response.status === 201) {
+          if (response.status === 201 || response.ok) {
             const result = await response.json();
             console.log('Files uploaded result:', result);
             setKnowledgeDocumentRepositoryUrl(result.repoUrl);
@@ -133,6 +154,9 @@ const DocumentInformation: React.FC<Props> = ({
               title: 'Document uploaded successfully!',
               message: 'Documents have been submitted to local taxonomy knowledge docs repo to be referenced in the knowledge submission.'
             };
+            if (result.prUrl !== '') {
+              alertInfo.link = result.prUrl;
+            }
             setAlertInfo(alertInfo);
           } else {
             console.error('Knowledge document upload failed:', response.statusText);
@@ -231,6 +255,7 @@ const DocumentInformation: React.FC<Props> = ({
                   placeholder="Enter repo URL where document exists"
                   value={knowledgeDocumentRepositoryUrl}
                   onChange={(_event, value) => setKnowledgeDocumentRepositoryUrl(value)}
+                  onBlur={() => validateRepo(knowledgeDocumentRepositoryUrl)}
                 />
               </FormGroup>
               <FormGroup isRequired key={'doc-info-details-commit_sha'} label="Commit SHA">
