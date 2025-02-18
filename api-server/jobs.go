@@ -17,7 +17,11 @@ import (
 // and ensures a jobs table exists.
 func (srv *ILabServer) initDB() {
 	var err error
-	srv.db, err = sql.Open("sqlite3", "jobs.db")
+	dbName := "jobs.db"
+	if srv.mockServer {
+		dbName = "mock-jobs.db"
+	}
+	srv.db, err = sql.Open("sqlite3", dbName)
 	if err != nil {
 		srv.log.Fatalf("Failed to open SQLite database: %v", err)
 	}
