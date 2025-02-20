@@ -1,0 +1,49 @@
+/* using common styles for both skill and knowledge review submission forms */
+.review-submission-container {
+  .contributors-wrapper {
+    line-height: 2;
+    padding-top: 15px;
+  }
+
+  .info-wrapper {
+    padding-bottom: 15px;
+  }
+
+  .submission-titles {
+    font-size: var(--pf-t--global--font--size--sm) !important;
+  }
+
+  .submission-subtitles {
+    line-height: 1;
+    font-size: var(--pf-t--global--font--size--xs) !important;
+  }
+
+  .category-titles {
+    font-weight: 600;
+    font-size: var(--pf-t--global--font--size--xs) !important;
+  }
+
+  .accordion-wrapper {
+    padding-bottom: 15px;
+  }
+
+  .accordion-content {
+    padding: 15px;
+  }
+
+  .accordion-content {
+    cursor: pointer;
+    line-height: 1.5;
+  }
+
+  /* override patternfly colors per design recommendation */
+  .pf-v6-c-accordion__toggle:is(:hover, :focus) {
+    background-color: #f1f1f1;
+  }
+
+  .seed-category-titles {
+    font-weight: 600;
+    font-size: var(--pf-t--global--font--size--xs) !important;
+    padding-bottom: 5px;
+  }
+}
