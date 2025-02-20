@@ -100,6 +100,8 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
   }, []);
 
   useEffect(() => {
+    let canceled = false;
+
     if (isGithubMode) {
       const fetchUserInfo = async () => {
         if (session?.accessToken) {
@@ -111,20 +113,32 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
               'X-GitHub-Api-Version': '2022-11-28'
             };
             const fetchedUserInfo = await getGitHubUserInfo(headers);
-            setGithubUsername(fetchedUserInfo.login);
-            setKnowledgeFormData((prev) => ({
-              ...prev,
-              name: fetchedUserInfo.name,
-              email: fetchedUserInfo.email
-            }));
+            if (!canceled) {
+              setGithubUsername(fetchedUserInfo.login);
+              setKnowledgeFormData((prev) => ({
+                ...prev,
+                name: fetchedUserInfo.name,
+                email: fetchedUserInfo.email
+              }));
+            }
           } catch (error) {
             console.error('Failed to fetch GitHub user info:', error);
           }
         }
       };
       fetchUserInfo();
+    } else {
+      setKnowledgeFormData((prev) => ({
+        ...prev,
+        name: session?.user?.name ? session.user.name : prev.name,
+        email: session?.user?.email ? session.user.email : prev.email
+      }));
     }
-  }, [isGithubMode, session?.accessToken, session?.user]);
+
+    return () => {
+      canceled = true;
+    };
+  }, [isGithubMode, session?.accessToken, session?.user?.name, session?.user?.email]);
 
   useEffect(() => {
     // Set all elements from the knowledgeFormData to the state
@@ -254,7 +268,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         name: 'Document Information',
         component: (
           <DocumentInformation
-            isGithubMode={false}
+            isGithubMode={isGithubMode}
             isEditForm={knowledgeEditFormData?.isEditForm}
             knowledgeDocumentRepositoryUrl={knowledgeFormData.knowledgeDocumentRepositoryUrl}
             setKnowledgeDocumentRepositoryUrl={(knowledgeDocumentRepositoryUrl) =>
@@ -283,7 +297,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         name: 'Seed Examples',
         component: (
           <SeedExamples
-            isGithubMode={false}
+            isGithubMode={isGithubMode}
             seedExamples={knowledgeFormData.seedExamples}
             onUpdateSeedExamples={(seedExamples) => setKnowledgeFormData((prev) => ({ ...prev, seedExamples }))}
             addDocumentInfo={addDocumentInfoHandler}
@@ -320,7 +334,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       {
         id: STEP_IDS[6],
         name: 'Review Submission',
-        component: <ReviewSubmission knowledgeFormData={knowledgeFormData} isGithubMode={false} />
+        component: <ReviewSubmission knowledgeFormData={knowledgeFormData} isGithubMode={isGithubMode} />
       }
     ],
     [addDocumentInfoHandler, isGithubMode, knowledgeEditFormData?.isEditForm, knowledgeFormData]
@@ -396,7 +410,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
                 <KnowledgeWizardFooter
                   onCancel={handleCancel}
                   knowledgeFormData={knowledgeFormData}
-                  isGithubMode={false}
+                  isGithubMode={isGithubMode}
                   onSubmit={handleSubmit}
                   isValid={true}
                   showSubmit={submitEnabled}

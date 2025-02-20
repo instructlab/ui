@@ -1,6 +1,17 @@
 import React, { useEffect } from 'react';
 import { KnowledgeFormData } from '@/types';
-import { ValidatedOptions, FormFieldGroupHeader, FormGroup, TextInput, FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core';
+import {
+  ValidatedOptions,
+  FormGroup,
+  TextInput,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+  FlexItem,
+  Content,
+  Flex,
+  Form
+} from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
@@ -88,133 +99,130 @@ const AttributionInformation: React.FC<Props> = ({
   };
 
   return (
-    <div>
-      <FormFieldGroupHeader
-        titleText={{
-          text: (
-            <p>
-              Attribution Information <span style={{ color: 'red' }}>*</span>
-            </p>
-          ),
-          id: 'attribution-info-id'
-        }}
-        titleDescription="Provide attribution information."
-      />
-      <FormGroup isRequired key={'attribution-info-details-work_link'} label="Work link or URL">
-        <TextInput
-          isRequired
-          type="url"
-          aria-label="link_work"
-          placeholder="Enter link to work"
-          validated={validLink}
-          value={linkWork}
-          onChange={(_event, value) => setLinkWork(value)}
-          onBlur={() => validateLink(linkWork)}
-        />
-        {validLink === ValidatedOptions.error && (
-          <FormHelperText>
-            <HelperText>
-              <HelperTextItem icon={<ExclamationCircleIcon />} variant={validLink}>
-                Required field
-              </HelperTextItem>
-            </HelperText>
-          </FormHelperText>
-        )}
-        {validLink === ValidatedOptions.warning && (
-          <FormHelperText>
-            <HelperText>
-              <HelperTextItem icon={<ExclamationCircleIcon />} variant={validLink}>
-                Please enter a valid URL.
-              </HelperTextItem>
-            </HelperText>
-          </FormHelperText>
-        )}
-      </FormGroup>
-      <FormGroup isRequired key={'attribution-info-details-title_work'} label="Work title">
-        <TextInput
-          isRequired
-          type="text"
-          aria-label="title_work"
-          placeholder="Enter title of work"
-          validated={validTitle}
-          value={titleWork}
-          onChange={(_event, value) => setTitleWork(value)}
-          onBlur={() => validateTitle(titleWork)}
-        />
-        {validTitle === ValidatedOptions.error && (
-          <FormHelperText>
-            <HelperText>
-              <HelperTextItem icon={<ExclamationCircleIcon />} variant={validTitle}>
-                Required field
-              </HelperTextItem>
-            </HelperText>
-          </FormHelperText>
-        )}
-      </FormGroup>
-      <FormGroup isRequired key={'attribution-info-details-document_revision'} label="Document revision">
-        <TextInput
-          isRequired
-          type="text"
-          aria-label="revision"
-          placeholder="Enter document revision information"
-          validated={validRevision}
-          value={revision}
-          onChange={(_event, value) => setRevision(value)}
-          onBlur={() => validateRevision(revision)}
-        />
-        {validRevision === ValidatedOptions.error && (
-          <FormHelperText>
-            <HelperText>
-              <HelperTextItem icon={<ExclamationCircleIcon />} variant={validRevision}>
-                Required field
-              </HelperTextItem>
-            </HelperText>
-          </FormHelperText>
-        )}
-      </FormGroup>
-      <FormGroup isRequired key={'attribution-info-details-license'} label="License">
-        <TextInput
-          isRequired
-          type="text"
-          aria-label="license_work"
-          placeholder="Enter license of the work"
-          validated={validLicense}
-          value={licenseWork}
-          onChange={(_event, value) => setLicenseWork(value)}
-          onBlur={() => validateLicense(licenseWork)}
-        />
-        {validLicense === ValidatedOptions.error && (
-          <FormHelperText>
-            <HelperText>
-              <HelperTextItem icon={<ExclamationCircleIcon />} variant={validLicense}>
-                Required field
-              </HelperTextItem>
-            </HelperText>
-          </FormHelperText>
-        )}
-      </FormGroup>
-      <FormGroup isRequired key={'attribution-info-details-creators'} label="Creators name">
-        <TextInput
-          isRequired
-          type="text"
-          aria-label="creators"
-          placeholder="Enter creators Name"
-          validated={validCreators}
-          value={creators}
-          onChange={(_event, value) => setCreators(value)}
-          onBlur={() => validateCreators(creators)}
-        />
-        {validCreators === ValidatedOptions.error && (
-          <FormHelperText>
-            <HelperText>
-              <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCreators}>
-                Required field
-              </HelperTextItem>
-            </HelperText>
-          </FormHelperText>
-        )}
-      </FormGroup>
-    </div>
+    <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
+      <FlexItem>
+        <Content component="h4">Attribution Information</Content>
+        <Content component="p">Provide attribution information.</Content>
+      </FlexItem>
+      <FlexItem>
+        <Form>
+          <FormGroup isRequired key={'attribution-info-details-work_link'} label="Work link or URL">
+            <TextInput
+              isRequired
+              type="url"
+              aria-label="link_work"
+              placeholder="Enter link to work"
+              validated={validLink}
+              value={linkWork}
+              onChange={(_event, value) => setLinkWork(value)}
+              onBlur={() => validateLink(linkWork)}
+            />
+            {validLink === ValidatedOptions.error && (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validLink}>
+                    Required field
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            )}
+            {validLink === ValidatedOptions.warning && (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validLink}>
+                    Please enter a valid URL.
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            )}
+          </FormGroup>
+          <FormGroup isRequired key={'attribution-info-details-title_work'} label="Work title">
+            <TextInput
+              isRequired
+              type="text"
+              aria-label="title_work"
+              placeholder="Enter title of work"
+              validated={validTitle}
+              value={titleWork}
+              onChange={(_event, value) => setTitleWork(value)}
+              onBlur={() => validateTitle(titleWork)}
+            />
+            {validTitle === ValidatedOptions.error && (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validTitle}>
+                    Required field
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            )}
+          </FormGroup>
+          <FormGroup isRequired key={'attribution-info-details-document_revision'} label="Document revision">
+            <TextInput
+              isRequired
+              type="text"
+              aria-label="revision"
+              placeholder="Enter document revision information"
+              validated={validRevision}
+              value={revision}
+              onChange={(_event, value) => setRevision(value)}
+              onBlur={() => validateRevision(revision)}
+            />
+            {validRevision === ValidatedOptions.error && (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validRevision}>
+                    Required field
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            )}
+          </FormGroup>
+          <FormGroup isRequired key={'attribution-info-details-license'} label="License">
+            <TextInput
+              isRequired
+              type="text"
+              aria-label="license_work"
+              placeholder="Enter license of the work"
+              validated={validLicense}
+              value={licenseWork}
+              onChange={(_event, value) => setLicenseWork(value)}
+              onBlur={() => validateLicense(licenseWork)}
+            />
+            {validLicense === ValidatedOptions.error && (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validLicense}>
+                    Required field
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            )}
+          </FormGroup>
+          <FormGroup isRequired key={'attribution-info-details-creators'} label="Creators name">
+            <TextInput
+              isRequired
+              type="text"
+              aria-label="creators"
+              placeholder="Enter creators Name"
+              validated={validCreators}
+              value={creators}
+              onChange={(_event, value) => setCreators(value)}
+              onBlur={() => validateCreators(creators)}
+            />
+            {validCreators === ValidatedOptions.error && (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCreators}>
+                    Required field
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            )}
+          </FormGroup>
+        </Form>
+      </FlexItem>
+    </Flex>
   );
 };
 

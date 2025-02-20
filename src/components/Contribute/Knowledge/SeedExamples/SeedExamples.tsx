@@ -91,13 +91,26 @@ const SeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, onUpdateSee
           {seedExamples.map((seedExample: KnowledgeSeedExample, seedExampleIndex: number) => (
             <AccordionItem key={seedExampleIndex} isExpanded={seedExample.isExpanded}>
               <AccordionToggle onClick={() => toggleSeedExampleExpansion(seedExampleIndex)} id={`seed-example-toggle-${seedExampleIndex}`}>
-                <span>
-                  Seed Example {seedExampleIndex + 1}{' '}
-                  {seedExample.immutable && <span style={{ color: 'var(--pf-t--global--color--status--danger--default)' }}>*</span>}
-                  {!seedExample.immutable && (
-                    <Button icon={<TrashIcon />} variant="plain" aria-label="Remove" onClick={() => deleteSeedExample(seedExampleIndex)} />
-                  )}
-                </span>
+                <Flex gap={{ default: 'gapMd' }} justifyContent={{ default: 'justifyContentSpaceBetween' }} style={{ width: '100%' }}>
+                  <FlexItem>
+                    Seed Example {seedExampleIndex + 1}{' '}
+                    {seedExample.immutable ? <span style={{ color: 'var(--pf-t--global--color--status--danger--default)' }}>*</span> : null}
+                  </FlexItem>
+                  {!seedExample.immutable ? (
+                    <FlexItem>
+                      <Button
+                        component="a"
+                        icon={<TrashIcon />}
+                        variant="plain"
+                        aria-label="Remove"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteSeedExample(seedExampleIndex);
+                        }}
+                      />
+                    </FlexItem>
+                  ) : null}
+                </Flex>
               </AccordionToggle>
               <AccordionContent id={`seed-example-content-${seedExampleIndex}`}>
                 <QuestionAnswerPairs

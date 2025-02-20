@@ -9,7 +9,7 @@ export interface KnowledgeFormProps {
   knowledgeEditFormData?: KnowledgeEditFormData;
 }
 export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData }) => (
-  <KnowledgeWizard isGithubMode={false} knowledgeEditFormData={knowledgeEditFormData} />
+  <KnowledgeWizard isGithubMode knowledgeEditFormData={knowledgeEditFormData} />
 );
 
 export default KnowledgeFormNative;
