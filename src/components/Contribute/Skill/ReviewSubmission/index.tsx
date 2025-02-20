@@ -24,12 +24,12 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
     <>
       <section className="review-submission-container">
         <Content component={ContentVariants.h3}>Review</Content>
-        <p>Review the information below and click finish to submit your knowledge contribution. Use the back button to make changes.</p>
+        <p>Review the information below and click finish to submit your skill contribution. Use the back button to make changes.</p>
         {/* Author Information */}
         <article>
           <div className="info-wrapper">
             <p className="submission-titles">Contributor Information</p>
-            <p className="submission-subtitles">Information required for a Github Developer Certificate of Origin (OC) sign-off.</p>
+            <p className="submission-subtitles">Information required for a Github Developer Certificate of Origin (DCO) sign-off.</p>
 
             <div className="contributors-wrapper">
               <h5 className="category-titles">Contributors</h5>
@@ -39,11 +39,11 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
           </div>
         </article>
 
-        {/* Knowledge Information */}
+        {/* Skill Information */}
         <article>
           <div className="info-wrapper">
-            <p className="submission-titles">Knowledge Information</p>
-            <p className="submission-subtitles">Brief information about the Knowledge and the directory path for the QnA and Attribution files.</p>
+            <p className="submission-titles">Skill Information</p>
+            <p className="submission-subtitles">Brief information about the Skill and the directory path for the QnA and Attribution files.</p>
           </div>
 
           <h5 className="category-titles">Submission summary</h5>
@@ -56,13 +56,13 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
         {/* Seed Examples */}
         <article>
           <div className="info-wrapper">
-            <p>Seed data</p>
+            <p>Seed Examples</p>
             <p className="submission-subtitles">Data that will be used to start teaching your model.</p>
           </div>
 
-          {skillFormData.seedExamples.map((seedExample, index) => (
-            <Accordion asDefinitionList={false} className="accordion-wrapper" key={index}>
-              <AccordionItem isExpanded={!!expanded[index]} key={index}>
+          {skillFormData.seedExamples?.map((seedExample, index) => (
+            <Accordion asDefinitionList={false} className="accordion-wrapper" key={`seed-${index}`}>
+              <AccordionItem isExpanded={!!expanded[index]} key={`accordion-item-${index}`}>
                 <AccordionToggle onClick={() => onToggle(index)} id={`seed-example-toggle-${index}`} className="accordion-toggle-item">
                   Sample {index + 1}
                 </AccordionToggle>
