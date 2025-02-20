@@ -726,7 +726,7 @@ const ChatModelEval: React.FC = () => {
                     handleSendLeft(message);
                   }}
                   hasAttachButton={false}
-                  onChange={(event: React.ChangeEvent<HTMLDivElement>, val: string) => {
+                  onChange={(_, val: string) => {
                     setQuestionLeft(val);
                   }}
                   // value={questionLeft}
@@ -852,7 +852,7 @@ const ChatModelEval: React.FC = () => {
                     handleSendRight(message);
                   }}
                   hasAttachButton={false}
-                  onChange={(event: React.ChangeEvent<HTMLDivElement>, val: string) => {
+                  onChange={(_, val: string) => {
                     setQuestionRight(val);
                   }}
                   // value={questionRight}
@@ -901,7 +901,7 @@ const ChatModelEval: React.FC = () => {
                 handleUnifiedSend(message);
               }}
               hasAttachButton={false}
-              onChange={(event: React.ChangeEvent<HTMLDivElement>, val: string) => {
+              onChange={(_, val: string) => {
                 setQuestionUnified(val);
               }}
               // value={questionUnified}
