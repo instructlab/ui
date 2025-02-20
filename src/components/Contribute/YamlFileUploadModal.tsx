@@ -2,7 +2,7 @@ import React from 'react';
 import YamlFileUpload from './YamlFileUpload';
 import { KnowledgeYamlData, SkillYamlData } from '@/types';
 import { Modal, ModalVariant, ModalHeader, ModalBody } from '@patternfly/react-core';
-import { ActionGroupAlertContent } from './Knowledge/Github';
+import { ActionGroupAlertContent } from '@/components/Contribute/types';
 
 interface Props {
   isModalOpen: boolean;

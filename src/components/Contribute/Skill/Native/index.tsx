@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import '../skills.css';
 import { useSession } from 'next-auth/react';
 import AuthorInformation from '@/components/Contribute/AuthorInformation';
-import { FormType } from '@/components/Contribute/AuthorInformation';
 import FilePathInformation from '@/components/Contribute/Skill/FilePathInformation/FilePathInformation';
 import Submit from '@/components/Contribute/Skill/Native/Submit/Submit';
 import { checkSkillFormCompletion } from '@/components/Contribute/Skill/validation';
@@ -39,6 +38,7 @@ import {
   WizardStep
 } from '@patternfly/react-core';
 import ReviewSubmission from '../ReviewSubmission';
+import { ActionGroupAlertContent } from '@/components/Contribute/types';
 
 export interface SkillEditFormData {
   isEditForm: boolean;
@@ -46,15 +46,6 @@ export interface SkillEditFormData {
   branchName: string;
   oldFilesPath: string;
   skillFormData: SkillFormData;
-}
-
-export interface ActionGroupAlertContent {
-  title: string;
-  message: string;
-  waitAlert?: boolean;
-  url?: string;
-  success: boolean;
-  timeout?: number | boolean;
 }
 
 export interface SkillFormProps {
@@ -340,16 +331,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
       name: 'Details',
       component: (
         <>
-          <AuthorInformation
-            formType={FormType.Knowledge}
-            reset={reset}
-            formData={skillFormData}
-            setDisableAction={setDisableAction}
-            email={email}
-            setEmail={setEmail}
-            name={name}
-            setName={setName}
-          />
+          <AuthorInformation email={email} setEmail={setEmail} name={name} setName={setName} />
           <SkillsInformation
             reset={reset}
             isEditForm={skillEditFormData?.isEditForm}

@@ -19,10 +19,6 @@ Knowledge CSS .form-k {
   margin-bottom: 30px;
 }
 
-.knowledge-form {
-  line-height: 3;
-}
-
 .pf-v6-c-wizard {
   display: flex;
   flex-direction: column;
