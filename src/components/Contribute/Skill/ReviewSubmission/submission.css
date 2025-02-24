@@ -2,11 +2,11 @@
 .review-submission-container {
   .contributors-wrapper {
     line-height: 2;
-    padding-top: 15px;
+    padding-top: var(--pf-t--global--spacer--md);
   }
 
   .info-wrapper {
-    padding-bottom: 15px;
+    padding-bottom: var(--pf-t--global--spacer--md);
   }
 
   .submission-titles {
@@ -19,16 +19,16 @@
   }
 
   .category-titles {
-    font-weight: 600;
+    font-weight: var(pf-t--global--font--weight--heading);
     font-size: var(--pf-t--global--font--size--xs) !important;
   }
 
   .accordion-wrapper {
-    padding-bottom: 15px;
+    padding-bottom: var(--pf-t--global--spacer--md);
   }
 
   .accordion-content {
-    padding: 15px;
+    padding: var(--pf-t--global--spacer--md);
   }
 
   .accordion-content {
@@ -42,8 +42,8 @@
   }
 
   .seed-category-titles {
-    font-weight: 600;
+    font-weight: var(pf-t--global--font--weight--heading);
     font-size: var(--pf-t--global--font--size--xs) !important;
-    padding-bottom: 5px;
+    padding-bottom: var(--pf-t--global--spacer--sm);
   }
 }
