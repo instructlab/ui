@@ -303,6 +303,7 @@ export const amendCommit = async (
     throw error;
   }
 };
+
 export async function getGitHubUserInfo(headers: HeadersInit): Promise<GithubUserInfo> {
   const response = await fetch(`${GITHUB_API_URL}/user`, {
     headers
@@ -317,13 +318,31 @@ export async function getGitHubUserInfo(headers: HeadersInit): Promise<GithubUse
   const data = await response.json();
 
   const userInfo: GithubUserInfo = {
-    name: data.name,
-    login: data.login,
+    name: data.name || '',
+    login: data.login || '',
     email: ''
   };
 
   userInfo.email = await getGitHubUserPrimaryEmail(headers);
   return userInfo;
+}
+
+export async function getGitHubUserPrimaryEmail(headers: HeadersInit): Promise<string> {
+  const response = await fetch(`${GITHUB_API_URL}/user/public_emails`, {
+    headers
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to fetch GitHub email address:', response.status, errorText);
+    return '';
+  }
+
+  const data = await response.json();
+
+  // Look for the primary email in the returned list
+  const emailInfo = data.find((emailObj: { primary: boolean; email?: string }) => emailObj.primary === true);
+  return emailInfo && emailInfo.email ? emailInfo.email : '';
 }
 
 export async function getGitHubUsername(headers: HeadersInit): Promise<string> {
@@ -339,22 +358,6 @@ export async function getGitHubUsername(headers: HeadersInit): Promise<string> {
 
   const data = await response.json();
   return data.login;
-}
-
-export async function getGitHubUserPrimaryEmail(headers: HeadersInit): Promise<string> {
-  const response = await fetch(`${GITHUB_API_URL}/user/public_emails`, {
-    headers
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Failed to fetch GitHub email address:', response.status, errorText);
-    throw new Error('Failed to fetch GitHub email address');
-  }
-
-  const data = await response.json();
-  const emailInfo = data.find((emailObj: { primary: boolean }) => emailObj.primary === true);
-  return emailInfo.email;
 }
 
 export async function createFork(headers: HeadersInit, upstreamRepoOwner: string, upstreamRepoName: string, username: string) {

@@ -1,6 +1,6 @@
 // src/components/Contribute/Knowledge/Github/index.tsx
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../knowledge.css';
 import { getGitHubUserInfo } from '@/utils/github';
 import { useSession } from 'next-auth/react';
@@ -153,7 +153,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     getEnvVariables();
   }, []);
 
-  useMemo(() => {
+  useEffect(() => {
     const fetchUserInfo = async () => {
       if (session?.accessToken) {
         try {
