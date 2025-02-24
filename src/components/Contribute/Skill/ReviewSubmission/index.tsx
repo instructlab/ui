@@ -1,9 +1,8 @@
 // src/components/Contribute/Skill/ReviewSubmission/ReviewSubmission.tsx
 import { SkillFormData } from '@/types';
-import { Content, ContentVariants } from '@patternfly/react-core';
 import React from 'react';
 import './submission.css';
-import { Accordion, AccordionContent, AccordionItem, AccordionToggle } from '@patternfly/react-core';
+import { Content, ContentVariants, Accordion, AccordionContent, AccordionItem, AccordionToggle } from '@patternfly/react-core';
 
 interface ReviewSubmissionProps {
   skillFormData: SkillFormData;
@@ -24,17 +23,25 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
     <>
       <section className="review-submission-container">
         <Content component={ContentVariants.h3}>Review</Content>
-        <p>Review the information below and click finish to submit your skill contribution. Use the back button to make changes.</p>
+        <Content component={ContentVariants.p}>
+          Review the information below and click finish to submit your skill contribution. Use the back button to make changes.
+        </Content>
         {/* Author Information */}
         <article>
           <div className="info-wrapper">
-            <p className="submission-titles">Contributor Information</p>
-            <p className="submission-subtitles">Information required for a Github Developer Certificate of Origin (DCO) sign-off.</p>
+            <Content component={ContentVariants.p} className="submission-titles">
+              Contributor Information
+            </Content>
+            <Content component={ContentVariants.p} className="submission-subtitles">
+              Information required for a Github Developer Certificate of Origin (DCO) sign-off.
+            </Content>
 
             <div className="contributors-wrapper">
-              <h5 className="category-titles">Contributors</h5>
-              <p>{skillFormData.name}</p>
-              <p>{skillFormData.email}</p>
+              <Content component={ContentVariants.h5} className="category-titles">
+                Contributors
+              </Content>
+              <Content component={ContentVariants.p}>{skillFormData.name}</Content>
+              <Content component={ContentVariants.p}>{skillFormData.email}</Content>
             </div>
           </div>
         </article>
@@ -42,22 +49,32 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
         {/* Skill Information */}
         <article>
           <div className="info-wrapper">
-            <p className="submission-titles">Skill Information</p>
-            <p className="submission-subtitles">Brief information about the Skill and the directory path for the QnA and Attribution files.</p>
+            <Content component={ContentVariants.p} className="submission-titles">
+              Skill Information
+            </Content>
+            <Content component={ContentVariants.p} className="submission-subtitles">
+              Brief information about the Skill and the directory path for the QnA and Attribution files.
+            </Content>
           </div>
 
-          <h5 className="category-titles">Submission summary</h5>
-          <p>{skillFormData.submissionSummary}</p>
+          <Content component={ContentVariants.h5} className="category-titles">
+            Submission summary
+          </Content>
+          <Content component={ContentVariants.p}>{skillFormData.submissionSummary}</Content>
 
-          <h5 className="category-titles">Directory path</h5>
-          <p>{skillFormData.filePath}</p>
+          <Content component={ContentVariants.h5} className="category-titles">
+            Directory path
+          </Content>
+          <Content component={ContentVariants.p}>{skillFormData.filePath}</Content>
         </article>
 
         {/* Seed Examples */}
         <article>
           <div className="info-wrapper">
-            <p>Seed Examples</p>
-            <p className="submission-subtitles">Data that will be used to start teaching your model.</p>
+            <Content component={ContentVariants.p}>Seed Examples</Content>
+            <Content component={ContentVariants.p} className="submission-subtitles">
+              Data that will be used to start teaching your model.
+            </Content>
           </div>
 
           {skillFormData.seedExamples?.map((seedExample, index) => (
@@ -68,13 +85,22 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
                 </AccordionToggle>
                 <AccordionContent id={`seed-example-content-${index}`}>
                   <div className="accordion-content">
-                    <h5 className="seed-category-titles">Context:</h5> {seedExample.context}
+                    <Content component={ContentVariants.h5} className="seed-category-titles">
+                      Context:
+                    </Content>{' '}
+                    {seedExample.context}
                   </div>
                   <div className="accordion-content">
-                    <h5 className="seed-category-titles">Question:</h5> {seedExample.question}
+                    <Content component={ContentVariants.h5} className="seed-category-titles">
+                      Question:
+                    </Content>{' '}
+                    {seedExample.question}
                   </div>
                   <div className="accordion-content">
-                    <h5 className="seed-category-titles">Answer:</h5> {seedExample.answer}
+                    <Content component={ContentVariants.h5} className="seed-category-titles">
+                      Answer:
+                    </Content>{' '}
+                    {seedExample.answer}
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -86,18 +112,18 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ skillFormDat
           {/* Attribution Information */}
           {isGithubMode && (
             <div>
-              <p>
+              <Content component={ContentVariants.p}>
                 <strong>Attribution Information</strong>
-              </p>
-              <p>
+              </Content>
+              <Content component={ContentVariants.p}>
                 <i>Title of Work:</i> {skillFormData.titleWork}
-              </p>
-              <p>
+              </Content>
+              <Content component={ContentVariants.p}>
                 <i>License of Work:</i> {skillFormData.licenseWork}
-              </p>
-              <p>
+              </Content>
+              <Content component={ContentVariants.p}>
                 <i>Creators:</i> {skillFormData.creators}
-              </p>
+              </Content>
             </div>
           )}
         </article>
