@@ -35,6 +35,7 @@ import { addDocumentInfoToKnowledgeFormData } from '@/components/Contribute/Know
 import { addYamlUploadKnowledge } from '@/components/Contribute/Knowledge/uploadUtils';
 import { createEmptySeedExample } from '@/components/Contribute/Knowledge/seedExampleUtils';
 import {
+  isAttributionInformationValid,
   isAuthInfoValid,
   isDocumentInfoValid,
   isFilePathInfoValid,
@@ -75,6 +76,19 @@ export interface KnowledgeFormProps {
 }
 
 const STEP_IDS = ['author-info', 'knowledge-info', 'file-path-info', 'document-info', 'seed-examples', 'attribution-info', 'review-submission'];
+
+enum StepStatus {
+  Default = 'default',
+  Error = 'error',
+  Success = 'success'
+}
+
+interface StepType {
+  id: string;
+  name: string;
+  component?: React.ReactNode;
+  status?: StepStatus;
+}
 
 export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData, isGithubMode }) => {
   const [devModeEnabled, setDevModeEnabled] = useState<boolean | undefined>();
@@ -211,7 +225,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
     router.push('/dashboard');
   };
 
-  const steps: { id: string; name: string; component: React.ReactNode; status?: 'default' | 'error' }[] = React.useMemo(
+  const steps: StepType[] = React.useMemo(
     () => [
       {
         id: STEP_IDS[0],
@@ -224,7 +238,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
             setName={(name) => setKnowledgeFormData((prev) => ({ ...prev, name }))}
           />
         ),
-        status: isAuthInfoValid(knowledgeFormData) ? 'default' : 'error'
+        status: isAuthInfoValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
       },
       {
         id: STEP_IDS[1],
@@ -250,7 +264,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
             }
           />
         ),
-        status: isKnowledgeInfoValid(knowledgeFormData) ? 'default' : 'error'
+        status: isKnowledgeInfoValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
       },
       {
         id: STEP_IDS[2],
@@ -261,7 +275,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
             setFilePath={(filePath) => setKnowledgeFormData((prev) => ({ ...prev, filePath }))}
           />
         ),
-        status: isFilePathInfoValid(knowledgeFormData) ? 'default' : 'error'
+        status: isFilePathInfoValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
       },
       {
         id: STEP_IDS[3],
@@ -290,7 +304,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
             }
           />
         ),
-        status: isDocumentInfoValid(knowledgeFormData) ? 'default' : 'error'
+        status: isDocumentInfoValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
       },
       {
         id: STEP_IDS[4],
@@ -305,7 +319,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
             commitSha={knowledgeFormData.knowledgeDocumentCommit}
           />
         ),
-        status: isSeedExamplesValid(knowledgeFormData) ? 'default' : 'error'
+        status: isSeedExamplesValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
       },
       ...(isGithubMode
         ? [
@@ -327,14 +341,16 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
                   creators={knowledgeFormData.creators}
                   setCreators={(creators) => setKnowledgeFormData((prev) => ({ ...prev, creators }))}
                 />
-              )
+              ),
+              status: isAttributionInformationValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
             }
           ]
         : []),
       {
         id: STEP_IDS[6],
         name: 'Review Submission',
-        component: <ReviewSubmission knowledgeFormData={knowledgeFormData} isGithubMode={isGithubMode} />
+        component: <ReviewSubmission knowledgeFormData={knowledgeFormData} isGithubMode={isGithubMode} />,
+        status: StepStatus.Default
       }
     ],
     [addDocumentInfoHandler, isGithubMode, knowledgeEditFormData?.isEditForm, knowledgeFormData]
@@ -419,7 +435,12 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
               }
             >
               {steps.map((step, index) => (
-                <WizardStep key={step.id} id={step.id} name={step.name} status={index < activeStepIndex ? step.status : 'default'}>
+                <WizardStep
+                  key={step.id}
+                  id={step.id}
+                  name={step.name}
+                  status={index === activeStepIndex || (step.status === StepStatus.Error && index > activeStepIndex) ? StepStatus.Default : step.status}
+                >
                   {step.component}
                 </WizardStep>
               ))}
