@@ -30,12 +30,7 @@ interface Props {
   error: string;
   seedExample: KnowledgeSeedExample;
   seedExampleIndex: number;
-  handleContextInputChange: (seedExampleIndex: number, contextValue: string) => void;
-  handleContextBlur: (seedExampleIndex: number) => void;
-  handleQuestionInputChange: (seedExampleIndex: number, questionAndAnswerIndex: number, questionValue: string) => void;
-  handleQuestionBlur: (seedExampleIndex: number, questionAndAnswerIndex: number) => void;
-  handleAnswerInputChange: (seedExampleIndex: number, questionAndAnswerIndex: number, answerValue: string) => void;
-  handleAnswerBlur: (seedExampleIndex: number, questionAndAnswerIndex: number) => void;
+  handleContextInputChange: (seedExampleIndex: number, contextValue: string, validate?: boolean) => void;
   addDocumentInfo: (repositoryUrl: string, commitSha: string, docName: string) => void;
   repositoryUrl: string;
   commitSha: string;
@@ -48,7 +43,6 @@ const KnowledgeFileSelectModal: React.FC<Props> = ({
   error,
   seedExampleIndex,
   handleContextInputChange,
-  handleContextBlur,
   addDocumentInfo,
   repositoryUrl,
   commitSha,
@@ -81,8 +75,7 @@ const KnowledgeFileSelectModal: React.FC<Props> = ({
       `handleUseSelectedText: selectedText="${selectedText}", repositoryUrl=${repositoryUrl}, commitSha=${commitShaValue}, docName=${docName}`
     );
 
-    handleContextInputChange(seedExampleIndex, selectedText);
-    handleContextBlur(seedExampleIndex);
+    handleContextInputChange(seedExampleIndex, selectedText, true);
     addDocumentInfo(repositoryUrl, commitShaValue, docName);
     handleCloseModal();
   };

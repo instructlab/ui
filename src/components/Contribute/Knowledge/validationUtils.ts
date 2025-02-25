@@ -56,3 +56,32 @@ export const isSeedExamplesValid = (knowledgeFormData: KnowledgeFormData): boole
       )
   );
 };
+
+export const isAttributionInformationValid = (knowledgeFormData: KnowledgeFormData): boolean => {
+  const title = knowledgeFormData.titleWork.trim();
+  if (!title.length) {
+    return false;
+  }
+
+  const link = knowledgeFormData.linkWork.trim();
+  if (!link.length) {
+    return false;
+  }
+
+  const revision = knowledgeFormData.revision.trim();
+  if (!revision.length) {
+    return false;
+  }
+
+  const license = knowledgeFormData.licenseWork.trim();
+  if (!license.length) {
+    return false;
+  }
+
+  const creators = knowledgeFormData.creators.trim();
+  if (!creators.length) {
+    return false;
+  }
+
+  return true;
+};
