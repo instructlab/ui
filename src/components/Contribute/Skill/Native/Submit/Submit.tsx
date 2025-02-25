@@ -25,7 +25,7 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
     sanitizedFilePath = sanitizedFilePath!.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
     const skillYamlData: SkillYamlData = {
-      created_by: email,
+      created_by: skillFormData.name,
       version: SkillSchemaVersion,
       task_description: skillFormData.documentOutline!,
       seed_examples: skillFormData.seedExamples.map((example) => ({
