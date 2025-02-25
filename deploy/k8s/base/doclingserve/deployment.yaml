@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: doclingserve
-          image: ghcr.io/ds4sd/docling-serve-cpu:latest
+          image: quay.io/ds4sd/docling-serve:latest
           imagePullPolicy: Always
           ports:
             - name: http
