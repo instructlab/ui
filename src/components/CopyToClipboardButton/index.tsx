@@ -1,8 +1,7 @@
 // src/components/CopyToClipboardButton.tsx
 'use client';
 
-import { Button } from '@patternfly/react-core';
-import { CopyIcon } from '@patternfly/react-icons';
+import { ClipboardCopyButton } from '@patternfly/react-core';
 import React from 'react';
 
 interface CopyToClipboardButtonProps {
@@ -10,6 +9,8 @@ interface CopyToClipboardButtonProps {
 }
 
 export const CopyToClipboardButton: React.FC<CopyToClipboardButtonProps> = ({ text }) => {
+  const [copied, setCopied] = React.useState(false);
+
   const handleCopy = () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard
@@ -37,7 +38,25 @@ export const CopyToClipboardButton: React.FC<CopyToClipboardButtonProps> = ({ te
     }
   };
 
-  return <Button icon={<CopyIcon />} variant="plain" onClick={handleCopy} aria-label="Copy to clipboard" />;
+  const onClick = () => {
+    handleCopy();
+    setCopied(true);
+  };
+
+  return (
+    <ClipboardCopyButton
+      id="basic-copy-button"
+      textId="code-content"
+      aria-label="Copy to clipboard"
+      onClick={onClick}
+      exitDelay={copied ? 1500 : 600}
+      maxWidth="110px"
+      variant="plain"
+      onTooltipHidden={() => setCopied(false)}
+    >
+      {copied ? 'Successfully copied to clipboard!' : 'Copy to clipboard'}
+    </ClipboardCopyButton>
+  );
 };
 
 export default CopyToClipboardButton;

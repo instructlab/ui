@@ -1,6 +1,6 @@
 import { KnowledgeFormData, KnowledgeSeedExample } from '@/types';
 import { ValidatedOptions } from '@patternfly/react-core';
-import { ActionGroupAlertContent } from './Github';
+import { ActionGroupAlertContent } from '@/components/Contribute/types';
 
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
