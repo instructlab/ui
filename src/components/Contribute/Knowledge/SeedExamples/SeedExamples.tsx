@@ -25,8 +25,8 @@ interface Props {
 }
 
 const SeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, onUpdateSeedExamples, addDocumentInfo, repositoryUrl, commitSha }) => {
-  const handleContextInputChange = (seedExampleIndex: number, contextValue: string): void => {
-    onUpdateSeedExamples(handleSeedExamplesContextInputChange(seedExamples, seedExampleIndex, contextValue));
+  const handleContextInputChange = (seedExampleIndex: number, contextValue: string, validate = false): void => {
+    onUpdateSeedExamples(handleSeedExamplesContextInputChange(seedExamples, seedExampleIndex, contextValue, validate));
   };
 
   const handleContextBlur = (seedExampleIndex: number): void => {

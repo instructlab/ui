@@ -439,7 +439,9 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
                   key={step.id}
                   id={step.id}
                   name={step.name}
-                  status={index === activeStepIndex || (step.status === StepStatus.Error && index > activeStepIndex) ? StepStatus.Default : step.status}
+                  status={
+                    index === activeStepIndex || (step.status === StepStatus.Error && index > activeStepIndex) ? StepStatus.Default : step.status
+                  }
                 >
                   {step.component}
                 </WizardStep>

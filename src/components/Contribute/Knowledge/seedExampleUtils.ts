@@ -43,16 +43,22 @@ export const validateContext = (context: string) => {
 export const handleSeedExamplesContextInputChange = (
   seedExamples: KnowledgeSeedExample[],
   seedExampleIndex: number,
-  contextValue: string
-): KnowledgeSeedExample[] =>
-  seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
+  contextValue: string,
+  validate = false
+): KnowledgeSeedExample[] => {
+  const { msg, status } = validateContext(contextValue);
+  const newSeed = seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
     index === seedExampleIndex
       ? {
           ...seedExample,
-          context: contextValue
+          context: contextValue,
+          isContextValid: validate ? status : seedExample.isContextValid,
+          validationError: validate ? msg : seedExample.validationError
         }
       : seedExample
   );
+  return newSeed;
+};
 
 export const handleSeedExamplesContextBlur = (seedExamples: KnowledgeSeedExample[], seedExampleIndex: number): KnowledgeSeedExample[] =>
   seedExamples.map((seedExample: KnowledgeSeedExample, index: number) => {

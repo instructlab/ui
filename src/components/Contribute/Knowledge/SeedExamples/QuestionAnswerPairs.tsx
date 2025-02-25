@@ -31,7 +31,7 @@ interface Props {
   isGithubMode: boolean;
   seedExample: KnowledgeSeedExample;
   seedExampleIndex: number;
-  handleContextInputChange: (seedExampleIndex: number, contextValue: string) => void;
+  handleContextInputChange: (seedExampleIndex: number, contextValue: string, validate?: boolean) => void;
   handleContextBlur: (seedExampleIndex: number) => void;
   handleQuestionInputChange: (seedExampleIndex: number, questionAndAnswerIndex: number, questionValue: string) => void;
   handleQuestionBlur: (seedExampleIndex: number, questionAndAnswerIndex: number) => void;
@@ -226,11 +226,6 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
           seedExample={seedExample}
           seedExampleIndex={seedExampleIndex}
           handleContextInputChange={handleContextInputChange}
-          handleContextBlur={handleContextBlur}
-          handleQuestionInputChange={handleQuestionInputChange}
-          handleQuestionBlur={handleQuestionBlur}
-          handleAnswerInputChange={handleAnswerInputChange}
-          handleAnswerBlur={handleAnswerBlur}
           addDocumentInfo={addDocumentInfo}
           repositoryUrl={repositoryUrl}
           commitSha={commitSha}
