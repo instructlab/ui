@@ -169,6 +169,7 @@ const FineTuning: React.FC = () => {
   // Clean up all intervals on component unmount
   useEffect(() => {
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       Object.values(logsIntervals.current).forEach(clearInterval);
     };
   }, []);

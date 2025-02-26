@@ -77,23 +77,6 @@ const DashboardNative: React.FunctionComponent = () => {
 
   const router = useRouter();
 
-  // Fetch branches from the API route
-  React.useEffect(() => {
-    const getEnvVariables = async () => {
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
-      const taxonomyRepoDir = path.join(envConfig.TAXONOMY_ROOT_DIR + '/taxonomy');
-      setTaxonomyRepoDir(taxonomyRepoDir);
-    };
-    getEnvVariables();
-
-    cloneNativeTaxonomyRepo().then((success) => {
-      if (success) {
-        fetchBranches();
-      }
-    });
-  }, []);
-
   const addAlert = (title: string, variant: AlertProps['variant']) => {
     const alertKey = uuidv4();
     const newAlert: AlertItem = { title, variant, key: alertKey };
@@ -108,11 +91,11 @@ const DashboardNative: React.FunctionComponent = () => {
     addAlert(message, 'success');
   };
 
-  const addDangerAlert = (message: string) => {
+  const addDangerAlert = React.useCallback((message: string) => {
     addAlert(message, 'danger');
-  };
+  }, []);
 
-  const fetchBranches = async () => {
+  const fetchBranches = React.useCallback(async () => {
     try {
       const response = await fetch('/api/native/git/branches');
       const result = await response.json();
@@ -130,7 +113,7 @@ const DashboardNative: React.FunctionComponent = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [addDangerAlert]);
 
   async function cloneNativeTaxonomyRepo(): Promise<boolean> {
     try {
@@ -153,6 +136,23 @@ const DashboardNative: React.FunctionComponent = () => {
       return false;
     }
   }
+
+  // Fetch branches from the API route
+  React.useEffect(() => {
+    const getEnvVariables = async () => {
+      const res = await fetch('/api/envConfig');
+      const envConfig = await res.json();
+      const taxonomyRepoDir = path.join(envConfig.TAXONOMY_ROOT_DIR + '/taxonomy');
+      setTaxonomyRepoDir(taxonomyRepoDir);
+    };
+    getEnvVariables();
+
+    cloneNativeTaxonomyRepo().then((success) => {
+      if (success) {
+        fetchBranches();
+      }
+    });
+  }, [fetchBranches]);
 
   const formatDateTime = (timestamp: number) => {
     const date = new Date(timestamp);

@@ -23,7 +23,7 @@ const GithubAccessPopup: React.FunctionComponent<Props> = ({ onAccept }) => {
       }
     };
     showPopupWarning();
-  }, []);
+  }, [onAccept]);
 
   const setDecisionAndClose = () => {
     setIsOpen(false);

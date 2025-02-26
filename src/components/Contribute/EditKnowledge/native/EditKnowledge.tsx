@@ -3,10 +3,10 @@
 
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
-import { AttributionData, KnowledgeYamlData } from '@/types';
+import { AttributionData, KnowledgeSeedExample, KnowledgeYamlData } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import yaml from 'js-yaml';
-import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, KnowledgeSeedExample } from '@/types';
+import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair } from '@/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
@@ -63,9 +63,9 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
             isEditForm: true,
-            knowledgeVersion: KnowledgeSchemaVersion,
+            version: KnowledgeSchemaVersion,
             branchName: branchName,
-            knowledgeFormData: knowledgeExistingFormData,
+            formData: knowledgeExistingFormData,
             pullRequestNumber: 0,
             oldFilesPath: ''
           };
@@ -149,7 +149,7 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
       }
     };
     fetchBranchChanges();
-  }, [branchName]);
+  }, [branchName, session?.user?.email, session?.user?.name]);
 
   const parseAttributionContent = (content: string): AttributionData => {
     const lines = content.split('\n');

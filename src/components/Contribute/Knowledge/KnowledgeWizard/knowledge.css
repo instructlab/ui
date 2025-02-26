@@ -1,0 +1,21 @@
+Knowledge CSS .form-k {
+  width: 80%;
+  margin-bottom: 50px;
+}
+
+.heading-k {
+  text-align: left;
+  font-size: medium;
+}
+
+.knowledge-form .pf-c-form__group {
+  margin-bottom: 30px;
+}
+
+.pf-v6-c-wizard {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 60vh;
+  overflow: hidden;
+}
