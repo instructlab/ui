@@ -1,6 +1,6 @@
 // src/components/Contribute/Knowledge/KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs.tsx
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { KnowledgeSeedExample } from '@/types';
+import { SeedExample } from '@/types';
 import {
   Button,
   Modal,
@@ -28,7 +28,7 @@ interface Props {
   knowledgeFiles: KnowledgeFile[];
   isLoading: boolean;
   error: string;
-  seedExample: KnowledgeSeedExample;
+  seedExample: SeedExample;
   seedExampleIndex: number;
   handleContextInputChange: (seedExampleIndex: number, contextValue: string, validate?: boolean) => void;
   addDocumentInfo: (repositoryUrl: string, commitSha: string, docName: string) => void;

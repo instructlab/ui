@@ -1,4 +1,4 @@
-import { SkillFormData, SkillSeedExample } from '@/types';
+import { SkillFormData, SeedExample } from '@/types';
 import { ValidatedOptions } from '@patternfly/react-core';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 
@@ -7,12 +7,12 @@ const validateEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-const hasDuplicateSeedExamples = (seedExamples: SkillSeedExample[]): { duplicate: boolean; index: number } => {
+const hasDuplicateSeedExamples = (seedExamples: SeedExample[]): { duplicate: boolean; index: number } => {
   const question = new Set<string>();
   for (let index = 0; index < seedExamples.length; index++) {
     const seedExample = seedExamples[index];
-    if (!question.has(seedExample.question)) {
-      question.add(seedExample.question);
+    if (!question.has(seedExample.questionAndAnswers[0].question)) {
+      question.add(seedExample.questionAndAnswers[0].question);
     } else {
       return { duplicate: true, index: index };
     }
@@ -68,8 +68,8 @@ export const validateFields = (
   //  checking for seedExample duplication
   const { duplicate, index } = hasDuplicateSeedExamples(skillFormData.seedExamples);
   if (duplicate) {
-    skillFormData.seedExamples[index].isQuestionValid = ValidatedOptions.error;
-    skillFormData.seedExamples[index].questionValidationError = 'This is duplicate question, please provide unique questions.';
+    skillFormData.seedExamples[index].questionAndAnswers[0].isQuestionValid = ValidatedOptions.error;
+    skillFormData.seedExamples[index].questionAndAnswers[0].questionValidationError = 'This is duplicate question, please provide unique questions.';
     const actionGroupAlertContent: ActionGroupAlertContent = {
       title: `Seed example issue!`,
       message: `Seed example ${index + 1} question is duplicate. Please provide unique questions.`,

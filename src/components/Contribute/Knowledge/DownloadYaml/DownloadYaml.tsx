@@ -18,7 +18,7 @@ const DownloadYaml: React.FC<Props> = ({ knowledgeFormData, githubUsername }) =>
       domain: knowledgeFormData.domain!,
       document_outline: knowledgeFormData.documentOutline!,
       seed_examples: knowledgeFormData.seedExamples.map((example) => ({
-        context: example.context,
+        context: example.context!,
         questions_and_answers: example.questionAndAnswers.map((qa) => ({
           question: qa.question,
           answer: qa.answer

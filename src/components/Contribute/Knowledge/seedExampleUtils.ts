@@ -1,5 +1,5 @@
 import { ValidatedOptions } from '@patternfly/react-core';
-import { KnowledgeSeedExample, QuestionAndAnswerPair } from '@/types';
+import { SeedExample, QuestionAndAnswerPair } from '@/types';
 import { devLog } from '@/utils/devlog';
 
 export const validateQuestion = (question: string) => {
@@ -26,9 +26,9 @@ export const validateAnswer = (answer: string) => {
   return { msg: 'Answer must be less than 250 words. Current word count: ' + tokens.length, status: ValidatedOptions.error };
 };
 
-export const validateContext = (context: string) => {
+export const validateContext = (context?: string) => {
   // Split the context into words based on spaces
-  const contextStr = context.trim();
+  const contextStr = context?.trim() ?? '';
   if (contextStr.length === 0) {
     return { msg: 'Context is required', status: ValidatedOptions.error };
   }
@@ -41,13 +41,13 @@ export const validateContext = (context: string) => {
 };
 
 export const handleSeedExamplesContextInputChange = (
-  seedExamples: KnowledgeSeedExample[],
+  seedExamples: SeedExample[],
   seedExampleIndex: number,
   contextValue: string,
   validate = false
-): KnowledgeSeedExample[] => {
+): SeedExample[] => {
   const { msg, status } = validateContext(contextValue);
-  const newSeed = seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
+  return seedExamples.map((seedExample: SeedExample, index: number) =>
     index === seedExampleIndex
       ? {
           ...seedExample,
@@ -57,11 +57,10 @@ export const handleSeedExamplesContextInputChange = (
         }
       : seedExample
   );
-  return newSeed;
 };
 
-export const handleSeedExamplesContextBlur = (seedExamples: KnowledgeSeedExample[], seedExampleIndex: number): KnowledgeSeedExample[] =>
-  seedExamples.map((seedExample: KnowledgeSeedExample, index: number) => {
+export const handleSeedExamplesContextBlur = (seedExamples: SeedExample[], seedExampleIndex: number): SeedExample[] =>
+  seedExamples.map((seedExample: SeedExample, index: number) => {
     if (index === seedExampleIndex) {
       const { msg, status } = validateContext(seedExample.context);
       devLog(`Context Validation for Seed Example ${seedExampleIndex + 1}: ${msg} (${status})`);
@@ -75,13 +74,13 @@ export const handleSeedExamplesContextBlur = (seedExamples: KnowledgeSeedExample
   });
 
 export const handleSeedExamplesQuestionInputChange = (
-  seedExamples: KnowledgeSeedExample[],
+  seedExamples: SeedExample[],
   seedExampleIndex: number,
   questionAndAnswerIndex: number,
   questionValue: string
-): KnowledgeSeedExample[] => {
+): SeedExample[] => {
   devLog(`Question Input Changed for Seed Example ${seedExampleIndex + 1}, Q&A Pair ${questionAndAnswerIndex + 1}: "${questionValue}"`);
-  return seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
+  return seedExamples.map((seedExample: SeedExample, index: number) =>
     index === seedExampleIndex
       ? {
           ...seedExample,
@@ -99,11 +98,11 @@ export const handleSeedExamplesQuestionInputChange = (
 };
 
 export const handleSeedExamplesQuestionBlur = (
-  seedExamples: KnowledgeSeedExample[],
+  seedExamples: SeedExample[],
   seedExampleIndex: number,
   questionAndAnswerIndex: number
-): KnowledgeSeedExample[] =>
-  seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
+): SeedExample[] =>
+  seedExamples.map((seedExample: SeedExample, index: number) =>
     index === seedExampleIndex
       ? {
           ...seedExample,
@@ -124,12 +123,12 @@ export const handleSeedExamplesQuestionBlur = (
   );
 
 export const handleSeedExamplesAnswerInputChange = (
-  seedExamples: KnowledgeSeedExample[],
+  seedExamples: SeedExample[],
   seedExampleIndex: number,
   questionAndAnswerIndex: number,
   answerValue: string
-): KnowledgeSeedExample[] =>
-  seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
+): SeedExample[] =>
+  seedExamples.map((seedExample: SeedExample, index: number) =>
     index === seedExampleIndex
       ? {
           ...seedExample,
@@ -146,11 +145,11 @@ export const handleSeedExamplesAnswerInputChange = (
   );
 
 export const handleSeedExamplesAnswerBlur = (
-  seedExamples: KnowledgeSeedExample[],
+  seedExamples: SeedExample[],
   seedExampleIndex: number,
   questionAndAnswerIndex: number
-): KnowledgeSeedExample[] =>
-  seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
+): SeedExample[] =>
+  seedExamples.map((seedExample: SeedExample, index: number) =>
     index === seedExampleIndex
       ? {
           ...seedExample,
@@ -169,13 +168,13 @@ export const handleSeedExamplesAnswerBlur = (
       : seedExample
   );
 
-export const toggleSeedExamplesExpansion = (seedExamples: KnowledgeSeedExample[], index: number): KnowledgeSeedExample[] => {
+export const toggleSeedExamplesExpansion = (seedExamples: SeedExample[], index: number): SeedExample[] => {
   devLog(`toggleSeedExampleExpansion: Seed Example ${index + 1} expanded to ${!seedExamples[index].isExpanded}`);
   return seedExamples.map((seedExample, idx) => (idx === index ? { ...seedExample, isExpanded: !seedExample.isExpanded } : seedExample));
 };
 
 // Function to create a unique empty seed example
-export const createEmptySeedExample = (): KnowledgeSeedExample => ({
+export const createEmptySeedExample = (): SeedExample => ({
   immutable: true,
   isExpanded: false,
   context: '',
@@ -214,7 +213,7 @@ export const createEmptySeedExample = (): KnowledgeSeedExample => ({
 
 export const yamlSeedExampleToFormSeedExample = (
   yamlSeedExamples: { context: string; questions_and_answers: { question: string; answer: string }[] }[]
-): KnowledgeSeedExample[] => {
+): SeedExample[] => {
   const mappedSeedExamples = yamlSeedExamples.map((yamlSeedExample) => {
     const { msg: validationError, status: isContextValid } = validateContext(yamlSeedExample.context);
     return {

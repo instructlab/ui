@@ -1,19 +1,22 @@
-import { SkillFormData, SkillSeedExample } from '@/types';
+import { SkillFormData, SeedExample } from '@/types';
 import { ValidatedOptions } from '@patternfly/react-core';
 
-const seedExamples: SkillSeedExample[] = [
+const seedExamples: SeedExample[] = [
   {
     immutable: false,
     isExpanded: false,
     context: undefined,
     isContextValid: ValidatedOptions.success,
     validationError: undefined,
-    question: 'What are 5 words that rhyme with horn?',
-    isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
-    answer: 'warn, torn, born, thorn, and corn.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    questionAndAnswers: [{
+      immutable: false,
+      question: 'What are 5 words that rhyme with horn?',
+      isQuestionValid: ValidatedOptions.success,
+      questionValidationError: undefined,
+      answer: 'warn, torn, born, thorn, and corn.',
+      isAnswerValid: ValidatedOptions.success,
+      answerValidationError: undefined
+    }]
   },
   {
     immutable: false,
@@ -21,12 +24,15 @@ const seedExamples: SkillSeedExample[] = [
     context: undefined,
     isContextValid: ValidatedOptions.success,
     validationError: undefined,
-    question: 'What are 5 words that rhyme with cat?',
-    isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
-    answer: 'bat, gnat, rat, vat, and mat.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    questionAndAnswers: [{
+      immutable: false,
+      question: 'What are 5 words that rhyme with cat?',
+      isQuestionValid: ValidatedOptions.success,
+      questionValidationError: undefined,
+      answer: 'bat, gnat, rat, vat, and mat.',
+      isAnswerValid: ValidatedOptions.success,
+      answerValidationError: undefined
+    }]
   },
   {
     immutable: false,
@@ -34,12 +40,15 @@ const seedExamples: SkillSeedExample[] = [
     context: undefined,
     isContextValid: ValidatedOptions.success,
     validationError: undefined,
-    question: 'What are 5 words that rhyme with poor?',
-    isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
-    answer: 'door, shore, core, bore, and tore.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    questionAndAnswers: [{
+      immutable: false,
+      question: 'What are 5 words that rhyme with poor?',
+      isQuestionValid: ValidatedOptions.success,
+      questionValidationError: undefined,
+      answer: 'door, shore, core, bore, and tore.',
+      isAnswerValid: ValidatedOptions.success,
+      answerValidationError: undefined
+    }]
   },
   {
     immutable: false,
@@ -47,12 +56,15 @@ const seedExamples: SkillSeedExample[] = [
     context: undefined,
     isContextValid: ValidatedOptions.success,
     validationError: undefined,
-    question: 'What are 5 words that rhyme with bank?',
-    isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
-    answer: 'tank, rank, prank, sank, and drank.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    questionAndAnswers: [{
+      immutable: false,
+      question: 'What are 5 words that rhyme with bank?',
+      isQuestionValid: ValidatedOptions.success,
+      questionValidationError: undefined,
+      answer: 'tank, rank, prank, sank, and drank.',
+      isAnswerValid: ValidatedOptions.success,
+      answerValidationError: undefined
+    }]
   },
   {
     immutable: false,
@@ -60,12 +72,15 @@ const seedExamples: SkillSeedExample[] = [
     context: undefined,
     isContextValid: ValidatedOptions.success,
     validationError: undefined,
-    question: 'What are 5 words that rhyme with bake?',
-    isQuestionValid: ValidatedOptions.success,
-    questionValidationError: undefined,
-    answer: 'wake, lake, steak, make, and quake.',
-    isAnswerValid: ValidatedOptions.success,
-    answerValidationError: undefined
+    questionAndAnswers: [{
+      immutable: false,
+      question: 'What are 5 words that rhyme with bake?',
+      isQuestionValid: ValidatedOptions.success,
+      questionValidationError: undefined,
+      answer: 'wake, lake, steak, make, and quake.',
+      isAnswerValid: ValidatedOptions.success,
+      answerValidationError: undefined
+    }]
   }
 ];
 

@@ -21,7 +21,7 @@ export const submitNativeKnowledgeData = async (
     domain: knowledgeFormData.domain!,
     document_outline: knowledgeFormData.documentOutline!,
     seed_examples: knowledgeFormData.seedExamples.map((example) => ({
-      context: example.context,
+      context: example.context!,
       questions_and_answers: example.questionAndAnswers.map((questionAndAnswer) => ({
         question: questionAndAnswer.question,
         answer: questionAndAnswer.answer
@@ -101,7 +101,7 @@ export const submitGithubKnowledgeData = async (
     domain: knowledgeFormData.domain!,
     document_outline: knowledgeFormData.documentOutline!,
     seed_examples: knowledgeFormData.seedExamples.map((example) => ({
-      context: example.context,
+      context: example.context!,
       questions_and_answers: example.questionAndAnswers.map((questionAndAnswer) => ({
         question: questionAndAnswer.question,
         answer: questionAndAnswer.answer
@@ -186,7 +186,7 @@ export const updateNativeKnowledgeData = async (
     domain: knowledgeFormData.domain!,
     document_outline: knowledgeFormData.documentOutline!,
     seed_examples: knowledgeFormData.seedExamples.map((example) => ({
-      context: example.context,
+      context: example.context!,
       questions_and_answers: example.questionAndAnswers.map((questionAndAnswer) => ({
         question: questionAndAnswer.question,
         answer: questionAndAnswer.answer
@@ -281,7 +281,7 @@ export const updateGithubKnowledgeData = async (
         domain: knowledgeFormData.domain!,
         document_outline: knowledgeFormData.documentOutline!,
         seed_examples: knowledgeFormData.seedExamples.map((example) => ({
-          context: example.context,
+          context: example.context!,
           questions_and_answers: example.questionAndAnswers.map((questionAndAnswer) => ({
             question: questionAndAnswer.question,
             answer: questionAndAnswer.answer

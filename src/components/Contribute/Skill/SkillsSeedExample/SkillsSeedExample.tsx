@@ -1,5 +1,5 @@
 import React from 'react';
-import { SkillSeedExample } from '@/types';
+import { SeedExample } from '@/types';
 import {
   FormFieldGroupHeader,
   Button,
@@ -17,7 +17,7 @@ import {
 import { ExternalLinkAltIcon, TrashIcon, ExclamationCircleIcon, PlusCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
-  seedExamples: SkillSeedExample[];
+  seedExamples: SeedExample[];
   handleContextInputChange: (seedExampleIndex: number, contextValue: string) => void;
   handleContextBlur: (seedExampleIndex: number) => void;
   handleQuestionInputChange: (seedExampleIndex: number, questionValue: string) => void;
@@ -64,7 +64,7 @@ const SkillsSeedExample: React.FC<Props> = ({
         }
       />
       <Accordion asDefinitionList={false}>
-        {seedExamples.map((seedExample: SkillSeedExample, seedExampleIndex: number) => (
+        {seedExamples.map((seedExample: SeedExample, seedExampleIndex: number) => (
           <AccordionItem key={seedExampleIndex} isExpanded={seedExample.isExpanded}>
             <AccordionToggle onClick={() => toggleSeedExampleExpansion(seedExampleIndex)} id={`seed-example-toggle-${seedExampleIndex}`}>
               <span style={{ display: 'flex', alignItems: 'normal', justifyContent: 'space-between', width: '100%' }}>
@@ -82,16 +82,16 @@ const SkillsSeedExample: React.FC<Props> = ({
                   type="text"
                   aria-label={`Question ${seedExampleIndex + 1}`}
                   placeholder={`Enter question ${seedExampleIndex + 1}`}
-                  value={seedExample.question}
-                  validated={seedExample.isQuestionValid}
+                  value={seedExample.questionAndAnswers[0].question}
+                  validated={seedExample.questionAndAnswers[0].isQuestionValid}
                   onChange={(_event, questionValue) => handleQuestionInputChange(seedExampleIndex, questionValue)}
                   onBlur={() => handleQuestionBlur(seedExampleIndex)}
                 />
-                {seedExample.isQuestionValid === ValidatedOptions.error && (
+                {seedExample.questionAndAnswers[0].isQuestionValid === ValidatedOptions.error && (
                   <FormHelperText key={seedExampleIndex * 100 + 2}>
                     <HelperText>
-                      <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isQuestionValid}>
-                        {seedExample.questionValidationError || 'Required field '}
+                      <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.questionAndAnswers[0].isQuestionValid}>
+                        {seedExample.questionAndAnswers[0].questionValidationError || 'Required field '}
                       </HelperTextItem>
                     </HelperText>
                   </FormHelperText>
@@ -117,16 +117,16 @@ const SkillsSeedExample: React.FC<Props> = ({
                   type="text"
                   aria-label={`Answer ${seedExampleIndex + 1}`}
                   placeholder={`Enter answer ${seedExampleIndex + 1}`}
-                  value={seedExample.answer}
-                  validated={seedExample.isAnswerValid}
+                  value={seedExample.questionAndAnswers[0].answer}
+                  validated={seedExample.questionAndAnswers[0].isAnswerValid}
                   onChange={(_event, answerValue) => handleAnswerInputChange(seedExampleIndex, answerValue)}
                   onBlur={() => handleAnswerBlur(seedExampleIndex)}
                 />
-                {seedExample.isAnswerValid === ValidatedOptions.error && (
+                {seedExample.questionAndAnswers[0].isAnswerValid === ValidatedOptions.error && (
                   <FormHelperText key={seedExampleIndex * 100 + 4}>
                     <HelperText>
-                      <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.isAnswerValid}>
-                        {seedExample.answerValidationError || 'Required field'}
+                      <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.questionAndAnswers[0].isAnswerValid}>
+                        {seedExample.questionAndAnswers[0].answerValidationError || 'Required field'}
                       </HelperTextItem>
                     </HelperText>
                   </FormHelperText>

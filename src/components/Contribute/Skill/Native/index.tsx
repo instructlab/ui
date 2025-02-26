@@ -10,7 +10,7 @@ import { checkSkillFormCompletion } from '@/components/Contribute/Skill/validati
 import { DownloadDropdown } from '@/components/Contribute/Skill/DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from '@/components/Contribute/Skill/ViewDropdown/ViewDropdown';
 import Update from '@/components/Contribute/Skill/Native/Update/Update';
-import { SkillSeedExample, SkillFormData, SkillYamlData } from '@/types';
+import { SeedExample, SkillFormData, SkillYamlData, SkillEditFormData } from '@/types';
 import { useRouter } from 'next/navigation';
 import SkillsSeedExample from '@/components/Contribute/Skill/SkillsSeedExample/SkillsSeedExample';
 import SkillsInformation from '@/components/Contribute/Skill/SkillsInformation/SkillsInformation';
@@ -40,14 +40,6 @@ import {
 import ReviewSubmission from '../ReviewSubmission';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 
-export interface SkillEditFormData {
-  isEditForm: boolean;
-  skillVersion: number;
-  branchName: string;
-  oldFilesPath: string;
-  skillFormData: SkillFormData;
-}
-
 export interface SkillFormProps {
   skillEditFormData?: SkillEditFormData;
 }
@@ -74,18 +66,21 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
   const [activeStepIndex, setActiveStepIndex] = useState<number>(1);
   const router = useRouter();
 
-  const emptySeedExample: SkillSeedExample = {
+  const emptySeedExample: SeedExample = {
     immutable: true,
     isExpanded: false,
     context: '',
     isContextValid: ValidatedOptions.default,
-    question: '',
-    isQuestionValid: ValidatedOptions.default,
-    answer: '',
-    isAnswerValid: ValidatedOptions.default
+    questionAndAnswers: [{
+      immutable: true,
+      question: '',
+      isQuestionValid: ValidatedOptions.default,
+      answer: '',
+      isAnswerValid: ValidatedOptions.default
+    }]
   };
 
-  const [seedExamples, setSeedExamples] = useState<SkillSeedExample[]>([
+  const [seedExamples, setSeedExamples] = useState<SeedExample[]>([
     emptySeedExample,
     emptySeedExample,
     emptySeedExample,
@@ -159,7 +154,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleContextInputChange = (seedExampleIndex: number, contextValue: string): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) =>
+      seedExamples.map((seedExample: SeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -172,7 +167,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleContextBlur = (seedExampleIndex: number): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) =>
+      seedExamples.map((seedExample: SeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -185,7 +180,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleAnswerInputChange = (seedExampleIndex: number, answerValue: string): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) =>
+      seedExamples.map((seedExample: SeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -198,13 +193,16 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleAnswerBlur = (seedExampleIndex: number): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) => {
+      seedExamples.map((seedExample: SeedExample, index: number) => {
         if (index === seedExampleIndex) {
-          const { msg, status } = validateAnswer(seedExample.answer);
+          const { msg, status } = validateAnswer(seedExample.questionAndAnswers[0].answer);
           return {
             ...seedExample,
-            isAnswerValid: status,
-            answerValidationError: msg
+            questionAndAnswers: [{
+              ...seedExample.questionAndAnswers[0],
+              isAnswerValid: status,
+              answerValidationError: msg
+            }]
           };
         }
         return seedExample;
@@ -214,7 +212,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleQuestionInputChange = (seedExampleIndex: number, questionValue: string): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) =>
+      seedExamples.map((seedExample: SeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -227,13 +225,16 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleQuestionBlur = (seedExampleIndex: number): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) => {
+      seedExamples.map((seedExample: SeedExample, index: number) => {
         if (index === seedExampleIndex) {
-          const { msg, status } = validateQuestion(seedExample.question);
+          const { msg, status } = validateQuestion(seedExample.questionAndAnswers[0].question);
           return {
             ...seedExample,
-            isQuestionValid: status,
-            questionValidationError: msg
+            questionAndAnswers: [{
+              ...seedExample.questionAndAnswers[0],
+              isQuestionValid: status,
+              questionValidationError: msg,
+            }]
           };
         }
         return seedExample;
@@ -293,10 +294,12 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
       immutable: true,
       isExpanded: false,
       context: yamlSeedExample.context ?? '',
-      isContextValid: ValidatedOptions.default,
-      question: yamlSeedExample.question,
-      answer: yamlSeedExample.answer
-    })) as SkillSeedExample[];
+      questionAndAnswers: [{
+        immutable: true,
+        question: yamlSeedExample.question,
+        answer: yamlSeedExample.answer,
+      }]
+    })) as SeedExample[];
   };
 
   const onYamlUploadSkillsFillForm = (data: SkillYamlData): void => {

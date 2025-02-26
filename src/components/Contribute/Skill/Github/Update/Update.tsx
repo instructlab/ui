@@ -49,8 +49,8 @@ const Update: React.FC<Props> = ({ disableAction, skillFormData, pullRequestNumb
           task_description: skillFormData.documentOutline!,
           seed_examples: skillFormData.seedExamples.map((example) => ({
             context: example.context,
-            question: example.question,
-            answer: example.answer
+            question: example.questionAndAnswers[0].question,
+            answer: example.questionAndAnswers[0].answer
           }))
         };
 

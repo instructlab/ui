@@ -11,7 +11,7 @@ import { checkSkillFormCompletion } from '../validation';
 import { DownloadDropdown } from '../DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from '../ViewDropdown/ViewDropdown';
 import Update from './Update/Update';
-import { SkillYamlData, SkillFormData, SkillSeedExample } from '@/types';
+import { SkillEditFormData, SkillFormData, SeedExample, SkillYamlData } from '@/types';
 import { useRouter } from 'next/navigation';
 import SkillsSeedExample from '../SkillsSeedExample/SkillsSeedExample';
 import SkillsInformation from '../SkillsInformation/SkillsInformation';
@@ -19,37 +19,28 @@ import SkillsDescriptionContent from '../SkillsDescription/SkillsDescriptionCont
 import { autoFillSkillsFields } from '../AutoFill';
 import { YamlFileUploadModal } from '../../YamlFileUploadModal';
 import {
-  ValidatedOptions,
-  PageGroup,
-  PageBreadcrumb,
-  Breadcrumb,
-  BreadcrumbItem,
-  PageSection,
-  Flex,
-  FlexItem,
-  Title,
-  Button,
-  Content,
-  AlertGroup,
+  ActionGroup,
   Alert,
   AlertActionCloseButton,
+  AlertGroup,
+  Breadcrumb,
+  BreadcrumbItem,
+  Button,
+  Content,
+  Flex,
+  FlexItem,
+  PageBreadcrumb,
+  PageGroup,
+  PageSection,
   Spinner,
-  ActionGroup,
+  Title,
+  ValidatedOptions,
   Wizard,
   WizardStep
 } from '@patternfly/react-core';
 import AuthorInformation from '../../AuthorInformation';
 import ReviewSubmission from '../ReviewSubmission';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
-
-export interface SkillEditFormData {
-  isEditForm: boolean;
-  skillVersion: number;
-  pullRequestNumber: number;
-  branchName: string;
-  oldFilesPath: string;
-  skillFormData: SkillFormData;
-}
 
 export interface SkillFormProps {
   skillEditFormData?: SkillEditFormData;
@@ -85,18 +76,21 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
   const [activeStepIndex] = useState<number>(1);
   const router = useRouter();
 
-  const emptySeedExample: SkillSeedExample = {
+  const emptySeedExample: SeedExample = {
     immutable: true,
     isExpanded: false,
     context: '',
     isContextValid: ValidatedOptions.default,
-    question: '',
-    isQuestionValid: ValidatedOptions.default,
-    answer: '',
-    isAnswerValid: ValidatedOptions.default
+    questionAndAnswers: [{
+      immutable: true,
+      question: '',
+      isQuestionValid: ValidatedOptions.default,
+      answer: '',
+      isAnswerValid: ValidatedOptions.default
+    }]
   };
 
-  const [seedExamples, setSeedExamples] = useState<SkillSeedExample[]>([
+  const [seedExamples, setSeedExamples] = useState<SeedExample[]>([
     emptySeedExample,
     emptySeedExample,
     emptySeedExample,
@@ -190,7 +184,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleContextInputChange = (seedExampleIndex: number, contextValue: string): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) =>
+      seedExamples.map((seedExample: SeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -203,7 +197,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleContextBlur = (seedExampleIndex: number): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) =>
+      seedExamples.map((seedExample: SeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -216,7 +210,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleAnswerInputChange = (seedExampleIndex: number, answerValue: string): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) =>
+      seedExamples.map((seedExample: SeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -229,13 +223,16 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleAnswerBlur = (seedExampleIndex: number): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) => {
+      seedExamples.map((seedExample: SeedExample, index: number) => {
         if (index === seedExampleIndex) {
-          const { msg, status } = validateAnswer(seedExample.answer);
+          const { msg, status } = validateAnswer(seedExample.questionAndAnswers[0].answer);
           return {
             ...seedExample,
-            isAnswerValid: status,
-            answerValidationError: msg
+            questionAndAnswers: [{
+              ...seedExample.questionAndAnswers[0],
+              isAnswerValid: status,
+              answerValidationError: msg
+            }]
           };
         }
         return seedExample;
@@ -245,7 +242,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleQuestionInputChange = (seedExampleIndex: number, questionValue: string): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) =>
+      seedExamples.map((seedExample: SeedExample, index: number) =>
         index === seedExampleIndex
           ? {
               ...seedExample,
@@ -258,13 +255,16 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
 
   const handleQuestionBlur = (seedExampleIndex: number): void => {
     setSeedExamples(
-      seedExamples.map((seedExample: SkillSeedExample, index: number) => {
+      seedExamples.map((seedExample: SeedExample, index: number) => {
         if (index === seedExampleIndex) {
-          const { msg, status } = validateQuestion(seedExample.question);
+          const { msg, status } = validateQuestion(seedExample.questionAndAnswers[0].question);
           return {
             ...seedExample,
-            isQuestionValid: status,
-            questionValidationError: msg
+            questionAndAnswers: [{
+              ...seedExample.questionAndAnswers[0],
+              isQuestionValid: status,
+              questionValidationError: msg
+            }]
           };
         }
         return seedExample;
@@ -324,15 +324,20 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
     setSeedExamples(autoFillSkillsFields.seedExamples);
   };
 
-  const yamlSeedExampleToFormSeedExample = (yamlSeedExamples: { question: string; context?: string | undefined; answer: string }[]) => {
+  const yamlSeedExampleToFormSeedExample = (yamlSeedExamples: { question: string; context?: string | undefined; answer: string }[]): SeedExample[] => {
     return yamlSeedExamples.map((yamlSeedExample) => ({
       immutable: true,
       isExpanded: false,
       context: yamlSeedExample.context ?? '',
       isContextValid: ValidatedOptions.default,
-      question: yamlSeedExample.question,
-      answer: yamlSeedExample.answer
-    })) as SkillSeedExample[];
+      questionAndAnswers: [{
+        immutable: true,
+        question: yamlSeedExample.question,
+        isQuestionValid: ValidatedOptions.default,
+        answer: yamlSeedExample.answer,
+        isAnswerValid: ValidatedOptions.default
+      }]
+    }));
   };
 
   const onYamlUploadSkillsFillForm = (data: SkillYamlData): void => {

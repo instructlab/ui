@@ -8,7 +8,7 @@ import { KnowledgeSchemaVersion } from '@/types/const';
 import { fetchPullRequest, fetchFileContent, fetchPullRequestFiles } from '@/utils/github';
 import yaml from 'js-yaml';
 import axios from 'axios';
-import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, KnowledgeSeedExample } from '@/types';
+import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, SeedExample } from '@/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import KnowledgeFormGithub from '../../Knowledge/Github';
@@ -85,10 +85,10 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
           knowledgeExistingFormData.knowledgeDocumentCommit = yamlData.document.commit;
           knowledgeExistingFormData.documentName = yamlData.document.patterns.join(', ');
 
-          const seedExamples: KnowledgeSeedExample[] = [];
+          const seedExamples: SeedExample[] = [];
           yamlData.seed_examples.forEach((seed, index) => {
             // iterate through questions_and_answers and create a new object for each
-            const example: KnowledgeSeedExample = {
+            const example: SeedExample = {
               immutable: index < 5 ? true : false,
               isExpanded: true,
               context: seed.context,
@@ -134,10 +134,10 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
         } catch (error) {
           if (axios.isAxiosError(error)) {
             console.error('Error fetching pull request data:', error.response ? error.response.data : error.message);
-            setLoadingMsg('Error fetching knowledge data from PR : ' + prNumber) + '. Please try again.';
+            setLoadingMsg('Error fetching knowledge data from PR : ' + prNumber + '. Please try again.');
           } else if (error instanceof Error) {
             console.error('Error fetching pull request data:', error.message);
-            setLoadingMsg('Error fetching knowledge data from PR : ' + prNumber + ' [' + error.message + ']') + '. Please try again.';
+            setLoadingMsg('Error fetching knowledge data from PR : ' + prNumber + ' [' + error.message + ']' + '. Please try again.');
           }
         }
       }

@@ -1,6 +1,6 @@
 // src/components/Contribute/Knowledge/Native/KnowledgeSeedExampleNative/KnowledgeQuestionAnswerPairsNative.tsx
 import React from 'react';
-import type { KnowledgeSeedExample } from '@/types';
+import type { SeedExample } from '@/types';
 import { Accordion, AccordionContent, AccordionItem, AccordionToggle, Button, Content, Flex, FlexItem } from '@patternfly/react-core';
 import { ExternalLinkAltIcon, PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
 import QuestionAnswerPairs from '@/components/Contribute/Knowledge/SeedExamples/QuestionAnswerPairs';
@@ -17,8 +17,8 @@ import {
 
 interface Props {
   isGithubMode: boolean;
-  seedExamples: KnowledgeSeedExample[];
-  onUpdateSeedExamples: (seedExamples: KnowledgeSeedExample[]) => void;
+  seedExamples: SeedExample[];
+  onUpdateSeedExamples: (seedExamples: SeedExample[]) => void;
   addDocumentInfo: (repoUrl: string, commitSha: string, docName: string) => void;
   repositoryUrl: string;
   commitSha: string;
@@ -88,7 +88,7 @@ const SeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, onUpdateSee
       </FlexItem>
       <FlexItem>
         <Accordion asDefinitionList={false}>
-          {seedExamples.map((seedExample: KnowledgeSeedExample, seedExampleIndex: number) => (
+          {seedExamples.map((seedExample: SeedExample, seedExampleIndex: number) => (
             <AccordionItem key={seedExampleIndex} isExpanded={seedExample.isExpanded}>
               <AccordionToggle onClick={() => toggleSeedExampleExpansion(seedExampleIndex)} id={`seed-example-toggle-${seedExampleIndex}`}>
                 <Flex gap={{ default: 'gapMd' }} justifyContent={{ default: 'justifyContentSpaceBetween' }} style={{ width: '100%' }}>

@@ -5,11 +5,18 @@ import * as React from 'react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import SkillFormGithub, { SkillEditFormData } from '@/components/Contribute/Skill/Github';
+import SkillFormGithub from '@/components/Contribute/Skill/Github';
 import { fetchPullRequest, fetchFileContent, fetchPullRequestFiles } from '@/utils/github';
 import yaml from 'js-yaml';
 import axios from 'axios';
-import { SkillYamlData, AttributionData, PullRequestFile, SkillFormData, SkillSeedExample } from '@/types';
+import {
+  SkillYamlData,
+  AttributionData,
+  PullRequestFile,
+  SkillFormData,
+  SeedExample,
+  SkillEditFormData
+} from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 
@@ -74,17 +81,20 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
           // Populate the form fields with YAML data
           skillExistingFormData.documentOutline = yamlData.task_description;
 
-          const seedExamples: SkillSeedExample[] = [];
+          const seedExamples: SeedExample[] = [];
           yamlData.seed_examples.forEach((seed, index) => {
-            const example: SkillSeedExample = {
+            const example: SeedExample = {
               immutable: index < 5 ? true : false,
               isExpanded: true,
               context: seed.context || '',
               isContextValid: ValidatedOptions.success,
-              question: seed.question,
-              isQuestionValid: ValidatedOptions.success,
-              answer: seed.answer,
-              isAnswerValid: ValidatedOptions.success
+              questionAndAnswers: [{
+                immutable: index < 5 ? true : false,
+                question: seed.question,
+                isQuestionValid: ValidatedOptions.success,
+                answer: seed.answer,
+                isAnswerValid: ValidatedOptions.success
+              }]
             };
             seedExamples.push(example);
           });

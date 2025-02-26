@@ -32,8 +32,8 @@ const Submit: React.FC<Props> = ({ disableAction, skillFormData, setActionGroupA
       task_description: skillFormData.documentOutline!,
       seed_examples: skillFormData.seedExamples.map((example) => ({
         context: example.context,
-        question: example.question,
-        answer: example.answer
+        question: example.questionAndAnswers[0].question,
+        answer: example.questionAndAnswers[0].answer
       }))
     };
 

@@ -1,6 +1,6 @@
 // src/components/Contribute/Knowledge/KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs.tsx
 import React, { useEffect, useState } from 'react';
-import { KnowledgeSeedExample, QuestionAndAnswerPair } from '@/types';
+import { SeedExample, QuestionAndAnswerPair } from '@/types';
 import {
   FormGroup,
   Tooltip,
@@ -29,7 +29,7 @@ const NATIVE_GIT_KNOWLEDGE_FILES_API = '/api/native/git/knowledge-files';
 
 interface Props {
   isGithubMode: boolean;
-  seedExample: KnowledgeSeedExample;
+  seedExample: SeedExample;
   seedExampleIndex: number;
   handleContextInputChange: (seedExampleIndex: number, contextValue: string, validate?: boolean) => void;
   handleContextBlur: (seedExampleIndex: number) => void;
@@ -42,7 +42,7 @@ interface Props {
   commitSha: string;
 }
 
-const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
+const QuestionAnswerPairs: React.FC<Props> = ({
   isGithubMode,
   seedExample,
   seedExampleIndex,
@@ -115,7 +115,7 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
 
   // Update word count whenever context changes
   useEffect(() => {
-    setContextWordCount(countWords(seedExample.context));
+    setContextWordCount(seedExample.context ? countWords(seedExample.context) : 0);
   }, [seedExample.context]);
 
   // Handle context input change with word count validation
@@ -236,4 +236,4 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
   );
 };
 
-export default KnowledgeQuestionAnswerPairsNative;
+export default QuestionAnswerPairs;
