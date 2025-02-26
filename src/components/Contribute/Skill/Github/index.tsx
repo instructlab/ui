@@ -38,8 +38,9 @@ import {
   Wizard,
   WizardStep
 } from '@patternfly/react-core';
-import AuthorInformation, { FormType } from '../../AuthorInformation';
+import AuthorInformation from '../../AuthorInformation';
 import ReviewSubmission from '../ReviewSubmission';
+import { ActionGroupAlertContent } from '@/components/Contribute/types';
 
 export interface SkillEditFormData {
   isEditForm: boolean;
@@ -48,15 +49,6 @@ export interface SkillEditFormData {
   branchName: string;
   oldFilesPath: string;
   skillFormData: SkillFormData;
-}
-
-export interface ActionGroupAlertContent {
-  title: string;
-  message: string;
-  waitAlert?: boolean;
-  url?: string;
-  success: boolean;
-  timeout?: number | boolean;
 }
 
 export interface SkillFormProps {
@@ -373,16 +365,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
       name: 'Details',
       component: (
         <>
-          <AuthorInformation
-            formType={FormType.Knowledge}
-            reset={reset}
-            formData={skillFormData}
-            setDisableAction={setDisableAction}
-            email={email}
-            setEmail={setEmail}
-            name={name}
-            setName={setName}
-          />
+          <AuthorInformation email={email} setEmail={setEmail} name={name} setName={setName} />
           <SkillsInformation
             reset={reset}
             isEditForm={skillEditFormData?.isEditForm}
@@ -454,7 +437,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
       <PageBreadcrumb>
         <Breadcrumb>
           <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
-          <BreadcrumbItem isActive>Skill Contribution</BreadcrumbItem>
+          <BreadcrumbItem isActive>Create Skill Contribution</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
 
@@ -462,7 +445,7 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
         <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
           <FlexItem>
             <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>
-              Skill Contribution
+              Create Skill Contribution
             </Title>
           </FlexItem>
           <FlexItem>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActionGroupAlertContent } from '..';
+import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { SkillFormData, SkillYamlData } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
@@ -28,7 +28,7 @@ const Update: React.FC<Props> = ({ disableAction, skillFormData, oldFilesPath, b
     sanitizedFilePath = sanitizedFilePath!.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
     const skillYamlData: SkillYamlData = {
-      created_by: email,
+      created_by: skillFormData.name,
       version: SkillSchemaVersion,
       task_description: skillFormData.documentOutline!,
       seed_examples: skillFormData.seedExamples.map((example) => ({
