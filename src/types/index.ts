@@ -109,16 +109,18 @@ export interface ContributionFormData {
   seedExamples: SeedExample[];
 }
 
-export interface SkillFormData extends ContributionFormData {}
-
-export interface SkillEditFormData {
+export interface EditFormData<T extends ContributionFormData = ContributionFormData> {
   isEditForm: boolean;
-  skillVersion: number;
+  version: number;
   pullRequestNumber: number;
   branchName: string;
   oldFilesPath: string;
-  skillFormData: SkillFormData;
+  formData: T;
 }
+
+export interface SkillFormData extends ContributionFormData {}
+
+export type SkillEditFormData = EditFormData<SkillFormData>;
 
 export interface KnowledgeFormData extends ContributionFormData {
   domain: string;
@@ -129,11 +131,4 @@ export interface KnowledgeFormData extends ContributionFormData {
   revision: string;
 }
 
-export interface KnowledgeEditFormData {
-  isEditForm: boolean;
-  knowledgeVersion: number;
-  pullRequestNumber: number;
-  branchName: string;
-  oldFilesPath: string;
-  knowledgeFormData: KnowledgeFormData;
-}
+export type KnowledgeEditFormData = EditFormData<KnowledgeFormData>;

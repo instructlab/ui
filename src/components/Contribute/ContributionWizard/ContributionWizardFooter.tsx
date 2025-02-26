@@ -11,22 +11,31 @@ import {
   WizardFooterWrapper
 } from '@patternfly/react-core';
 import { ArrowRightIcon } from '@patternfly/react-icons';
-import ViewDropdownButton from '@/components/Contribute/Knowledge/ViewDropdown/ViewDropdownButton';
-import { KnowledgeFormData, KnowledgeYamlData } from '@/types';
-import { KnowledgeSchemaVersion } from '@/types/const';
-import { dumpYaml } from '@/utils/yamlConfig';
+import ViewDropdownButton from '@/components/Contribute/ContributionWizard/ViewDropdownButton';
+import { ContributionFormData } from '@/types';
 
-interface KnowledgeWizardFooterProps {
+interface Props {
   isValid: boolean;
-  knowledgeFormData: KnowledgeFormData;
+  formData: ContributionFormData;
   isGithubMode: boolean;
+  isSkillContribution: boolean;
   showSubmit: boolean;
   isEdit: boolean;
   onSubmit: () => Promise<boolean>;
+  convertToYaml: (formData: ContributionFormData) => unknown;
   onCancel: () => void;
 }
 
-const KnowledgeWizardFooter: React.FC<KnowledgeWizardFooterProps> = ({ isValid, knowledgeFormData, isGithubMode, showSubmit, onSubmit, isEdit }) => {
+const ContributionWizardFooter: React.FC<Props> = ({
+  isValid,
+  formData,
+  isGithubMode,
+  isSkillContribution,
+  showSubmit,
+  onSubmit,
+  convertToYaml,
+  isEdit
+}) => {
   const { steps, activeStep, goToNextStep, goToPrevStep, goToStepByIndex, close } = useWizardContext();
 
   const prevDisabled = steps.indexOf(activeStep) < 1;
@@ -37,37 +46,6 @@ const KnowledgeWizardFooter: React.FC<KnowledgeWizardFooterProps> = ({ isValid, 
     if (result) {
       goToStepByIndex(0);
     }
-  };
-
-  const handleDownloadYaml = () => {
-    const yamlData: KnowledgeYamlData = {
-      created_by: knowledgeFormData.email!,
-      version: KnowledgeSchemaVersion,
-      domain: knowledgeFormData.domain!,
-      document_outline: knowledgeFormData.documentOutline!,
-      seed_examples: knowledgeFormData.seedExamples.map((example) => ({
-        context: example.context!,
-        questions_and_answers: example.questionAndAnswers.map((qa) => ({
-          question: qa.question,
-          answer: qa.answer
-        }))
-      })),
-      document: {
-        repo: knowledgeFormData.knowledgeDocumentRepositoryUrl!,
-        commit: knowledgeFormData.knowledgeDocumentCommit!,
-        patterns: knowledgeFormData.documentName!.split(',').map((pattern) => pattern.trim())
-      }
-    };
-
-    const yamlString = dumpYaml(yamlData);
-    const blob = new Blob([yamlString], { type: 'application/x-yaml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'knowledge.yaml';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
   };
 
   return (
@@ -115,7 +93,12 @@ const KnowledgeWizardFooter: React.FC<KnowledgeWizardFooterProps> = ({ isValid, 
         <FlexItem>
           <ActionList>
             <ActionListItem>
-              <ViewDropdownButton knowledgeFormData={knowledgeFormData} isGithubMode={isGithubMode} onSave={handleDownloadYaml} />
+              <ViewDropdownButton
+                formData={formData}
+                isGithubMode={isGithubMode}
+                isSkillContribution={isSkillContribution}
+                convertToYaml={convertToYaml}
+              />
             </ActionListItem>
           </ActionList>
         </FlexItem>
@@ -124,4 +107,4 @@ const KnowledgeWizardFooter: React.FC<KnowledgeWizardFooterProps> = ({ isValid, 
   );
 };
 
-export default KnowledgeWizardFooter;
+export default ContributionWizardFooter;

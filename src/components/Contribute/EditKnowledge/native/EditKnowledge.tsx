@@ -63,9 +63,9 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
             isEditForm: true,
-            knowledgeVersion: KnowledgeSchemaVersion,
+            version: KnowledgeSchemaVersion,
             branchName: branchName,
-            knowledgeFormData: knowledgeExistingFormData,
+            formData: knowledgeExistingFormData,
             pullRequestNumber: 0,
             oldFilesPath: ''
           };

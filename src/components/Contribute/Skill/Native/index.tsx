@@ -71,13 +71,15 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
     isExpanded: false,
     context: '',
     isContextValid: ValidatedOptions.default,
-    questionAndAnswers: [{
-      immutable: true,
-      question: '',
-      isQuestionValid: ValidatedOptions.default,
-      answer: '',
-      isAnswerValid: ValidatedOptions.default
-    }]
+    questionAndAnswers: [
+      {
+        immutable: true,
+        question: '',
+        isQuestionValid: ValidatedOptions.default,
+        answer: '',
+        isAnswerValid: ValidatedOptions.default
+      }
+    ]
   };
 
   const [seedExamples, setSeedExamples] = useState<SeedExample[]>([
@@ -107,12 +109,12 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
   useEffect(() => {
     // Set all elements from the skillFormData to the state
     if (skillEditFormData) {
-      setEmail(skillEditFormData.skillFormData.email);
-      setName(skillEditFormData.skillFormData.name);
-      setSubmissionSummary(skillEditFormData.skillFormData.submissionSummary);
-      setDocumentOutline(skillEditFormData.skillFormData.documentOutline);
-      setFilePath(skillEditFormData.skillFormData.filePath);
-      setSeedExamples(skillEditFormData.skillFormData.seedExamples);
+      setEmail(skillEditFormData.formData.email);
+      setName(skillEditFormData.formData.name);
+      setSubmissionSummary(skillEditFormData.formData.submissionSummary);
+      setDocumentOutline(skillEditFormData.formData.documentOutline);
+      setFilePath(skillEditFormData.formData.filePath);
+      setSeedExamples(skillEditFormData.formData.seedExamples);
     }
   }, [skillEditFormData]);
 
@@ -198,11 +200,13 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
           const { msg, status } = validateAnswer(seedExample.questionAndAnswers[0].answer);
           return {
             ...seedExample,
-            questionAndAnswers: [{
-              ...seedExample.questionAndAnswers[0],
-              isAnswerValid: status,
-              answerValidationError: msg
-            }]
+            questionAndAnswers: [
+              {
+                ...seedExample.questionAndAnswers[0],
+                isAnswerValid: status,
+                answerValidationError: msg
+              }
+            ]
           };
         }
         return seedExample;
@@ -230,11 +234,13 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
           const { msg, status } = validateQuestion(seedExample.questionAndAnswers[0].question);
           return {
             ...seedExample,
-            questionAndAnswers: [{
-              ...seedExample.questionAndAnswers[0],
-              isQuestionValid: status,
-              questionValidationError: msg,
-            }]
+            questionAndAnswers: [
+              {
+                ...seedExample.questionAndAnswers[0],
+                isQuestionValid: status,
+                questionValidationError: msg
+              }
+            ]
           };
         }
         return seedExample;
@@ -294,11 +300,13 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
       immutable: true,
       isExpanded: false,
       context: yamlSeedExample.context ?? '',
-      questionAndAnswers: [{
-        immutable: true,
-        question: yamlSeedExample.question,
-        answer: yamlSeedExample.answer,
-      }]
+      questionAndAnswers: [
+        {
+          immutable: true,
+          question: yamlSeedExample.question,
+          answer: yamlSeedExample.answer
+        }
+      ]
     })) as SeedExample[];
   };
 
@@ -352,7 +360,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
       id: 'file-path-info',
       name: 'File Path Information',
       component: (
-        <FilePathInformation reset={reset} path={skillEditFormData ? skillEditFormData.skillFormData.filePath : filePath} setFilePath={setFilePath} />
+        <FilePathInformation reset={reset} path={skillEditFormData ? skillEditFormData.formData.filePath : filePath} setFilePath={setFilePath} />
       )
     },
     {
@@ -414,13 +422,15 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
         <Content>
           <SkillsDescriptionContent />
         </Content>
-        <YamlFileUploadModal
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
-          isKnowledgeForm={false}
-          onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
-          setActionGroupAlertContent={setActionGroupAlertContent}
-        />
+
+        {isModalOpen ? (
+          <YamlFileUploadModal
+            onClose={() => setIsModalOpen(false)}
+            isKnowledgeForm={false}
+            onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
+            setActionGroupAlertContent={setActionGroupAlertContent}
+          />
+        ) : null}
 
         <Wizard startIndex={activeStepIndex} onClose={handleCancel} height={600}>
           {steps.map((step) => (

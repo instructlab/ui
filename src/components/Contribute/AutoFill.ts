@@ -1,4 +1,4 @@
-import { KnowledgeFormData, SeedExample, QuestionAndAnswerPair } from '@/types';
+import { KnowledgeFormData, SeedExample, QuestionAndAnswerPair, SkillFormData } from '@/types';
 import { ValidatedOptions } from '@patternfly/react-core';
 
 const questionAndAnswerPairs1: QuestionAndAnswerPair[] = [
@@ -127,7 +127,7 @@ const questionAndAnswerPairs5: QuestionAndAnswerPair[] = [
   }
 ];
 
-const seedExamples: SeedExample[] = [
+const knowledgeSeedExamples: SeedExample[] = [
   {
     immutable: true,
     isExpanded: true,
@@ -258,8 +258,8 @@ export const autoFillKnowledgeFields: KnowledgeFormData = {
   documentOutline:
     'Information about the Phoenix Constellation including the history, characteristics, and features of the stars in the constellation.',
   filePath: 'science/physics/astrophysics/stars',
-  seedExamples: seedExamples,
-  knowledgeDocumentRepositoryUrl: 'https://github.com/juliadenham/Summit_knowledge',
+  seedExamples: knowledgeSeedExamples,
+  knowledgeDocumentRepositoryUrl: '~/.instructlab-ui/taxonomy-knowledge-docs',
   knowledgeDocumentCommit: '0a1f2672b9b90582e6115333e3ed62fd628f1c0f',
   documentName: 'phoenix_constellation.md',
   titleWork: 'Phoenix (constellation)',
@@ -267,4 +267,109 @@ export const autoFillKnowledgeFields: KnowledgeFormData = {
   revision: 'https://en.wikipedia.org/w/index.php?title=Phoenix_(constellation)&oldid=1237187773',
   licenseWork: 'CC-BY-SA-4.0',
   creators: 'Wikipedia Authors'
+};
+
+const skillsSeedExamples: SeedExample[] = [
+  {
+    immutable: false,
+    isExpanded: false,
+    context: undefined,
+    isContextValid: ValidatedOptions.success,
+    validationError: undefined,
+    questionAndAnswers: [
+      {
+        immutable: false,
+        question: 'What are 5 words that rhyme with horn?',
+        isQuestionValid: ValidatedOptions.success,
+        questionValidationError: undefined,
+        answer: 'warn, torn, born, thorn, and corn.',
+        isAnswerValid: ValidatedOptions.success,
+        answerValidationError: undefined
+      }
+    ]
+  },
+  {
+    immutable: false,
+    isExpanded: false,
+    context: undefined,
+    isContextValid: ValidatedOptions.success,
+    validationError: undefined,
+    questionAndAnswers: [
+      {
+        immutable: false,
+        question: 'What are 5 words that rhyme with cat?',
+        isQuestionValid: ValidatedOptions.success,
+        questionValidationError: undefined,
+        answer: 'bat, gnat, rat, vat, and mat.',
+        isAnswerValid: ValidatedOptions.success,
+        answerValidationError: undefined
+      }
+    ]
+  },
+  {
+    immutable: false,
+    isExpanded: false,
+    context: undefined,
+    isContextValid: ValidatedOptions.success,
+    validationError: undefined,
+    questionAndAnswers: [
+      {
+        immutable: false,
+        question: 'What are 5 words that rhyme with poor?',
+        isQuestionValid: ValidatedOptions.success,
+        questionValidationError: undefined,
+        answer: 'door, shore, core, bore, and tore.',
+        isAnswerValid: ValidatedOptions.success,
+        answerValidationError: undefined
+      }
+    ]
+  },
+  {
+    immutable: false,
+    isExpanded: false,
+    context: undefined,
+    isContextValid: ValidatedOptions.success,
+    validationError: undefined,
+    questionAndAnswers: [
+      {
+        immutable: false,
+        question: 'What are 5 words that rhyme with bank?',
+        isQuestionValid: ValidatedOptions.success,
+        questionValidationError: undefined,
+        answer: 'tank, rank, prank, sank, and drank.',
+        isAnswerValid: ValidatedOptions.success,
+        answerValidationError: undefined
+      }
+    ]
+  },
+  {
+    immutable: false,
+    isExpanded: false,
+    context: undefined,
+    isContextValid: ValidatedOptions.success,
+    validationError: undefined,
+    questionAndAnswers: [
+      {
+        immutable: false,
+        question: 'What are 5 words that rhyme with bake?',
+        isQuestionValid: ValidatedOptions.success,
+        questionValidationError: undefined,
+        answer: 'wake, lake, steak, make, and quake.',
+        isAnswerValid: ValidatedOptions.success,
+        answerValidationError: undefined
+      }
+    ]
+  }
+];
+
+export const autoFillSkillsFields: SkillFormData = {
+  email: 'helloworld@instructlab.com',
+  name: 'juliadenham',
+  submissionSummary: 'Teaching a model to rhyme.',
+  documentOutline: 'These provided examples demonstrate how to rhyme.',
+  filePath: 'science/physics/astrophysics/stars',
+  seedExamples: skillsSeedExamples,
+  titleWork: 'Teaching a model to rhyme.',
+  licenseWork: 'CC-BY-SA-4.0',
+  creators: 'juliadenham'
 };

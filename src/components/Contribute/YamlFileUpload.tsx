@@ -13,7 +13,7 @@ interface readFile {
 }
 
 interface YamlFileUploadProps {
-  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsModalOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   isKnowledgeForm: boolean;
   onYamlUploadKnowledgeFillForm?: (data: KnowledgeYamlData) => void;
   onYamlUploadSkillsFillForm?: (data: SkillYamlData) => void;
@@ -49,10 +49,10 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({
         const parsedData = yaml.load(fileContent);
         if (isKnowledgeForm && isKnowledgeFormData(parsedData)) {
           onYamlUploadKnowledgeFillForm?.(parsedData);
-          setIsModalOpen(false);
+          setIsModalOpen?.(false);
         } else if (!isKnowledgeForm && isSkillFormData(parsedData)) {
           onYamlUploadSkillsFillForm?.(parsedData);
-          setIsModalOpen(false);
+          setIsModalOpen?.(false);
         } else {
           const yamlFileSchemaIssueAlertContent: ActionGroupAlertContent = {
             title: 'YAML file upload error!',

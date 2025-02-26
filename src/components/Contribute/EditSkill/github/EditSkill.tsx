@@ -9,14 +9,7 @@ import SkillFormGithub from '@/components/Contribute/Skill/Github';
 import { fetchPullRequest, fetchFileContent, fetchPullRequestFiles } from '@/utils/github';
 import yaml from 'js-yaml';
 import axios from 'axios';
-import {
-  SkillYamlData,
-  AttributionData,
-  PullRequestFile,
-  SkillFormData,
-  SeedExample,
-  SkillEditFormData
-} from '@/types';
+import { SkillYamlData, AttributionData, PullRequestFile, SkillFormData, SeedExample, SkillEditFormData } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 
@@ -52,9 +45,9 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
 
           const skillEditFormData: SkillEditFormData = {
             isEditForm: true,
-            skillVersion: SkillSchemaVersion,
+            version: SkillSchemaVersion,
             branchName: '',
-            skillFormData: skillExistingFormData,
+            formData: skillExistingFormData,
             pullRequestNumber: prNumber,
             oldFilesPath: ''
           };
@@ -88,13 +81,15 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
               isExpanded: true,
               context: seed.context || '',
               isContextValid: ValidatedOptions.success,
-              questionAndAnswers: [{
-                immutable: index < 5 ? true : false,
-                question: seed.question,
-                isQuestionValid: ValidatedOptions.success,
-                answer: seed.answer,
-                isAnswerValid: ValidatedOptions.success
-              }]
+              questionAndAnswers: [
+                {
+                  immutable: index < 5 ? true : false,
+                  question: seed.question,
+                  isQuestionValid: ValidatedOptions.success,
+                  answer: seed.answer,
+                  isAnswerValid: ValidatedOptions.success
+                }
+              ]
             };
             seedExamples.push(example);
           });
@@ -102,7 +97,7 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
 
           // Set the file path from the current YAML file
           const currentFilePath = foundYamlFile.filename.split('/').slice(1, -1).join('/');
-          skillEditFormData.skillFormData.filePath = currentFilePath + '/';
+          skillEditFormData.formData.filePath = currentFilePath + '/';
 
           // Fetch and parse attribution file if it exists
           const foundAttributionFile = prFiles.find((file: PullRequestFile) => file.filename.includes('attribution'));

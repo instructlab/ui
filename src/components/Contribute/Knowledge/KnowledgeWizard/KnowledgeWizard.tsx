@@ -8,31 +8,13 @@ import KnowledgeInformation from '@/components/Contribute/Knowledge/KnowledgeInf
 import FilePathInformation from '@/components/Contribute/Knowledge/FilePathInformation/FilePathInformation';
 import DocumentInformation from '@/components/Contribute/Knowledge/DocumentInformation/DocumentInformation';
 import SeedExamples from '@/components/Contribute/Knowledge/SeedExamples/SeedExamples';
-import { KnowledgeEditFormData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
+import { ContributionFormData, KnowledgeEditFormData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
 import { useRouter } from 'next/navigation';
-import { autoFillKnowledgeFields } from '@/components/Contribute/Knowledge/AutoFill';
 import ReviewSubmission from '../ReviewSubmission';
-import { YamlFileUploadModal } from '../../YamlFileUploadModal';
-import {
-  ValidatedOptions,
-  PageGroup,
-  PageBreadcrumb,
-  Breadcrumb,
-  BreadcrumbItem,
-  PageSection,
-  Flex,
-  FlexItem,
-  Title,
-  Button,
-  Content,
-  Wizard,
-  WizardStep
-} from '@patternfly/react-core';
+import { ValidatedOptions, Button } from '@patternfly/react-core';
 import { devLog } from '@/utils/devlog';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
-import KnowledgeWizardFooter from '@/components/Contribute/Knowledge/KnowledgeWizardFooter/KnowledgeWizardFooter';
 import { addDocumentInfoToKnowledgeFormData } from '@/components/Contribute/Knowledge/documentUtils';
-import { addYamlUploadKnowledge } from '@/components/Contribute/Knowledge/uploadUtils';
 import { createEmptySeedExample } from '@/components/Contribute/Knowledge/seedExampleUtils';
 import {
   isAttributionInformationValid,
@@ -42,15 +24,18 @@ import {
   isKnowledgeInfoValid,
   isSeedExamplesValid
 } from '@/components/Contribute/Knowledge/validationUtils';
-import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
 import {
   submitGithubKnowledgeData,
   submitNativeKnowledgeData,
   updateGithubKnowledgeData,
   updateNativeKnowledgeData
 } from '@/components/Contribute/Knowledge/submitUtils';
-import { getGitHubUserInfo } from '@/utils/github';
 import AttributionInformation from '@/components/Contribute/Knowledge/AttributionInformation/AttributionInformation';
+import { ContributionWizard, StepStatus, StepType } from '@/components/Contribute/ContributionWizard/ContributionWizard';
+import { KnowledgeSchemaVersion } from '@/types/const';
+import { YamlFileUploadModal } from '@/components/Contribute/YamlFileUploadModal';
+import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
+import { addYamlUploadKnowledge } from '@/components/Contribute/uploadUtils';
 
 const DefaultKnowledgeFormData: KnowledgeFormData = {
   email: '',
@@ -77,89 +62,20 @@ export interface KnowledgeFormProps {
 
 const STEP_IDS = ['author-info', 'knowledge-info', 'file-path-info', 'document-info', 'seed-examples', 'attribution-info', 'review-submission'];
 
-enum StepStatus {
-  Default = 'default',
-  Error = 'error',
-  Success = 'success'
-}
-
-interface StepType {
-  id: string;
-  name: string;
-  component?: React.ReactNode;
-  status?: StepStatus;
-}
-
 export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData, isGithubMode }) => {
-  const [devModeEnabled, setDevModeEnabled] = useState<boolean | undefined>();
   const { data: session } = useSession();
-  const [knowledgeFormData, setKnowledgeFormData] = React.useState<KnowledgeFormData>(
-    knowledgeEditFormData?.knowledgeFormData || DefaultKnowledgeFormData
-  );
-  const [githubUsername, setGithubUsername] = useState<string>('');
+  const [knowledgeFormData, setKnowledgeFormData] = React.useState<KnowledgeFormData>(knowledgeEditFormData?.formData || DefaultKnowledgeFormData);
   const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
   const [isYamlModalOpen, setIsYamlModalOpen] = useState<boolean>(false); // **New State Added**
-  const [submitEnabled, setSubmitEnabled] = useState<boolean>(false); // **New State Added**
-  const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
 
   const router = useRouter();
-
-  useEffect(() => {
-    const getEnvVariables = async () => {
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
-      setDevModeEnabled(envConfig.ENABLE_DEV_MODE === 'true');
-    };
-    getEnvVariables();
-  }, []);
-
-  useEffect(() => {
-    let canceled = false;
-
-    if (isGithubMode) {
-      const fetchUserInfo = async () => {
-        if (session?.accessToken) {
-          try {
-            const headers = {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session.accessToken}`,
-              Accept: 'application/vnd.github+json',
-              'X-GitHub-Api-Version': '2022-11-28'
-            };
-            const fetchedUserInfo = await getGitHubUserInfo(headers);
-            if (!canceled) {
-              setGithubUsername(fetchedUserInfo.login);
-              setKnowledgeFormData((prev) => ({
-                ...prev,
-                name: fetchedUserInfo.name,
-                email: fetchedUserInfo.email
-              }));
-            }
-          } catch (error) {
-            console.error('Failed to fetch GitHub user info:', error);
-          }
-        }
-      };
-      fetchUserInfo();
-    } else {
-      setKnowledgeFormData((prev) => ({
-        ...prev,
-        name: session?.user?.name ? session.user.name : prev.name,
-        email: session?.user?.email ? session.user.email : prev.email
-      }));
-    }
-
-    return () => {
-      canceled = true;
-    };
-  }, [isGithubMode, session?.accessToken, session?.user?.name, session?.user?.email]);
 
   useEffect(() => {
     // Set all elements from the knowledgeFormData to the state
     if (knowledgeEditFormData) {
       setKnowledgeFormData({
-        ...knowledgeEditFormData.knowledgeFormData,
-        seedExamples: knowledgeEditFormData.knowledgeFormData.seedExamples.map((example) => ({
+        ...knowledgeEditFormData.formData,
+        seedExamples: knowledgeEditFormData.formData.seedExamples.map((example) => ({
           ...example,
           immutable: example.immutable !== undefined ? example.immutable : true, // Ensure immutable is set
           isContextValid: example.isContextValid || ValidatedOptions.default,
@@ -175,7 +91,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         }))
       });
 
-      devLog('Seed Examples Set from Edit Form Data:', knowledgeEditFormData.knowledgeFormData.seedExamples);
+      devLog('Seed Examples Set from Edit Form Data:', knowledgeEditFormData.formData.seedExamples);
     }
   }, [knowledgeEditFormData]);
 
@@ -202,28 +118,9 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
     setActionGroupAlertContent(undefined);
   };
 
-  const autoFillForm = (): void => {
-    setKnowledgeFormData({
-      ...autoFillKnowledgeFields,
-      knowledgeDocumentRepositoryUrl: '~/.instructlab-ui/taxonomy-knowledge-docs'
-    });
-  };
-  const onYamlUploadKnowledgeFillForm = (data: KnowledgeYamlData): void => {
-    setKnowledgeFormData((prev) => addYamlUploadKnowledge(prev, data));
-    setActionGroupAlertContent({
-      title: 'YAML Uploaded Successfully',
-      message: 'Your knowledge form has been populated based on the uploaded YAML file.',
-      success: true
-    });
-  };
-
   useEffect(() => {
     devLog('Seed Examples Updated:', knowledgeFormData.seedExamples);
   }, [knowledgeFormData.seedExamples]);
-
-  const handleCancel = () => {
-    router.push('/dashboard');
-  };
 
   const steps: StepType[] = React.useMemo(
     () => [
@@ -356,11 +253,31 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
     [addDocumentInfoHandler, isGithubMode, knowledgeEditFormData?.isEditForm, knowledgeFormData]
   );
 
-  useEffect(() => {
-    setSubmitEnabled(!steps.find((step) => step.status === 'error'));
-  }, [steps]);
+  const convertToYaml = (contributionFormData: ContributionFormData) => {
+    const formData = contributionFormData as KnowledgeFormData;
 
-  const handleSubmit = async (): Promise<boolean> => {
+    const yamlData: KnowledgeYamlData = {
+      created_by: formData.email!,
+      version: KnowledgeSchemaVersion,
+      domain: formData.domain!,
+      document_outline: formData.documentOutline!,
+      seed_examples: formData.seedExamples.map((example) => ({
+        context: example.context!,
+        questions_and_answers: example.questionAndAnswers.map((qa) => ({
+          question: qa.question,
+          answer: qa.answer
+        }))
+      })),
+      document: {
+        repo: formData.knowledgeDocumentRepositoryUrl!,
+        commit: formData.knowledgeDocumentCommit!,
+        patterns: formData.documentName!.split(',').map((pattern) => pattern.trim())
+      }
+    };
+    return yamlData;
+  };
+
+  const handleSubmit = async (githubUsername: string): Promise<boolean> => {
     if (knowledgeEditFormData) {
       const result = isGithubMode
         ? await updateGithubKnowledgeData(session, knowledgeFormData, knowledgeEditFormData, setActionGroupAlertContent)
@@ -379,88 +296,48 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
     return result;
   };
 
+  const onYamlUploadKnowledgeFillForm = (data: KnowledgeYamlData): void => {
+    setKnowledgeFormData(addYamlUploadKnowledge(knowledgeFormData, data));
+    setActionGroupAlertContent({
+      title: 'YAML Uploaded Successfully',
+      message: 'Your knowledge form has been populated based on the uploaded YAML file.',
+      success: true
+    });
+    setIsYamlModalOpen(false);
+  };
+
   return (
-    <PageGroup>
-      <PageBreadcrumb>
-        <Breadcrumb>
-          <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
-          <BreadcrumbItem isActive>Knowledge Contribution</BreadcrumbItem>
-        </Breadcrumb>
-      </PageBreadcrumb>
-
-      <PageSection className="knowledge-form" isFilled>
-        <Flex direction={{ default: 'column' }}>
-          <FlexItem>
-            <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
-              <FlexItem>
-                <Title headingLevel="h1" size="2xl" style={{ paddingTop: '10px' }}>
-                  Knowledge Contribution
-                </Title>
-              </FlexItem>
-              <FlexItem>
-                {devModeEnabled && (
-                  <Button variant="secondary" onClick={autoFillForm}>
-                    Auto-Fill
-                  </Button>
-                )}
-              </FlexItem>
-            </Flex>
-          </FlexItem>
-          <FlexItem>
-            <Content component="p">
-              Knowledge consists of data and facts and is backed by reference documents. When you contribute knowledge, you provide the documents and
-              a collection of questions and answers; this new data is used by the model to answer questions more accurately. The contribution form
-              guides you through the process, or you can{' '}
-              <Button isInline variant="link" onClick={() => setIsYamlModalOpen(true)}>
-                upload an existing yaml file.
-              </Button>
-            </Content>
-          </FlexItem>
-          <FlexItem flex={{ default: 'flex_1' }}>
-            <Wizard
-              height={600}
-              startIndex={1}
-              onClose={handleCancel}
-              onStepChange={(_ev, currentStep) => setActiveStepIndex(STEP_IDS.indexOf(String(currentStep.id)))}
-              footer={
-                <KnowledgeWizardFooter
-                  onCancel={handleCancel}
-                  knowledgeFormData={knowledgeFormData}
-                  isGithubMode={isGithubMode}
-                  onSubmit={handleSubmit}
-                  isValid={true}
-                  showSubmit={submitEnabled}
-                  isEdit={!!knowledgeEditFormData}
-                />
-              }
-            >
-              {steps.map((step, index) => (
-                <WizardStep
-                  key={step.id}
-                  id={step.id}
-                  name={step.name}
-                  status={
-                    index === activeStepIndex || (step.status === StepStatus.Error && index > activeStepIndex) ? StepStatus.Default : step.status
-                  }
-                >
-                  {step.component}
-                </WizardStep>
-              ))}
-            </Wizard>
-          </FlexItem>
-        </Flex>
-
+    <>
+      <ContributionWizard
+        title="Knowledge Contribution"
+        description={
+          <>
+            Knowledge consists of data and facts and is backed by reference documents. When you contribute knowledge, you provide the documents and a
+            collection of questions and answers; this new data is used by the model to answer questions more accurately. The contribution form guides
+            you through the process, or you can{' '}
+            <Button isInline variant="link" onClick={() => setIsYamlModalOpen(true)}>
+              upload an existing yaml file.
+            </Button>
+          </>
+        }
+        formData={knowledgeFormData}
+        setFormData={(formData: ContributionFormData) => setKnowledgeFormData(formData as KnowledgeFormData)}
+        isGithubMode={isGithubMode}
+        isSkillContribution={false}
+        steps={steps}
+        convertToYaml={convertToYaml}
+        onSubmit={handleSubmit}
+      />
+      <ContributeAlertGroup actionGroupAlertContent={actionGroupAlertContent} onCloseActionGroupAlert={onCloseActionGroupAlert} />
+      {isYamlModalOpen ? (
         <YamlFileUploadModal
-          isModalOpen={isYamlModalOpen}
-          setIsModalOpen={setIsYamlModalOpen}
+          onClose={() => setIsYamlModalOpen(false)}
           isKnowledgeForm={true}
           onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
           setActionGroupAlertContent={setActionGroupAlertContent}
         />
-
-        <ContributeAlertGroup actionGroupAlertContent={actionGroupAlertContent} onCloseActionGroupAlert={onCloseActionGroupAlert} />
-      </PageSection>
-    </PageGroup>
+      ) : null}
+    </>
   );
 };
 

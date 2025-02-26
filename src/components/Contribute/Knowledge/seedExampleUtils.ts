@@ -144,11 +144,7 @@ export const handleSeedExamplesAnswerInputChange = (
       : seedExample
   );
 
-export const handleSeedExamplesAnswerBlur = (
-  seedExamples: SeedExample[],
-  seedExampleIndex: number,
-  questionAndAnswerIndex: number
-): SeedExample[] =>
+export const handleSeedExamplesAnswerBlur = (seedExamples: SeedExample[], seedExampleIndex: number, questionAndAnswerIndex: number): SeedExample[] =>
   seedExamples.map((seedExample: SeedExample, index: number) =>
     index === seedExampleIndex
       ? {
@@ -210,34 +206,3 @@ export const createEmptySeedExample = (): SeedExample => ({
     }
   ]
 });
-
-export const yamlSeedExampleToFormSeedExample = (
-  yamlSeedExamples: { context: string; questions_and_answers: { question: string; answer: string }[] }[]
-): SeedExample[] => {
-  const mappedSeedExamples = yamlSeedExamples.map((yamlSeedExample) => {
-    const { msg: validationError, status: isContextValid } = validateContext(yamlSeedExample.context);
-    return {
-      immutable: true,
-      isExpanded: false,
-      context: yamlSeedExample.context,
-      isContextValid,
-      validationError,
-      questionAndAnswers: yamlSeedExample.questions_and_answers.map((qa) => {
-        const { msg: questionValidationError, status: isQuestionValid } = validateQuestion(qa.question);
-        const { msg: answerValidationError, status: isAnswerValid } = validateAnswer(qa.answer);
-        return {
-          immutable: true,
-          question: qa.question,
-          answer: qa.answer,
-          isQuestionValid,
-          questionValidationError,
-          isAnswerValid,
-          answerValidationError
-        };
-      })
-    };
-  });
-
-  devLog('Mapped Seed Examples from YAML:', mappedSeedExamples);
-  return mappedSeedExamples;
-};

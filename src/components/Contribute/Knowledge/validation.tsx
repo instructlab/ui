@@ -11,7 +11,7 @@ const hasDuplicateSeedExamples = (seedExamples: SeedExample[]): { duplicate: boo
   const contexts = new Set<string>();
   for (let index = 0; index < seedExamples.length; index++) {
     const seedExample = seedExamples[index];
-    if (seedExample.context  && !contexts.has(seedExample.context)) {
+    if (seedExample.context && !contexts.has(seedExample.context)) {
       contexts.add(seedExample.context);
     } else {
       return { duplicate: true, index: index };

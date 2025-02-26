@@ -55,10 +55,10 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
 
           const skillEditFormData: SkillEditFormData = {
             isEditForm: true,
-            skillVersion: SkillSchemaVersion,
+            version: SkillSchemaVersion,
             pullRequestNumber: 0,
             branchName: branchName,
-            skillFormData: skillExistingFormData,
+            formData: skillExistingFormData,
             oldFilesPath: ''
           };
 
@@ -87,13 +87,15 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
                       isExpanded: true,
                       context: seed.context || '',
                       isContextValid: ValidatedOptions.success,
-                      questionAndAnswers: [{
-                        immutable: index < 5 ? true : false,
-                        question: seed.question,
-                        isQuestionValid: ValidatedOptions.success,
-                        answer: seed.answer,
-                        isAnswerValid: ValidatedOptions.success
-                      }]
+                      questionAndAnswers: [
+                        {
+                          immutable: index < 5 ? true : false,
+                          question: seed.question,
+                          isQuestionValid: ValidatedOptions.success,
+                          answer: seed.answer,
+                          isAnswerValid: ValidatedOptions.success
+                        }
+                      ]
                     };
                     seedExamples.push(example);
                   });
@@ -101,10 +103,10 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
 
                   //Extract filePath from the existing qna.yaml file path
                   const currentFilePath = change.file.split('/').slice(1, -1).join('/');
-                  skillEditFormData.skillFormData.filePath = currentFilePath + '/';
+                  skillEditFormData.formData.filePath = currentFilePath + '/';
 
                   // Set the oldFilesPath to the existing qna.yaml file path.
-                  skillEditFormData.oldFilesPath = skillEditFormData.skillFormData.filePath;
+                  skillEditFormData.oldFilesPath = skillEditFormData.formData.filePath;
                 }
                 if (change.file.includes('attribution.txt')) {
                   const attributionData = parseAttributionContent(change.content);

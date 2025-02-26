@@ -53,9 +53,9 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
             isEditForm: true,
-            knowledgeVersion: KnowledgeSchemaVersion,
+            version: KnowledgeSchemaVersion,
             branchName: '',
-            knowledgeFormData: knowledgeExistingFormData,
+            formData: knowledgeExistingFormData,
             pullRequestNumber: prNumber,
             oldFilesPath: ''
           };
@@ -113,7 +113,7 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
 
           // Set the file path from the current YAML file (remove the root folder name from the path)
           const currentFilePath = foundYamlFile.filename.split('/').slice(1, -1).join('/');
-          knowledgeEditFormData.knowledgeFormData.filePath = currentFilePath + '/';
+          knowledgeEditFormData.formData.filePath = currentFilePath + '/';
 
           // Fetch and parse attribution file if it exists
           const foundAttributionFile = prFiles.find((file: PullRequestFile) => file.filename.includes('attribution'));
