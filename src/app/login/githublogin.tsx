@@ -82,7 +82,7 @@ const GithubLogin: React.FC = () => {
                 </Content>
               </Content>
               <div className="login-container">
-                <Button variant="primary" className='login-button' icon={<GithubIcon />} iconPosition="left" size="lg" onClick={handleGitHubLogin}>
+                <Button variant="primary" className="login-button" icon={<GithubIcon />} iconPosition="left" size="lg" onClick={handleGitHubLogin}>
                   Sign in with GitHub
                 </Button>
               </div>
