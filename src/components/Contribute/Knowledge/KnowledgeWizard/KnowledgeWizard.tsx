@@ -1,41 +1,43 @@
 // src/components/Contribute/Knowledge/Github/index.tsx
 'use client';
 import React, { useEffect, useState } from 'react';
-import '../knowledge.css';
+import './knowledge.css';
 import { useSession } from 'next-auth/react';
 import AuthorInformation from '@/components/Contribute/AuthorInformation';
 import KnowledgeInformation from '@/components/Contribute/Knowledge/KnowledgeInformation/KnowledgeInformation';
-import FilePathInformation from '@/components/Contribute/Knowledge/FilePathInformation/FilePathInformation';
+import FilePathInformation from '@/components/Contribute/FilePathInformation/FilePathInformation';
 import DocumentInformation from '@/components/Contribute/Knowledge/DocumentInformation/DocumentInformation';
-import SeedExamples from '@/components/Contribute/Knowledge/SeedExamples/SeedExamples';
+import KnowledgeSeedExamples from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamples';
 import { ContributionFormData, KnowledgeEditFormData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
 import { useRouter } from 'next/navigation';
-import ReviewSubmission from '../ReviewSubmission';
 import { ValidatedOptions, Button } from '@patternfly/react-core';
 import { devLog } from '@/utils/devlog';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
-import { addDocumentInfoToKnowledgeFormData } from '@/components/Contribute/Knowledge/documentUtils';
-import { createEmptySeedExample } from '@/components/Contribute/Knowledge/seedExampleUtils';
+import { addDocumentInfoToKnowledgeFormData } from '@/components/Contribute/Utils/documentUtils';
+import { createDefaultSeedExamples } from '@/components/Contribute/Utils/seedExampleUtils';
 import {
-  isAttributionInformationValid,
   isAuthInfoValid,
   isDocumentInfoValid,
   isFilePathInfoValid,
+  isKnowledgeAttributionInformationValid,
   isKnowledgeInfoValid,
   isSeedExamplesValid
-} from '@/components/Contribute/Knowledge/validationUtils';
+} from '@/components/Contribute/Utils/validationUtils';
 import {
   submitGithubKnowledgeData,
   submitNativeKnowledgeData,
   updateGithubKnowledgeData,
   updateNativeKnowledgeData
-} from '@/components/Contribute/Knowledge/submitUtils';
-import AttributionInformation from '@/components/Contribute/Knowledge/AttributionInformation/AttributionInformation';
+} from '@/components/Contribute/Utils/submitUtils';
+import AttributionInformation from '@/components/Contribute/AttributionInformation/AttributionInformation';
 import { ContributionWizard, StepStatus, StepType } from '@/components/Contribute/ContributionWizard/ContributionWizard';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import { YamlFileUploadModal } from '@/components/Contribute/YamlFileUploadModal';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
-import { addYamlUploadKnowledge } from '@/components/Contribute/uploadUtils';
+import { addYamlUploadKnowledge } from '@/components/Contribute/Utils/uploadUtils';
+import ReviewSubmission from '@/components/Contribute/ReviewSubmission/ReviewSubmission';
+
+import './knowledge.css';
 
 const DefaultKnowledgeFormData: KnowledgeFormData = {
   email: '',
@@ -44,7 +46,7 @@ const DefaultKnowledgeFormData: KnowledgeFormData = {
   domain: '',
   documentOutline: '',
   filePath: '',
-  seedExamples: [createEmptySeedExample(), createEmptySeedExample(), createEmptySeedExample(), createEmptySeedExample(), createEmptySeedExample()],
+  seedExamples: createDefaultSeedExamples(),
   knowledgeDocumentRepositoryUrl: '',
   knowledgeDocumentCommit: '',
   documentName: '',
@@ -168,6 +170,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         name: 'File Path Information',
         component: (
           <FilePathInformation
+            rootPath="knowledge"
             path={knowledgeFormData.filePath}
             setFilePath={(filePath) => setKnowledgeFormData((prev) => ({ ...prev, filePath }))}
           />
@@ -207,7 +210,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         id: STEP_IDS[4],
         name: 'Seed Examples',
         component: (
-          <SeedExamples
+          <KnowledgeSeedExamples
             isGithubMode={isGithubMode}
             seedExamples={knowledgeFormData.seedExamples}
             onUpdateSeedExamples={(seedExamples) => setKnowledgeFormData((prev) => ({ ...prev, seedExamples }))}
@@ -226,7 +229,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
               component: (
                 <AttributionInformation
                   isEditForm={knowledgeEditFormData?.isEditForm}
-                  knowledgeFormData={knowledgeFormData}
+                  contributionFormData={knowledgeFormData}
                   titleWork={knowledgeFormData.titleWork}
                   setTitleWork={(titleWork) => setKnowledgeFormData((prev) => ({ ...prev, titleWork }))}
                   linkWork={knowledgeFormData.linkWork}
@@ -239,14 +242,14 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
                   setCreators={(creators) => setKnowledgeFormData((prev) => ({ ...prev, creators }))}
                 />
               ),
-              status: isAttributionInformationValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
+              status: isKnowledgeAttributionInformationValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
             }
           ]
         : []),
       {
         id: STEP_IDS[6],
         name: 'Review Submission',
-        component: <ReviewSubmission knowledgeFormData={knowledgeFormData} isGithubMode={isGithubMode} />,
+        component: <ReviewSubmission isSkillContribution={false} contributionFormData={knowledgeFormData} isGithubMode={isGithubMode} />,
         status: StepStatus.Default
       }
     ],
@@ -321,13 +324,14 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
           </>
         }
         formData={knowledgeFormData}
-        setFormData={(formData: ContributionFormData) => setKnowledgeFormData(formData as KnowledgeFormData)}
+        setFormData={setKnowledgeFormData as React.Dispatch<React.SetStateAction<ContributionFormData>>}
         isGithubMode={isGithubMode}
         isSkillContribution={false}
         steps={steps}
         convertToYaml={convertToYaml}
         onSubmit={handleSubmit}
       />
+      <ContributeAlertGroup actionGroupAlertContent={actionGroupAlertContent} onCloseActionGroupAlert={onCloseActionGroupAlert} />
       <ContributeAlertGroup actionGroupAlertContent={actionGroupAlertContent} onCloseActionGroupAlert={onCloseActionGroupAlert} />
       {isYamlModalOpen ? (
         <YamlFileUploadModal

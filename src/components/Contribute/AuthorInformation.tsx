@@ -12,6 +12,7 @@ import {
   Content
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
+import { isEmailValid } from '@/components/Contribute/Utils/validationUtils';
 
 interface Props {
   email: string;
@@ -27,8 +28,7 @@ const AuthorInformation: React.FC<Props> = ({ email, setEmail, name, setName }) 
 
   const validateEmail = (emailStr: string) => {
     const email = emailStr.trim();
-    const re = /\S+@\S+\.\S+/;
-    if (re.test(email)) {
+    if (isEmailValid(email)) {
       setValidEmail(ValidatedOptions.success);
       setValidEmailError('');
       return;

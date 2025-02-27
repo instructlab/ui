@@ -23,7 +23,7 @@ import {
 } from '@patternfly/react-core';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { UploadFile } from '@/components/Contribute/Knowledge/UploadFile';
+import { UploadFile } from '@/components/Contribute/UploadFile';
 
 const GITHUB_KNOWLEDGE_FILES_URL = '/api/github/knowledge-files';
 const NATIVE_GIT_KNOWLEDGE_FILES_URL = '/api/native/git/knowledge-files';

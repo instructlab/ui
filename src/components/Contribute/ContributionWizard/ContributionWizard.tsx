@@ -46,7 +46,7 @@ export interface Props {
   description: React.ReactNode;
   editFormData?: EditFormData;
   formData: ContributionFormData;
-  setFormData: (updatedFormData: ContributionFormData) => void;
+  setFormData: React.Dispatch<React.SetStateAction<ContributionFormData>>;
   isGithubMode: boolean;
   isSkillContribution: boolean;
   steps: StepType[];
@@ -111,11 +111,11 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
             const fetchedUserInfo = await getGitHubUserInfo(headers);
             if (!canceled) {
               setGithubUsername(fetchedUserInfo.login);
-              setFormData({
-                ...formData,
+              setFormData((prev) => ({
+                ...prev,
                 name: fetchedUserInfo.name,
                 email: fetchedUserInfo.email
-              });
+              }));
             }
           } catch (error) {
             console.error('Failed to fetch GitHub user info:', error);
@@ -124,17 +124,17 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
       };
       fetchUserInfo();
     } else {
-      setFormData({
-        ...formData,
-        name: session?.user?.name ? session.user.name : formData.name,
-        email: session?.user?.email ? session.user.email : formData.email
-      });
+      setFormData((prev) => ({
+        ...prev,
+        name: session?.user?.name ? session.user.name : prev.name,
+        email: session?.user?.email ? session.user.email : prev.email
+      }));
     }
 
     return () => {
       canceled = true;
     };
-  }, [isGithubMode, session?.accessToken, session?.user?.name, session?.user?.email, setFormData, formData]);
+  }, [isGithubMode, session?.accessToken, session?.user?.name, session?.user?.email, setFormData]);
 
   const autoFillForm = (): void => {
     setFormData(isSkillContribution ? { ...autoFillSkillsFields } : { ...autoFillKnowledgeFields });
