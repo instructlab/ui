@@ -30,7 +30,8 @@ a {
   margin-top: 1rem;
   color: white !important;
   padding: 20px;
-  font-size: large !important;
+  font-size: xx-large !important;
+  font-weight: bold !important;
 }
 
 .description-text {
@@ -44,14 +45,11 @@ a {
 .urls-text {
   margin-top: 1rem;
   color: white;
-  padding: 20px;
   font-size: large;
 }
 
 .urls-text-medium {
-  margin-top: 1rem;
   color: white;
-  padding: 20px;
   text-align: center;
   font-size: medium;
 }
@@ -63,6 +61,11 @@ a {
   font-size: large;
 }
 
-.login-label {
-  color: white;
+.login-button {
+  background-color: black !important;
+  font-weight: bold !important;
+}
+
+.login-button:hover {
+  background-color: #252525 !important;
 }
