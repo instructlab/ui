@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { AttributionData, KnowledgeYamlData } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import yaml from 'js-yaml';
-import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, KnowledgeSeedExample } from '@/types';
+import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, SeedExample } from '@/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
@@ -63,9 +63,9 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
             isEditForm: true,
-            knowledgeVersion: KnowledgeSchemaVersion,
+            version: KnowledgeSchemaVersion,
             branchName: branchName,
-            knowledgeFormData: knowledgeExistingFormData,
+            formData: knowledgeExistingFormData,
             pullRequestNumber: 0,
             oldFilesPath: ''
           };
@@ -94,10 +94,10 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
                   knowledgeExistingFormData.knowledgeDocumentCommit = yamlData.document.commit;
                   knowledgeExistingFormData.documentName = yamlData.document.patterns.join(', ');
 
-                  const seedExamples: KnowledgeSeedExample[] = [];
+                  const seedExamples: SeedExample[] = [];
                   yamlData.seed_examples.forEach((seed, index) => {
                     // iterate through questions_and_answers and create a new object for each
-                    const example: KnowledgeSeedExample = {
+                    const example: SeedExample = {
                       immutable: index < 5 ? true : false,
                       isExpanded: true,
                       context: seed.context,

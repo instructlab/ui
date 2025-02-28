@@ -6,7 +6,6 @@ import {
   AlertActionCloseButton,
   AlertGroup,
   Button,
-  Content,
   Flex,
   FlexItem,
   Form,
@@ -23,7 +22,8 @@ import {
 } from '@patternfly/react-core';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
-import { UploadFile } from '@/components/Contribute/Knowledge/UploadFile';
+import { UploadFile } from '@/components/Contribute/UploadFile';
+import PageHeader from '@/components/Contribute/PageHeader';
 
 const GITHUB_KNOWLEDGE_FILES_URL = '/api/github/knowledge-files';
 const NATIVE_GIT_KNOWLEDGE_FILES_URL = '/api/native/git/knowledge-files';
@@ -217,8 +217,7 @@ const DocumentInformation: React.FC<Props> = ({
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <Content component="h4">Document Information</Content>
-        <Content component="p">{`Add the relevant document's information.`}</Content>
+        <PageHeader title="Document Information" description={`Add the relevant document's information.`} />
       </FlexItem>
       <FlexItem>
         <Form>

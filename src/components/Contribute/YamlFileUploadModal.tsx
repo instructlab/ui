@@ -5,33 +5,27 @@ import { Modal, ModalVariant, ModalHeader, ModalBody } from '@patternfly/react-c
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 
 interface Props {
-  isModalOpen: boolean;
-  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isKnowledgeForm: boolean;
   onYamlUploadKnowledgeFillForm?: (data: KnowledgeYamlData) => void;
   onYamlUploadSkillsFillForm?: (data: SkillYamlData) => void;
   setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
+  onClose: () => void;
 }
 
 export const YamlFileUploadModal: React.FunctionComponent<Props> = ({
-  isModalOpen,
-  setIsModalOpen,
   isKnowledgeForm,
   onYamlUploadKnowledgeFillForm,
   onYamlUploadSkillsFillForm,
-  setActionGroupAlertContent
+  setActionGroupAlertContent,
+  onClose
 }) => {
-  const handleModalToggle = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
   return (
     <React.Fragment>
       <Modal
         variant={ModalVariant.small}
         title="Variant modal"
-        isOpen={isModalOpen}
-        onClose={handleModalToggle}
+        isOpen
+        onClose={onClose}
         aria-labelledby="variant-modal-title"
         aria-describedby="modal-box-body-variant"
       >
@@ -39,7 +33,6 @@ export const YamlFileUploadModal: React.FunctionComponent<Props> = ({
         <ModalBody id="modal-box-body-variant">
           Uploading your YAML will bring in all its data and streamline the contribution process.
           <YamlFileUpload
-            setIsModalOpen={setIsModalOpen}
             isKnowledgeForm={isKnowledgeForm}
             onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
             onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}

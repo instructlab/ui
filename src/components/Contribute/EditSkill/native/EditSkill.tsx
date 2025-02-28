@@ -4,9 +4,8 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { SkillEditFormData } from '@/components/Contribute/Skill/Native';
 import yaml from 'js-yaml';
-import { SkillYamlData, AttributionData, SkillFormData, SkillSeedExample } from '@/types';
+import { SkillYamlData, AttributionData, SkillFormData, SkillEditFormData, SeedExample } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 import SkillFormNative from '../../Skill/Native';
@@ -56,9 +55,10 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
 
           const skillEditFormData: SkillEditFormData = {
             isEditForm: true,
-            skillVersion: SkillSchemaVersion,
+            version: SkillSchemaVersion,
+            pullRequestNumber: 0,
             branchName: branchName,
-            skillFormData: skillExistingFormData,
+            formData: skillExistingFormData,
             oldFilesPath: ''
           };
 
@@ -80,17 +80,22 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
                   const yamlData: SkillYamlData = yaml.load(change.content) as SkillYamlData;
                   console.log('Parsed skill YAML data:', yamlData);
                   skillExistingFormData.documentOutline = yamlData.task_description;
-                  const seedExamples: SkillSeedExample[] = [];
+                  const seedExamples: SeedExample[] = [];
                   yamlData.seed_examples.forEach((seed, index) => {
-                    const example: SkillSeedExample = {
+                    const example: SeedExample = {
                       immutable: index < 5 ? true : false,
                       isExpanded: true,
                       context: seed.context || '',
                       isContextValid: ValidatedOptions.success,
-                      question: seed.question,
-                      isQuestionValid: ValidatedOptions.success,
-                      answer: seed.answer,
-                      isAnswerValid: ValidatedOptions.success
+                      questionAndAnswers: [
+                        {
+                          immutable: index < 5 ? true : false,
+                          question: seed.question,
+                          isQuestionValid: ValidatedOptions.success,
+                          answer: seed.answer,
+                          isAnswerValid: ValidatedOptions.success
+                        }
+                      ]
                     };
                     seedExamples.push(example);
                   });
@@ -98,10 +103,10 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
 
                   //Extract filePath from the existing qna.yaml file path
                   const currentFilePath = change.file.split('/').slice(1, -1).join('/');
-                  skillEditFormData.skillFormData.filePath = currentFilePath + '/';
+                  skillEditFormData.formData.filePath = currentFilePath + '/';
 
                   // Set the oldFilesPath to the existing qna.yaml file path.
-                  skillEditFormData.oldFilesPath = skillEditFormData.skillFormData.filePath;
+                  skillEditFormData.oldFilesPath = skillEditFormData.formData.filePath;
                 }
                 if (change.file.includes('attribution.txt')) {
                   const attributionData = parseAttributionContent(change.content);
