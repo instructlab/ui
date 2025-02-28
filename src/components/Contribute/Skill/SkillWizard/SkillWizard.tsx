@@ -2,7 +2,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import AuthorInformation from '@/components/Contribute/AuthorInformation';
+import AuthorInformation from '@/components/Contribute/AuthorInformation/AuthorInformation';
 import FilePathInformation from '@/components/Contribute/FilePathInformation/FilePathInformation';
 import SeedExamples from '@/components/Contribute/SeedExamples/SeedExamples';
 import { ContributionFormData, KnowledgeFormData, KnowledgeYamlData, SkillEditFormData, SkillFormData, SkillYamlData } from '@/types';

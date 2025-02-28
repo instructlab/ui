@@ -1,8 +1,21 @@
 // src/components/Contribute/ReviewSubmission/ReviewSubmission.tsx
 import React from 'react';
 import { ContributionFormData, KnowledgeFormData } from '@/types';
-import { Content, ContentVariants, Form, Accordion, AccordionContent, AccordionItem, AccordionToggle } from '@patternfly/react-core';
-import './submission.css';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionToggle,
+  Flex,
+  DescriptionList,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  DescriptionListDescription,
+  FlexItem
+} from '@patternfly/react-core';
+import { t_global_spacer_sm as SmSpacerSize } from '@patternfly/react-tokens';
+import PageHeader from '@/components/Contribute/PageHeader';
+import ReviewSection from '@/components/Contribute/ReviewSubmission/ReviewSection';
 
 interface ReviewSubmissionProps {
   contributionFormData: ContributionFormData;
@@ -22,168 +35,206 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ contribution
 
   return (
     <>
-      <Form>
-        <section className="review-submission-container">
-          <Content component={ContentVariants.h2}>Review</Content>
-          <Content component={ContentVariants.p}>
-            Review the information below and click `Submit` to submit your skill contribution. Use the back button to make changes.
-          </Content>
-          {/* Author Information */}
-          <article>
-            <div className="info-wrapper">
-              <Content component={ContentVariants.p} className="submission-titles">
-                Contributor Information
-              </Content>
-              <Content component={ContentVariants.p} className="submission-subtitles">
-                Information required for a Github Developer Certificate of Origin (DCO) sign-off.
-              </Content>
-            </div>
+      <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+        <FlexItem>
+          <PageHeader
+            title="Review"
+            description="Review the information below and click `Submit` to submit your skill contribution. Use the back button to make changes."
+          />
+        </FlexItem>
 
-            <div className="contributors-wrapper">
-              <Content component={ContentVariants.h5} className="category-titles">
-                Contributors
-              </Content>
-              <Content component={ContentVariants.p}>{contributionFormData.name}</Content>
-              <Content component={ContentVariants.p}>{contributionFormData.email}</Content>
-            </div>
-          </article>
+        {/* Author Information */}
+        <FlexItem>
+          <ReviewSection
+            title="Contributor Information"
+            descriptionText="Information required for a Github Developer Certificate of Origin (DCO) sign-off."
+            descriptionItems={[
+              <DescriptionListGroup key="contributors">
+                <DescriptionListTerm>Contributors</DescriptionListTerm>
+                <DescriptionListDescription>
+                  <div>{contributionFormData.name}</div>
+                  <div>{contributionFormData.email}</div>
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+            ]}
+          />
+        </FlexItem>
 
-          {/* Information */}
-          <article>
-            <div className="info-wrapper">
-              <Content component={ContentVariants.p} className="submission-titles">
-                {isSkillContribution ? 'Skill' : 'Knowledge'} Information
-              </Content>
-              <Content component={ContentVariants.p} className="submission-subtitles">
-                Brief information about the Knowledge and the directory path for the QnA and Attribution files.
-              </Content>
-            </div>
+        {/* Knowledge/Skill Information */}
+        <FlexItem>
+          <ReviewSection
+            title={`${isSkillContribution ? 'Skill' : 'Knowledge'} Information`}
+            descriptionText={`Brief information about the ${isSkillContribution ? 'skill' : 'knowledge'}`}
+            descriptionItems={[
+              <DescriptionListGroup key="submission-summary">
+                <DescriptionListTerm>Submission summary</DescriptionListTerm>
+                <DescriptionListDescription>
+                  <div>{contributionFormData.submissionSummary}</div>
+                </DescriptionListDescription>
+              </DescriptionListGroup>,
+              ...(!isSkillContribution
+                ? [
+                    <DescriptionListGroup key="domain">
+                      <DescriptionListTerm>Domain</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        <div>{(contributionFormData as KnowledgeFormData).domain}</div>
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+                  ]
+                : []),
+              <DescriptionListGroup key="document-outline">
+                <DescriptionListTerm>Document outline</DescriptionListTerm>
+                <DescriptionListDescription>
+                  <div>{contributionFormData.documentOutline}</div>
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+            ]}
+          />
+        </FlexItem>
 
-            <Content component={ContentVariants.h5} className="category-titles">
-              Submission summary
-            </Content>
-            <Content component={ContentVariants.p}>{contributionFormData.submissionSummary}</Content>
-            <Content component={ContentVariants.h5} className="category-titles">
-              Domain
-            </Content>
-            {!isSkillContribution ? (
-              <>
-                <Content component={ContentVariants.p}>{(contributionFormData as KnowledgeFormData).domain}</Content>
-                <Content component={ContentVariants.h5} className="category-titles">
-                  Document Outline
-                </Content>
-                <Content component={ContentVariants.p}>{(contributionFormData as KnowledgeFormData).documentOutline}</Content>
-              </>
-            ) : null}
-          </article>
+        {/* File path */}
+        <FlexItem>
+          <ReviewSection
+            title="File path information"
+            descriptionText={`The directory location within taxonomy repository structure for the QnA Yaml${isGithubMode ? ' and Attribution files.' : '.'}`}
+            descriptionItems={[
+              <DescriptionListGroup key="file-path">
+                <DescriptionListTerm>File path</DescriptionListTerm>
+                <DescriptionListDescription>
+                  <div>{contributionFormData.filePath}</div>
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+            ]}
+          />
+        </FlexItem>
 
-          <article>
-            {/* Directory path */}
-            <Content component={ContentVariants.h5} className="category-titles">
-              Directory path
-            </Content>
-
-            <Content component={ContentVariants.p}>{contributionFormData.filePath}</Content>
-          </article>
-
-          {/* Seed Examples */}
-          <article>
-            <div className="info-wrapper">
-              <Content component={ContentVariants.p}>Seed Examples</Content>
-              <Content component={ContentVariants.p} className="submission-subtitles">
-                Data that will be used to start teaching your model.
-              </Content>
-            </div>
-
-            {contributionFormData.seedExamples?.map((seedExample, index) => (
-              <Accordion asDefinitionList={false} className="accordion-wrapper" key={`seed-${index}`}>
-                <AccordionItem isExpanded={!!expanded[index]} key={`accordion-item-${index}`}>
-                  <AccordionToggle onClick={() => onToggle(index)} id={`seed-example-toggle-${index}`} className="accordion-toggle-item">
-                    Sample {index + 1}
-                  </AccordionToggle>
-                  <AccordionContent id={`seed-example-content-${index}`}>
-                    <div className="accordion-content">
-                      <Content component={ContentVariants.h5} className="seed-category-titles">
-                        Context:
-                      </Content>{' '}
-                      {seedExample.context}
-                    </div>
-                    {seedExample.questionAndAnswers.map((qa, qaIndex) => (
-                      <React.Fragment key={`qa-${index}-${qaIndex}`}>
-                        <div className="accordion-content">
-                          <Content component={ContentVariants.h5} className="seed-category-titles">
-                            Question:
-                          </Content>{' '}
-                          {qa.question}
-                        </div>
-                        <div className="accordion-content">
-                          <Content component={ContentVariants.h5} className="seed-category-titles">
-                            Answer:
-                          </Content>{' '}
-                          {qa.answer}
-                        </div>
-                      </React.Fragment>
+        {/* Seed Examples */}
+        <FlexItem>
+          <ReviewSection
+            title="Seed examples"
+            descriptionText="Data that will be used to start teaching your model."
+            descriptionItems={[
+              <DescriptionListGroup key="examples">
+                <DescriptionListTerm>Examples</DescriptionListTerm>
+                <DescriptionListDescription>
+                  <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+                    {contributionFormData.seedExamples?.map((seedExample, index) => (
+                      <FlexItem key={`seed-${index}`}>
+                        <Accordion asDefinitionList={false}>
+                          <AccordionItem isExpanded={expanded[index]} key={`accordion-item-${index}`}>
+                            <AccordionToggle onClick={() => onToggle(index)} id={`seed-example-toggle-${index}`}>
+                              Sample {index + 1}
+                            </AccordionToggle>
+                            <AccordionContent id={`seed-example-content-${index}`} style={{ padding: SmSpacerSize.var }}>
+                              <DescriptionList isCompact>
+                                <DescriptionListGroup>
+                                  <DescriptionListTerm>Context</DescriptionListTerm>
+                                  <DescriptionListDescription>{seedExample.context}</DescriptionListDescription>
+                                </DescriptionListGroup>
+                                {seedExample.questionAndAnswers.map((qa, qaIndex) => (
+                                  <React.Fragment key={`qa-${index}-${qaIndex}`}>
+                                    <DescriptionListGroup>
+                                      <DescriptionListTerm>Question</DescriptionListTerm>
+                                      <DescriptionListDescription>{qa.question}</DescriptionListDescription>
+                                    </DescriptionListGroup>
+                                    <DescriptionListGroup>
+                                      <DescriptionListTerm>Answer</DescriptionListTerm>
+                                      <DescriptionListDescription>{qa.answer}</DescriptionListDescription>
+                                    </DescriptionListGroup>
+                                  </React.Fragment>
+                                ))}
+                              </DescriptionList>
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </FlexItem>
                     ))}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            ))}
-          </article>
+                  </Flex>
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+            ]}
+          />
+        </FlexItem>
 
-          {!isSkillContribution ? (
-            <>
-              {/* Document Information */}
-              <article>
-                <Content component={ContentVariants.p} className="category-titles">
-                  Document Information
-                </Content>
-                <Content component={ContentVariants.h5} className="category-titles">
-                  Repository URL
-                </Content>
-                <Content component={ContentVariants.p}>{(contributionFormData as KnowledgeFormData).knowledgeDocumentRepositoryUrl}</Content>
-                <Content component={ContentVariants.h5} className="category-titles">
-                  Commit
-                </Content>
-                <Content component={ContentVariants.p}>{(contributionFormData as KnowledgeFormData).knowledgeDocumentCommit}</Content>
-                <Content component={ContentVariants.h5} className="category-titles">
-                  Name
-                </Content>
-                <Content component={ContentVariants.p}>{(contributionFormData as KnowledgeFormData).documentName}</Content>
-              </article>
-            </>
-          ) : null}
+        {/* Document Information */}
+        {!isSkillContribution ? (
+          <FlexItem>
+            <ReviewSection
+              title="Document information"
+              descriptionText="Information describing the uploaded documents"
+              descriptionItems={[
+                <DescriptionListGroup key="repository-url">
+                  <DescriptionListTerm>Repository URL</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    <div>{(contributionFormData as KnowledgeFormData).knowledgeDocumentRepositoryUrl}</div>
+                  </DescriptionListDescription>
+                </DescriptionListGroup>,
+                <DescriptionListGroup key="commit-sha">
+                  <DescriptionListTerm>Commit SHA</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    <div>{(contributionFormData as KnowledgeFormData).knowledgeDocumentCommit}</div>
+                  </DescriptionListDescription>
+                </DescriptionListGroup>,
+                <DescriptionListGroup key="document-names">
+                  <DescriptionListTerm>Document names</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    <div>{(contributionFormData as KnowledgeFormData).documentName}</div>
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+              ]}
+            />
+          </FlexItem>
+        ) : null}
 
-          <article className="info-wrapper">
-            {/* Attribution Information */}
-            {isGithubMode && (
-              <div>
-                <Content component={ContentVariants.p}>
-                  <strong>Attribution Information</strong>
-                </Content>
-                <Content component={ContentVariants.p}>
-                  <i>Title of Work:</i> {contributionFormData.titleWork}
-                </Content>
-                {!isSkillContribution ? (
-                  <>
-                    <Content component={ContentVariants.p}>
-                      <i>Link to Work:</i> {(contributionFormData as KnowledgeFormData).linkWork}
-                    </Content>
-                    <Content component={ContentVariants.p}>
-                      <i>Revision:</i> {(contributionFormData as KnowledgeFormData).revision}
-                    </Content>
-                  </>
-                ) : null}
-                <Content component={ContentVariants.p}>
-                  <i>License of Work:</i> {contributionFormData.licenseWork}
-                </Content>
-                <Content component={ContentVariants.p}>
-                  <i>Creators:</i> {contributionFormData.creators}
-                </Content>
-              </div>
-            )}
-          </article>
-        </section>
-      </Form>
+        {/* Attribution Information */}
+        {isGithubMode ? (
+          <FlexItem>
+            <ReviewSection
+              title="Attribution information"
+              descriptionItems={[
+                ...(!isSkillContribution
+                  ? [
+                      <DescriptionListGroup key="work-link">
+                        <DescriptionListTerm>Work link or URL</DescriptionListTerm>
+                        <DescriptionListDescription>
+                          <div>{(contributionFormData as KnowledgeFormData).linkWork}</div>
+                        </DescriptionListDescription>
+                      </DescriptionListGroup>
+                    ]
+                  : []),
+                <DescriptionListGroup key="title-work">
+                  <DescriptionListTerm>Title of Work</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    <div>{contributionFormData.titleWork}</div>
+                  </DescriptionListDescription>
+                </DescriptionListGroup>,
+                ...(!isSkillContribution
+                  ? [
+                      <DescriptionListGroup key="revision">
+                        <DescriptionListTerm>Document revision</DescriptionListTerm>
+                        <DescriptionListDescription>
+                          <div>{(contributionFormData as KnowledgeFormData).revision}</div>
+                        </DescriptionListDescription>
+                      </DescriptionListGroup>
+                    ]
+                  : []),
+                <DescriptionListGroup key="license">
+                  <DescriptionListTerm>License</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    <div>{contributionFormData.licenseWork}</div>
+                  </DescriptionListDescription>
+                </DescriptionListGroup>,
+                <DescriptionListGroup key="creators">
+                  <DescriptionListTerm>Creators name</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    <div>{contributionFormData.creators}</div>
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+              ]}
+            />
+          </FlexItem>
+        ) : null}
+      </Flex>
     </>
   );
 };

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import './knowledge.css';
 import { useSession } from 'next-auth/react';
-import AuthorInformation from '@/components/Contribute/AuthorInformation';
+import AuthorInformation from '@/components/Contribute/AuthorInformation/AuthorInformation';
 import KnowledgeInformation from '@/components/Contribute/Knowledge/KnowledgeInformation/KnowledgeInformation';
 import FilePathInformation from '@/components/Contribute/FilePathInformation/FilePathInformation';
 import DocumentInformation from '@/components/Contribute/Knowledge/DocumentInformation/DocumentInformation';

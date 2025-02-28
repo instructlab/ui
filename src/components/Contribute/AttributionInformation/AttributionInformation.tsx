@@ -1,18 +1,8 @@
 import React, { useEffect } from 'react';
 import { ContributionFormData } from '@/types';
-import {
-  ValidatedOptions,
-  FormGroup,
-  TextInput,
-  FormHelperText,
-  HelperText,
-  HelperTextItem,
-  FlexItem,
-  Content,
-  Flex,
-  Form
-} from '@patternfly/react-core';
+import { ValidatedOptions, FormGroup, TextInput, FormHelperText, HelperText, HelperTextItem, FlexItem, Flex, Form } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
+import PageHeader from '@/components/Contribute/PageHeader';
 
 interface Props {
   isEditForm?: boolean;
@@ -101,8 +91,7 @@ const AttributionInformation: React.FC<Props> = ({
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <Content component="h4">Attribution Information</Content>
-        <Content component="p">Provide attribution information.</Content>
+        <PageHeader title="Attribution Information" description="Provide attribution information." />
       </FlexItem>
       <FlexItem>
         <Form>

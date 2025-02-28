@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { ValidatedOptions, Form, FormGroup, TextInput, HelperText, HelperTextItem, TextArea, Flex, FlexItem, Content } from '@patternfly/react-core';
+import { ValidatedOptions, Form, FormGroup, TextInput, HelperText, HelperTextItem, TextArea, Flex, FlexItem } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
+import PageHeader from '@/components/Contribute/PageHeader';
 
 interface Props {
   isEditForm?: boolean;
@@ -34,8 +35,7 @@ const SkillsInformation: React.FC<Props> = ({ isEditForm, submissionSummary, set
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <Content component="h4">Skill Information</Content>
-        <Content component="p">Provide brief information about the Skills.</Content>
+        <PageHeader title="Skill Information" description="Provide brief information about the Skills." />
       </FlexItem>
       <FlexItem>
         <Form>

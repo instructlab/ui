@@ -1,7 +1,7 @@
 // src/components/Contribute/Knowledge/Native/KnowledgeSeedExampleNative/KnowledgeQuestionAnswerPairsNative.tsx
 import React from 'react';
 import type { SeedExample } from '@/types';
-import { Accordion, AccordionContent, AccordionItem, AccordionToggle, Button, Content, Flex, FlexItem } from '@patternfly/react-core';
+import { Accordion, AccordionContent, AccordionItem, AccordionToggle, Button, Flex, FlexItem } from '@patternfly/react-core';
 import { ExternalLinkAltIcon, PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
 import QuestionAnswerPairs from '@/components/Contribute/SeedExamples/QuestionAnswerPairs';
 import {
@@ -14,6 +14,7 @@ import {
   handleSeedExamplesQuestionInputChange,
   toggleSeedExamplesExpansion
 } from '@/components/Contribute/Utils/seedExampleUtils';
+import PageHeader from '@/components/Contribute/PageHeader';
 
 interface Props {
   isSkillContribution: boolean;
@@ -65,24 +66,25 @@ const SeedExamples: React.FC<Props> = ({ isSkillContribution, seedExamples, onSe
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <Content component="h4">Seed Examples</Content>
-        <Content component="p">
-          Add seed examples with context and minimum 3 question and answer pairs. A minimum of five seed examples are required.{' '}
-          <Button
-            variant="link"
-            isInline
-            href="https://docs.instructlab.ai/taxonomy/knowledge/#knowledge-yaml-examples"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Flex gap={{ default: 'gapXs' }}>
-              <FlexItem>Learn more about seed examples</FlexItem>
-              <FlexItem>
-                <ExternalLinkAltIcon />
-              </FlexItem>
-            </Flex>
-          </Button>
-        </Content>
+        <PageHeader
+          title="Seed Examples"
+          description={
+            <>
+              Add seed examples with context and minimum 3 question and answer pairs. A minimum of five seed examples are required.{' '}
+              <Button
+                variant="link"
+                isInline
+                href="https://docs.instructlab.ai/taxonomy/knowledge/#knowledge-yaml-examples"
+                target="_blank"
+                rel="noopener noreferrer"
+                icon={<ExternalLinkAltIcon />}
+                iconPosition="end"
+              >
+                Learn more about seed examples
+              </Button>
+            </>
+          }
+        />
       </FlexItem>
       <FlexItem>
         <Accordion asDefinitionList={false}>

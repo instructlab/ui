@@ -1,18 +1,8 @@
 import React from 'react';
-import {
-  ValidatedOptions,
-  FormGroup,
-  TextInput,
-  FormHelperText,
-  HelperText,
-  HelperTextItem,
-  Form,
-  Flex,
-  FlexItem,
-  Content
-} from '@patternfly/react-core';
+import { ValidatedOptions, FormGroup, TextInput, FormHelperText, HelperText, HelperTextItem, Form, Flex, FlexItem } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { isEmailValid } from '@/components/Contribute/Utils/validationUtils';
+import PageHeader from '@/components/Contribute/PageHeader';
 
 interface Props {
   email: string;
@@ -46,8 +36,7 @@ const AuthorInformation: React.FC<Props> = ({ email, setEmail, name, setName }) 
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <Content component="h4">Author Information</Content>
-        <Content component="p">Provide your information required for a GitHub DCO sign-off.</Content>
+        <PageHeader title="Author Information" description="Provide your information required for a GitHub DCO sign-off." />
       </FlexItem>
       <FlexItem>
         <Form>
