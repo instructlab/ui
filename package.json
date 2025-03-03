@@ -23,7 +23,7 @@
     "@patternfly/react-core": "^6.1.0",
     "@patternfly/react-icons": "^6.0.0",
     "@patternfly/react-styles": "^6.0.0",
-    "axios": "^1.7.9",
+    "axios": "^1.8.1",
     "@patternfly/react-table": "^6.1.0",
     "@patternfly/virtual-assistant": "^2.0.2",
     "date-fns": "^4.1.0",
