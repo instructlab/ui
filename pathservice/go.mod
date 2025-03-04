@@ -1,6 +1,7 @@
 module github.com/ui/pathservice
 
-go 1.21.4
+go 1.23.0
+
 toolchain go1.23.6
 
 require github.com/spf13/cobra v1.9.1
