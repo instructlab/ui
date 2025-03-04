@@ -138,7 +138,9 @@ const ChatBotContainer: React.FC = () => {
       <ChatbotFooter>
         <MessageBar
           className={styles.chatBotMessageBar}
-          onSendMessage={setSubmittedMessage}
+          onSendMessage={(message) => {
+            setSubmittedMessage(typeof message === 'string' ? message : String(message));
+          }}
           hasMicrophoneButton
           hasAttachButton={false}
           isSendButtonDisabled={mainChatFetching || altChatFetching}
