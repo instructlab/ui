@@ -143,7 +143,7 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
       }
     };
     fetchPRData();
-  }, [session, prNumber]);
+  }, [session?.accessToken, prNumber]);
 
   const parseAttributionContent = (content: string): AttributionData => {
     const lines = content.split('\n');
