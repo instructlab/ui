@@ -54,8 +54,7 @@ const GithubAccessPopup: React.FunctionComponent<Props> = ({ onAccept }) => {
             that you’ve opened to contribute skills and knowledge.
           </li>
           <li>
-            Fork the InstructLab Taxonomy repo to your GitHub account and create PRs from this fork, which can merge
-            into the upstream Taxonomy repo.
+            Fork the InstructLab Taxonomy repo to your GitHub account and create PRs from this fork, which can merge into the upstream Taxonomy repo.
           </li>
           <li>
             Fork the{' '}
