@@ -53,14 +53,14 @@ const ChatModelEval: React.FC = () => {
   const [questionUnified, setQuestionUnified] = useState('');
 
   // States for left chat
-  const [questionLeft, setQuestionLeft] = useState('');
+  const [questionLeft, setQuestionLeft] = useState<string>('');
   const [messagesLeft, setMessagesLeft] = useState<MessageProps[]>([]);
   const [currentMessageLeft, setCurrentMessageLeft] = React.useState<string[]>([]);
   const [selectedModelLeft, setSelectedModelLeft] = useState<Model | null>(null);
   const [alertMessageLeft, setAlertMessageLeft] = useState<{ title: string; message: string; variant: 'danger' | 'info' } | undefined>(undefined);
 
   // States for right chat
-  const [questionRight, setQuestionRight] = useState('');
+  const [questionRight, setQuestionRight] = useState<string>('');
   const [messagesRight, setMessagesRight] = useState<MessageProps[]>([]);
   const [currentMessageRight, setCurrentMessageRight] = React.useState<string[]>([]);
   const [selectedModelRight, setSelectedModelRight] = useState<Model | null>(null);
@@ -723,11 +723,11 @@ const ChatModelEval: React.FC = () => {
               <ChatbotFooter className="pf-chatbot__footer">
                 <MessageBar
                   onSendMessage={(message) => {
-                    handleSendLeft(message);
+                    handleSendLeft(typeof message === 'string' ? message : String(message));
                   }}
                   hasAttachButton={false}
-                  onChange={(_, val: string) => {
-                    setQuestionLeft(val);
+                  onChange={(_, val) => {
+                    setQuestionLeft(typeof val === 'string' ? val : String(val));
                   }}
                   // value={questionLeft}
                   // placeholder="Type your prompt for the left model..."
@@ -849,11 +849,11 @@ const ChatModelEval: React.FC = () => {
               <ChatbotFooter className="pf-chatbot__footer">
                 <MessageBar
                   onSendMessage={(message) => {
-                    handleSendRight(message);
+                    handleSendRight(typeof message === 'string' ? message : String(message));
                   }}
                   hasAttachButton={false}
-                  onChange={(_, val: string) => {
-                    setQuestionRight(val);
+                  onChange={(_, val) => {
+                    setQuestionRight(typeof val === 'string' ? val : String(val));
                   }}
                   // value={questionRight}
                   // placeholder="Type your prompt for the right model..."
@@ -898,11 +898,11 @@ const ChatModelEval: React.FC = () => {
           <ChatbotFooter className="pf-chatbot__footer">
             <MessageBar
               onSendMessage={(message) => {
-                handleUnifiedSend(message);
+                handleUnifiedSend(typeof message === 'string' ? message : String(message));
               }}
               hasAttachButton={false}
-              onChange={(_, val: string) => {
-                setQuestionUnified(val);
+              onChange={(_, val) => {
+                setQuestionUnified(typeof val === 'string' ? val : String(val));
               }}
               // value={questionUnified}
               // placeholder="Type your prompt here and send to both models..."
