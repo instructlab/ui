@@ -3,12 +3,12 @@
 
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
-import { AttributionData, PullRequestFile, KnowledgeYamlData } from '@/types';
+import { AttributionData, PullRequestFile, KnowledgeYamlData, KnowledgeSeedExample } from '@/types';
 import { KnowledgeSchemaVersion } from '@/types/const';
 import { fetchPullRequest, fetchFileContent, fetchPullRequestFiles } from '@/utils/github';
 import yaml from 'js-yaml';
 import axios from 'axios';
-import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair, KnowledgeSeedExample } from '@/types';
+import { KnowledgeEditFormData, KnowledgeFormData, QuestionAndAnswerPair } from '@/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import KnowledgeFormGithub from '../../Knowledge/Github';
@@ -53,9 +53,9 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
             isEditForm: true,
-            knowledgeVersion: KnowledgeSchemaVersion,
+            version: KnowledgeSchemaVersion,
             branchName: '',
-            knowledgeFormData: knowledgeExistingFormData,
+            formData: knowledgeExistingFormData,
             pullRequestNumber: prNumber,
             oldFilesPath: ''
           };
@@ -87,7 +87,7 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
 
           const seedExamples: KnowledgeSeedExample[] = [];
           yamlData.seed_examples.forEach((seed, index) => {
-            // iterate through questions_and_answers and create a new object for each
+            // iterate through KnowledgeSeedExample and create a new object for each
             const example: KnowledgeSeedExample = {
               immutable: index < 5 ? true : false,
               isExpanded: true,
@@ -113,7 +113,7 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
 
           // Set the file path from the current YAML file (remove the root folder name from the path)
           const currentFilePath = foundYamlFile.filename.split('/').slice(1, -1).join('/');
-          knowledgeEditFormData.knowledgeFormData.filePath = currentFilePath + '/';
+          knowledgeEditFormData.formData.filePath = currentFilePath + '/';
 
           // Fetch and parse attribution file if it exists
           const foundAttributionFile = prFiles.find((file: PullRequestFile) => file.filename.includes('attribution'));
@@ -134,10 +134,10 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
         } catch (error) {
           if (axios.isAxiosError(error)) {
             console.error('Error fetching pull request data:', error.response ? error.response.data : error.message);
-            setLoadingMsg('Error fetching knowledge data from PR : ' + prNumber) + '. Please try again.';
+            setLoadingMsg('Error fetching knowledge data from PR : ' + prNumber + '. Please try again.');
           } else if (error instanceof Error) {
             console.error('Error fetching pull request data:', error.message);
-            setLoadingMsg('Error fetching knowledge data from PR : ' + prNumber + ' [' + error.message + ']') + '. Please try again.';
+            setLoadingMsg('Error fetching knowledge data from PR : ' + prNumber + ' [' + error.message + ']' + '. Please try again.');
           }
         }
       }

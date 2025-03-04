@@ -12,12 +12,13 @@ import {
   Button,
   ModalBody,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
+  Flex,
+  FlexItem
 } from '@patternfly/react-core';
 import { UploadIcon } from '@patternfly/react-icons';
 import React, { useState, useEffect } from 'react';
 import { FileRejection, DropEvent } from 'react-dropzone';
-import './knowledge.css';
 
 interface ReadFile {
   fileName: string;
@@ -271,42 +272,48 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ onFilesCh
         }}
         isHorizontal
       >
-        <MultipleFileUploadMain
-          titleIcon={<UploadIcon />}
-          titleText="Drag and drop files here or use upload button."
-          infoText={
-            <>
-              Accepted file types: PDF, DOCX, PPTX, XLSX, Images, HTML, AsciiDoc & Markdown. <br />
-              <strong>Non-Markdown files will be automatically converted to Markdown for context selection.</strong>
-            </>
-          }
-        />
-        <div className="spinner-container">
-          {isUploading && (
-            <>
-              <Spinner size="lg" />
-              <p>Uploading and converting files to Markdown file format…</p>
-            </>
-          )}
-        </div>
-        {showStatus && (
-          <MultipleFileUploadStatus
-            statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files processed`}
-            statusToggleIcon={statusIcon}
-            aria-label="Current uploads"
-          >
-            {currentFiles.map((file) => (
-              <MultipleFileUploadStatusItem
-                file={file}
-                key={file.name}
-                onClearClick={() => removeFiles([file.name])}
-                onReadSuccess={handleReadSuccess}
-                onReadFail={handleReadFail}
-                progressHelperText={createHelperText(file)}
-              />
-            ))}
-          </MultipleFileUploadStatus>
-        )}
+        <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+          <FlexItem>
+            <MultipleFileUploadMain
+              titleIcon={<UploadIcon />}
+              titleText="Drag and drop files here or use upload button."
+              infoText={
+                <>
+                  Accepted file types: PDF, DOCX, PPTX, XLSX, Images, HTML, AsciiDoc & Markdown. <br />
+                  <strong>Non-Markdown files will be automatically converted to Markdown for context selection.</strong>
+                </>
+              }
+            />
+          </FlexItem>
+          {isUploading ? (
+            <Flex alignItems={{ default: 'alignItemsCenter' }} justifyContent={{ default: 'justifyContentCenter' }} gap={{ default: 'gapMd' }}>
+              <FlexItem>
+                <Spinner size="lg" />
+              </FlexItem>
+              <FlexItem>Uploading and converting files to Markdown file format…</FlexItem>
+            </Flex>
+          ) : null}
+          {showStatus ? (
+            <FlexItem>
+              <MultipleFileUploadStatus
+                statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files processed`}
+                statusToggleIcon={statusIcon}
+                aria-label="Current uploads"
+              >
+                {currentFiles.map((file) => (
+                  <MultipleFileUploadStatusItem
+                    file={file}
+                    key={file.name}
+                    onClearClick={() => removeFiles([file.name])}
+                    onReadSuccess={handleReadSuccess}
+                    onReadFail={handleReadFail}
+                    progressHelperText={createHelperText(file)}
+                  />
+                ))}
+              </MultipleFileUploadStatus>
+            </FlexItem>
+          ) : null}
+        </Flex>
         <Modal
           isOpen={!!modalText}
           title="File Conversion Issue"

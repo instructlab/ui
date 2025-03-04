@@ -78,32 +78,6 @@ export interface PullRequestUpdateData {
   body: string;
 }
 
-export interface SkillSeedExample {
-  immutable: boolean;
-  isExpanded: boolean;
-  context?: string;
-  isContextValid?: ValidatedOptions;
-  validationError?: string;
-  question: string;
-  isQuestionValid: ValidatedOptions;
-  questionValidationError?: string;
-  answer: string;
-  isAnswerValid: ValidatedOptions;
-  answerValidationError?: string;
-}
-
-export interface SkillFormData {
-  email: string;
-  name: string;
-  submissionSummary: string;
-  documentOutline: string;
-  filePath: string;
-  seedExamples: SkillSeedExample[];
-  titleWork: string;
-  licenseWork: string;
-  creators: string;
-}
-
 export interface QuestionAndAnswerPair {
   immutable: boolean;
   question: string;
@@ -114,38 +88,57 @@ export interface QuestionAndAnswerPair {
   answerValidationError?: string;
 }
 
-export interface KnowledgeSeedExample {
+export interface SeedExample {
   immutable: boolean;
   isExpanded: boolean;
-  context: string;
-  isContextValid: ValidatedOptions;
+  isContextValid?: ValidatedOptions;
   validationError?: string;
+}
+
+export interface SkillSeedExample extends SeedExample {
+  context?: string;
+  questionAndAnswer: QuestionAndAnswerPair;
+}
+
+export interface KnowledgeSeedExample extends SeedExample {
+  context: string;
   questionAndAnswers: QuestionAndAnswerPair[];
 }
 
-export interface KnowledgeFormData {
+export interface ContributionFormData {
   email: string;
   name: string;
   submissionSummary: string;
-  domain: string;
   documentOutline: string;
   filePath: string;
-  seedExamples: KnowledgeSeedExample[];
-  knowledgeDocumentRepositoryUrl: string;
-  knowledgeDocumentCommit: string;
-  documentName: string;
   titleWork: string;
-  linkWork: string;
-  revision: string;
   licenseWork: string;
   creators: string;
 }
 
-export interface KnowledgeEditFormData {
+export interface SkillFormData extends ContributionFormData {
+  seedExamples: SkillSeedExample[];
+}
+
+export interface KnowledgeFormData extends ContributionFormData {
+  domain: string;
+  knowledgeDocumentRepositoryUrl: string;
+  knowledgeDocumentCommit: string;
+  documentName: string;
+  linkWork: string;
+  revision: string;
+  seedExamples: KnowledgeSeedExample[];
+}
+
+export interface EditFormData<T extends ContributionFormData = SkillFormData> {
   isEditForm: boolean;
-  knowledgeVersion: number;
+  version: number;
   pullRequestNumber: number;
   branchName: string;
   oldFilesPath: string;
-  knowledgeFormData: KnowledgeFormData;
+  formData: T;
 }
+
+export type SkillEditFormData = EditFormData;
+
+export type KnowledgeEditFormData = EditFormData<KnowledgeFormData>;

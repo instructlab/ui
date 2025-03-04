@@ -6,7 +6,6 @@ import {
   AlertActionCloseButton,
   AlertGroup,
   Button,
-  Content,
   Flex,
   FlexItem,
   Form,
@@ -24,6 +23,7 @@ import {
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { UploadFile } from '@/components/Contribute/Knowledge/UploadFile';
+import PageHeader from '@/components/Contribute/PageHeader';
 
 const GITHUB_KNOWLEDGE_FILES_URL = '/api/github/knowledge-files';
 const NATIVE_GIT_KNOWLEDGE_FILES_URL = '/api/native/git/knowledge-files';
@@ -217,8 +217,7 @@ const DocumentInformation: React.FC<Props> = ({
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <Content component="h4">Document Information</Content>
-        <Content component="p">{`Add the relevant document's information.`}</Content>
+        <PageHeader title="Document Information" description={`Add the relevant document's information.`} />
       </FlexItem>
       <FlexItem>
         <Form>
@@ -303,10 +302,16 @@ const DocumentInformation: React.FC<Props> = ({
             </>
           ) : (
             <FormGroup isRequired label="Uploaded files">
-              <UploadFile onFilesChange={handleFilesChange} />
-              <Button variant="primary" onClick={handleDocumentUpload} isDisabled={uploadedFiles.length === 0}>
-                Submit Files
-              </Button>
+              <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+                <FlexItem>
+                  <UploadFile onFilesChange={handleFilesChange} />
+                </FlexItem>
+                <FlexItem>
+                  <Button variant="primary" onClick={handleDocumentUpload} isDisabled={uploadedFiles.length === 0}>
+                    Submit Files
+                  </Button>
+                </FlexItem>
+              </Flex>
             </FormGroup>
           )}
         </Form>

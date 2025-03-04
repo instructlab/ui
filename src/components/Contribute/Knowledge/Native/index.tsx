@@ -1,7 +1,6 @@
 // src/components/Contribute/Native/Knowledge/index.tsx
 'use client';
 import React from 'react';
-import '../knowledge.css';
 import { KnowledgeEditFormData } from '@/types';
 import KnowledgeWizard from '@/components/Contribute/Knowledge/KnowledgeWizard/KnowledgeWizard';
 

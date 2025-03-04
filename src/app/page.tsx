@@ -10,11 +10,9 @@ import { AppLayout } from '../components/AppLayout';
 const HomePage: React.FC = () => {
   const [isWarningConditionAccepted, setIsWarningConditionAccepted] = useState<boolean>(false);
 
-  const handleWarningConditionAccepted = () => {
-    if (!isWarningConditionAccepted) {
-      setIsWarningConditionAccepted(true);
-    }
-  };
+  const handleWarningConditionAccepted = React.useCallback(() => {
+    setIsWarningConditionAccepted(true);
+  }, []);
 
   return (
     <AppLayout>
