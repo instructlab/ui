@@ -68,7 +68,14 @@ usage_uninstall() {
 # Check if Podman is installed
 check_podman() {
 	if ! command -v podman &>/dev/null; then
-		echo -e "${red}Podman is not installed!.${reset}\n"
+		echo -e "${red}Podman is not installed!. Podman is mandatory requirement for UI.${reset}\n"
+		exit 1
+	fi
+}
+
+check_git() {
+	if ! command -v git &>/dev/null; then
+		echo -e "${red}Git is not installed!. Git is mandatory requirement for UI${reset}\n"
 		exit 1
 	fi
 }
@@ -147,11 +154,11 @@ verify_user_taxonomy() {
 				echo -e "${red}and it's not same as provided by the user - $USER_TAXONOMY_DIR${reset}\n"
 				echo -e "${blue}It's recommended to use the taxonomy repo configured for the ilab CLI.${reset}\n"
 				echo -e "${blue}In case you do not choose ilab configured taxonomy, data generation and fine tune features will not work.${reset}\n"
-				echo -e "${blue}But skill and knowledge contribution features should work as expected.${reset}\n"
+				echo -e "${blue}But skills and knowledge contribution features should work as expected.${reset}\n"
 				echo -e "${red}Please choose the taxonomy repo you would like to use with InstructLab UI:${reset}"
 				echo -e "${red}1. ilab Taxonomy - $DISCOVERED_TAXONOMY_DIR${reset}"
-				echo -e "${red}2. Provided Taxonomy - $USER_TAXONOMY_DIR${reset}"
-				read -r -p "Please choose the taxonomy repo you would like to use with InstructLab UI? (1/2): " CHOICE
+				echo -e "${red}2. User provided Taxonomy - $USER_TAXONOMY_DIR${reset}"
+				read -r -p "Use following taxonomy repo with InstructLab UI (1/2): " CHOICE
 				if [[ "$CHOICE" == "1" ]]; then
 					SELECTED_TAXONOMY_DIR=$DISCOVERED_TAXONOMY_DIR
 				else
@@ -164,6 +171,30 @@ verify_user_taxonomy() {
 		fi
 	fi
 	SELECTED_TAXONOMY_DIR=$USER_TAXONOMY_DIR
+}
+
+# Check if the selected taxonomy is empty. If not, make sure it's git initialized repository.
+check_taxonomy_readiness() {
+	local TAXONOMY_DIR="$1"
+	# Check if the directory exists
+	if [ ! -d "$TAXONOMY_DIR" ]; then
+		echo -e "${red}Selected taxonomy repository directory does not exist. Taxonomy repository is a mandatory requirement for UI installation.${reset}\n"
+		exit 1
+	fi
+
+	# Check if the directory is empty
+	if [ -z "$(ls -A "$TAXONOMY_DIR" 2>/dev/null)" ]; then
+		echo -e "${red}Selected taxonomy repository directory is empty. Seems like taxonomy repository is not cloned?.${reset}\n"
+		exit 1
+	fi
+
+	# Check if the directory is a Git repository
+	if git -C "$TAXONOMY_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+		echo -e "${green}Selected taxonomy repository directory is properly setup and ready for use.${reset}\n"
+	else
+		echo -e "${red}Selected taxonomy repository directory is not a git repository. Seems like taxonomy repository is not cloned?.${reset}\n"
+		exit 1
+	fi
 }
 
 # Discover python virtual environments on host
@@ -240,6 +271,17 @@ discover_ilab() {
 
 }
 
+normalize_taxonomy_path() {
+	if [[ "$USER_TAXONOMY_DIR" != /* ]]; then
+		if ! command -v realpath &>/dev/null; then
+			USER_TAXONOMY_DIR=$(realpath "$USER_TAXONOMY_DIR" 2>/dev/null)
+		else
+			USER_TAXONOMY_DIR="$(cd "$(dirname "$USER_TAXONOMY_DIR")" && pwd)/$(basename "$USER_TAXONOMY_DIR")"
+		fi
+		echo -e "${blue} Taxonomy path normalized to absolute path $USER_TAXONOMY_DIR${reset}\n"
+	fi
+}
+
 # Parse input arguments
 if [[ $# -lt 1 ]]; then
 	usage
@@ -261,6 +303,7 @@ if [[ "$COMMAND" == "install" ]]; then
 			;;
 		--taxonomy-dir)
 			USER_TAXONOMY_DIR=$(echo "$2" | sed 's/^ *//;s/ *$//')
+			normalize_taxonomy_path
 			shift 2
 			;;
 		--auth-url)
@@ -297,6 +340,7 @@ if [[ "$COMMAND" == "install" ]]; then
 	fi
 
 	check_podman
+	check_git
 	check_ports
 	check_ui_stack
 
@@ -305,7 +349,11 @@ if [[ "$COMMAND" == "install" ]]; then
 		verify_user_pyenv
 	else
 		discover_ilab
-		echo -e "\n${blue}NOTE: If you are using python virtual environment for InstructLab setup, you can use --python-venv-dir option to skip the discovery.${reset}\n"
+		if [[ "$DISCOVERED_PYENV_DIR" == "" ]]; then
+			IS_ILAB_INSTALLED="false"
+		else
+			echo -e "\n${blue}NOTE: If you are using python virtual environment for InstructLab setup, you can use --python-venv-dir option to skip the discovery.${reset}\n"
+		fi
 	fi
 
 	# ilab is not set up and the user didn't provide that taxonomy info as well. Exit with warning info.
@@ -313,8 +361,8 @@ if [[ "$COMMAND" == "install" ]]; then
 		if [[ "$USER_TAXONOMY_DIR" == "" ]]; then
 			echo -e "${red}Given that ilab is not set up on the host, taxonomy repo is not discovered.${reset}\n"
 			echo -e "${red}To proceed with the installation please do one of the following:${reset}"
-			echo -e "${red}1. Clone the taxonomy repo and provide the path to the directory using '--taxonomy-dir' option.${reset}"
-			echo -e "${red}2. Set up the ilab. If using virtual environment to set up the ilab, use --python-venv-dir option to virtual environment directory.${reset}"
+			echo -e "${red}1. Clone the taxonomy repo and provide the absolute path to the directory using '--taxonomy-dir' option.${reset}"
+			echo -e "${red}2. Set up the ilab. If using virtual environment to set up the ilab, use --python-venv-dir option to provide virtual environment directory.${reset}"
 			exit 1
 		fi
 	fi
@@ -342,6 +390,9 @@ if [[ "$COMMAND" == "install" ]]; then
 			IS_ILAB_INSTALLED="false"
 		fi
 	fi
+
+	echo -e "${green}Check readiness for taxonomy repository directory : $SELECTED_TAXONOMY_DIR${reset}\n"
+	check_taxonomy_readiness "$SELECTED_TAXONOMY_DIR"
 
 	echo -e "${green}Starting InstructLab UI installation...${reset}\n"
 	echo -e "${green}InstructLab UI will be set up with taxonomy present in $SELECTED_TAXONOMY_DIR.${reset}\n"
