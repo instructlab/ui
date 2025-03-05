@@ -130,7 +130,7 @@ export const handleKnowledgeSeedExamplesContextInputChange = (
   contextValue: string,
   validate = false
 ): KnowledgeSeedExample[] => {
-  const { msg, status } = validateContext(seedExamples[seedExampleIndex].context);
+  const { msg, status } = validateContext(contextValue);
   return seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
     index === seedExampleIndex
       ? {

@@ -68,7 +68,7 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, on
       }
     };
 
-    if (fileSelectIndex > 0 && !knowledgeFiles.length) {
+    if (fileSelectIndex >= 0 && !knowledgeFiles.length) {
       fetchKnowledgeFiles();
     }
   }, [fileSelectIndex, isGithubMode, knowledgeFiles.length]);
@@ -78,7 +78,7 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, on
   };
 
   const handleSelectContextInput = (contextValue: string) => {
-    handleKnowledgeSeedExamplesContextInputChange(seedExamples, fileSelectIndex, contextValue, true);
+    onUpdateSeedExamples(handleKnowledgeSeedExamplesContextInputChange(seedExamples, fileSelectIndex, contextValue, true));
   };
 
   const handleContextBlur = (seedExampleIndex: number): void => {

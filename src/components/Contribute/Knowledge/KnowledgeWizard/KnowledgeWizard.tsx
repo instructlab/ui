@@ -67,36 +67,31 @@ const STEP_IDS = ['author-info', 'knowledge-info', 'file-path-info', 'document-i
 
 export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData, isGithubMode }) => {
   const { data: session } = useSession();
-  const [knowledgeFormData, setKnowledgeFormData] = React.useState<KnowledgeFormData>(knowledgeEditFormData?.formData || DefaultKnowledgeFormData);
+  const [knowledgeFormData, setKnowledgeFormData] = React.useState<KnowledgeFormData>(
+    knowledgeEditFormData?.formData
+      ? {
+          ...knowledgeEditFormData.formData,
+          seedExamples: knowledgeEditFormData.formData.seedExamples.map((example) => ({
+            ...example,
+            immutable: example.immutable !== undefined ? example.immutable : true, // Ensure immutable is set
+            isContextValid: example.isContextValid || ValidatedOptions.default,
+            validationError: example.validationError || '',
+            questionAndAnswers: example.questionAndAnswers.map((qa) => ({
+              ...qa,
+              immutable: qa.immutable !== undefined ? qa.immutable : true, // Ensure immutable is set
+              isQuestionValid: qa.isQuestionValid || ValidatedOptions.default,
+              questionValidationError: qa.questionValidationError || '',
+              isAnswerValid: qa.isAnswerValid || ValidatedOptions.default,
+              answerValidationError: qa.answerValidationError || ''
+            }))
+          }))
+        }
+      : DefaultKnowledgeFormData
+  );
   const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
   const [isYamlModalOpen, setIsYamlModalOpen] = useState<boolean>(false); // **New State Added**
 
   const router = useRouter();
-
-  useEffect(() => {
-    // Set all elements from the knowledgeFormData to the state
-    if (knowledgeEditFormData) {
-      setKnowledgeFormData({
-        ...knowledgeEditFormData.formData,
-        seedExamples: knowledgeEditFormData.formData.seedExamples.map((example) => ({
-          ...example,
-          immutable: example.immutable !== undefined ? example.immutable : true, // Ensure immutable is set
-          isContextValid: example.isContextValid || ValidatedOptions.default,
-          validationError: example.validationError || '',
-          questionAndAnswers: example.questionAndAnswers.map((qa) => ({
-            ...qa,
-            immutable: qa.immutable !== undefined ? qa.immutable : true, // Ensure immutable is set
-            isQuestionValid: qa.isQuestionValid || ValidatedOptions.default,
-            questionValidationError: qa.questionValidationError || '',
-            isAnswerValid: qa.isAnswerValid || ValidatedOptions.default,
-            answerValidationError: qa.answerValidationError || ''
-          }))
-        }))
-      });
-
-      devLog('Seed Examples Set from Edit Form Data:', knowledgeEditFormData.formData.seedExamples);
-    }
-  }, [knowledgeEditFormData]);
 
   // Function to append document information (Updated for single repositoryUrl and commitSha)
   // Within src/components/Contribute/Native/index.tsx
