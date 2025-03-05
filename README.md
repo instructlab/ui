@@ -18,6 +18,8 @@ Current scope of the project is to work on following personas:
 
 The technical overview and developer docs for getting started can be found [here](docs/development.md).
 
+The UI can be installed and run locally by following the instruction [here](installers/podman/README.md).
+
 ## Contributing
 
 If you have suggestions for how InstructLab UI can be improved, please open an [issue](https://github.com/instructlab/ui/issues) and tag it with `user suggested` label. We'd love all and any contributions.
