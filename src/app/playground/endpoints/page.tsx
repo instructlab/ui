@@ -32,16 +32,26 @@ import {
 } from '@patternfly/react-core';
 import { EyeSlashIcon, EyeIcon } from '@patternfly/react-icons';
 
+enum ModelStatus {
+  AVAILABLE = "available",
+  UNAVAILABLE = "unavailable",
+  UNKNOWN = "unknown",
+}
+
 interface ExtendedEndpoint extends Endpoint {
   isApiKeyVisible?: boolean;
+  status?: ModelStatus;
 }
 
 const EndpointsPage: React.FC = () => {
   const [endpoints, setEndpoints] = useState<ExtendedEndpoint[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentEndpoint, setCurrentEndpoint] = useState<Partial<ExtendedEndpoint> | null>(null);
+  const [endpointName, setEndpointName] = useState('');
+  const [endpointDescription, setEndpointDescription] = useState('');
   const [url, setUrl] = useState('');
   const [modelName, setModelName] = useState('');
+  const [modelDescription, setModelDescription] = useState('');
   const [apiKey, setApiKey] = useState('');
 
   useEffect(() => {
@@ -70,8 +80,11 @@ const EndpointsPage: React.FC = () => {
     if (currentEndpoint) {
       const updatedEndpoint: ExtendedEndpoint = {
         id: currentEndpoint.id || uuidv4(),
+        name: endpointName,
+        description: endpointDescription,
         url: updatedUrl,
         modelName: modelName,
+        modelDescription: modelDescription,
         apiKey: apiKey,
         isApiKeyVisible: false
       };
@@ -83,8 +96,11 @@ const EndpointsPage: React.FC = () => {
       setEndpoints(updatedEndpoints);
       localStorage.setItem('endpoints', JSON.stringify(updatedEndpoints));
       setCurrentEndpoint(null);
+      setEndpointName('');
+      setEndpointDescription('');
       setUrl('');
       setModelName('');
+      setModelDescription('');
       setApiKey('');
       handleModalToggle();
     }
@@ -98,16 +114,22 @@ const EndpointsPage: React.FC = () => {
 
   const handleEditEndpoint = (endpoint: ExtendedEndpoint) => {
     setCurrentEndpoint(endpoint);
+    setEndpointName(endpoint.name)
+    setEndpointDescription(endpoint.description)
     setUrl(endpoint.url);
     setModelName(endpoint.modelName);
+    setModelDescription(endpoint.modelDescription);
     setApiKey(endpoint.apiKey);
     handleModalToggle();
   };
 
   const handleAddEndpoint = () => {
-    setCurrentEndpoint({ id: '', url: '', modelName: '', apiKey: '', isApiKeyVisible: false });
+    setCurrentEndpoint({ id: '', name: '', description: '', url: '', modelName: '', modelDescription: '', apiKey: '', isApiKeyVisible: false });
+    setEndpointName('');
+    setEndpointDescription('');
     setUrl('');
     setModelName('');
+    setModelDescription('');
     setApiKey('');
     handleModalToggle();
   };
@@ -163,6 +185,12 @@ const EndpointsPage: React.FC = () => {
               <DataListItemRow wrapModifier="breakWord">
                 <DataListItemCells
                   dataListCells={[
+                    <DataListCell key="name">
+                    <strong>Endpoint Name:</strong> {endpoint.name}
+                    </DataListCell>,
+                    <DataListCell key="description">
+                      <strong>Endpoint Description:</strong> {endpoint.description}
+                    </DataListCell>,
                     <DataListCell key="url">
                       <strong>URL:</strong> {endpoint.url}
                     </DataListCell>,
