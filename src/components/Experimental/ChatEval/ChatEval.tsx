@@ -206,7 +206,8 @@ const ChatModelEval: React.FC = () => {
         const servedModel: Model = {
           name: 'Granite base model (Serving)',
           apiURL: `${modelServerURL}:8000`, // endpoint for base model
-          modelName: 'granite-base'
+          modelName: 'granite-base',
+          enabled: true
         };
 
         if (side === 'left') {
@@ -218,7 +219,8 @@ const ChatModelEval: React.FC = () => {
         const servedModel: Model = {
           name: 'Granite fine tune checkpoint (Serving)',
           apiURL: `${modelServerURL}:8001`, // endpoint for latest checkpoint
-          modelName: 'granite-latest'
+          modelName: 'granite-latest',
+          enabled: true
         };
 
         if (side === 'left') {

@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
     const { question, systemRole } = await req.json();
     const apiURL = req.nextUrl.searchParams.get('apiURL');
     const modelName = req.nextUrl.searchParams.get('modelName');
+    const apiKey = req.nextUrl.searchParams.get('apiKey');
 
     if (!apiURL || !modelName) {
       return new NextResponse('Missing API URL or Model Name', { status: 400 });
@@ -26,16 +27,34 @@ export async function POST(req: NextRequest) {
       stream: true
     };
 
-    const agent = new https.Agent({
-      rejectUnauthorized: false
-    });
+    let agent: https.Agent;
+    if (apiKey && apiKey != '') {
+      agent = new https.Agent({
+        rejectUnauthorized: true
+      });
+    } else {
+      agent = new https.Agent({
+        rejectUnauthorized: false
+      });
+    }
+
+    let headers: HeadersInit;
+    if (apiKey && apiKey != '') {
+      headers = {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
+        Authorization: `Bearer: ${apiKey}`
+      };
+    } else {
+      headers = {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream'
+      };
+    }
 
     const chatResponse = await fetch(`${apiURL}/v1/chat/completions`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        accept: 'application/json'
-      },
+      headers: headers,
       body: JSON.stringify(requestData),
       agent: apiURL.startsWith('https') ? agent : undefined
     });

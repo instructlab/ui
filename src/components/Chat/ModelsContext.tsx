@@ -29,18 +29,19 @@ const ModelsContextProvider: React.FC<ModelsProviderProps> = ({ children }) => {
       const envConfig = await response.json();
 
       const defaultModels: Model[] = [
-        { isDefault: true, name: 'Granite-7b', apiURL: envConfig.GRANITE_API, modelName: envConfig.GRANITE_MODEL_NAME },
-        { isDefault: true, name: 'Merlinite-7b', apiURL: envConfig.MERLINITE_API, modelName: envConfig.MERLINITE_MODEL_NAME }
+        { isDefault: true, name: 'Granite-7b', apiURL: envConfig.GRANITE_API, modelName: envConfig.GRANITE_MODEL_NAME, enabled: true },
+        { isDefault: true, name: 'Merlinite-7b', apiURL: envConfig.MERLINITE_API, modelName: envConfig.MERLINITE_MODEL_NAME, enabled: true }
       ];
 
       const storedEndpoints = localStorage.getItem('endpoints');
-
       const customModels = storedEndpoints
         ? JSON.parse(storedEndpoints).map((endpoint: Endpoint) => ({
             isDefault: false,
             name: endpoint.modelName,
             apiURL: `${endpoint.url}`,
-            modelName: endpoint.modelName
+            modelName: endpoint.modelName,
+            enabled: endpoint.enabled,
+            apiKey: endpoint.apiKey
           }))
         : [];
 
