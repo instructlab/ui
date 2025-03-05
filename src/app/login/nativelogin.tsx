@@ -36,6 +36,9 @@ const NativeLogin: React.FunctionComponent = () => {
       <Grid hasGutter span={12}>
         <GridItem span={6} className="login-container">
           <Content>
+          <Content component="p" className="description-text">
+          New to GitHub?<a href="https://github.com/signup?return_to=https%3A%2F%2Fgithub.com%2Finstructlab%2F&source=login"  style={{ textDecoration: 'underline' }} target="_blank">Create an account</a>
+           </Content>
             <Content component="p" className="sign-in-text">
               Login with the credentials
             </Content>
