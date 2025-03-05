@@ -57,35 +57,31 @@ const STEP_IDS = ['author-info', 'skill-info', 'file-path-info', 'document-info'
 
 export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData, isGithubMode }) => {
   const { data: session } = useSession();
-  const [skillFormData, setSkillFormData] = React.useState<SkillFormData>(skillEditFormData?.formData || DefaultSkillFormData);
+  const [skillFormData, setSkillFormData] = React.useState<SkillFormData>(
+    skillEditFormData?.formData
+      ? {
+          ...skillEditFormData.formData,
+          seedExamples: skillEditFormData.formData.seedExamples.map((example) => ({
+            ...example,
+            immutable: example.immutable !== undefined ? example.immutable : true, // Ensure immutable is set
+            isContextValid: example.isContextValid || ValidatedOptions.default,
+            validationError: example.validationError || '',
+            questionAndAnswer: {
+              ...example.questionAndAnswer,
+              immutable: example.questionAndAnswer.immutable !== undefined ? example.questionAndAnswer.immutable : true, // Ensure immutable is set
+              isQuestionValid: example.questionAndAnswer.isQuestionValid || ValidatedOptions.default,
+              questionValidationError: example.questionAndAnswer.questionValidationError || '',
+              isAnswerValid: example.questionAndAnswer.isAnswerValid || ValidatedOptions.default,
+              answerValidationError: example.questionAndAnswer.answerValidationError || ''
+            }
+          }))
+        }
+      : DefaultSkillFormData
+  );
   const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
   const [isYamlModalOpen, setIsYamlModalOpen] = useState<boolean>(false);
 
   const router = useRouter();
-
-  useEffect(() => {
-    if (skillEditFormData) {
-      setSkillFormData({
-        ...skillEditFormData.formData,
-        seedExamples: skillEditFormData.formData.seedExamples.map((example) => ({
-          ...example,
-          immutable: example.immutable !== undefined ? example.immutable : true, // Ensure immutable is set
-          isContextValid: example.isContextValid || ValidatedOptions.default,
-          validationError: example.validationError || '',
-          questionAndAnswer: {
-            ...example.questionAndAnswer,
-            immutable: example.questionAndAnswer.immutable !== undefined ? example.questionAndAnswer.immutable : true, // Ensure immutable is set
-            isQuestionValid: example.questionAndAnswer.isQuestionValid || ValidatedOptions.default,
-            questionValidationError: example.questionAndAnswer.questionValidationError || '',
-            isAnswerValid: example.questionAndAnswer.isAnswerValid || ValidatedOptions.default,
-            answerValidationError: example.questionAndAnswer.answerValidationError || ''
-          }
-        }))
-      });
-
-      devLog('Seed Examples Set from Edit Form Data:', skillEditFormData.formData.seedExamples);
-    }
-  }, [skillEditFormData]);
 
   const setFilePath = React.useCallback((filePath: string) => setSkillFormData((prev) => ({ ...prev, filePath })), []);
 
