@@ -42,7 +42,7 @@ const DevModeLogin: React.FunctionComponent = () => {
         <GridItem span={6} className="login-container">
           <Content>
             <Content component="p" className="sign-in-text">
-              Login locally with a username and password or via GitHub OAuth
+              Login with the credentials or via GitHub
             </Content>
           </Content>
           <Content>
