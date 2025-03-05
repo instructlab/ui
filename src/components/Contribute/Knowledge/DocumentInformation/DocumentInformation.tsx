@@ -323,13 +323,15 @@ const DocumentInformation: React.FC<Props> = ({
             variant={alertInfo.type}
             title={alertInfo.title}
             actionClose={<AlertActionCloseButton onClose={() => setAlertInfo(undefined)} />}
+            actionLinks={
+              alertInfo.link && (
+                <AlertActionLink component="a" href={alertInfo.link} target="_blank" rel="noopener noreferrer">
+                  View it here
+                </AlertActionLink>
+              )
+            }
           >
             {alertInfo.message}
-            {alertInfo.link && (
-              <AlertActionLink href={alertInfo.link} target="_blank" rel="noopener noreferrer">
-                View it here
-              </AlertActionLink>
-            )}
           </Alert>
         </AlertGroup>
       )}

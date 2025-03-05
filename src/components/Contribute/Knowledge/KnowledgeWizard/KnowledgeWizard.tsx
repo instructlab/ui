@@ -339,7 +339,6 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         onSubmit={handleSubmit}
       />
       <ContributeAlertGroup actionGroupAlertContent={actionGroupAlertContent} onCloseActionGroupAlert={onCloseActionGroupAlert} />
-      <ContributeAlertGroup actionGroupAlertContent={actionGroupAlertContent} onCloseActionGroupAlert={onCloseActionGroupAlert} />
       {isYamlModalOpen ? (
         <YamlFileUploadModal
           onClose={() => setIsYamlModalOpen(false)}
