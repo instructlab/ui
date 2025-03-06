@@ -69,3 +69,10 @@ a {
 .login-button:hover {
   background-color: #252525 !important;
 }
+
+.account-create-text {
+  margin-top: 1rem;
+  color: white !important;
+  padding-bottom: 50px;
+  font-size: large !important;
+}
