@@ -73,7 +73,7 @@ const GithubLogin: React.FC = () => {
             <div>
               <Content>
                 <Content component="p" className="sign-in-text">
-                  Sign in to your account
+                  Login in to your account
                 </Content>
               </Content>
               <Content>
