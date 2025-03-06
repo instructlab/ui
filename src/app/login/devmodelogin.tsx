@@ -51,14 +51,7 @@ const DevModeLogin: React.FunctionComponent = () => {
             </Content>
           </Content>
           <div className="login-container">
-            <Button
-              variant="primary"
-              icon={<GithubIcon />}
-              iconPosition="left"
-              size="lg"
-              style={{ marginBottom: '1rem' }}
-              onClick={handleGitHubLogin}
-            >
+            <Button variant="primary" className="login-button" icon={<GithubIcon />} iconPosition="left" size="lg" onClick={handleGitHubLogin}>
               Sign in with GitHub
             </Button>
             <Form onSubmit={handleLogin}>
@@ -95,10 +88,10 @@ const DevModeLogin: React.FunctionComponent = () => {
             </Form>
           </div>
           <Content>
-          <Content component="p" className="description-text">
-          New to GitHub?<a href="https://github.com/signup?return_to=https%3A%2F%2Fgithub.com%2Finstructlab%2F&source=login"  style={{ textDecoration: 'underline' }} target="_blank">Create an account</a>
-         </Content>
-            <Content component="p" className="urls-text">
+          <Content component="p" className="account-create-text">
+            New to GitHub? <a href="https://github.com/signup?return_to=https%3A%2F%2Fgithub.com%2Finstructlab%2F&source=login"  style={{ textDecoration: 'underline', color:'#B9DAFC' }} target="_blank"> Create an account</a>
+          </Content>
+          <Content component="p" className="urls-text">
               <a
                 href="https://github.com/instructlab/"
                 style={{ color: 'white', textDecoration: 'underline' }}
