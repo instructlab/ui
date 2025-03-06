@@ -128,6 +128,7 @@ export interface KnowledgeFormData extends ContributionFormData {
   linkWork: string;
   revision: string;
   seedExamples: KnowledgeSeedExample[];
+  filesToUpload: File[];
 }
 
 export interface EditFormData<T extends ContributionFormData = SkillFormData> {
