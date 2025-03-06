@@ -27,10 +27,11 @@ import {
   ModalVariant,
   PageBreadcrumb,
   PageSection,
+  Popover,
   TextInput,
   Title
 } from '@patternfly/react-core';
-import { EyeSlashIcon, EyeIcon } from '@patternfly/react-icons';
+import { EyeSlashIcon, EyeIcon, QuestionCircleIcon } from '@patternfly/react-icons';
 
 enum ModelEndpointStatus {
   AVAILABLE = "available",
@@ -225,7 +226,10 @@ const EndpointsPage: React.FC = () => {
                 <DataListItemCells
                   dataListCells={[
                     <DataListCell key="name">
-                    <strong>Endpoint Name:</strong> {endpoint.name}
+                      <strong>Endpoint Name:</strong> {endpoint.name}
+                    </DataListCell>,
+                    <DataListCell key="status">
+                    <strong>Endpoint Status:</strong> {endpoint.name}
                     </DataListCell>,
                     <DataListCell key="description">
                       <strong>Endpoint Description:</strong> {endpoint.description}
@@ -268,9 +272,57 @@ const EndpointsPage: React.FC = () => {
         >
           <ModalHeader title={currentEndpoint?.id ? 'Edit Endpoint' : 'Add Endpoint'} labelId="endpoint-modal-title" titleIconVariant="info" />
           <ModalBody id="endpoint-body-variant">
+            <div style={{ marginBottom: "1rem" }}>
+              <p>
+                Add a custom model endpoint for chat the interface. Use it to compare or interact with remote hosted models.
+              </p>
+            </div>
             <Form>
-              <FormGroup label="URL" isRequired fieldId="url">
-                <TextInput isRequired type="text" id="url" name="url" value={url} onChange={(_, value) => setUrl(value)} placeholder="Enter URL" />
+              <FormGroup label="Endpoint Name" isRequired fieldId="endpointName">
+                <TextInput
+                  isRequired
+                  type="text"
+                  id="endpointName"
+                  name="endpointName"
+                  value={endpointName}
+                  onChange={(_, value) => setModelName(value)}
+                  placeholder="Enter name"
+                />
+              </FormGroup>
+              <FormGroup label="Endpoint Description" fieldId="endpointDescription">
+                <TextInput
+                  type="text"
+                  id="endpointDescription"
+                  name="endpointDescription"
+                  value={endpointDescription}
+                  onChange={(_, value) => setModelName(value)}
+                  placeholder="Enter description"
+                />
+              </FormGroup>
+              <FormGroup
+                label="URL"
+                isRequired
+                fieldId="url"
+                labelHelp={
+                  <Popover
+                    headerContent="Which URL do I use?"
+                    bodyContent="This should be the full endpoint of what you want to use for chat inference. For example, with OpenAI this would be: `https://api.openai.com/v1/chat/completions` (IE. it should include the path)."
+                  >
+                    <Button variant="plain" aria-label="More info">
+                      <QuestionCircleIcon />
+                    </Button>
+                  </Popover>
+                }
+              >
+                <TextInput
+                  isRequired
+                  type="text"
+                  id="url"
+                  name="url"
+                  value={url}
+                  onChange={(_, value) => setUrl(value)}
+                  placeholder="Enter URL"
+                />
               </FormGroup>
               <FormGroup label="Model Name" isRequired fieldId="modelName">
                 <TextInput
@@ -283,7 +335,26 @@ const EndpointsPage: React.FC = () => {
                   placeholder="Enter Model Name"
                 />
               </FormGroup>
-              <FormGroup label="API Key" isRequired fieldId="apiKey">
+              <FormGroup label="Model Description" fieldId="modelDescription">
+                <TextInput
+                  type="text"
+                  id="modelDescription"
+                  name="modelDescription"
+                  value={modelDescription}
+                  onChange={(_, value) => setModelName(value)}
+                  placeholder="Enter description"
+                />
+              </FormGroup>
+              <FormGroup label="API Key" isRequired fieldId="apiKey" labelHelp={
+                <Popover
+                headerContent="What is an API Key?"
+                bodyContent="An API key is a unique identifier used to authenticate requests to an API."
+                >
+                  <Button variant="plain" aria-label="More info">
+                    <QuestionCircleIcon />
+                  </Button>
+                </Popover>
+              }>
                 <InputGroup>
                   <TextInput
                     isRequired
