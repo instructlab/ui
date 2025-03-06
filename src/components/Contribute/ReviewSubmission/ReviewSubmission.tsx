@@ -2,7 +2,7 @@
 import React from 'react';
 import { ContributionFormData, KnowledgeFormData } from '@/types';
 import { Flex, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription, FlexItem } from '@patternfly/react-core';
-import PageHeader from '@/components/Contribute/PageHeader';
+import WizardPageHeader from '@/components/Common/WizardPageHeader';
 import ReviewSection from '@/components/Contribute/ReviewSubmission/ReviewSection';
 
 interface ReviewSubmissionProps {
@@ -15,7 +15,7 @@ interface ReviewSubmissionProps {
 export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ contributionFormData, seedExamples, isSkillContribution, isGithubMode }) => (
   <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
     <FlexItem>
-      <PageHeader
+      <WizardPageHeader
         title="Review"
         description="Review the information below and click `Submit` to submit your skill contribution. Use the back button to make changes."
       />
@@ -65,10 +65,54 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ contribution
             <DescriptionListDescription>
               <div>{contributionFormData.documentOutline}</div>
             </DescriptionListDescription>
+          </DescriptionListGroup>,
+          <DescriptionListGroup key="file-path">
+            <DescriptionListTerm>Directory path</DescriptionListTerm>
+            <DescriptionListDescription>
+              <div>{contributionFormData.filePath}</div>
+            </DescriptionListDescription>
           </DescriptionListGroup>
         ]}
       />
     </FlexItem>
+
+    {/* Seed Examples */}
+    <FlexItem>
+      <ReviewSection
+        title="Seed examples"
+        descriptionText="Data that will be used to start teaching your model."
+        descriptionItems={[
+          <DescriptionListGroup key="examples">
+            <DescriptionListTerm>Examples</DescriptionListTerm>
+            <DescriptionListDescription>{seedExamples}</DescriptionListDescription>
+          </DescriptionListGroup>
+        ]}
+      />
+    </FlexItem>
+
+    {/* Document Information */}
+    {!isSkillContribution ? (
+      <FlexItem>
+        <ReviewSection
+          title="Document information"
+          descriptionText="Information describing the uploaded documents"
+          descriptionItems={[
+            <DescriptionListGroup key="repository-url">
+              <DescriptionListTerm>Repository URL</DescriptionListTerm>
+              <DescriptionListDescription>
+                <div>{(contributionFormData as KnowledgeFormData).domain}</div>
+              </DescriptionListDescription>
+            </DescriptionListGroup>,
+            <DescriptionListGroup key="document-outline">
+              <DescriptionListTerm>Document outline</DescriptionListTerm>
+              <DescriptionListDescription>
+                <div>{contributionFormData.documentOutline}</div>
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+          ]}
+        />
+      </FlexItem>
+    ) : null}
 
     {/* File path */}
     <FlexItem>

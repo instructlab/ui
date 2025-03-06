@@ -3,23 +3,18 @@
 import React, { useEffect, useState } from 'react';
 import './knowledge.css';
 import { useSession } from 'next-auth/react';
-import AuthorInformation from '@/components/Contribute/AuthorInformation/AuthorInformation';
-import KnowledgeInformation from '@/components/Contribute/Knowledge/KnowledgeInformation/KnowledgeInformation';
-import FilePathInformation from '@/components/Contribute/FilePathInformation/FilePathInformation';
 import DocumentInformation from '@/components/Contribute/Knowledge/DocumentInformation/DocumentInformation';
 import KnowledgeSeedExamples from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamples';
 import { ContributionFormData, KnowledgeEditFormData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
 import { useRouter } from 'next/navigation';
-import { ValidatedOptions, Button } from '@patternfly/react-core';
+import { Button, ValidatedOptions } from '@patternfly/react-core';
 import { devLog } from '@/utils/devlog';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { addDocumentInfoToKnowledgeFormData } from '@/components/Contribute/Utils/documentUtils';
 import {
-  isAuthInfoValid,
+  isKnowledgeDetailsValid,
   isDocumentInfoValid,
-  isFilePathInfoValid,
   isKnowledgeAttributionInformationValid,
-  isKnowledgeInfoValid,
   isKnowledgeSeedExamplesValid
 } from '@/components/Contribute/Utils/validationUtils';
 import {
@@ -37,8 +32,10 @@ import { addYamlUploadKnowledge } from '@/components/Contribute/Utils/uploadUtil
 import ReviewSubmission from '@/components/Contribute/ReviewSubmission/ReviewSubmission';
 import { createDefaultKnowledgeSeedExamples } from '@/components/Contribute/Utils/seedExampleUtils';
 import KnowledgeSeedExamplesReviewSection from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamplesReviewSection';
+import DetailsPage from '@/components/Contribute/DetailsPage/DetailsPage';
 
-import './knowledge.css';
+const GITHUB_GIT_INFO_URL = '/api/github/git-info';
+const NATIVE_GIT_INFO_URL = '/api/native/git/info';
 
 const DefaultKnowledgeFormData: KnowledgeFormData = {
   email: '',
@@ -55,7 +52,8 @@ const DefaultKnowledgeFormData: KnowledgeFormData = {
   linkWork: '',
   revision: '',
   licenseWork: '',
-  creators: ''
+  creators: '',
+  filesToUpload: []
 };
 
 export interface KnowledgeFormProps {
@@ -63,7 +61,7 @@ export interface KnowledgeFormProps {
   isGithubMode: boolean;
 }
 
-const STEP_IDS = ['author-info', 'knowledge-info', 'file-path-info', 'document-info', 'seed-examples', 'attribution-info', 'review-submission'];
+const STEP_IDS = ['details', 'resource-documentation', 'uploaded-documents', 'attributions', 'seed-examples', 'review'];
 
 export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData, isGithubMode }) => {
   const { data: session } = useSession();
@@ -84,7 +82,8 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
               isAnswerValid: qa.isAnswerValid || ValidatedOptions.default,
               answerValidationError: qa.answerValidationError || ''
             }))
-          }))
+          })),
+          filesToUpload: []
         }
       : DefaultKnowledgeFormData
   );
@@ -92,6 +91,36 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
   const [isYamlModalOpen, setIsYamlModalOpen] = useState<boolean>(false); // **New State Added**
 
   const router = useRouter();
+
+  React.useEffect(() => {
+    let canceled = false;
+    const fetchInfo = async () => {
+      const response = await fetch(isGithubMode ? GITHUB_GIT_INFO_URL : NATIVE_GIT_INFO_URL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!canceled && (response.status === 201 || response.ok)) {
+        const result = await response.json();
+        setKnowledgeFormData((prev) => ({
+          ...prev,
+          knowledgeDocumentRepositoryUrl: result.repoUrl,
+          knowledgeDocumentCommit: result.commitSha,
+          documentName: result.fileNames
+        }));
+      }
+    };
+
+    if (!knowledgeEditFormData?.isEditForm) {
+      fetchInfo();
+    }
+
+    return () => {
+      canceled = true;
+    };
+  }, [isGithubMode, knowledgeEditFormData?.isEditForm]);
 
   // Function to append document information (Updated for single repositoryUrl and commitSha)
   // Within src/components/Contribute/Native/index.tsx
@@ -122,27 +151,55 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
     devLog('Seed Examples Updated:', knowledgeFormData.seedExamples);
   }, [knowledgeFormData.seedExamples]);
 
-  const steps: StepType[] = React.useMemo(
-    () => [
+  const steps: StepType[] = React.useMemo(() => {
+    const documentInformationStep = {
+      id: STEP_IDS[2],
+      name: 'Upload documents',
+      component: (
+        <DocumentInformation
+          isGithubMode={isGithubMode}
+          setKnowledgeDocumentRepositoryUrl={(knowledgeDocumentRepositoryUrl) =>
+            setKnowledgeFormData((prev) => ({ ...prev, knowledgeDocumentRepositoryUrl }))
+          }
+          setKnowledgeDocumentCommit={(knowledgeDocumentCommit) =>
+            setKnowledgeFormData((prev) => ({
+              ...prev,
+              knowledgeDocumentCommit
+            }))
+          }
+          setDocumentName={(documentName) =>
+            setKnowledgeFormData((prev) => ({
+              ...prev,
+              documentName
+            }))
+          }
+          filesToUpload={knowledgeFormData.filesToUpload}
+          setFilesToUpload={(files) =>
+            setKnowledgeFormData((prev) => ({
+              ...prev,
+              filesToUpload: files
+            }))
+          }
+        />
+      ),
+      status: isDocumentInfoValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
+    };
+
+    return [
       {
         id: STEP_IDS[0],
-        name: 'Author Information',
+        name: 'Details',
         component: (
-          <AuthorInformation
+          <DetailsPage
+            isEditForm={knowledgeEditFormData?.isEditForm}
+            infoSectionTitle="Knowledge information"
+            infoSectionHelp="Contributing knowledge provides a model with additional data to more accurately answer questions. Knowledge is supported by documents, such as a textbook, technical manual, encyclopedia, journal, or magazine."
+            infoSectionDescription="Provide brief information about the knowledge."
+            isGithubMode={isGithubMode}
             email={knowledgeFormData.email}
             setEmail={(email) => setKnowledgeFormData((prev) => ({ ...prev, email }))}
             name={knowledgeFormData.name}
             setName={(name) => setKnowledgeFormData((prev) => ({ ...prev, name }))}
-          />
-        ),
-        status: isAuthInfoValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
-      },
-      {
-        id: STEP_IDS[1],
-        name: 'Knowledge Information',
-        component: (
-          <KnowledgeInformation
-            isEditForm={knowledgeEditFormData?.isEditForm}
             submissionSummary={knowledgeFormData.submissionSummary}
             setSubmissionSummary={(submissionSummary) =>
               setKnowledgeFormData((prev) => ({
@@ -151,7 +208,12 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
               }))
             }
             domain={knowledgeFormData.domain}
-            setDomain={(domain) => setKnowledgeFormData((prev) => ({ ...prev, domain }))}
+            setDomain={(domain) =>
+              setKnowledgeFormData((prev) => ({
+                ...prev,
+                domain
+              }))
+            }
             documentOutline={knowledgeFormData.documentOutline}
             setDocumentOutline={(documentOutline) =>
               setKnowledgeFormData((prev) => ({
@@ -159,45 +221,71 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
                 documentOutline
               }))
             }
+            rootPath="knowledge"
+            filePath={knowledgeFormData.filePath}
+            setFilePath={setFilePath}
           />
         ),
-        status: isKnowledgeInfoValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
+        status: isKnowledgeDetailsValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
       },
-      {
-        id: STEP_IDS[2],
-        name: 'File Path Information',
-        component: <FilePathInformation rootPath="knowledge" path={knowledgeFormData.filePath} setFilePath={setFilePath} />,
-        status: isFilePathInfoValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
-      },
-      {
-        id: STEP_IDS[3],
-        name: 'Document Information',
-        component: (
-          <DocumentInformation
-            isGithubMode={isGithubMode}
-            isEditForm={knowledgeEditFormData?.isEditForm}
-            knowledgeDocumentRepositoryUrl={knowledgeFormData.knowledgeDocumentRepositoryUrl}
-            setKnowledgeDocumentRepositoryUrl={(knowledgeDocumentRepositoryUrl) =>
-              setKnowledgeFormData((prev) => ({ ...prev, knowledgeDocumentRepositoryUrl }))
+      ...(isGithubMode
+        ? [
+            {
+              id: STEP_IDS[1],
+              name: 'Resource documentation',
+              isExpandable: true,
+              subSteps: [
+                documentInformationStep,
+                {
+                  id: STEP_IDS[3],
+                  name: 'Attribution details',
+                  component: (
+                    <AttributionInformation
+                      isEditForm={knowledgeEditFormData?.isEditForm}
+                      contributionFormData={knowledgeFormData}
+                      titleWork={knowledgeFormData.titleWork}
+                      setTitleWork={(titleWork) =>
+                        setKnowledgeFormData((prev) => ({
+                          ...prev,
+                          titleWork
+                        }))
+                      }
+                      linkWork={knowledgeFormData.linkWork}
+                      setLinkWork={(linkWork) =>
+                        setKnowledgeFormData((prev) => ({
+                          ...prev,
+                          linkWork
+                        }))
+                      }
+                      revision={knowledgeFormData.revision}
+                      setRevision={(revision) =>
+                        setKnowledgeFormData((prev) => ({
+                          ...prev,
+                          revision
+                        }))
+                      }
+                      licenseWork={knowledgeFormData.licenseWork}
+                      setLicenseWork={(licenseWork) =>
+                        setKnowledgeFormData((prev) => ({
+                          ...prev,
+                          licenseWork
+                        }))
+                      }
+                      creators={knowledgeFormData.creators}
+                      setCreators={(creators) =>
+                        setKnowledgeFormData((prev) => ({
+                          ...prev,
+                          creators
+                        }))
+                      }
+                    />
+                  ),
+                  status: isKnowledgeAttributionInformationValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
+                }
+              ]
             }
-            knowledgeDocumentCommit={knowledgeFormData.knowledgeDocumentCommit}
-            setKnowledgeDocumentCommit={(knowledgeDocumentCommit) =>
-              setKnowledgeFormData((prev) => ({
-                ...prev,
-                knowledgeDocumentCommit
-              }))
-            }
-            documentName={knowledgeFormData.documentName}
-            setDocumentName={(documentName) =>
-              setKnowledgeFormData((prev) => ({
-                ...prev,
-                documentName
-              }))
-            }
-          />
-        ),
-        status: isDocumentInfoValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
-      },
+          ]
+        : [documentInformationStep]),
       {
         id: STEP_IDS[4],
         name: 'Seed Examples',
@@ -205,7 +293,12 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
           <KnowledgeSeedExamples
             isGithubMode={isGithubMode}
             seedExamples={knowledgeFormData.seedExamples}
-            onUpdateSeedExamples={(seedExamples) => setKnowledgeFormData((prev) => ({ ...prev, seedExamples }))}
+            onUpdateSeedExamples={(seedExamples) =>
+              setKnowledgeFormData((prev) => ({
+                ...prev,
+                seedExamples
+              }))
+            }
             addDocumentInfo={addDocumentInfoHandler}
             repositoryUrl={knowledgeFormData.knowledgeDocumentRepositoryUrl}
             commitSha={knowledgeFormData.knowledgeDocumentCommit}
@@ -213,34 +306,9 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         ),
         status: isKnowledgeSeedExamplesValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
       },
-      ...(isGithubMode
-        ? [
-            {
-              id: STEP_IDS[5],
-              name: 'Attribution Information',
-              component: (
-                <AttributionInformation
-                  isEditForm={knowledgeEditFormData?.isEditForm}
-                  contributionFormData={knowledgeFormData}
-                  titleWork={knowledgeFormData.titleWork}
-                  setTitleWork={(titleWork) => setKnowledgeFormData((prev) => ({ ...prev, titleWork }))}
-                  linkWork={knowledgeFormData.linkWork}
-                  setLinkWork={(linkWork) => setKnowledgeFormData((prev) => ({ ...prev, linkWork }))}
-                  revision={knowledgeFormData.revision}
-                  setRevision={(revision) => setKnowledgeFormData((prev) => ({ ...prev, revision }))}
-                  licenseWork={knowledgeFormData.licenseWork}
-                  setLicenseWork={(licenseWork) => setKnowledgeFormData((prev) => ({ ...prev, licenseWork }))}
-                  creators={knowledgeFormData.creators}
-                  setCreators={(creators) => setKnowledgeFormData((prev) => ({ ...prev, creators }))}
-                />
-              ),
-              status: isKnowledgeAttributionInformationValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
-            }
-          ]
-        : []),
       {
-        id: STEP_IDS[6],
-        name: 'Review Submission',
+        id: STEP_IDS[5],
+        name: 'Review',
         component: (
           <ReviewSubmission
             isSkillContribution={false}
@@ -251,9 +319,8 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         ),
         status: StepStatus.Default
       }
-    ],
-    [addDocumentInfoHandler, isGithubMode, knowledgeEditFormData?.isEditForm, knowledgeFormData, setFilePath]
-  );
+    ];
+  }, [addDocumentInfoHandler, isGithubMode, knowledgeEditFormData?.isEditForm, knowledgeFormData, setFilePath]);
 
   const convertToYaml = (contributionFormData: ContributionFormData) => {
     const formData = contributionFormData as KnowledgeFormData;

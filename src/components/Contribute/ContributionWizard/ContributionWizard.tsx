@@ -16,6 +16,7 @@ import {
   PageGroup,
   PageSection,
   Title,
+  Truncate,
   Wizard,
   WizardStep
 } from '@patternfly/react-core';
@@ -85,6 +86,7 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
       }, []),
     [steps]
   );
+  const getStepIndex = (stepId: string) => stepIds.indexOf(stepId);
 
   React.useEffect(() => {
     const getEnvVariables = async () => {
@@ -198,16 +200,31 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
                 />
               }
             >
-              {steps.map((step, index) => (
+              {steps.map((step) => (
                 <WizardStep
                   key={step.id}
+                  isExpandable={!!step.subSteps}
                   id={step.id}
                   name={step.name}
-                  status={
-                    index === activeStepIndex || (step.status === StepStatus.Error && index > activeStepIndex) ? StepStatus.Default : step.status
+                  navItem={{ content: <Truncate content={step.name} /> }}
+                  status={getStepIndex(step.id) < activeStepIndex ? step.status : StepStatus.Default}
+                  steps={
+                    step.subSteps
+                      ? step.subSteps.map((subStep) => (
+                          <WizardStep
+                            key={subStep.id}
+                            id={subStep.id}
+                            name={subStep.name}
+                            navItem={{ content: <Truncate content={subStep.name} /> }}
+                            status={getStepIndex(subStep.id) < activeStepIndex ? subStep.status : StepStatus.Default}
+                          >
+                            {subStep.component}
+                          </WizardStep>
+                        ))
+                      : undefined
                   }
                 >
-                  {step.component}
+                  {!step.subSteps ? step.component : null}
                 </WizardStep>
               ))}
             </Wizard>

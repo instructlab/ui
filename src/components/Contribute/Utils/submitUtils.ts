@@ -198,25 +198,25 @@ export const updateNativeKnowledgeData = async (
     return false;
   }
   // Strip leading slash and ensure trailing slash in the file path
-  let sanitizedFilePath = knowledgeFormData.filePath!.startsWith('/') ? knowledgeFormData.filePath!.slice(1) : knowledgeFormData.filePath;
-  sanitizedFilePath = sanitizedFilePath!.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
+  let sanitizedFilePath = knowledgeFormData.filePath?.startsWith('/') ? knowledgeFormData.filePath!.slice(1) : knowledgeFormData.filePath;
+  sanitizedFilePath = sanitizedFilePath?.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
   const knowledgeYamlData: KnowledgeYamlData = {
     created_by: knowledgeFormData.email,
     version: KnowledgeSchemaVersion,
-    domain: knowledgeFormData.domain!,
-    document_outline: knowledgeFormData.documentOutline!,
+    domain: knowledgeFormData.domain,
+    document_outline: knowledgeFormData.documentOutline,
     seed_examples: knowledgeFormData.seedExamples.map((example) => ({
-      context: example.context!,
+      context: example.context,
       questions_and_answers: example.questionAndAnswers.map((questionAndAnswer) => ({
         question: questionAndAnswer.question,
         answer: questionAndAnswer.answer
       }))
     })),
     document: {
-      repo: knowledgeFormData.knowledgeDocumentRepositoryUrl!,
-      commit: knowledgeFormData.knowledgeDocumentCommit!,
-      patterns: knowledgeFormData.documentName!.split(',').map((pattern) => pattern.trim())
+      repo: knowledgeFormData.knowledgeDocumentRepositoryUrl,
+      commit: knowledgeFormData.knowledgeDocumentCommit,
+      patterns: knowledgeFormData.documentName?.split(',').map((pattern) => pattern.trim())
     }
   };
 

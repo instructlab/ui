@@ -48,7 +48,8 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
             linkWork: '',
             revision: '',
             licenseWork: '',
-            creators: ''
+            creators: '',
+            filesToUpload: []
           };
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
