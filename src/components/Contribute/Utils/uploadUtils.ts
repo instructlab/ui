@@ -45,16 +45,26 @@ export const addYamlUploadKnowledge = (knowledgeFormData: KnowledgeFormData, dat
 });
 
 const yamlSkillSeedExampleToFormSeedExample = (yamlSeedExamples: { question: string; context?: string | undefined; answer: string }[]) => {
-  return yamlSeedExamples.map((yamlSeedExample) => ({
-    immutable: true,
-    isExpanded: false,
-    context: yamlSeedExample.context ?? '',
-    questionAndAnswer: {
+  return yamlSeedExamples.map((yamlSeedExample) => {
+    const { context, question, answer } = yamlSeedExample;
+    const { msg: questionValidationError, status: isQuestionValid } = validateQuestion(question);
+    const { msg: answerValidationError, status: isAnswerValid } = validateQuestion(question);
+
+    return {
       immutable: true,
-      question: yamlSeedExample.question,
-      answer: yamlSeedExample.answer
-    }
-  })) as SkillSeedExample[];
+      isExpanded: false,
+      context,
+      questionAndAnswer: {
+        immutable: true,
+        question,
+        isQuestionValid,
+        questionValidationError,
+        answer,
+        isAnswerValid,
+        answerValidationError
+      }
+    };
+  }) as SkillSeedExample[];
 };
 
 export const addYamlUploadSkill = (skillFormData: SkillFormData, data: SkillYamlData): SkillFormData => ({
