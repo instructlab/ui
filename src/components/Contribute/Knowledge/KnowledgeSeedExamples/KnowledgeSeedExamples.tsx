@@ -14,8 +14,8 @@ import {
   handleKnowledgeSeedExamplesContextInputChange,
   toggleKnowledgeSeedExamplesExpansion
 } from '@/components/Contribute/Utils/seedExampleUtils';
-import PageHeader from '@/components/Contribute/PageHeader';
 import KnowledgeQuestionAnswerPairs from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeQuestionAnswerPairs';
+import WizardPageHeader from '@/components/Common/WizardPageHeader';
 
 interface KnowledgeFile {
   filename: string;
@@ -119,7 +119,7 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, on
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <PageHeader
+        <WizardPageHeader
           title="Seed Examples"
           description={
             <>

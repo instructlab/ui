@@ -12,8 +12,8 @@ import {
   handleSkillSeedExamplesQuestionInputChange,
   toggleSkillSeedExamplesExpansion
 } from '@/components/Contribute/Utils/seedExampleUtils';
-import PageHeader from '@/components/Contribute/PageHeader';
 import SkillQuestionAnswerPairs from '@/components/Contribute/Skill/SkillSeedExamples/SkillQuestionAnswerPairs';
+import WizardPageHeader from '@/components/Common/WizardPageHeader';
 
 interface Props {
   seedExamples: SkillSeedExample[];
@@ -58,7 +58,7 @@ const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onSelectContext, onU
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <PageHeader
+        <WizardPageHeader
           title="Seed Examples"
           description={
             <>

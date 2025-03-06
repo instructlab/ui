@@ -58,7 +58,8 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
             linkWork: '',
             revision: '',
             licenseWork: '',
-            creators: ''
+            creators: '',
+            filesToUpload: []
           };
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
