@@ -32,15 +32,46 @@ import {
 } from '@patternfly/react-core';
 import { EyeSlashIcon, EyeIcon } from '@patternfly/react-icons';
 
-enum ModelStatus {
+enum ModelEndpointStatus {
   AVAILABLE = "available",
   UNAVAILABLE = "unavailable",
   UNKNOWN = "unknown",
+  UNINITIALIZED = "uninitialized"
+}
+
+async function checkEndpointStatus(
+  endpointURL: string,
+  modelName: string,
+  apiKey: string
+): Promise<ModelEndpointStatus> {
+  let headers;
+  if (apiKey != "") {
+    headers = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    };
+  } else {
+    headers = {
+      "Content-Type": "application/json",
+    };
+  }
+  try {
+    const response = await fetch(`${endpointURL}/v1/models/${modelName}`, {
+      headers: headers
+    });
+    if (response.ok) {
+      return ModelEndpointStatus.AVAILABLE;
+    } else {
+      return ModelEndpointStatus.UNAVAILABLE;
+    }
+  } catch (error) {
+    return ModelEndpointStatus.UNKNOWN;
+  }
 }
 
 interface ExtendedEndpoint extends Endpoint {
   isApiKeyVisible?: boolean;
-  status?: ModelStatus;
+  status?: ModelEndpointStatus;
 }
 
 const EndpointsPage: React.FC = () => {
@@ -53,6 +84,7 @@ const EndpointsPage: React.FC = () => {
   const [modelName, setModelName] = useState('');
   const [modelDescription, setModelDescription] = useState('');
   const [apiKey, setApiKey] = useState('');
+  const [endpointStatus, setEndpointStatus] = useState('');
 
   useEffect(() => {
     const storedEndpoints = localStorage.getItem('endpoints');
@@ -75,8 +107,9 @@ const EndpointsPage: React.FC = () => {
     return inputUrl;
   };
 
-  const handleSaveEndpoint = () => {
+  async function handleSaveEndpoint () {
     const updatedUrl = removeTrailingSlash(url);
+    const status = await checkEndpointStatus(updatedUrl, modelName, apiKey)
     if (currentEndpoint) {
       const updatedEndpoint: ExtendedEndpoint = {
         id: currentEndpoint.id || uuidv4(),
@@ -86,7 +119,8 @@ const EndpointsPage: React.FC = () => {
         modelName: modelName,
         modelDescription: modelDescription,
         apiKey: apiKey,
-        isApiKeyVisible: false
+        isApiKeyVisible: false,
+        status: status,
       };
 
       const updatedEndpoints = currentEndpoint.id
@@ -102,6 +136,7 @@ const EndpointsPage: React.FC = () => {
       setModelName('');
       setModelDescription('');
       setApiKey('');
+      setEndpointStatus(ModelEndpointStatus.UNINITIALIZED)
       handleModalToggle();
     }
   };
@@ -112,25 +147,29 @@ const EndpointsPage: React.FC = () => {
     localStorage.setItem('endpoints', JSON.stringify(updatedEndpoints));
   };
 
-  const handleEditEndpoint = (endpoint: ExtendedEndpoint) => {
+  async function handleEditEndpoint (endpoint: ExtendedEndpoint) {
+    const updatedUrl = removeTrailingSlash(endpoint.url);
+    const status = await checkEndpointStatus(updatedUrl, endpoint.modelName, endpoint.apiKey)
     setCurrentEndpoint(endpoint);
     setEndpointName(endpoint.name)
     setEndpointDescription(endpoint.description)
-    setUrl(endpoint.url);
+    setUrl(updatedUrl);
     setModelName(endpoint.modelName);
     setModelDescription(endpoint.modelDescription);
     setApiKey(endpoint.apiKey);
+    setEndpointStatus(status)
     handleModalToggle();
   };
 
   const handleAddEndpoint = () => {
-    setCurrentEndpoint({ id: '', name: '', description: '', url: '', modelName: '', modelDescription: '', apiKey: '', isApiKeyVisible: false });
+    setCurrentEndpoint({ id: '', name: '', description: '', url: '', modelName: '', modelDescription: '', apiKey: '', isApiKeyVisible: false, status: ModelEndpointStatus.UNINITIALIZED});
     setEndpointName('');
     setEndpointDescription('');
     setUrl('');
     setModelName('');
     setModelDescription('');
     setApiKey('');
+    setEndpointStatus(ModelEndpointStatus.UNINITIALIZED)
     handleModalToggle();
   };
 
