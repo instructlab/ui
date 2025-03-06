@@ -266,7 +266,8 @@ export const autoFillKnowledgeFields: KnowledgeFormData = {
   linkWork: 'https://en.wikipedia.org/wiki/Phoenix_(constellation)',
   revision: 'https://en.wikipedia.org/w/index.php?title=Phoenix_(constellation)&oldid=1237187773',
   licenseWork: 'CC-BY-SA-4.0',
-  creators: 'Wikipedia Authors'
+  creators: 'Wikipedia Authors',
+  filesToUpload: []
 };
 
 const skillsSeedExamples: SkillSeedExample[] = [

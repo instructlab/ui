@@ -8,13 +8,7 @@ import { devLog } from '@/utils/devlog';
 import { SkillSchemaVersion } from '@/types/const';
 import { ContributionFormData, SkillEditFormData, SkillFormData, SkillYamlData } from '@/types';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
-import {
-  isAttributionInformationValid,
-  isAuthInfoValid,
-  isFilePathInfoValid,
-  isSkillSeedExamplesValid,
-  isSkillInfoValid
-} from '@/components/Contribute/Utils/validationUtils';
+import { isAttributionInformationValid, isSkillSeedExamplesValid, isDetailsValid } from '@/components/Contribute/Utils/validationUtils';
 import {
   submitGithubSkillData,
   submitNativeSkillData,
@@ -24,17 +18,15 @@ import {
 import { addYamlUploadSkill } from '@/components/Contribute/Utils/uploadUtils';
 import { createDefaultSkillSeedExamples } from '@/components/Contribute/Utils/seedExampleUtils';
 import AttributionInformation from '@/components/Contribute/AttributionInformation/AttributionInformation';
-import AuthorInformation from '@/components/Contribute/AuthorInformation/AuthorInformation';
-import FilePathInformation from '@/components/Contribute/FilePathInformation/FilePathInformation';
 import { ContributionWizard, StepStatus, StepType } from '@/components/Contribute/ContributionWizard/ContributionWizard';
 import { YamlFileUploadModal } from '@/components/Contribute/YamlFileUploadModal';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
-import SkillsInformation from '@/components/Contribute/Skill/SkillsInformation/SkillsInformation';
 import ReviewSubmission from '@/components/Contribute/ReviewSubmission/ReviewSubmission';
 import SkillSeedExamples from '@/components/Contribute/Skill/SkillSeedExamples/SkillSeedExamples';
 import SkillSeedExamplesReviewSection from '@/components/Contribute/Skill/SkillSeedExamples/SkillSeedExamplesReviewSection';
 
 import './skills.css';
+import DetailsPage from '@/components/Contribute/DetailsPage/DetailsPage';
 
 const DefaultSkillFormData: SkillFormData = {
   email: '',
@@ -53,7 +45,7 @@ export interface Props {
   isGithubMode: boolean;
 }
 
-const STEP_IDS = ['author-info', 'skill-info', 'file-path-info', 'document-info', 'seed-examples', 'attribution-info', 'review-submission'];
+const STEP_IDS = ['details', 'seed-examples', 'attribution-info', 'review-submission'];
 
 export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData, isGithubMode }) => {
   const { data: session } = useSession();
@@ -97,23 +89,17 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
     () => [
       {
         id: STEP_IDS[0],
-        name: 'Author Information',
+        name: 'Details',
         component: (
-          <AuthorInformation
+          <DetailsPage
+            isEditForm={skillEditFormData?.isEditForm}
+            infoSectionTitle="Skill information"
+            infoSectionDescription="Provide brief information about the Skills."
+            isGithubMode={isGithubMode}
             email={skillFormData.email}
             setEmail={(email) => setSkillFormData((prev) => ({ ...prev, email }))}
             name={skillFormData.name}
             setName={(name) => setSkillFormData((prev) => ({ ...prev, name }))}
-          />
-        ),
-        status: isAuthInfoValid(skillFormData) ? StepStatus.Success : StepStatus.Error
-      },
-      {
-        id: STEP_IDS[1],
-        name: 'Skill Information',
-        component: (
-          <SkillsInformation
-            isEditForm={skillEditFormData?.isEditForm}
             submissionSummary={skillFormData.submissionSummary}
             setSubmissionSummary={(submissionSummary) =>
               setSkillFormData((prev) => ({
@@ -128,18 +114,15 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
                 documentOutline
               }))
             }
+            rootPath="skills"
+            filePath={skillFormData.filePath}
+            setFilePath={setFilePath}
           />
         ),
-        status: isSkillInfoValid(skillFormData) ? StepStatus.Success : StepStatus.Error
+        status: isDetailsValid(skillFormData) ? StepStatus.Success : StepStatus.Error
       },
       {
-        id: STEP_IDS[2],
-        name: 'File Path Information',
-        component: <FilePathInformation rootPath="skills" path={skillFormData.filePath} setFilePath={setFilePath} />,
-        status: isFilePathInfoValid(skillFormData) ? StepStatus.Success : StepStatus.Error
-      },
-      {
-        id: STEP_IDS[3],
+        id: STEP_IDS[1],
         name: 'Create seed data',
         component: (
           <SkillSeedExamples
@@ -152,7 +135,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
       ...(isGithubMode
         ? [
             {
-              id: STEP_IDS[5],
+              id: STEP_IDS[2],
               name: 'Attribution Information',
               component: (
                 <AttributionInformation
@@ -171,7 +154,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
           ]
         : []),
       {
-        id: STEP_IDS[6],
+        id: STEP_IDS[3],
         name: 'Review Submission',
         component: (
           <ReviewSubmission
