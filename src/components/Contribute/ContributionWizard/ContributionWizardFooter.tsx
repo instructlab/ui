@@ -59,15 +59,13 @@ const ContributionWizardFooter: React.FC<Props> = ({
                   Back
                 </Button>
               </ActionListItem>
-              <ActionListItem>
-                <Button
-                  variant={showSubmit ? ButtonVariant.secondary : ButtonVariant.primary}
-                  onClick={isLast ? onSubmit : goToNextStep}
-                  isDisabled={isLast || !isValid}
-                >
-                  Next
-                </Button>
-              </ActionListItem>
+              {!isLast || !showSubmit ? (
+                <ActionListItem>
+                  <Button variant={showSubmit ? ButtonVariant.secondary : ButtonVariant.primary} onClick={goToNextStep} isDisabled={isLast}>
+                    Next
+                  </Button>
+                </ActionListItem>
+              ) : null}
               {showSubmit ? (
                 <ActionListItem>
                   <Button variant={ButtonVariant.primary} type="submit" onClick={handleSubmit}>
