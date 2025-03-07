@@ -1,17 +1,5 @@
 import React, { useEffect } from 'react';
-import {
-  Button,
-  Content,
-  Flex,
-  FlexItem,
-  Form,
-  FormGroup,
-  HelperText,
-  HelperTextItem,
-  TextArea,
-  TextInput,
-  ValidatedOptions
-} from '@patternfly/react-core';
+import { Button, Content, Flex, FlexItem, Form, FormGroup, HelperText, HelperTextItem, TextInput, ValidatedOptions } from '@patternfly/react-core';
 import { ExclamationCircleIcon, PencilAltIcon } from '@patternfly/react-icons';
 import {
   t_global_spacer_sm as SmallSpacerSize,
@@ -35,10 +23,6 @@ interface Props {
   setName: (val: string) => void;
   submissionSummary: string;
   setSubmissionSummary: (val: string) => void;
-  domain?: string;
-  setDomain?: (val: string) => void;
-  documentOutline: string;
-  setDocumentOutline: (val: string) => void;
   rootPath: string;
   filePath: string;
   setFilePath: (val: string) => void;
@@ -55,24 +39,16 @@ const DetailsPage: React.FC<Props> = ({
   setName,
   submissionSummary,
   setSubmissionSummary,
-  domain,
-  setDomain,
-  documentOutline,
-  setDocumentOutline,
   rootPath,
   filePath,
   setFilePath
 }) => {
   const [editContributorOpen, setEditContributorOpen] = React.useState<boolean>();
   const [validDescription, setValidDescription] = React.useState<ValidatedOptions>(ValidatedOptions.default);
-  const [validDomain, setValidDomain] = React.useState<ValidatedOptions>(ValidatedOptions.default);
-  const [validOutline, setValidOutline] = React.useState<ValidatedOptions>(ValidatedOptions.default);
 
   useEffect(() => {
     if (isEditForm) {
       setValidDescription(ValidatedOptions.success);
-      setValidDomain(ValidatedOptions.success);
-      setValidOutline(ValidatedOptions.success);
     }
   }, [isEditForm]);
 
@@ -82,18 +58,6 @@ const DetailsPage: React.FC<Props> = ({
   };
 
   const isDescriptionInvalid = validDescription === ValidatedOptions.error && submissionSummary.length > 60;
-
-  const validateDomain = (dom: string) => {
-    const domain = dom.trim();
-    setValidDomain(domain.length > 0 ? ValidatedOptions.success : ValidatedOptions.error);
-  };
-
-  const validateOutline = (ol: string) => {
-    const outline = ol.trim();
-    setValidOutline(outline.length >= 40 ? ValidatedOptions.success : ValidatedOptions.error);
-  };
-
-  const isOutlineInvalid = validOutline === ValidatedOptions.error && documentOutline.length < 40;
 
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
@@ -159,49 +123,6 @@ const DetailsPage: React.FC<Props> = ({
                     variant={isDescriptionInvalid ? ValidatedOptions.error : ValidatedOptions.default}
                   >
                     Must be less than 60 characters. {60 - submissionSummary.trim().length} characters remaining
-                  </HelperTextItem>
-                </HelperText>
-              </FormGroup>
-              {setDomain ? (
-                <FormGroup key={'knowledge-info-details-domain'} label="Domain" isRequired>
-                  <TextInput
-                    isRequired
-                    type="text"
-                    aria-label="domain"
-                    placeholder="Enter domain information"
-                    value={domain}
-                    validated={validDomain}
-                    onChange={(_event, value) => setDomain(value)}
-                    onBlur={() => validateDomain(domain || '')}
-                  />
-                  {validDomain === ValidatedOptions.error && (
-                    <HelperText>
-                      <HelperTextItem icon={<ExclamationCircleIcon />} variant={validDomain}>
-                        Required field
-                      </HelperTextItem>
-                    </HelperText>
-                  )}
-                </FormGroup>
-              ) : null}
-              <FormGroup key={'knowledge-info-details-document_outline'} label="Document outline" isRequired>
-                <TextArea
-                  isRequired
-                  type="text"
-                  aria-label="document_outline"
-                  placeholder="Enter a detailed document outline (min 40 characters)"
-                  value={documentOutline}
-                  validated={isOutlineInvalid ? ValidatedOptions.error : ValidatedOptions.default}
-                  onChange={(_event, value) => setDocumentOutline(value)}
-                  minLength={40}
-                  onBlur={() => validateOutline(documentOutline)}
-                />
-                <HelperText>
-                  <HelperTextItem
-                    icon={isOutlineInvalid ? <ExclamationCircleIcon /> : undefined}
-                    variant={isOutlineInvalid ? ValidatedOptions.error : ValidatedOptions.default}
-                  >
-                    Required field and must be at least 40 characters.{' '}
-                    {40 - documentOutline.trim().length > 0 ? 40 - documentOutline.trim().length + ' more to go.' : ''}
                   </HelperTextItem>
                 </HelperText>
               </FormGroup>

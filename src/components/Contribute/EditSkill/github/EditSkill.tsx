@@ -35,7 +35,6 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
             email: '',
             name: '',
             submissionSummary: '',
-            documentOutline: '',
             filePath: '',
             seedExamples: [],
             titleWork: '',
@@ -52,7 +51,6 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
             oldFilesPath: ''
           };
 
-          skillExistingFormData.submissionSummary = prData.title;
           skillEditFormData.branchName = prData.head.ref; // Store the branch name from the pull request
 
           const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, prNumber);
@@ -72,7 +70,7 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
           console.log('Parsed YAML data:', yamlData);
 
           // Populate the form fields with YAML data
-          skillExistingFormData.documentOutline = yamlData.task_description;
+          skillExistingFormData.submissionSummary = yamlData.task_description;
 
           const seedExamples: SkillSeedExample[] = [];
           yamlData.seed_examples.forEach((seed, index) => {

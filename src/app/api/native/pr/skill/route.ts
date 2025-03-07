@@ -16,8 +16,8 @@ const SKILLS_DIR = 'compositional_skills';
 export async function POST(req: NextRequest) {
   const REPO_DIR = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
   try {
-    // Extract the QnA data from the request body TODO: what is documentOutline?
-    const { action, branchName, content, name, email, submissionSummary, documentOutline, filePath, oldFilesPath } = await req.json(); // eslint-disable-line @typescript-eslint/no-unused-vars
+    // Extract the QnA data from the request body
+    const { action, branchName, content, name, email, submissionSummary, filePath, oldFilesPath } = await req.json(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
     let skillBranchName;
     if (action == 'update' && branchName != '') {

@@ -32,7 +32,6 @@ const DefaultSkillFormData: SkillFormData = {
   email: '',
   name: '',
   submissionSummary: '',
-  documentOutline: '',
   filePath: '',
   seedExamples: createDefaultSkillSeedExamples(),
   titleWork: '',
@@ -107,13 +106,6 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
                 submissionSummary
               }))
             }
-            documentOutline={skillFormData.documentOutline}
-            setDocumentOutline={(documentOutline) =>
-              setSkillFormData((prev) => ({
-                ...prev,
-                documentOutline
-              }))
-            }
             rootPath="skills"
             filePath={skillFormData.filePath}
             setFilePath={setFilePath}
@@ -176,7 +168,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
     const yamlData: SkillYamlData = {
       created_by: formData.email!,
       version: SkillSchemaVersion,
-      task_description: skillFormData.documentOutline!,
+      task_description: skillFormData.submissionSummary,
       seed_examples: skillFormData.seedExamples.map((example) => ({
         context: example.context,
         question: example.questionAndAnswer.question,
