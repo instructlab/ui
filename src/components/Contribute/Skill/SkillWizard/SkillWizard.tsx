@@ -155,7 +155,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
         : []),
       {
         id: STEP_IDS[3],
-        name: 'Review Submission',
+        name: 'Review submission',
         component: (
           <ReviewSubmission
             contributionFormData={skillFormData}

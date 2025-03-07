@@ -16,7 +16,6 @@ import {
   PageGroup,
   PageSection,
   Title,
-  Truncate,
   Wizard,
   WizardStep
 } from '@patternfly/react-core';
@@ -203,10 +202,9 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
               {steps.map((step) => (
                 <WizardStep
                   key={step.id}
-                  isExpandable={!!step.subSteps}
                   id={step.id}
                   name={step.name}
-                  navItem={{ content: <Truncate content={step.name} /> }}
+                  navItem={{ content: <span>{step.name}</span> }}
                   status={getStepIndex(step.id) < activeStepIndex ? step.status : StepStatus.Default}
                   steps={
                     step.subSteps
@@ -215,7 +213,7 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
                             key={subStep.id}
                             id={subStep.id}
                             name={subStep.name}
-                            navItem={{ content: <Truncate content={subStep.name} /> }}
+                            navItem={{ content: <span>{subStep.name}</span> }}
                             status={getStepIndex(subStep.id) < activeStepIndex ? subStep.status : StepStatus.Default}
                           >
                             {subStep.component}

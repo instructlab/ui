@@ -120,7 +120,7 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, on
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
         <WizardPageHeader
-          title="Seed Examples"
+          title="Create seed data"
           description={
             <>
               Add seed examples with context and minimum 3 question and answer pairs. A minimum of five seed examples are required.{' '}

@@ -92,14 +92,14 @@ const AttributionInformation: React.FC<Props> = ({
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <WizardPageHeader title="Attribution Information" description="Provide attribution information." />
+        <WizardPageHeader title="Attribution details" description="Provide attribution information." />
       </FlexItem>
       <FlexItem>
         <Form>
           <FormGroup
             isRequired
             key={'attribution-info-details-title_work'}
-            label="Work title"
+            label="Title"
             labelHelp={<WizardFormGroupLabelHelp bodyContent="Description of work title" />}
           >
             <TextInput
@@ -209,7 +209,7 @@ const AttributionInformation: React.FC<Props> = ({
               </FormHelperText>
             )}
           </FormGroup>
-          <FormGroup isRequired key={'attribution-info-details-creators'} label="Author name">
+          <FormGroup isRequired key={'attribution-info-details-creators'} label="Author(s)">
             <TextInput
               isRequired
               type="text"
