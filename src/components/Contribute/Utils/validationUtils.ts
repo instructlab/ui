@@ -12,14 +12,8 @@ export const isAuthInfoValid = (knowledgeFormData: ContributionFormData): boolea
 
 export const isSubmissionSummaryValid = (formData: ContributionFormData): boolean => formData.submissionSummary.trim().length > 0;
 
-export const isDocumentOutlineValid = (formData: ContributionFormData): boolean => formData.documentOutline.trim().length >= 40;
-
 export const isDetailsValid = (formData: ContributionFormData): boolean =>
-  isAuthInfoValid(formData) && isSubmissionSummaryValid(formData) && isFilePathInfoValid(formData) && isDocumentOutlineValid(formData);
-
-export const isDomainValid = (knowledgeFormData: KnowledgeFormData): boolean => knowledgeFormData.domain.trim().length > 0;
-
-export const isKnowledgeDetailsValid = (formData: KnowledgeFormData): boolean => isDetailsValid(formData) && isDomainValid(formData);
+  isAuthInfoValid(formData) && isSubmissionSummaryValid(formData) && isFilePathInfoValid(formData);
 
 export const isFilePathInfoValid = (knowledgeFormData: ContributionFormData): boolean => knowledgeFormData.filePath.trim().length > 0;
 

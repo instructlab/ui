@@ -12,7 +12,7 @@ import { devLog } from '@/utils/devlog';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { addDocumentInfoToKnowledgeFormData } from '@/components/Contribute/Utils/documentUtils';
 import {
-  isKnowledgeDetailsValid,
+  isDetailsValid,
   isDocumentInfoValid,
   isKnowledgeAttributionInformationValid,
   isKnowledgeSeedExamplesValid
@@ -41,8 +41,6 @@ const DefaultKnowledgeFormData: KnowledgeFormData = {
   email: '',
   name: '',
   submissionSummary: '',
-  domain: '',
-  documentOutline: '',
   filePath: '',
   seedExamples: createDefaultKnowledgeSeedExamples(),
   knowledgeDocumentRepositoryUrl: '',
@@ -207,26 +205,12 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
                 submissionSummary
               }))
             }
-            domain={knowledgeFormData.domain}
-            setDomain={(domain) =>
-              setKnowledgeFormData((prev) => ({
-                ...prev,
-                domain
-              }))
-            }
-            documentOutline={knowledgeFormData.documentOutline}
-            setDocumentOutline={(documentOutline) =>
-              setKnowledgeFormData((prev) => ({
-                ...prev,
-                documentOutline
-              }))
-            }
             rootPath="knowledge"
             filePath={knowledgeFormData.filePath}
             setFilePath={setFilePath}
           />
         ),
-        status: isKnowledgeDetailsValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
+        status: isDetailsValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
       },
       ...(isGithubMode
         ? [
@@ -328,8 +312,8 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
     const yamlData: KnowledgeYamlData = {
       created_by: formData.email!,
       version: KnowledgeSchemaVersion,
-      domain: formData.domain!,
-      document_outline: formData.documentOutline!,
+      domain: formData.filePath,
+      document_outline: formData.submissionSummary,
       seed_examples: formData.seedExamples.map((example) => ({
         context: example.context!,
         questions_and_answers: example.questionAndAnswers.map((qa) => ({

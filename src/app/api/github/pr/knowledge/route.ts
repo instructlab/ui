@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { content, attribution, name, email, submissionSummary, documentOutline, filePath } = body;
+    const { content, attribution, name, email, submissionSummary, filePath } = body;
 
     const knowledgeData: KnowledgeYamlData = yaml.load(content) as KnowledgeYamlData;
     const attributionData: AttributionData = attribution;
@@ -78,7 +78,7 @@ Creator names: ${attributionData.creator_names}
     );
 
     // Create a pull request from the user's fork to the upstream repository
-    const pr = await createPullRequest(headers, githubUsername, branchName, submissionSummary, documentOutline);
+    const pr = await createPullRequest(headers, githubUsername, branchName, submissionSummary);
 
     return NextResponse.json(pr, { status: 201 });
   } catch (error) {
@@ -87,14 +87,13 @@ Creator names: ${attributionData.creator_names}
   }
 }
 
-async function createPullRequest(headers: HeadersInit, username: string, branchName: string, knowledgeSummary: string, documentOutline: string) {
+async function createPullRequest(headers: HeadersInit, username: string, branchName: string, knowledgeSummary: string) {
   const response = await fetch(`${GITHUB_API_URL}/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls`, {
     method: 'POST',
     headers,
     body: JSON.stringify({
       title: `Knowledge: ${knowledgeSummary}`,
       head: `${username}:${branchName}`,
-      body: documentOutline,
       base: BASE_BRANCH
     })
   });

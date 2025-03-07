@@ -51,22 +51,6 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ contribution
                   <div>{contributionFormData.submissionSummary}</div>
                 </DescriptionListDescription>
               </DescriptionListGroup>,
-              ...(!isSkillContribution
-                ? [
-                    <DescriptionListGroup key="domain">
-                      <DescriptionListTerm>Domain</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        <div>{(contributionFormData as KnowledgeFormData).domain}</div>
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                  ]
-                : []),
-              <DescriptionListGroup key="document-outline">
-                <DescriptionListTerm>Document outline</DescriptionListTerm>
-                <DescriptionListDescription>
-                  <div>{contributionFormData.documentOutline}</div>
-                </DescriptionListDescription>
-              </DescriptionListGroup>,
               <DescriptionListGroup key="file-path">
                 <DescriptionListTerm>Directory path</DescriptionListTerm>
                 <DescriptionListDescription>

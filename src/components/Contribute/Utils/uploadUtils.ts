@@ -35,9 +35,7 @@ export const yamlKnowledgeSeedExampleToFormSeedExample = (
 
 export const addYamlUploadKnowledge = (knowledgeFormData: KnowledgeFormData, data: KnowledgeYamlData): KnowledgeFormData => ({
   ...knowledgeFormData,
-  documentOutline: data.document_outline ?? '',
   submissionSummary: data.document_outline ?? '',
-  domain: data.domain ?? '',
   knowledgeDocumentRepositoryUrl: data.document.repo ?? '',
   knowledgeDocumentCommit: data.document.commit ?? '',
   documentName: data.document.patterns.join(', ') ?? '',
@@ -69,6 +67,6 @@ const yamlSkillSeedExampleToFormSeedExample = (yamlSeedExamples: { question: str
 
 export const addYamlUploadSkill = (skillFormData: SkillFormData, data: SkillYamlData): SkillFormData => ({
   ...skillFormData,
-  documentOutline: data.task_description ?? '',
+  submissionSummary: data.task_description ?? '',
   seedExamples: yamlSkillSeedExampleToFormSeedExample(data.seed_examples)
 });

@@ -45,7 +45,6 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
             email: '',
             name: '',
             submissionSummary: '',
-            documentOutline: '',
             filePath: '',
             seedExamples: [],
             titleWork: '',
@@ -79,7 +78,7 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
                 if (change.file.includes('qna.yaml')) {
                   const yamlData: SkillYamlData = yaml.load(change.content) as SkillYamlData;
                   console.log('Parsed skill YAML data:', yamlData);
-                  skillExistingFormData.documentOutline = yamlData.task_description;
+                  skillExistingFormData.submissionSummary = yamlData.task_description;
                   const seedExamples: SkillSeedExample[] = [];
                   yamlData.seed_examples.forEach((seed, index) => {
                     const example: SkillSeedExample = {

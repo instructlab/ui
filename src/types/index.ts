@@ -75,7 +75,6 @@ export interface PullRequestFile {
 
 export interface PullRequestUpdateData {
   title: string;
-  body: string;
 }
 
 export interface QuestionAndAnswerPair {
@@ -109,7 +108,6 @@ export interface ContributionFormData {
   email: string;
   name: string;
   submissionSummary: string;
-  documentOutline: string;
   filePath: string;
   titleWork: string;
   licenseWork: string;
@@ -121,7 +119,6 @@ export interface SkillFormData extends ContributionFormData {
 }
 
 export interface KnowledgeFormData extends ContributionFormData {
-  domain: string;
   knowledgeDocumentRepositoryUrl: string;
   knowledgeDocumentCommit: string;
   documentName: string;
