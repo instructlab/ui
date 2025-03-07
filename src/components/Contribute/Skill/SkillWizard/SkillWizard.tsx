@@ -80,6 +80,14 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
     setActionGroupAlertContent(undefined);
   };
 
+  const updateActionGroupAlertContent = (newContent: ActionGroupAlertContent | undefined) => {
+    // In order to restart the timer, we must re-create the Alert not re-use it. Clear it for one round then set the new info
+    setActionGroupAlertContent(undefined);
+    if (newContent) {
+      requestAnimationFrame(() => setActionGroupAlertContent(newContent));
+    }
+  };
+
   useEffect(() => {
     devLog('Seed Examples Updated:', skillFormData.seedExamples);
   }, [skillFormData.seedExamples]);
@@ -181,16 +189,16 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
   const handleSubmit = async (githubUsername: string): Promise<boolean> => {
     if (skillEditFormData) {
       const result = isGithubMode
-        ? await updateGithubSkillData(session, skillFormData, skillEditFormData, setActionGroupAlertContent)
-        : await updateNativeSkillData(skillFormData, skillEditFormData, setActionGroupAlertContent);
+        ? await updateGithubSkillData(session, skillFormData, skillEditFormData, updateActionGroupAlertContent)
+        : await updateNativeSkillData(skillFormData, skillEditFormData, updateActionGroupAlertContent);
       if (result) {
         router.push('/dashboard');
       }
       return false;
     }
     const result = isGithubMode
-      ? await submitGithubSkillData(skillFormData, githubUsername, setActionGroupAlertContent)
-      : await submitNativeSkillData(skillFormData, setActionGroupAlertContent);
+      ? await submitGithubSkillData(skillFormData, githubUsername, updateActionGroupAlertContent)
+      : await submitNativeSkillData(skillFormData, updateActionGroupAlertContent);
     if (result) {
       const newFormData = { ...DefaultSkillFormData };
       newFormData.name = skillFormData.name;
@@ -203,10 +211,11 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
 
   const onYamlUploadSkillFillForm = (data: SkillYamlData): void => {
     setSkillFormData(addYamlUploadSkill(skillFormData, data));
-    setActionGroupAlertContent({
+    updateActionGroupAlertContent({
       title: 'YAML Uploaded Successfully',
       message: 'Your skill form has been populated based on the uploaded YAML file.',
-      success: true
+      success: true,
+      timeout: true
     });
     setIsYamlModalOpen(false);
   };
@@ -238,7 +247,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
           onClose={() => setIsYamlModalOpen(false)}
           isKnowledgeForm={false}
           onYamlUploadSkillsFillForm={onYamlUploadSkillFillForm}
-          setActionGroupAlertContent={setActionGroupAlertContent}
+          setActionGroupAlertContent={updateActionGroupAlertContent}
         />
       ) : null}
     </>

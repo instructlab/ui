@@ -120,6 +120,18 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
     };
   }, [isGithubMode, knowledgeEditFormData?.isEditForm]);
 
+  const onCloseActionGroupAlert = () => {
+    setActionGroupAlertContent(undefined);
+  };
+
+  const updateActionGroupAlertContent = (newContent: ActionGroupAlertContent | undefined) => {
+    // In order to restart the timer, we must re-create the Alert not re-use it. Clear it for one round then set the new info
+    setActionGroupAlertContent(undefined);
+    if (newContent) {
+      requestAnimationFrame(() => setActionGroupAlertContent(newContent));
+    }
+  };
+
   // Function to append document information (Updated for single repositoryUrl and commitSha)
   // Within src/components/Contribute/Native/index.tsx
   const addDocumentInfoHandler = React.useCallback(
@@ -127,7 +139,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       devLog(`addDocumentInfoHandler: repoUrl=${repoUrl}, commitSha=${commitShaValue}, docName=${docName}`);
       if (knowledgeFormData.knowledgeDocumentCommit && commitShaValue !== knowledgeFormData.knowledgeDocumentCommit) {
         console.error('Cannot add documents from different commit SHAs.');
-        setActionGroupAlertContent({
+        updateActionGroupAlertContent({
           title: 'Invalid Selection',
           message: 'All documents must be from the same commit SHA.',
           success: false
@@ -140,10 +152,6 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
   );
 
   const setFilePath = React.useCallback((filePath: string) => setKnowledgeFormData((prev) => ({ ...prev, filePath })), []);
-
-  const onCloseActionGroupAlert = () => {
-    setActionGroupAlertContent(undefined);
-  };
 
   useEffect(() => {
     devLog('Seed Examples Updated:', knowledgeFormData.seedExamples);
@@ -178,6 +186,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
               filesToUpload: files
             }))
           }
+          setActionGroupAlertContent={updateActionGroupAlertContent}
         />
       ),
       status: isDocumentInfoValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
@@ -333,16 +342,16 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
   const handleSubmit = async (githubUsername: string): Promise<boolean> => {
     if (knowledgeEditFormData) {
       const result = isGithubMode
-        ? await updateGithubKnowledgeData(session, knowledgeFormData, knowledgeEditFormData, setActionGroupAlertContent)
-        : await updateNativeKnowledgeData(knowledgeFormData, knowledgeEditFormData, setActionGroupAlertContent);
+        ? await updateGithubKnowledgeData(session, knowledgeFormData, knowledgeEditFormData, updateActionGroupAlertContent)
+        : await updateNativeKnowledgeData(knowledgeFormData, knowledgeEditFormData, updateActionGroupAlertContent);
       if (result) {
         router.push('/dashboard');
       }
       return false;
     }
     const result = isGithubMode
-      ? await submitGithubKnowledgeData(knowledgeFormData, githubUsername, setActionGroupAlertContent)
-      : await submitNativeKnowledgeData(knowledgeFormData, setActionGroupAlertContent);
+      ? await submitGithubKnowledgeData(knowledgeFormData, githubUsername, updateActionGroupAlertContent)
+      : await submitNativeKnowledgeData(knowledgeFormData, updateActionGroupAlertContent);
     if (result) {
       const newFormData = { ...DefaultKnowledgeFormData };
       newFormData.name = knowledgeFormData.name;
@@ -354,7 +363,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
 
   const onYamlUploadKnowledgeFillForm = (data: KnowledgeYamlData): void => {
     setKnowledgeFormData(addYamlUploadKnowledge(knowledgeFormData, data));
-    setActionGroupAlertContent({
+    updateActionGroupAlertContent({
       title: 'YAML Uploaded Successfully',
       message: 'Your knowledge form has been populated based on the uploaded YAML file.',
       success: true
@@ -390,7 +399,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
           onClose={() => setIsYamlModalOpen(false)}
           isKnowledgeForm={true}
           onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
-          setActionGroupAlertContent={setActionGroupAlertContent}
+          setActionGroupAlertContent={updateActionGroupAlertContent}
         />
       ) : null}
     </>

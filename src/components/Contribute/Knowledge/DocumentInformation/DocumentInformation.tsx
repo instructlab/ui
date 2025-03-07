@@ -1,9 +1,10 @@
 // src/components/Contribute/Knowledge/Native/DocumentInformation/DocumentInformation.tsx
 import React from 'react';
-import { Alert, AlertActionLink, AlertActionCloseButton, AlertGroup, Button, Flex, FlexItem, Form, FormGroup } from '@patternfly/react-core';
+import { Button, Flex, FlexItem } from '@patternfly/react-core';
 import { UploadFile } from '@/components/Contribute/Knowledge/UploadFile';
 import WizardPageHeader from '@/components/Common/WizardPageHeader';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
+import { ActionGroupAlertContent } from '@/components/Contribute/types';
 
 const GITHUB_KNOWLEDGE_FILES_URL = '/api/github/knowledge-files';
 const NATIVE_GIT_KNOWLEDGE_FILES_URL = '/api/native/git/knowledge-files';
@@ -15,13 +16,7 @@ interface Props {
   setDocumentName: (val: string) => void;
   filesToUpload: File[];
   setFilesToUpload: (val: File[]) => void;
-}
-
-interface AlertInfo {
-  type: 'success' | 'danger' | 'info';
-  title: string;
-  message: string;
-  link?: string;
+  setActionGroupAlertContent: (alertContent: ActionGroupAlertContent | undefined) => void;
 }
 
 const DocumentInformation: React.FC<Props> = ({
@@ -30,24 +25,19 @@ const DocumentInformation: React.FC<Props> = ({
   setKnowledgeDocumentCommit,
   setDocumentName,
   filesToUpload,
-  setFilesToUpload
+  setFilesToUpload,
+  setActionGroupAlertContent
 }) => {
-  const [alertInfo, setAlertInfo] = React.useState<AlertInfo | undefined>();
-
-  const updateAlertInfo = (newInfo: AlertInfo) => {
-    // In order to restart the timer, we must re-create the Alert not re-use it. Clear it for one round then set the new info
-    setAlertInfo(undefined);
-    requestAnimationFrame(() => setAlertInfo(newInfo));
-  };
-
   const handleDocumentUpload = async () => {
     if (filesToUpload.length > 0) {
-      const alertInfo: AlertInfo = {
-        type: 'info',
+      const alertInfo: ActionGroupAlertContent = {
         title: 'Document upload(s) in progress!',
-        message: 'Document upload(s) is in progress. You will be notified once the upload successfully completes.'
+        message: 'Document upload(s) is in progress. You will be notified once the upload successfully completes.',
+        waitAlert: true,
+        success: true,
+        timeout: true
       };
-      updateAlertInfo(alertInfo);
+      setActionGroupAlertContent(alertInfo);
 
       const fileContents: { fileName: string; fileContent: string }[] = [];
 
@@ -84,32 +74,35 @@ const DocumentInformation: React.FC<Props> = ({
             setDocumentName(result.documentNames.join(', ')); // Populate the patterns
             setFilesToUpload([]);
 
-            const alertInfo: AlertInfo = {
-              type: 'success',
+            const alertInfo: ActionGroupAlertContent = {
+              success: true,
               title: 'Document uploaded successfully!',
-              message: 'Documents have been submitted to local taxonomy knowledge docs repo to be referenced in the knowledge submission.'
+              message: 'Documents have been submitted to local taxonomy knowledge docs repo to be referenced in the knowledge submission.',
+              url: result.prUrl,
+              isUrlExternal: true,
+              urlText: 'View it here',
+              timeout: true
             };
-            if (result.prUrl !== '') {
-              alertInfo.link = result.prUrl;
-            }
-            updateAlertInfo(alertInfo);
+            setActionGroupAlertContent(alertInfo);
           } else {
             console.error('Knowledge document upload failed:', response.statusText);
-            const alertInfo: AlertInfo = {
-              type: 'danger',
+            const alertInfo: ActionGroupAlertContent = {
+              success: false,
               title: 'Failed to upload document!',
-              message: `This upload failed. ${response.statusText}`
+              message: `This upload failed. ${response.statusText}`,
+              timeout: true
             };
-            updateAlertInfo(alertInfo);
+            setActionGroupAlertContent(alertInfo);
           }
         } catch (error) {
           console.error('Knowledge document upload encountered an error:', error);
-          const alertInfo: AlertInfo = {
-            type: 'danger',
+          const alertInfo: ActionGroupAlertContent = {
+            success: false,
             title: 'Failed to upload document!',
-            message: `This upload failed. ${(error as Error).message}`
+            message: `This upload failed. ${(error as Error).message}`,
+            timeout: true
           };
-          updateAlertInfo(alertInfo);
+          setActionGroupAlertContent(alertInfo);
         }
       }
     }
@@ -147,26 +140,6 @@ const DocumentInformation: React.FC<Props> = ({
           Submit Files
         </Button>
       </FlexItem>
-      <AlertGroup isToast isLiveRegion>
-        {alertInfo ? (
-          <Alert
-            timeout
-            variant={alertInfo.type}
-            title={alertInfo.title}
-            actionClose={<AlertActionCloseButton onClose={() => setAlertInfo(undefined)} />}
-            actionLinks={
-              alertInfo.link && (
-                <AlertActionLink component="a" href={alertInfo.link} target="_blank" rel="noopener noreferrer">
-                  View it here
-                </AlertActionLink>
-              )
-            }
-            onTimeout={() => setAlertInfo(undefined)}
-          >
-            {alertInfo.message}
-          </Alert>
-        ) : null}
-      </AlertGroup>
     </Flex>
   );
 };
