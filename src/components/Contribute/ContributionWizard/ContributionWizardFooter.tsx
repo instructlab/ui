@@ -15,7 +15,6 @@ import ViewDropdownButton from '@/components/Contribute/ContributionWizard/ViewD
 import { ContributionFormData } from '@/types';
 
 interface Props {
-  isValid: boolean;
   formData: ContributionFormData;
   isGithubMode: boolean;
   isSkillContribution: boolean;
@@ -26,16 +25,7 @@ interface Props {
   onCancel: () => void;
 }
 
-const ContributionWizardFooter: React.FC<Props> = ({
-  isValid,
-  formData,
-  isGithubMode,
-  isSkillContribution,
-  showSubmit,
-  onSubmit,
-  convertToYaml,
-  isEdit
-}) => {
+const ContributionWizardFooter: React.FC<Props> = ({ formData, isGithubMode, isSkillContribution, showSubmit, onSubmit, convertToYaml, isEdit }) => {
   const { steps, activeStep, goToNextStep, goToPrevStep, goToStepByIndex, close } = useWizardContext();
 
   const prevDisabled = steps.indexOf(activeStep) < 1;

@@ -192,7 +192,6 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
                   isGithubMode={isGithubMode}
                   isSkillContribution={isSkillContribution}
                   onSubmit={() => onSubmit(githubUsername)}
-                  isValid={true}
                   showSubmit={submitEnabled}
                   isEdit={!!editFormData}
                   convertToYaml={convertToYaml}
