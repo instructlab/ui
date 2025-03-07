@@ -140,20 +140,12 @@ const DocumentInformation: React.FC<Props> = ({
         />
       </FlexItem>
       <FlexItem>
-        <Form>
-          <FormGroup isRequired label="Uploaded files">
-            <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
-              <FlexItem>
-                <UploadFile filesToUpload={filesToUpload} setFilesToUpload={setFilesToUpload} />
-              </FlexItem>
-              <FlexItem>
-                <Button variant="primary" onClick={handleDocumentUpload} isDisabled={filesToUpload.length === 0}>
-                  Submit Files
-                </Button>
-              </FlexItem>
-            </Flex>
-          </FormGroup>
-        </Form>
+        <UploadFile filesToUpload={filesToUpload} setFilesToUpload={setFilesToUpload} />
+      </FlexItem>
+      <FlexItem>
+        <Button variant="primary" onClick={handleDocumentUpload} isDisabled={filesToUpload.length === 0}>
+          Submit Files
+        </Button>
       </FlexItem>
       <AlertGroup isToast isLiveRegion>
         {alertInfo ? (

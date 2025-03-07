@@ -14,7 +14,8 @@ import {
   ModalHeader,
   Flex,
   FlexItem,
-  MultipleFileUploadContext
+  MultipleFileUploadContext,
+  Content
 } from '@patternfly/react-core';
 import { UploadIcon } from '@patternfly/react-icons';
 import React, { useState, useEffect } from 'react';
@@ -288,8 +289,8 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ filesToUp
               titleText="Drag and drop files here or upload"
               infoText={
                 <>
-                  Accepted file types: PDF, DOCX, PPTX, XLSX, Images, HTML, AsciiDoc & Markdown. <br />
-                  <strong>Non-Markdown files will be automatically converted to Markdown for context selection.</strong>
+                  <Content>Accepted file types: PDF, DOCX, PPTX, XLSX, Images, HTML, AsciiDoc & Markdown.</Content>
+                  <Content>Non-Markdown files will be automatically converted to Markdown for context selection.</Content>
                 </>
               }
               uploadText="Upload from device"

@@ -288,7 +288,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         : [documentInformationStep]),
       {
         id: STEP_IDS[4],
-        name: 'Seed Examples',
+        name: 'Create seed data',
         component: (
           <KnowledgeSeedExamples
             isGithubMode={isGithubMode}
@@ -308,7 +308,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       },
       {
         id: STEP_IDS[5],
-        name: 'Review',
+        name: 'Review submission',
         component: (
           <ReviewSubmission
             isSkillContribution={false}

@@ -59,7 +59,7 @@ const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onSelectContext, onU
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
         <WizardPageHeader
-          title="Seed Examples"
+          title="Create seed data"
           description={
             <>
               Add seed examples with context and minimum 3 question and answer pairs. A minimum of five seed examples are required.{' '}
