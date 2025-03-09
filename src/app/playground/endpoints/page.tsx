@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, {  ReactNode, useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AppLayout } from '@/components/AppLayout';
 import { Endpoint } from '@/types';
@@ -31,20 +31,36 @@ import {
   TextInput,
   Title
 } from '@patternfly/react-core';
-import { EyeSlashIcon, EyeIcon, QuestionCircleIcon } from '@patternfly/react-icons';
+import { BanIcon, CheckCircleIcon, EyeSlashIcon, EyeIcon, QuestionCircleIcon } from '@patternfly/react-icons';
+import { SVGIconProps } from '@patternfly/react-icons/dist/esm/createIcon';
 
-enum ModelEndpointStatus {
-  AVAILABLE = "available",
-  UNAVAILABLE = "unavailable",
-  UNKNOWN = "unknown",
-  UNINITIALIZED = "uninitialized"
+interface ModelEndpointStatus {
+  status: string;
+  icon: ReactNode;
 }
+
+const availableModelEndpointStatus: ModelEndpointStatus = {
+  status: "available",
+  icon: <CheckCircleIcon style={{color: "var(--pf-t--global--border--color--status--success--default)" }}/>,
+};
+
+const unavailableModelEndpointStatus: ModelEndpointStatus = {
+  status: "unavailable",
+  icon: <BanIcon style={{ color: "var(--pf-t--global--icon--color--status--danger--default)" }}/>,
+};
+
+const unknownModelEndpointStatus: ModelEndpointStatus = {
+  status: "unknown",
+  icon: <QuestionCircleIcon style={{color: "var(--pf-t--global--icon--color--disabled)"}} />,
+};
+
 
 async function checkEndpointStatus(
   endpointURL: string,
   modelName: string,
   apiKey: string
 ): Promise<ModelEndpointStatus> {
+  console.log("checking the model endpoint")
   let headers;
   if (apiKey != "") {
     headers = {
@@ -61,12 +77,12 @@ async function checkEndpointStatus(
       headers: headers
     });
     if (response.ok) {
-      return ModelEndpointStatus.AVAILABLE;
+      return availableModelEndpointStatus;
     } else {
-      return ModelEndpointStatus.UNAVAILABLE;
+      return unavailableModelEndpointStatus;
     }
   } catch (error) {
-    return ModelEndpointStatus.UNKNOWN;
+    return unknownModelEndpointStatus;
   }
 }
 
@@ -85,7 +101,7 @@ const EndpointsPage: React.FC = () => {
   const [modelName, setModelName] = useState('');
   const [modelDescription, setModelDescription] = useState('');
   const [apiKey, setApiKey] = useState('');
-  const [endpointStatus, setEndpointStatus] = useState('');
+  const [endpointStatus, setEndpointStatus] = useState(unknownModelEndpointStatus);
 
   useEffect(() => {
     const storedEndpoints = localStorage.getItem('endpoints');
@@ -137,7 +153,7 @@ const EndpointsPage: React.FC = () => {
       setModelName('');
       setModelDescription('');
       setApiKey('');
-      setEndpointStatus(ModelEndpointStatus.UNINITIALIZED)
+      setEndpointStatus(unknownModelEndpointStatus)
       handleModalToggle();
     }
   };
@@ -163,14 +179,14 @@ const EndpointsPage: React.FC = () => {
   };
 
   const handleAddEndpoint = () => {
-    setCurrentEndpoint({ id: '', name: '', description: '', url: '', modelName: '', modelDescription: '', apiKey: '', isApiKeyVisible: false, status: ModelEndpointStatus.UNINITIALIZED});
+    setCurrentEndpoint({ id: '', name: '', description: '', url: '', modelName: '', modelDescription: '', apiKey: '', isApiKeyVisible: false, status: unknownModelEndpointStatus});
     setEndpointName('');
     setEndpointDescription('');
     setUrl('');
     setModelName('');
     setModelDescription('');
     setApiKey('');
-    setEndpointStatus(ModelEndpointStatus.UNINITIALIZED)
+    setEndpointStatus(unknownModelEndpointStatus)
     handleModalToggle();
   };
 
@@ -198,7 +214,6 @@ const EndpointsPage: React.FC = () => {
           <BreadcrumbItem isActive>Custom Model Endpoints</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
-
       <PageSection hasBodyWrapper={false}>
         <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
           <FlexItem>
@@ -229,7 +244,8 @@ const EndpointsPage: React.FC = () => {
                       <strong>Endpoint Name:</strong> {endpoint.name}
                     </DataListCell>,
                     <DataListCell key="status">
-                    <strong>Endpoint Status:</strong> {endpoint.name}
+                    <strong>Endpoint Status:</strong> {endpoint.status?.status}
+                    {endpoint.status?.icon}
                     </DataListCell>,
                     <DataListCell key="description">
                       <strong>Endpoint Description:</strong> {endpoint.description}
@@ -250,7 +266,7 @@ const EndpointsPage: React.FC = () => {
                 />
                 <DataListAction aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
                   <Button variant="primary" onClick={() => handleEditEndpoint(endpoint)}>
-                    Edit
+                    Disable
                   </Button>
                   <Button variant="danger" onClick={() => handleDeleteEndpoint(endpoint.id)}>
                     Delete
@@ -285,7 +301,7 @@ const EndpointsPage: React.FC = () => {
                   id="endpointName"
                   name="endpointName"
                   value={endpointName}
-                  onChange={(_, value) => setModelName(value)}
+                  onChange={(_, value) => setEndpointName(value)}
                   placeholder="Enter name"
                 />
               </FormGroup>
@@ -295,7 +311,7 @@ const EndpointsPage: React.FC = () => {
                   id="endpointDescription"
                   name="endpointDescription"
                   value={endpointDescription}
-                  onChange={(_, value) => setModelName(value)}
+                  onChange={(_, value) => setEndpointDescription(value)}
                   placeholder="Enter description"
                 />
               </FormGroup>
@@ -341,7 +357,7 @@ const EndpointsPage: React.FC = () => {
                   id="modelDescription"
                   name="modelDescription"
                   value={modelDescription}
-                  onChange={(_, value) => setModelName(value)}
+                  onChange={(_, value) => setModelDescription(value)}
                   placeholder="Enter description"
                 />
               </FormGroup>
