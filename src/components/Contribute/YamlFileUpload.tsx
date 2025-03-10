@@ -17,7 +17,7 @@ interface YamlFileUploadProps {
   isKnowledgeForm: boolean;
   onYamlUploadKnowledgeFillForm?: (data: KnowledgeYamlData) => void;
   onYamlUploadSkillsFillForm?: (data: SkillYamlData) => void;
-  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
+  setActionGroupAlertContent: (alertContent: ActionGroupAlertContent | undefined) => void;
 }
 
 const YamlFileUpload: React.FC<YamlFileUploadProps> = ({

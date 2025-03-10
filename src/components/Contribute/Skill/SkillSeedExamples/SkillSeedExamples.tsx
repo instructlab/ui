@@ -12,8 +12,8 @@ import {
   handleSkillSeedExamplesQuestionInputChange,
   toggleSkillSeedExamplesExpansion
 } from '@/components/Contribute/Utils/seedExampleUtils';
-import PageHeader from '@/components/Contribute/PageHeader';
 import SkillQuestionAnswerPairs from '@/components/Contribute/Skill/SkillSeedExamples/SkillQuestionAnswerPairs';
+import WizardPageHeader from '@/components/Common/WizardPageHeader';
 
 interface Props {
   seedExamples: SkillSeedExample[];
@@ -58,8 +58,8 @@ const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onSelectContext, onU
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <PageHeader
-          title="Seed Examples"
+        <WizardPageHeader
+          title="Create seed data"
           description={
             <>
               Add seed examples with context and minimum 3 question and answer pairs. A minimum of five seed examples are required.{' '}

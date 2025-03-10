@@ -155,16 +155,6 @@ export const validateKnowledgeFormFields = (
     }
   }
 
-  if (knowledgeFormData.documentOutline && knowledgeFormData.documentOutline.length < 40) {
-    const actionGroupAlertContent: ActionGroupAlertContent = {
-      title: `Document outline issue!`,
-      message: `Document outline should be at least 40 characters long.`,
-      success: false
-    };
-    setActionGroupAlertContent(actionGroupAlertContent);
-    return false;
-  }
-
   return true;
 };
 
@@ -240,14 +230,5 @@ export const validateSkillFormFields = (
     return false;
   }
 
-  if (skillFormData.documentOutline && skillFormData.documentOutline.length < 40) {
-    const actionGroupAlertContent: ActionGroupAlertContent = {
-      title: `Task description issue!`,
-      message: `Task description should be at least 40 characters long.`,
-      success: false
-    };
-    setActionGroupAlertContent(actionGroupAlertContent);
-    return false;
-  }
   return true;
 };

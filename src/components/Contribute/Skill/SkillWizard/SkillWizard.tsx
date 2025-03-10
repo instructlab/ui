@@ -8,13 +8,7 @@ import { devLog } from '@/utils/devlog';
 import { SkillSchemaVersion } from '@/types/const';
 import { ContributionFormData, SkillEditFormData, SkillFormData, SkillYamlData } from '@/types';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
-import {
-  isAttributionInformationValid,
-  isAuthInfoValid,
-  isFilePathInfoValid,
-  isSkillSeedExamplesValid,
-  isSkillInfoValid
-} from '@/components/Contribute/Utils/validationUtils';
+import { isAttributionInformationValid, isSkillSeedExamplesValid, isDetailsValid } from '@/components/Contribute/Utils/validationUtils';
 import {
   submitGithubSkillData,
   submitNativeSkillData,
@@ -24,23 +18,20 @@ import {
 import { addYamlUploadSkill } from '@/components/Contribute/Utils/uploadUtils';
 import { createDefaultSkillSeedExamples } from '@/components/Contribute/Utils/seedExampleUtils';
 import AttributionInformation from '@/components/Contribute/AttributionInformation/AttributionInformation';
-import AuthorInformation from '@/components/Contribute/AuthorInformation/AuthorInformation';
-import FilePathInformation from '@/components/Contribute/FilePathInformation/FilePathInformation';
 import { ContributionWizard, StepStatus, StepType } from '@/components/Contribute/ContributionWizard/ContributionWizard';
 import { YamlFileUploadModal } from '@/components/Contribute/YamlFileUploadModal';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
-import SkillsInformation from '@/components/Contribute/Skill/SkillsInformation/SkillsInformation';
 import ReviewSubmission from '@/components/Contribute/ReviewSubmission/ReviewSubmission';
 import SkillSeedExamples from '@/components/Contribute/Skill/SkillSeedExamples/SkillSeedExamples';
 import SkillSeedExamplesReviewSection from '@/components/Contribute/Skill/SkillSeedExamples/SkillSeedExamplesReviewSection';
 
 import './skills.css';
+import DetailsPage from '@/components/Contribute/DetailsPage/DetailsPage';
 
 const DefaultSkillFormData: SkillFormData = {
   email: '',
   name: '',
   submissionSummary: '',
-  documentOutline: '',
   filePath: '',
   seedExamples: createDefaultSkillSeedExamples(),
   titleWork: '',
@@ -53,7 +44,7 @@ export interface Props {
   isGithubMode: boolean;
 }
 
-const STEP_IDS = ['author-info', 'skill-info', 'file-path-info', 'document-info', 'seed-examples', 'attribution-info', 'review-submission'];
+const STEP_IDS = ['details', 'seed-examples', 'attribution-info', 'review-submission'];
 
 export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData, isGithubMode }) => {
   const { data: session } = useSession();
@@ -89,6 +80,14 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
     setActionGroupAlertContent(undefined);
   };
 
+  const updateActionGroupAlertContent = (newContent: ActionGroupAlertContent | undefined) => {
+    // In order to restart the timer, we must re-create the Alert not re-use it. Clear it for one round then set the new info
+    setActionGroupAlertContent(undefined);
+    if (newContent) {
+      requestAnimationFrame(() => setActionGroupAlertContent(newContent));
+    }
+  };
+
   useEffect(() => {
     devLog('Seed Examples Updated:', skillFormData.seedExamples);
   }, [skillFormData.seedExamples]);
@@ -97,23 +96,17 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
     () => [
       {
         id: STEP_IDS[0],
-        name: 'Author Information',
+        name: 'Details',
         component: (
-          <AuthorInformation
+          <DetailsPage
+            isEditForm={skillEditFormData?.isEditForm}
+            infoSectionTitle="Skill information"
+            infoSectionDescription="Provide brief information about the Skills."
+            isGithubMode={isGithubMode}
             email={skillFormData.email}
             setEmail={(email) => setSkillFormData((prev) => ({ ...prev, email }))}
             name={skillFormData.name}
             setName={(name) => setSkillFormData((prev) => ({ ...prev, name }))}
-          />
-        ),
-        status: isAuthInfoValid(skillFormData) ? StepStatus.Success : StepStatus.Error
-      },
-      {
-        id: STEP_IDS[1],
-        name: 'Skill Information',
-        component: (
-          <SkillsInformation
-            isEditForm={skillEditFormData?.isEditForm}
             submissionSummary={skillFormData.submissionSummary}
             setSubmissionSummary={(submissionSummary) =>
               setSkillFormData((prev) => ({
@@ -121,25 +114,15 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
                 submissionSummary
               }))
             }
-            documentOutline={skillFormData.documentOutline}
-            setDocumentOutline={(documentOutline) =>
-              setSkillFormData((prev) => ({
-                ...prev,
-                documentOutline
-              }))
-            }
+            rootPath="skills"
+            filePath={skillFormData.filePath}
+            setFilePath={setFilePath}
           />
         ),
-        status: isSkillInfoValid(skillFormData) ? StepStatus.Success : StepStatus.Error
+        status: isDetailsValid(skillFormData) ? StepStatus.Success : StepStatus.Error
       },
       {
-        id: STEP_IDS[2],
-        name: 'File Path Information',
-        component: <FilePathInformation rootPath="skills" path={skillFormData.filePath} setFilePath={setFilePath} />,
-        status: isFilePathInfoValid(skillFormData) ? StepStatus.Success : StepStatus.Error
-      },
-      {
-        id: STEP_IDS[3],
+        id: STEP_IDS[1],
         name: 'Create seed data',
         component: (
           <SkillSeedExamples
@@ -152,7 +135,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
       ...(isGithubMode
         ? [
             {
-              id: STEP_IDS[5],
+              id: STEP_IDS[2],
               name: 'Attribution Information',
               component: (
                 <AttributionInformation
@@ -171,8 +154,8 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
           ]
         : []),
       {
-        id: STEP_IDS[6],
-        name: 'Review Submission',
+        id: STEP_IDS[3],
+        name: 'Review submission',
         component: (
           <ReviewSubmission
             contributionFormData={skillFormData}
@@ -193,7 +176,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
     const yamlData: SkillYamlData = {
       created_by: formData.email!,
       version: SkillSchemaVersion,
-      task_description: skillFormData.documentOutline!,
+      task_description: skillFormData.submissionSummary,
       seed_examples: skillFormData.seedExamples.map((example) => ({
         context: example.context,
         question: example.questionAndAnswer.question,
@@ -206,16 +189,16 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
   const handleSubmit = async (githubUsername: string): Promise<boolean> => {
     if (skillEditFormData) {
       const result = isGithubMode
-        ? await updateGithubSkillData(session, skillFormData, skillEditFormData, setActionGroupAlertContent)
-        : await updateNativeSkillData(skillFormData, skillEditFormData, setActionGroupAlertContent);
+        ? await updateGithubSkillData(session, skillFormData, skillEditFormData, updateActionGroupAlertContent)
+        : await updateNativeSkillData(skillFormData, skillEditFormData, updateActionGroupAlertContent);
       if (result) {
         router.push('/dashboard');
       }
       return false;
     }
     const result = isGithubMode
-      ? await submitGithubSkillData(skillFormData, githubUsername, setActionGroupAlertContent)
-      : await submitNativeSkillData(skillFormData, setActionGroupAlertContent);
+      ? await submitGithubSkillData(skillFormData, githubUsername, updateActionGroupAlertContent)
+      : await submitNativeSkillData(skillFormData, updateActionGroupAlertContent);
     if (result) {
       const newFormData = { ...DefaultSkillFormData };
       newFormData.name = skillFormData.name;
@@ -228,10 +211,11 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
 
   const onYamlUploadSkillFillForm = (data: SkillYamlData): void => {
     setSkillFormData(addYamlUploadSkill(skillFormData, data));
-    setActionGroupAlertContent({
+    updateActionGroupAlertContent({
       title: 'YAML Uploaded Successfully',
       message: 'Your skill form has been populated based on the uploaded YAML file.',
-      success: true
+      success: true,
+      timeout: true
     });
     setIsYamlModalOpen(false);
   };
@@ -263,7 +247,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
           onClose={() => setIsYamlModalOpen(false)}
           isKnowledgeForm={false}
           onYamlUploadSkillsFillForm={onYamlUploadSkillFillForm}
-          setActionGroupAlertContent={setActionGroupAlertContent}
+          setActionGroupAlertContent={updateActionGroupAlertContent}
         />
       ) : null}
     </>

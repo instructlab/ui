@@ -14,8 +14,8 @@ import {
   handleKnowledgeSeedExamplesContextInputChange,
   toggleKnowledgeSeedExamplesExpansion
 } from '@/components/Contribute/Utils/seedExampleUtils';
-import PageHeader from '@/components/Contribute/PageHeader';
 import KnowledgeQuestionAnswerPairs from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeQuestionAnswerPairs';
+import WizardPageHeader from '@/components/Common/WizardPageHeader';
 
 interface KnowledgeFile {
   filename: string;
@@ -119,8 +119,8 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, on
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <PageHeader
-          title="Seed Examples"
+        <WizardPageHeader
+          title="Create seed data"
           description={
             <>
               Add seed examples with context and minimum 3 question and answer pairs. A minimum of five seed examples are required.{' '}
