@@ -140,7 +140,7 @@ const PathService: React.FC<PathServiceProps> = ({ fieldId, rootPath, path, hand
       <SearchInput
         id={fieldId}
         ref={inputRef}
-        placeholder="Type to find taxonomy path"
+        placeholder="Select directory"
         value={inputValue}
         onChange={(_event, value) => handleChange(value)}
         onFocus={(_event) => handleFocus(_event)}

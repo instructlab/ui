@@ -1,5 +1,16 @@
 import React, { useEffect } from 'react';
-import { Button, Content, Flex, FlexItem, Form, FormGroup, HelperText, HelperTextItem, TextInput, ValidatedOptions } from '@patternfly/react-core';
+import {
+  Button,
+  Content,
+  Flex,
+  FlexItem,
+  Form,
+  FormGroup,
+  HelperText,
+  HelperTextItem,
+  TextArea,
+  ValidatedOptions
+} from '@patternfly/react-core';
 import { ExclamationCircleIcon, PencilAltIcon } from '@patternfly/react-icons';
 import {
   t_global_spacer_sm as SmallSpacerSize,
@@ -10,6 +21,8 @@ import PathService from '@/components/PathService/PathService';
 import WizardPageHeader from '@/components/Common/WizardPageHeader';
 import WizardSectionHeader from '@/components/Common/WizardSectionHeader';
 import EditContributorModal from '@/components/Contribute/DetailsPage/EditContributorModal';
+
+const MAX_SUMMARY_CHARS = 256;
 
 interface Props {
   isGithubMode: boolean;
@@ -44,20 +57,20 @@ const DetailsPage: React.FC<Props> = ({
   setFilePath
 }) => {
   const [editContributorOpen, setEditContributorOpen] = React.useState<boolean>();
-  const [validDescription, setValidDescription] = React.useState<ValidatedOptions>(ValidatedOptions.default);
+  const [validSummary, setValidSummary] = React.useState<ValidatedOptions>(ValidatedOptions.default);
 
   useEffect(() => {
     if (isEditForm) {
-      setValidDescription(ValidatedOptions.success);
+      setValidSummary(ValidatedOptions.success);
     }
   }, [isEditForm]);
 
-  const validateDescription = (desc: string) => {
-    const description = desc.trim();
-    setValidDescription(description.length > 0 && description.length <= 60 ? ValidatedOptions.success : ValidatedOptions.error);
+  const validateSummary = (summaryStr: string) => {
+    const summary = summaryStr.trim();
+    setValidSummary(summary.length > 0 && summary.length <= MAX_SUMMARY_CHARS ? ValidatedOptions.success : ValidatedOptions.error);
   };
 
-  const isDescriptionInvalid = validDescription === ValidatedOptions.error && submissionSummary.length > 60;
+  const isDescriptionInvalid = validSummary === ValidatedOptions.error && submissionSummary.trim().length > MAX_SUMMARY_CHARS;
 
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
@@ -106,23 +119,24 @@ const DetailsPage: React.FC<Props> = ({
             <WizardSectionHeader title={infoSectionTitle} helpInfo={infoSectionHelp} description={infoSectionDescription} />
             <Form>
               <FormGroup fieldId="submission_summary" label="Submission summary" isRequired>
-                <TextInput
+                <TextArea
                   id="submission_summary"
                   isRequired
+                  resizeOrientation="vertical"
                   type="text"
                   aria-label="submission_summary"
-                  placeholder="Enter a brief description for a submission summary (60 character max)"
+                  placeholder="Example: Information about the Phoenix Constellation including the history, characteristics, and features of the stars in the constellation."
                   value={submissionSummary}
                   validated={isDescriptionInvalid ? ValidatedOptions.error : ValidatedOptions.default}
                   onChange={(_event, value) => setSubmissionSummary(value)}
-                  onBlur={() => validateDescription(submissionSummary)}
+                  onBlur={() => validateSummary(submissionSummary)}
                 />
                 <HelperText>
                   <HelperTextItem
                     icon={isDescriptionInvalid ? <ExclamationCircleIcon /> : undefined}
                     variant={isDescriptionInvalid ? ValidatedOptions.error : ValidatedOptions.default}
                   >
-                    Must be less than 60 characters. {60 - submissionSummary.trim().length} characters remaining
+                    Must be {MAX_SUMMARY_CHARS} characters or less.{submissionSummary.trim().length ? ` ${MAX_SUMMARY_CHARS - submissionSummary.trim().length}/${MAX_SUMMARY_CHARS} characters` : ''}
                   </HelperTextItem>
                 </HelperText>
               </FormGroup>

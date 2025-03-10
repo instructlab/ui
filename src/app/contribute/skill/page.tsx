@@ -5,6 +5,8 @@ import { SkillFormGithub } from '@/components/Contribute/Skill/Github/index';
 import { SkillFormNative } from '@/components/Contribute/Skill/Native/index';
 import { useEffect, useState } from 'react';
 
+import '../contribute-page.scss';
+
 const SkillFormPage: React.FunctionComponent = () => {
   const [deploymentType, setDeploymentType] = useState<string | undefined>();
 
@@ -17,7 +19,7 @@ const SkillFormPage: React.FunctionComponent = () => {
     getEnvVariables();
   }, []);
 
-  return <AppLayout>{deploymentType === 'native' ? <SkillFormNative /> : <SkillFormGithub />}</AppLayout>;
+  return <AppLayout className="contribute-page">{deploymentType === 'native' ? <SkillFormNative /> : <SkillFormGithub />}</AppLayout>;
 };
 
 export default SkillFormPage;
