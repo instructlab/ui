@@ -110,26 +110,15 @@ Example [.env](../.env.example) file.
 
 ## Local Dev Chat Environment
 
-### 1) Using the ilab command line tool
+### Using the ilab command line tool
 
-For the chat functionality to work you need a ilab model chat instance. To run this locally:
-
-`cd server`
-
-[https://github.com/instructlab/instructlab?tab=readme-ov-file#-getting-started](https://github.com/instructlab/instructlab?tab=readme-ov-file#-getting-started)
+For the chat functionality to work you need a ilab model chat instance. To run this locally see [Ilab Getting Started](https://github.com/instructlab/instructlab?tab=readme-ov-file#-getting-started).
 
 After you use the `ilab serve` command you should have, by default, a chat server instance running on port 8000.
 
-### 2) Using Podman
+### 2) Running in a Container
 
-#### Current issues
-
-- The docker image that runs the server does not utilise Mac Metal GPU and therefore is very slow when answering prompts
-- The docker image is very large as it contains the model itself. Potential to have the model incorporated via a docker volume to reduce the size of the actual image.
-
-`docker run -p 8000:8000 aevo987654/instructlab_chat_8000:v2`
-
-This should run a server on port 8000
+See the upstream CLI documentation for running ilab in a [container](https://github.com/instructlab/instructlab/tree/main/containers).
 
 ### Configuring the chat environment to use a local ilab model chat instance
 
