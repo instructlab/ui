@@ -59,7 +59,7 @@ export const submitNativeKnowledgeData = async (
   const yamlString = dumpYaml(knowledgeYamlData);
 
   const waitForSubmissionAlert: ActionGroupAlertContent = {
-    title: 'Knowledge contribution submission in progress!',
+    title: 'Knowledge contribution submission in progress.',
     message: `Once the submission is successful, it will provide the link to the newly created Pull Request.`,
     success: true,
     waitAlert: true,
@@ -150,7 +150,7 @@ export const submitGithubKnowledgeData = async (
   };
 
   const waitForSubmissionAlert: ActionGroupAlertContent = {
-    title: 'Knowledge contribution submission in progress.!',
+    title: 'Knowledge contribution submission in progress.',
     message: `Once the submission is successful, it will provide the link to the newly created Pull Request.`,
     success: true,
     waitAlert: true,

@@ -1,6 +1,8 @@
 import { ValidatedOptions } from '@patternfly/react-core';
 import { ContributionFormData, KnowledgeFormData, SkillFormData } from '@/types';
 
+export const MAX_SUMMARY_CHARS = 256;
+
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
 export const isEmailValid = (email: string): boolean => {
@@ -10,7 +12,8 @@ export const isEmailValid = (email: string): boolean => {
 export const isAuthInfoValid = (knowledgeFormData: ContributionFormData): boolean =>
   isEmailValid(knowledgeFormData.email) && !!knowledgeFormData.name;
 
-export const isSubmissionSummaryValid = (formData: ContributionFormData): boolean => formData.submissionSummary.trim().length > 0;
+export const isSubmissionSummaryValid = (formData: ContributionFormData): boolean =>
+  formData.submissionSummary.trim().length > 0 && formData.submissionSummary.trim().length <= MAX_SUMMARY_CHARS;
 
 export const isDetailsValid = (formData: ContributionFormData): boolean =>
   isAuthInfoValid(formData) && isSubmissionSummaryValid(formData) && isFilePathInfoValid(formData);

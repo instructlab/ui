@@ -3,10 +3,11 @@ export const TAXONOMY_DOCUMENTS_REPO =
   process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO || 'https://github.com/instructlab-public/taxonomy-knowledge-docs';
 export const BASE_BRANCH = 'main';
 
-export const prInfoFromSummary = (summaryString: string): { prTitle: string, prBody?: string } => {
+export const prInfoFromSummary = (summaryString: string): { prTitle: string; prBody?: string; commitMessage: string } => {
   const prTitle = summaryString.length > 60 ? `${summaryString.slice(0, 60)}...` : summaryString;
-  const prBody = summaryString.length > 60 ? `${summaryString.slice(60)}...` : undefined;
-  return { prTitle, prBody};
+  const prBody = summaryString.length > 60 ? `...${summaryString.slice(60)}` : undefined;
+  const commitMessage = `${prTitle}${prBody ? `\n\n${prBody}` : ''}`;
+  return { prTitle, prBody, commitMessage };
 };
 
 export const checkIfRepoExists = async (headers: HeadersInit, owner: string, repo: string): Promise<boolean> => {

@@ -65,7 +65,7 @@ Creator names: ${attributionData.creator_names}
     // Create a new branch in the user's fork
     await createBranch(headers, githubUsername, UPSTREAM_REPO_NAME, branchName, baseBranchSha);
 
-    const { prTitle, prBody } = prInfoFromSummary(submissionSummary);
+    const { prTitle, prBody, commitMessage } = prInfoFromSummary(submissionSummary);
 
     // Create both files in a single commit with DCO sign-off
     await createFilesInSingleCommit(
@@ -77,7 +77,7 @@ Creator names: ${attributionData.creator_names}
         { path: newAttributionFilePath, content: attributionContent }
       ],
       branchName,
-      `${prTitle}\n\nSigned-off-by: ${name} <${email}>`
+      `${commitMessage}\n\nSigned-off-by: ${name} <${email}>`
     );
 
     // Create a pull request from the user's fork to the upstream repository

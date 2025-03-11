@@ -75,11 +75,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Commit the changes
-    const { prTitle } = prInfoFromSummary(submissionSummary);
+    const { commitMessage } = prInfoFromSummary(submissionSummary);
     await git.commit({
       fs,
       dir: REPO_DIR,
-      message: `${prTitle}\n\nSigned-off-by: ${name} <${email}>`,
+      message: `${commitMessage}\n\nSigned-off-by: ${name} <${email}>`,
       author: {
         name: name,
         email: email

@@ -1,16 +1,5 @@
 import React, { useEffect } from 'react';
-import {
-  Button,
-  Content,
-  Flex,
-  FlexItem,
-  Form,
-  FormGroup,
-  HelperText,
-  HelperTextItem,
-  TextArea,
-  ValidatedOptions
-} from '@patternfly/react-core';
+import { Button, Content, Flex, FlexItem, Form, FormGroup, HelperText, HelperTextItem, TextArea, ValidatedOptions } from '@patternfly/react-core';
 import { ExclamationCircleIcon, PencilAltIcon } from '@patternfly/react-icons';
 import {
   t_global_spacer_sm as SmallSpacerSize,
@@ -20,9 +9,8 @@ import {
 import PathService from '@/components/PathService/PathService';
 import WizardPageHeader from '@/components/Common/WizardPageHeader';
 import WizardSectionHeader from '@/components/Common/WizardSectionHeader';
+import { MAX_SUMMARY_CHARS } from '@/components/Contribute/Utils/validationUtils';
 import EditContributorModal from '@/components/Contribute/DetailsPage/EditContributorModal';
-
-const MAX_SUMMARY_CHARS = 256;
 
 interface Props {
   isGithubMode: boolean;
@@ -70,7 +58,8 @@ const DetailsPage: React.FC<Props> = ({
     setValidSummary(summary.length > 0 && summary.length <= MAX_SUMMARY_CHARS ? ValidatedOptions.success : ValidatedOptions.error);
   };
 
-  const isDescriptionInvalid = validSummary === ValidatedOptions.error && submissionSummary.trim().length > MAX_SUMMARY_CHARS;
+  const isSummaryInvalid =
+    validSummary === ValidatedOptions.error && (submissionSummary.trim().length > MAX_SUMMARY_CHARS || submissionSummary.trim().length === 0);
 
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
@@ -122,21 +111,31 @@ const DetailsPage: React.FC<Props> = ({
                 <TextArea
                   id="submission_summary"
                   isRequired
+                  maxLength={MAX_SUMMARY_CHARS}
                   resizeOrientation="vertical"
                   type="text"
                   aria-label="submission_summary"
                   placeholder="Example: Information about the Phoenix Constellation including the history, characteristics, and features of the stars in the constellation."
                   value={submissionSummary}
-                  validated={isDescriptionInvalid ? ValidatedOptions.error : ValidatedOptions.default}
+                  validated={isSummaryInvalid ? ValidatedOptions.error : ValidatedOptions.default}
                   onChange={(_event, value) => setSubmissionSummary(value)}
                   onBlur={() => validateSummary(submissionSummary)}
                 />
                 <HelperText>
                   <HelperTextItem
-                    icon={isDescriptionInvalid ? <ExclamationCircleIcon /> : undefined}
-                    variant={isDescriptionInvalid ? ValidatedOptions.error : ValidatedOptions.default}
+                    icon={isSummaryInvalid ? <ExclamationCircleIcon /> : undefined}
+                    variant={isSummaryInvalid ? ValidatedOptions.error : ValidatedOptions.default}
                   >
-                    Must be {MAX_SUMMARY_CHARS} characters or less.{submissionSummary.trim().length ? ` ${MAX_SUMMARY_CHARS - submissionSummary.trim().length}/${MAX_SUMMARY_CHARS} characters` : ''}
+                    {submissionSummary.trim().length ? (
+                      <>
+                        Must be {MAX_SUMMARY_CHARS} characters or less.
+                        {validSummary === ValidatedOptions.error && isSummaryInvalid
+                          ? ` ${submissionSummary.trim().length}/${MAX_SUMMARY_CHARS} characters`
+                          : ''}
+                      </>
+                    ) : (
+                      'Required field'
+                    )}
                   </HelperTextItem>
                 </HelperText>
               </FormGroup>
