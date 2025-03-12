@@ -1,3 +1,4 @@
+import { KnowledgeFile } from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamples';
 import { ValidatedOptions } from '@patternfly/react-core';
 
 export interface Endpoint {
@@ -105,6 +106,7 @@ export interface KnowledgeSeedExample extends SeedExample {
 }
 
 export interface ContributionFormData {
+  branchName: string;
   email: string;
   name: string;
   submissionSummary: string;
@@ -126,13 +128,13 @@ export interface KnowledgeFormData extends ContributionFormData {
   revision: string;
   seedExamples: KnowledgeSeedExample[];
   filesToUpload: File[];
+  uploadedFiles: KnowledgeFile[];
 }
 
 export interface EditFormData<T extends ContributionFormData = SkillFormData> {
   isEditForm: boolean;
   version: number;
   pullRequestNumber: number;
-  branchName: string;
   oldFilesPath: string;
   formData: T;
 }

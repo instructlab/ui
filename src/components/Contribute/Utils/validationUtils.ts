@@ -21,21 +21,13 @@ export const isDetailsValid = (formData: ContributionFormData): boolean =>
 export const isFilePathInfoValid = (knowledgeFormData: ContributionFormData): boolean => knowledgeFormData.filePath.trim().length > 0;
 
 export const isDocumentInfoValid = (knowledgeFormData: KnowledgeFormData): boolean => {
-  const commit = knowledgeFormData.knowledgeDocumentCommit.trim();
-  if (!commit.length) {
+  if (
+    knowledgeFormData.uploadedFiles.length === 0 &&
+    knowledgeFormData.filesToUpload.length === 0 &&
+    knowledgeFormData.knowledgeDocumentCommit.length === 0
+  ) {
     return false;
   }
-
-  const documentName = knowledgeFormData.documentName.trim();
-  if (!documentName.length) {
-    return false;
-  }
-
-  const documentURL = knowledgeFormData.knowledgeDocumentRepositoryUrl.trim();
-  if (!documentURL.length) {
-    return false;
-  }
-
   return true;
 };
 

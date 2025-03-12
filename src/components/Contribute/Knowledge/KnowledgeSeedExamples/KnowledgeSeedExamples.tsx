@@ -1,4 +1,4 @@
-// src/components/Contribute/Knowledge/Native/KnowledgeSeedExampleNative/KnowledgeQuestionAnswerPairsNative.tsx
+// src/components/Contribute/Knowledge/KnowledgeSeedExampleNative/KnowledgeQuestionAnswerPairsNative.tsx
 import React, { useState } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionToggle, Button, Flex, FlexItem } from '@patternfly/react-core';
 import { ExternalLinkAltIcon, PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
@@ -17,26 +17,21 @@ import {
 import KnowledgeQuestionAnswerPairs from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeQuestionAnswerPairs';
 import WizardPageHeader from '@/components/Common/WizardPageHeader';
 
-interface KnowledgeFile {
+export interface KnowledgeFile {
   filename: string;
   content: string;
   commitSha: string;
   commitDate?: string;
 }
-
-const GITHUB_KNOWLEDGE_FILES_API = '/api/github/knowledge-files';
-const NATIVE_GIT_KNOWLEDGE_FILES_API = '/api/native/git/knowledge-files';
-
 interface Props {
   isGithubMode: boolean;
+  filesToUpload: File[];
+  uploadedFiles: KnowledgeFile[];
   seedExamples: KnowledgeSeedExample[];
   onUpdateSeedExamples: (seedExamples: KnowledgeSeedExample[]) => void;
-  addDocumentInfo: (repoUrl: string, commitSha: string, docName: string) => void;
-  repositoryUrl: string;
-  commitSha: string;
 }
 
-const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, onUpdateSeedExamples, addDocumentInfo, repositoryUrl, commitSha }) => {
+const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, filesToUpload, uploadedFiles, seedExamples, onUpdateSeedExamples }) => {
   const [fileSelectIndex, setFileSelectIndex] = useState<number>(-1);
   const [knowledgeFiles, setKnowledgeFiles] = useState<KnowledgeFile[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -46,32 +41,29 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, on
     const fetchKnowledgeFiles = async () => {
       setIsLoading(true);
       setError('');
-      try {
-        const response = await fetch(isGithubMode ? GITHUB_KNOWLEDGE_FILES_API : NATIVE_GIT_KNOWLEDGE_FILES_API, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        });
-
-        const result = await response.json();
-        if (response.ok) {
-          setKnowledgeFiles(result.files);
-          console.log('Fetched knowledge files:', result.files);
-        } else {
-          setError(result.error || 'Failed to fetch knowledge files.');
-          console.error('Error fetching knowledge files:', result.error);
-        }
-      } catch (err) {
-        setError('An error occurred while fetching knowledge files.');
-        console.error('Error fetching knowledge files:', err);
-      } finally {
-        setIsLoading(false);
-      }
+      const allFiles = [];
+      allFiles.push(...uploadedFiles);
+      filesToUpload.map(
+        (file) =>
+          new Promise<void>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const fileContent = e.target!.result as string;
+              allFiles.push({ filename: file.name, content: fileContent });
+              resolve();
+            };
+            reader.onerror = reject;
+            reader.readAsText(file);
+          })
+      );
+      setKnowledgeFiles(allFiles);
     };
 
-    if (fileSelectIndex >= 0 && !knowledgeFiles.length) {
+    if (!knowledgeFiles.length) {
       fetchKnowledgeFiles();
     }
-  }, [fileSelectIndex, isGithubMode, knowledgeFiles.length]);
+    setIsLoading(false);
+  }, [fileSelectIndex, isGithubMode, knowledgeFiles.length, filesToUpload, uploadedFiles]);
 
   const handleContextInputChange = (seedExampleIndex: number, contextValue: string, validate = false): void => {
     onUpdateSeedExamples(handleKnowledgeSeedExamplesContextInputChange(seedExamples, seedExampleIndex, contextValue, validate));
@@ -193,9 +185,6 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, on
           isLoading={isLoading}
           error={error}
           handleContextInputChange={handleSelectContextInput}
-          addDocumentInfo={addDocumentInfo}
-          repositoryUrl={repositoryUrl}
-          commitSha={commitSha}
           handleCloseModal={() => setFileSelectIndex(-1)}
         />
       ) : null}

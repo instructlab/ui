@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 import KnowledgeFormNative from '../../Knowledge/Native';
+import { fetchExistingKnowledgeDocuments } from '@/components/Contribute/Utils/documentUtils';
 
 interface ChangeData {
   file: string;
@@ -44,6 +45,7 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
         if (response.ok) {
           // Create KnowledgeFormData from existing form.
           const knowledgeExistingFormData: KnowledgeFormData = {
+            branchName: branchName,
             email: '',
             name: '',
             submissionSummary: '',
@@ -57,13 +59,13 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
             revision: '',
             licenseWork: '',
             creators: '',
-            filesToUpload: []
+            filesToUpload: [],
+            uploadedFiles: []
           };
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
             isEditForm: true,
             version: KnowledgeSchemaVersion,
-            branchName: branchName,
             formData: knowledgeExistingFormData,
             pullRequestNumber: 0,
             oldFilesPath: ''
@@ -138,6 +140,11 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
               }
             });
             setKnowledgeEditFormData(knowledgeEditFormData);
+            const existingFiles = await fetchExistingKnowledgeDocuments(false, knowledgeEditFormData.formData.knowledgeDocumentCommit);
+            if (existingFiles.length != 0) {
+              console.log(`Contribution has ${existingFiles.length} existing knowledge documents`);
+              knowledgeExistingFormData.uploadedFiles.push(...existingFiles);
+            }
             setIsLoading(false);
           }
         }

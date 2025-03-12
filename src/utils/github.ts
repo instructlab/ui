@@ -24,7 +24,6 @@ export async function fetchPullRequests(token: string) {
         }
       }
     );
-    console.log('Fetched PRs:', response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -77,7 +76,6 @@ export const fetchPullRequestFiles = async (token: string, prNumber: number) => 
         }
       }
     );
-    console.log(`Fetched files for PR ${prNumber}:`, response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -102,7 +100,6 @@ export const fetchFileContent = async (token: string, filePath: string, ref: str
         }
       }
     );
-    console.log(`Fetched file content for path: ${filePath} with ref: ${ref}:`, response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
