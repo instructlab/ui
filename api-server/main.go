@@ -109,15 +109,15 @@ type ILabServer struct {
 	modelProcessBase   *exec.Cmd
 	modelProcessLatest *exec.Cmd
 
-	// Base model reference
 	baseModel string
 
 	// Map of "pre-train"/"post-train" => jobID for VLLM serving
 	servedModelJobIDs map[string]string
 	jobIDsMutex       sync.RWMutex
 
-	// Cache variables
 	modelCache ModelCache
+
+	mockServer bool
 }
 
 func main() {
@@ -143,6 +143,7 @@ func main() {
 	rootCmd.Flags().BoolVar(&srv.isCuda, "cuda", false, "Enable Cuda (default: false)")
 	rootCmd.Flags().BoolVar(&srv.useVllm, "vllm", false, "Enable VLLM model serving using podman containers")
 	rootCmd.Flags().StringVar(&srv.pipelineType, "pipeline", "", "Pipeline type (simple, accelerated, full)")
+	rootCmd.Flags().BoolVar(&srv.mockServer, "mock-server", false, "Enable mock mode: simulate backend jobs for development (jobs run for 30s)")
 	rootCmd.Flags().BoolVar(&srv.debugEnabled, "debug", false, "Enable debug logging")
 
 	// PreRun to validate flags
@@ -214,9 +215,15 @@ func (srv *ILabServer) runServer(cmd *cobra.Command, args []string) {
 		srv.ilabCmd = ilabPath
 	} else {
 		// Use ilab from virtual environment
+		// First attempt: baseDir/bin/ilab
 		srv.ilabCmd = filepath.Join(srv.baseDir, "bin", "ilab")
 		if _, err := os.Stat(srv.ilabCmd); os.IsNotExist(err) {
-			srv.log.Fatalf("ilab binary not found at %s. Please ensure the virtual environment is set up correctly.", srv.ilabCmd)
+			// Second attempt: baseDir/venv/bin/ilab
+			altCmd := filepath.Join(srv.baseDir, "venv", "bin", "ilab")
+			if _, err := os.Stat(altCmd); os.IsNotExist(err) {
+				srv.log.Fatalf("ilab binary not found at %s or %s. Please ensure the virtual environment is set up correctly.", srv.ilabCmd, altCmd)
+			}
+			srv.ilabCmd = altCmd
 		}
 	}
 
@@ -394,6 +401,15 @@ func (srv *ILabServer) reconstructServedModelJobIDs() {
 
 // startGenerateJob launches a job to run "ilab data generate" and tracks it.
 func (srv *ILabServer) startGenerateJob() (string, error) {
+	if srv.mockServer {
+		jobID, err := srv.simulateJob("generate")
+		if err != nil {
+			return "", err
+		}
+		srv.log.Infof("Started mock generate job: %s", jobID)
+		return jobID, nil
+	}
+
 	ilabPath := srv.getIlabCommand()
 
 	// Hard-coded pipeline choice for data generate, or we could use srv.pipelineType
@@ -470,6 +486,15 @@ func (srv *ILabServer) startGenerateJob() (string, error) {
 
 // startTrainJob starts a training job with the given parameters.
 func (srv *ILabServer) startTrainJob(modelName, branchName string, epochs *int) (string, error) {
+	if srv.mockServer {
+		jobID, err := srv.simulateJob("train")
+		if err != nil {
+			return "", err
+		}
+		srv.log.Infof("Started mock train job: %s", jobID)
+		return jobID, nil
+	}
+
 	srv.log.Infof("Starting training job for model: '%s', branch: '%s'", modelName, branchName)
 
 	jobID := fmt.Sprintf("t-%d", time.Now().UnixNano())
@@ -681,7 +706,15 @@ func (srv *ILabServer) generateTrainPipelineHandler(w http.ResponseWriter, r *ht
 
 // runPipelineJob orchestrates data generate + model train steps in sequence.
 func (srv *ILabServer) runPipelineJob(job *Job, modelName, branchName string, epochs *int) {
-	// Open the pipeline job log
+	if srv.mockServer {
+		jobID, err := srv.simulateJob("generate")
+		if err != nil {
+			return
+		}
+		srv.log.Infof("Started mock generate job: %s", jobID)
+		return
+	}
+
 	logFile, err := os.Create(job.LogFile)
 	if err != nil {
 		srv.log.Errorf("Error creating pipeline log file for job %s: %v", job.JobID, err)
@@ -829,6 +862,13 @@ func (srv *ILabServer) getFullModelPath(modelName string) (string, error) {
 
 // runIlabCommand executes the ilab command with the provided arguments and returns combined output.
 func (srv *ILabServer) runIlabCommand(args ...string) (string, error) {
+	if srv.mockServer {
+		if len(args) >= 2 && args[0] == "model" && args[1] == "list" {
+			return "Mock Model A\nMock Model B\n", nil
+		}
+		return "mock output", nil
+	}
+
 	cmdPath := srv.getIlabCommand()
 	cmd := exec.Command(cmdPath, args...)
 	if !srv.rhelai {
