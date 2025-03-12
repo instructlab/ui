@@ -30,7 +30,7 @@ patches:
     patch: "- op: replace\n  path: /spec/template/spec/containers/0/envFrom/0/secretRef/name\n  value: qa.env\n- op: add \n  path: /spec/template/spec/containers/0/readinessProbe\n  value:\n    exec:\n      command:\n        - sh\n        - -c\n        - \"/opt/app-root/src/src/healthcheck-probe.sh\"\n    initialDelaySeconds: 5\n    periodSeconds: 10\n- op: add\n  path: /spec/template/spec/containers/-\n  value:\n    name: model-endpoint-healthcheck-sidecar\n    image: quay.io/instructlab-ui/healthcheck-sidecar\n    imagePullPolicy: Always # until image lands in quay cannot use pullPolicy: Always\n    ports:\n      - containerPort: 8080\n    envFrom:\n      - secretRef:\n          name: qa.env"
 images:
   - name: quay.io/instructlab-ui/ui
-    newTag: pr-653
+    newTag: pr-640
   - name: quay.io/instructlab-ui/pathservice
     newTag: pr-627
   - name: quay.io/instructlab-ui/healthcheck-sidecar
