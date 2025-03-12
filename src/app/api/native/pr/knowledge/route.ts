@@ -21,13 +21,6 @@ export async function POST(req: NextRequest) {
     // Extract the data from the request body
     const { action, branchName, content, name, email, submissionSummary, filePath, oldFilesPath } = await req.json();
 
-    let knowledgeBranchName;
-    if (action == 'update' && branchName != '') {
-      knowledgeBranchName = branchName;
-    } else {
-      knowledgeBranchName = `knowledge-contribution-${Date.now()}`;
-    }
-
     // Parse the YAML string into an object
     const knowledgeData = yaml.load(content) as KnowledgeYamlData;
 
@@ -42,11 +35,11 @@ export async function POST(req: NextRequest) {
 
     // Create a new branch if the knowledge is pushed for first time
     if (action != 'update') {
-      await git.branch({ fs, dir: REPO_DIR, ref: knowledgeBranchName });
+      await git.branch({ fs, dir: REPO_DIR, ref: branchName });
     }
 
     // Checkout the new branch
-    await git.checkout({ fs, dir: REPO_DIR, ref: knowledgeBranchName });
+    await git.checkout({ fs, dir: REPO_DIR, ref: branchName });
 
     const newYamlFilePath = path.join(KNOWLEDGE_DIR, filePath, 'qna.yaml');
 
@@ -88,8 +81,8 @@ export async function POST(req: NextRequest) {
     });
 
     // Respond with success message and branch name
-    console.log(`Knowledge contribution submitted successfully to local taxonomy repo. Submission Name is ${knowledgeBranchName}.`);
-    return NextResponse.json({ message: 'Knowledge contribution submitted successfully.', branch: knowledgeBranchName }, { status: 201 });
+    console.log(`Knowledge contribution submitted successfully to local taxonomy repo. Submission Name is ${branchName}.`);
+    return NextResponse.json({ message: 'Knowledge contribution submitted successfully.', branch: branchName }, { status: 201 });
   } catch (error) {
     console.error(`Failed to submit knowledge contribution to local taxonomy repo:`, error);
     return NextResponse.json({ error: 'Failed to submit knowledge contribution.' }, { status: 500 });

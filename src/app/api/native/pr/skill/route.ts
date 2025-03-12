@@ -20,13 +20,6 @@ export async function POST(req: NextRequest) {
     // Extract the QnA data from the request body
     const { action, branchName, content, name, email, submissionSummary, filePath, oldFilesPath } = await req.json(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
-    let skillBranchName;
-    if (action == 'update' && branchName != '') {
-      skillBranchName = branchName;
-    } else {
-      skillBranchName = `skill-contribution-${Date.now()}`;
-    }
-
     const skillData = yaml.load(content) as SkillYamlData;
     const yamlString = dumpYaml(skillData);
 
@@ -38,11 +31,11 @@ export async function POST(req: NextRequest) {
 
     // Create a new branch if the skill is pushed for first time
     if (action != 'update') {
-      await git.branch({ fs, dir: REPO_DIR, ref: skillBranchName });
+      await git.branch({ fs, dir: REPO_DIR, ref: branchName });
     }
 
     // Checkout the new branch
-    await git.checkout({ fs, dir: REPO_DIR, ref: skillBranchName });
+    await git.checkout({ fs, dir: REPO_DIR, ref: branchName });
 
     // Define file path
     const newYamlFilePath = path.join(SKILLS_DIR, filePath, 'qna.yaml');
@@ -85,8 +78,8 @@ export async function POST(req: NextRequest) {
     });
 
     // Respond with success
-    console.log('Skill contribution submitted successfully. Submission name is ', skillBranchName);
-    return NextResponse.json({ message: 'Skill contribution submitted successfully.', branch: skillBranchName }, { status: 201 });
+    console.log('Skill contribution submitted successfully. Submission name is ', branchName);
+    return NextResponse.json({ message: 'Skill contribution submitted successfully.', branch: branchName }, { status: 201 });
   } catch (error) {
     console.error('Failed to create local branch and commit:', error);
     return NextResponse.json({ error: 'Failed to submit skill contribution.' }, { status: 500 });

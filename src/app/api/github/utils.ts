@@ -119,3 +119,32 @@ export const fetchCommitInfo = async (
     return null;
   }
 };
+
+export async function getGitHubUsernameAndEmail(headers: HeadersInit): Promise<{ githubUsername: string; userEmail: string }> {
+  const response = await fetch(`${GITHUB_API_URL}/user`, { headers });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to fetch GitHub username and email:', response.status, errorText);
+    throw new Error('Failed to fetch GitHub username and email');
+  }
+
+  const data = await response.json();
+  return { githubUsername: data.login, userEmail: data.email };
+}
+
+export async function readCommit(headers: HeadersInit, owner: string, repo: string, commitSHA: string): Promise<string> {
+  try {
+    const commitResponse = await fetch(`${GITHUB_API_URL}/repos/${owner}/${repo}/commits/${commitSHA}`, {
+      method: 'GET',
+      headers
+    });
+
+    const commitData = await commitResponse.json();
+    console.log('Commit Message:', commitData.commit.message);
+    return commitData.commit.message;
+  } catch (error) {
+    console.error(`Failed to fetch commit:${commitSHA}`, error);
+  }
+  return '';
+}
