@@ -3,7 +3,7 @@
 import React, {  ReactNode, useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AppLayout } from '@/components/AppLayout';
-import { Endpoint } from '@/types';
+import { Endpoint, EndpointRequiredFields } from '@/types';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,6 +15,9 @@ import {
   DataListItem,
   DataListItemCells,
   DataListItemRow,
+  Dropdown,
+  DropdownList,
+  DropdownItem,
   Flex,
   FlexItem,
   Form,
@@ -31,8 +34,8 @@ import {
   TextInput,
   Title
 } from '@patternfly/react-core';
-import { BanIcon, CheckCircleIcon, EyeSlashIcon, EyeIcon, QuestionCircleIcon } from '@patternfly/react-icons';
-import { SVGIconProps } from '@patternfly/react-icons/dist/esm/createIcon';
+import { BanIcon, CheckCircleIcon, EyeSlashIcon, EllipsisVIcon , EyeIcon, QuestionCircleIcon } from '@patternfly/react-icons';
+
 
 interface ModelEndpointStatus {
   status: string;
@@ -102,6 +105,7 @@ const EndpointsPage: React.FC = () => {
   const [modelDescription, setModelDescription] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [endpointStatus, setEndpointStatus] = useState(unknownModelEndpointStatus);
+  const [endpointOptionsOpen, setEndpointOptionsOpen] = useState('')
 
   useEffect(() => {
     const storedEndpoints = localStorage.getItem('endpoints');
@@ -114,6 +118,19 @@ const EndpointsPage: React.FC = () => {
     setIsModalOpen(!isModalOpen);
   };
 
+  const handleEndpointOptionsToggle = (endpointId: string) => {
+    console.log("endpoint has been toggled: ", endpointId)
+    if (endpointOptionsOpen != '') {
+      setEndpointOptionsOpen('')
+    } else {
+      setEndpointOptionsOpen(endpointId)
+    }
+  }
+
+  const handleDeselectEndpointOptions = () => {
+    setEndpointOptionsOpen('')
+  }
+
   const removeTrailingSlash = (inputUrl: string): string => {
     if (typeof inputUrl !== 'string') {
       throw new Error('Invalid url');
@@ -123,6 +140,16 @@ const EndpointsPage: React.FC = () => {
     }
     return inputUrl;
   };
+
+const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
+  let returnValue = true
+  EndpointRequiredFields.forEach((requiredField) => {
+    if (endpoint[requiredField]?.trim().length == 0) {
+      returnValue = false
+    }
+  })
+  return returnValue
+}
 
   async function handleSaveEndpoint () {
     const updatedUrl = removeTrailingSlash(url);
@@ -139,22 +166,25 @@ const EndpointsPage: React.FC = () => {
         isApiKeyVisible: false,
         status: status,
       };
-
-      const updatedEndpoints = currentEndpoint.id
+      if (validateEndpointData(updatedEndpoint) == true) {
+        const updatedEndpoints = currentEndpoint.id
         ? endpoints.map((ep) => (ep.id === currentEndpoint.id ? updatedEndpoint : ep))
         : [...endpoints, updatedEndpoint];
 
-      setEndpoints(updatedEndpoints);
-      localStorage.setItem('endpoints', JSON.stringify(updatedEndpoints));
-      setCurrentEndpoint(null);
-      setEndpointName('');
-      setEndpointDescription('');
-      setUrl('');
-      setModelName('');
-      setModelDescription('');
-      setApiKey('');
-      setEndpointStatus(unknownModelEndpointStatus)
-      handleModalToggle();
+        setEndpoints(updatedEndpoints);
+        localStorage.setItem('endpoints', JSON.stringify(updatedEndpoints));
+        setCurrentEndpoint(null);
+        setEndpointName('');
+        setEndpointDescription('');
+        setUrl('');
+        setModelName('');
+        setModelDescription('');
+        setApiKey('');
+        setEndpointStatus(unknownModelEndpointStatus)
+        handleModalToggle();
+      } else {
+        alert("error: please make sure all the required fields are set!")
+      }
     }
   };
 
@@ -169,10 +199,10 @@ const EndpointsPage: React.FC = () => {
     const status = await checkEndpointStatus(updatedUrl, endpoint.modelName, endpoint.apiKey)
     setCurrentEndpoint(endpoint);
     setEndpointName(endpoint.name)
-    setEndpointDescription(endpoint.description)
+    setEndpointDescription(endpoint.description || '')
     setUrl(updatedUrl);
     setModelName(endpoint.modelName);
-    setModelDescription(endpoint.modelDescription);
+    setModelDescription(endpoint.modelDescription || '');
     setApiKey(endpoint.apiKey);
     setEndpointStatus(status)
     handleModalToggle();
@@ -229,35 +259,49 @@ const EndpointsPage: React.FC = () => {
         </Content>
       </PageSection>
       <PageSection hasBodyWrapper={false}>
-        <Flex justifyContent={{ default: 'justifyContentFlexEnd' }} alignItems={{ default: 'alignItemsFlexEnd' }}>
-          <FlexItem>
+        <Flex justifyContent={{ default: 'justifyContentSpaceEvenly' }} style={{ width: "90%" }}>
+          <FlexItem style={{ marginLeft: "auto" }}>
             <Button onClick={handleAddEndpoint}>Add Custom Endpoint</Button>
           </FlexItem>
         </Flex>
         <DataList aria-label="Endpoints list">
+          <DataListItem key="property-headers" style={{ width: "90%" }}>
+            <DataListItemRow wrapModifier="breakWord">
+              <DataListItemCells dataListCells={[
+                  <DataListCell key="nameHeader">
+                    <strong>Endpoint Name</strong>
+                  </DataListCell>,
+                  <DataListCell key="statusHeader">
+                  <strong>Endpoint Status</strong>
+                  </DataListCell>,
+                  <DataListCell key="descriptionHeader">
+                    <strong>Endpoint Description</strong>
+                  </DataListCell>,
+                  <DataListCell key="urlHeader">
+                    <strong>URL</strong>
+                  </DataListCell>,
+                  <DataListCell key="modelNameHeader">
+                    <strong>Model Name</strong>
+                  </DataListCell>,
+                  <DataListCell key="apiKeyHeader">
+                    <strong>API Key</strong>
+                  </DataListCell>
+                ]}
+              />
+            </DataListItemRow>
+          </DataListItem>
           {endpoints.map((endpoint) => (
-            <DataListItem key={endpoint.id}>
-              <DataListItemRow wrapModifier="breakWord">
+            <DataListItem key={endpoint.id} style={{ padding: "0 0 0 0"}}>
+              <DataListItemRow wrapModifier="breakWord" style={{ padding: "0 0 0 0"}}>
                 <DataListItemCells
                   dataListCells={[
-                    <DataListCell key="name">
-                      <strong>Endpoint Name:</strong> {endpoint.name}
-                    </DataListCell>,
-                    <DataListCell key="status">
-                    <strong>Endpoint Status:</strong> {endpoint.status?.status}
-                    {endpoint.status?.icon}
-                    </DataListCell>,
-                    <DataListCell key="description">
-                      <strong>Endpoint Description:</strong> {endpoint.description}
-                    </DataListCell>,
-                    <DataListCell key="url">
-                      <strong>URL:</strong> {endpoint.url}
-                    </DataListCell>,
-                    <DataListCell key="modelName">
-                      <strong>Model Name:</strong> {endpoint.modelName}
-                    </DataListCell>,
-                    <DataListCell key="apiKey">
-                      <strong>API Key:</strong> {renderApiKey(endpoint.apiKey, endpoint.isApiKeyVisible || false)}
+                    <DataListCell style={{ paddingLeft: "12px" }} key="name"> {endpoint.name} </DataListCell>,
+                    <DataListCell style={{ paddingLeft: "12px" }} key="status"> {endpoint.status?.status} {endpoint.status?.icon} </DataListCell>,
+                    <DataListCell style={{ paddingLeft: "12px" }} key="description"> {endpoint.description} </DataListCell>,
+                    <DataListCell style={{ paddingLeft: "12px" }} key="url"> {endpoint.url} </DataListCell>,
+                    <DataListCell style={{ paddingLeft: "12px" }} key="modelName"> {endpoint.modelName} </DataListCell>,
+                    <DataListCell style={{ paddingLeft: "12px" }} key="apiKey">
+                      {renderApiKey(endpoint.apiKey, endpoint.isApiKeyVisible || false)}
                       <Button variant="link" onClick={() => toggleApiKeyVisibility(endpoint.id)}>
                         {endpoint.isApiKeyVisible ? <EyeSlashIcon /> : <EyeIcon />}
                       </Button>
@@ -265,12 +309,61 @@ const EndpointsPage: React.FC = () => {
                   ]}
                 />
                 <DataListAction aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
-                  <Button variant="primary" onClick={() => handleEditEndpoint(endpoint)}>
+                  <Button variant="secondary" onClick={() => handleEditEndpoint(endpoint)}>
                     Disable
                   </Button>
-                  <Button variant="danger" onClick={() => handleDeleteEndpoint(endpoint.id)}>
-                    Delete
+                  <Button variant="secondary" onClick={() => handleEndpointOptionsToggle(endpoint.id)}>
+                    <EllipsisVIcon>
+                  </EllipsisVIcon>
                   </Button>
+                  {/* {endpointOptionsOpen && endpointOptionsOpen == endpoint.id && (
+                    <Dropdown
+                      isOpen={endpointOptionsOpen == '' ? false : true}
+                      onSelect={handleDeselectEndpointOptions}
+                      onOpenChange={(endpointId: string) => setEndpointOptionsOpen(endpointId)}
+                      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                        <Button ref={toggleRef} onClick={onToggleClick}>
+                          <Flex gap={{ default: 'gapMd' }}>
+                            <FlexItem>YAML/Attribution files</FlexItem>
+                            <FlexItem>
+                              <CaretDownIcon />
+                            </FlexItem>
+                          </Flex>
+                        </Button>
+                      )}
+                      ouiaId="DownloadDropdown"
+                      shouldFocusToggleOnSelect
+                    >
+                      <DropdownList>
+                        <DropdownItem
+                          key="view-yaml"
+                          onClick={handleViewYaml}
+                          icon={
+                            <Icon>
+                              <CodeIcon />
+                            </Icon>
+                          }
+                        >
+                          {' '}
+                          YAML Content
+                        </DropdownItem>
+                        {isGithubMode && (
+                          <DropdownItem
+                            key="view-attribution"
+                            onClick={handleViewAttribution}
+                            icon={
+                              <Icon>
+                                <FileIcon />
+                              </Icon>
+                            }
+                          >
+                            {' '}
+                            Attribution Content
+                          </DropdownItem>
+                        )}
+                      </DropdownList>
+                    </Dropdown>
+                  )} */}
                 </DataListAction>
               </DataListItemRow>
             </DataListItem>
