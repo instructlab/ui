@@ -1,0 +1,111 @@
+.login-page-background {
+  background-image: url('../../../public/InstructLab-Background-Image.svg');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #454b9a;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.login-page-container {
+  width: 50%;
+}
+
+.loading-container {
+  display: flex;
+  gap: 0.5rem;
+  color: white;
+  font-size: medium !important;
+  justify-content: center;
+  width: 50%;
+}
+.loading-container .pf-v6-c-spinner {
+  --pf-v6-c-spinner--Color: white;
+}
+
+.login-container {
+  text-align: center;
+  font-size: medium !important;
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+}
+
+.native-login-container {
+  font-size: medium !important;
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  padding-left: 60px;
+}
+
+.login-form .pf-v6-c-form__label-text,
+.login-form .pf-v6-c-helper-text__item-text {
+  color: white;
+}
+
+.login-form .pf-v6-c-form__label-required {
+  color: #fbc5c5;
+}
+
+.login-form .pf-v6-c-button.pf-m-primary,
+.login-button {
+  background-color: black !important;
+  font-weight: bold !important;
+}
+
+.login-form .pf-v6-c-button.pf-m-primary:hover,
+.login-button:hover {
+  background-color: #252525 !important;
+}
+
+.login-alert {
+  margin-bottom: 1rem;
+}
+.sign-in-text {
+  margin-top: 1rem;
+  color: white !important;
+  padding: 20px 0;
+  font-size: xx-large !important;
+  font-weight: bold !important;
+}
+
+.description-text {
+  margin-top: 1rem;
+  color: white !important;
+  padding-bottom: 50px;
+  font-size: large !important;
+  font-style: italic;
+}
+
+.urls-text a {
+  color: white !important;
+  text-decoration: underline !important;
+}
+
+.policy-text {
+  margin-top: 1rem;
+  color: white;
+  padding-top: 20px;
+  font-size: large;
+}
+
+.account-create-text {
+  text-align: center;
+  margin-top: 1rem;
+  color: white !important;
+  padding-bottom: 50px;
+  font-size: large !important;
+}
+.account-create-text .create-button {
+  text-decoration: underline;
+  color: #b9dafc;
+  font-size: large;
+  margin-left: 0.5rem;
+}
