@@ -254,9 +254,6 @@ export const autoFillKnowledgeFields: KnowledgeFormData = {
   email: 'helloworld@instructlab.com',
   name: 'juliadenham',
   submissionSummary: 'Information about the Phoenix Constellation.',
-  domain: 'astronomy',
-  documentOutline:
-    'Information about the Phoenix Constellation including the history, characteristics, and features of the stars in the constellation.',
   filePath: 'science/physics/astrophysics/stars',
   seedExamples: knowledgeSeedExamples,
   knowledgeDocumentRepositoryUrl: '~/.instructlab-ui/taxonomy-knowledge-docs',
@@ -266,7 +263,8 @@ export const autoFillKnowledgeFields: KnowledgeFormData = {
   linkWork: 'https://en.wikipedia.org/wiki/Phoenix_(constellation)',
   revision: 'https://en.wikipedia.org/w/index.php?title=Phoenix_(constellation)&oldid=1237187773',
   licenseWork: 'CC-BY-SA-4.0',
-  creators: 'Wikipedia Authors'
+  creators: 'Wikipedia Authors',
+  filesToUpload: []
 };
 
 const skillsSeedExamples: SkillSeedExample[] = [
@@ -356,7 +354,6 @@ export const autoFillSkillsFields: SkillFormData = {
   email: 'helloworld@instructlab.com',
   name: 'juliadenham',
   submissionSummary: 'Teaching a model to rhyme.',
-  documentOutline: 'These provided examples demonstrate how to rhyme.',
   filePath: 'science/physics/astrophysics/stars',
   seedExamples: skillsSeedExamples,
   titleWork: 'Teaching a model to rhyme.',

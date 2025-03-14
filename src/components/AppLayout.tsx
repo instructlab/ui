@@ -185,7 +185,15 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
   const PageSkipToContent = <SkipToContent href={`#${pageId}`}>Skip to Content</SkipToContent>;
 
   return (
-    <Page className={className} mainContainerId={pageId} masthead={Header} isManagedSidebar sidebar={Sidebar} skipToContent={PageSkipToContent}>
+    <Page
+      className={className}
+      mainContainerId={pageId}
+      masthead={Header}
+      isManagedSidebar
+      sidebar={Sidebar}
+      skipToContent={PageSkipToContent}
+      isContentFilled
+    >
       {children}
     </Page>
   );

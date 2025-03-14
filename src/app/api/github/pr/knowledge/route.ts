@@ -6,6 +6,7 @@ import { KnowledgeYamlData, AttributionData } from '@/types';
 import { GITHUB_API_URL, BASE_BRANCH } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { checkUserForkExists, createBranch, createFilesInSingleCommit, createFork, getBaseBranchSha, getGitHubUsername } from '@/utils/github';
+import { prInfoFromSummary } from '@/app/api/github/utils';
 
 const KNOWLEDGE_DIR = 'knowledge';
 const UPSTREAM_REPO_OWNER = process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER!;
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { content, attribution, name, email, submissionSummary, documentOutline, filePath } = body;
+    const { content, attribution, name, email, submissionSummary, filePath } = body;
 
     const knowledgeData: KnowledgeYamlData = yaml.load(content) as KnowledgeYamlData;
     const attributionData: AttributionData = attribution;
@@ -64,6 +65,8 @@ Creator names: ${attributionData.creator_names}
     // Create a new branch in the user's fork
     await createBranch(headers, githubUsername, UPSTREAM_REPO_NAME, branchName, baseBranchSha);
 
+    const { prTitle, prBody, commitMessage } = prInfoFromSummary(submissionSummary);
+
     // Create both files in a single commit with DCO sign-off
     await createFilesInSingleCommit(
       headers,
@@ -74,11 +77,11 @@ Creator names: ${attributionData.creator_names}
         { path: newAttributionFilePath, content: attributionContent }
       ],
       branchName,
-      `${submissionSummary}\n\nSigned-off-by: ${name} <${email}>`
+      `${commitMessage}\n\nSigned-off-by: ${name} <${email}>`
     );
 
     // Create a pull request from the user's fork to the upstream repository
-    const pr = await createPullRequest(headers, githubUsername, branchName, submissionSummary, documentOutline);
+    const pr = await createPullRequest(headers, githubUsername, branchName, prTitle, prBody);
 
     return NextResponse.json(pr, { status: 201 });
   } catch (error) {
@@ -87,14 +90,14 @@ Creator names: ${attributionData.creator_names}
   }
 }
 
-async function createPullRequest(headers: HeadersInit, username: string, branchName: string, knowledgeSummary: string, documentOutline: string) {
+async function createPullRequest(headers: HeadersInit, username: string, branchName: string, prTitle: string, prBody?: string) {
   const response = await fetch(`${GITHUB_API_URL}/repos/${UPSTREAM_REPO_OWNER}/${UPSTREAM_REPO_NAME}/pulls`, {
     method: 'POST',
     headers,
     body: JSON.stringify({
-      title: `Knowledge: ${knowledgeSummary}`,
+      title: `Knowledge: ${prTitle}`,
       head: `${username}:${branchName}`,
-      body: documentOutline,
+      body: prBody,
       base: BASE_BRANCH
     })
   });

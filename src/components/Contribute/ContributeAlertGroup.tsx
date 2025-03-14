@@ -17,45 +17,47 @@ export const ContributeAlertGroup: React.FunctionComponent<ContributeAlertGroupP
 
   return (
     <AlertGroup isToast isLiveRegion>
-      <Alert
-        variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
-        title={actionGroupAlertContent.title}
-        timeout={actionGroupAlertContent.timeout === false ? false : actionGroupAlertContent.timeout}
-        onTimeout={onCloseActionGroupAlert}
-        actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
-      >
-        <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
-          <FlexItem>
-            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }} flexWrap={{ default: 'nowrap' }}>
-              {actionGroupAlertContent.waitAlert ? (
-                <FlexItem>
-                  <Spinner size="md" />
-                </FlexItem>
-              ) : null}
-              <FlexItem>{actionGroupAlertContent.message}</FlexItem>
-            </Flex>
-          </FlexItem>
-          {!actionGroupAlertContent.waitAlert &&
-          actionGroupAlertContent.success &&
-          actionGroupAlertContent.url &&
-          actionGroupAlertContent.url.trim().length > 0 ? (
+      {actionGroupAlertContent ? (
+        <Alert
+          variant={actionGroupAlertContent.waitAlert ? 'info' : actionGroupAlertContent.success ? 'success' : 'danger'}
+          title={actionGroupAlertContent.title}
+          timeout={actionGroupAlertContent.timeout}
+          onTimeout={onCloseActionGroupAlert}
+          actionClose={<AlertActionCloseButton onClose={onCloseActionGroupAlert} />}
+        >
+          <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
             <FlexItem>
-              <Button
-                component="a"
-                isInline
-                variant="link"
-                href={actionGroupAlertContent.url}
-                rel={actionGroupAlertContent.isUrlExternal ? 'noopener noreferrer' : 'noreferrer'}
-                target={actionGroupAlertContent.isUrlExternal ? '_blank' : undefined}
-                icon={actionGroupAlertContent.isUrlExternal ? <ExternalLinkAltIcon /> : undefined}
-                iconPosition="end"
-              >
-                View your new branch
-              </Button>
+              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }} flexWrap={{ default: 'nowrap' }}>
+                {actionGroupAlertContent.waitAlert ? (
+                  <FlexItem>
+                    <Spinner size="md" />
+                  </FlexItem>
+                ) : null}
+                <FlexItem>{actionGroupAlertContent.message}</FlexItem>
+              </Flex>
             </FlexItem>
-          ) : null}
-        </Flex>
-      </Alert>
+            {!actionGroupAlertContent.waitAlert &&
+            actionGroupAlertContent.success &&
+            actionGroupAlertContent.url &&
+            actionGroupAlertContent.url.trim().length > 0 ? (
+              <FlexItem>
+                <Button
+                  component="a"
+                  isInline
+                  variant="link"
+                  href={actionGroupAlertContent.url}
+                  rel={actionGroupAlertContent.isUrlExternal ? 'noopener noreferrer' : 'noreferrer'}
+                  target={actionGroupAlertContent.isUrlExternal ? '_blank' : undefined}
+                  icon={actionGroupAlertContent.isUrlExternal ? <ExternalLinkAltIcon /> : undefined}
+                  iconPosition="end"
+                >
+                  {actionGroupAlertContent.urlText || 'View your new branch'}
+                </Button>
+              </FlexItem>
+            ) : null}
+          </Flex>
+        </Alert>
+      ) : null}
     </AlertGroup>
   );
 };

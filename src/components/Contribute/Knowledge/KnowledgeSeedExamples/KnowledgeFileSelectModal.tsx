@@ -67,10 +67,6 @@ const KnowledgeFileSelectModal: React.FC<Props> = ({
     const commitShaValue = file.commitSha;
     const docName = file.filename;
 
-    console.log(
-      `handleUseSelectedText: selectedText="${selectedText}", repositoryUrl=${repositoryUrl}, commitSha=${commitShaValue}, docName=${docName}`
-    );
-
     handleContextInputChange(selectedText);
     addDocumentInfo(repositoryUrl, commitShaValue, docName);
     handleCloseModal();

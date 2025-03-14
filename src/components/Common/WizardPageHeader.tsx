@@ -3,14 +3,14 @@ import { Content } from '@patternfly/react-core';
 
 interface Props {
   title: React.ReactNode;
-  description: React.ReactNode;
+  description?: React.ReactNode;
 }
 
-const PageHeader: React.FC<Props> = ({ title, description }) => (
+const WizardPageHeader: React.FC<Props> = ({ title, description }) => (
   <div>
     <Content component="h4">{title}</Content>
     <Content component="p">{description}</Content>
   </div>
 );
 
-export default PageHeader;
+export default WizardPageHeader;

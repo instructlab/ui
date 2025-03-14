@@ -8,7 +8,7 @@ interface Props {
   isKnowledgeForm: boolean;
   onYamlUploadKnowledgeFillForm?: (data: KnowledgeYamlData) => void;
   onYamlUploadSkillsFillForm?: (data: SkillYamlData) => void;
-  setActionGroupAlertContent: React.Dispatch<React.SetStateAction<ActionGroupAlertContent | undefined>>;
+  setActionGroupAlertContent: (alertContent: ActionGroupAlertContent | undefined) => void;
   onClose: () => void;
 }
 

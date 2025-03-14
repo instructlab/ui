@@ -7,6 +7,7 @@ import path from 'path';
 import yaml from 'js-yaml';
 import { SkillYamlData } from '@/types';
 import { dumpYaml } from '@/utils/yamlConfig';
+import { prInfoFromSummary } from '@/app/api/github/utils';
 
 // Define paths and configuration
 const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || `${process.env.HOME}/.instructlab-ui`;
@@ -16,8 +17,8 @@ const SKILLS_DIR = 'compositional_skills';
 export async function POST(req: NextRequest) {
   const REPO_DIR = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
   try {
-    // Extract the QnA data from the request body TODO: what is documentOutline?
-    const { action, branchName, content, name, email, submissionSummary, documentOutline, filePath, oldFilesPath } = await req.json(); // eslint-disable-line @typescript-eslint/no-unused-vars
+    // Extract the QnA data from the request body
+    const { action, branchName, content, name, email, submissionSummary, filePath, oldFilesPath } = await req.json(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
     let skillBranchName;
     if (action == 'update' && branchName != '') {
@@ -71,10 +72,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Commit files
+    const { commitMessage } = prInfoFromSummary(submissionSummary);
     await git.commit({
       fs,
       dir: REPO_DIR,
-      message: `${submissionSummary}\n\nSigned-off-by: ${name} <${email}>`,
+      message: `${commitMessage}\n\nSigned-off-by: ${name} <${email}>`,
       author: {
         name: name,
         email: email

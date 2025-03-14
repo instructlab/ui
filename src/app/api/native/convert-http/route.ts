@@ -19,9 +19,9 @@ interface ConvertHttpRequestBody {
 
 // convert a doc from a URL (provided via http_sources) to Markdown.
 export async function POST(request: Request) {
+  const baseUrl = process.env.IL_FILE_CONVERSION_SERVICE || 'http://doclingserve:5001';
+
   try {
-    const body: ConvertHttpRequestBody = await request.json();
-    const baseUrl = process.env.IL_FILE_CONVERSION_SERVICE || 'http://doclingserve:5001';
     const healthRes = await fetch(`${baseUrl}/health`);
     if (!healthRes.ok) {
       console.error('The file conversion service is offline or returned non-OK status:', healthRes.status, healthRes.statusText);
@@ -33,6 +33,13 @@ export async function POST(request: Request) {
       console.error('Conversion service health check response not "ok":', healthData);
       return NextResponse.json({ error: 'Conversion service is offline, only markdown files accepted.' }, { status: 503 });
     }
+  } catch (error: unknown) {
+    console.error('Error conversion service health check:', error);
+    return NextResponse.json({ error: 'Conversion service is offline, only markdown files accepted.' }, { status: 503 });
+  }
+
+  try {
+    const body: ConvertHttpRequestBody = await request.json();
 
     const res = await fetch(`${baseUrl}/v1alpha/convert/source`, {
       method: 'POST',

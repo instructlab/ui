@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { ContributionFormData } from '@/types';
 import { ValidatedOptions, FormGroup, TextInput, FormHelperText, HelperText, HelperTextItem, FlexItem, Flex, Form } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
-import PageHeader from '@/components/Contribute/PageHeader';
+import WizardPageHeader from '@/components/Common/WizardPageHeader';
+import WizardFormGroupLabelHelp from '@/components/Common/WizardFormGroupLabelHelp';
 
 interface Props {
   isEditForm?: boolean;
@@ -91,17 +92,46 @@ const AttributionInformation: React.FC<Props> = ({
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <PageHeader title="Attribution Information" description="Provide attribution information." />
+        <WizardPageHeader title="Attribution details" description="Provide attribution information." />
       </FlexItem>
       <FlexItem>
         <Form>
+          <FormGroup
+            isRequired
+            key={'attribution-info-details-title_work'}
+            label="Title"
+            labelHelp={<WizardFormGroupLabelHelp bodyContent="Description of work title" />}
+          >
+            <TextInput
+              isRequired
+              type="text"
+              aria-label="title_work"
+              validated={validTitle}
+              value={titleWork}
+              onChange={(_event, value) => setTitleWork(value)}
+              onBlur={() => validateTitle(titleWork)}
+            />
+            {validTitle === ValidatedOptions.error && (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validTitle}>
+                    Required field
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            )}
+          </FormGroup>
           {setLinkWork ? (
-            <FormGroup isRequired key={'attribution-info-details-work_link'} label="Work link or URL">
+            <FormGroup
+              isRequired
+              key={'attribution-info-details-work_link'}
+              label="Link to work"
+              labelHelp={<WizardFormGroupLabelHelp bodyContent="Description of link to work" />}
+            >
               <TextInput
                 isRequired
                 type="url"
                 aria-label="link_work"
-                placeholder="Enter link to work"
                 validated={validLink}
                 value={linkWork}
                 onChange={(_event, value) => setLinkWork(value)}
@@ -127,34 +157,17 @@ const AttributionInformation: React.FC<Props> = ({
               )}
             </FormGroup>
           ) : null}
-          <FormGroup isRequired key={'attribution-info-details-title_work'} label="Work title">
-            <TextInput
-              isRequired
-              type="text"
-              aria-label="title_work"
-              placeholder="Enter title of work"
-              validated={validTitle}
-              value={titleWork}
-              onChange={(_event, value) => setTitleWork(value)}
-              onBlur={() => validateTitle(titleWork)}
-            />
-            {validTitle === ValidatedOptions.error && (
-              <FormHelperText>
-                <HelperText>
-                  <HelperTextItem icon={<ExclamationCircleIcon />} variant={validTitle}>
-                    Required field
-                  </HelperTextItem>
-                </HelperText>
-              </FormHelperText>
-            )}
-          </FormGroup>
           {setRevision ? (
-            <FormGroup isRequired key={'attribution-info-details-document_revision'} label="Document revision">
+            <FormGroup
+              isRequired
+              key={'attribution-info-details-document_revision'}
+              label="Revision"
+              labelHelp={<WizardFormGroupLabelHelp bodyContent="Description of revision" />}
+            >
               <TextInput
                 isRequired
                 type="text"
                 aria-label="revision"
-                placeholder="Enter document revision information"
                 validated={validRevision}
                 value={revision}
                 onChange={(_event, value) => setRevision(value)}
@@ -171,12 +184,16 @@ const AttributionInformation: React.FC<Props> = ({
               )}
             </FormGroup>
           ) : null}
-          <FormGroup isRequired key={'attribution-info-details-license'} label="License">
+          <FormGroup
+            isRequired
+            key={'attribution-info-details-license'}
+            label="License of the work"
+            labelHelp={<WizardFormGroupLabelHelp bodyContent="Description of license of the work" />}
+          >
             <TextInput
               isRequired
               type="text"
               aria-label="license_work"
-              placeholder="Enter license of the work"
               validated={validLicense}
               value={licenseWork}
               onChange={(_event, value) => setLicenseWork(value)}
@@ -192,12 +209,11 @@ const AttributionInformation: React.FC<Props> = ({
               </FormHelperText>
             )}
           </FormGroup>
-          <FormGroup isRequired key={'attribution-info-details-creators'} label="Creators name">
+          <FormGroup isRequired key={'attribution-info-details-creators'} label="Author(s)">
             <TextInput
               isRequired
               type="text"
-              aria-label="creators"
-              placeholder="Enter creators Name"
+              aria-label="author"
               validated={validCreators}
               value={creators}
               onChange={(_event, value) => setCreators(value)}

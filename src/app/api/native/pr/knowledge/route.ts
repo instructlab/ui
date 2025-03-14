@@ -8,6 +8,7 @@ import path from 'path';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { KnowledgeYamlData } from '@/types';
 import yaml from 'js-yaml';
+import { prInfoFromSummary } from '@/app/api/github/utils';
 
 // Define paths and configuration
 const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || `${process.env.HOME}/.instructlab-ui`;
@@ -74,10 +75,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Commit the changes
+    const { commitMessage } = prInfoFromSummary(submissionSummary);
     await git.commit({
       fs,
       dir: REPO_DIR,
-      message: `${submissionSummary}\n\nSigned-off-by: ${name} <${email}>`,
+      message: `${commitMessage}\n\nSigned-off-by: ${name} <${email}>`,
       author: {
         name: name,
         email: email

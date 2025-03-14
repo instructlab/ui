@@ -15,7 +15,6 @@ import ViewDropdownButton from '@/components/Contribute/ContributionWizard/ViewD
 import { ContributionFormData } from '@/types';
 
 interface Props {
-  isValid: boolean;
   formData: ContributionFormData;
   isGithubMode: boolean;
   isSkillContribution: boolean;
@@ -26,16 +25,7 @@ interface Props {
   onCancel: () => void;
 }
 
-const ContributionWizardFooter: React.FC<Props> = ({
-  isValid,
-  formData,
-  isGithubMode,
-  isSkillContribution,
-  showSubmit,
-  onSubmit,
-  convertToYaml,
-  isEdit
-}) => {
+const ContributionWizardFooter: React.FC<Props> = ({ formData, isGithubMode, isSkillContribution, showSubmit, onSubmit, convertToYaml, isEdit }) => {
   const { steps, activeStep, goToNextStep, goToPrevStep, goToStepByIndex, close } = useWizardContext();
 
   const prevDisabled = steps.indexOf(activeStep) < 1;
@@ -59,15 +49,13 @@ const ContributionWizardFooter: React.FC<Props> = ({
                   Back
                 </Button>
               </ActionListItem>
-              <ActionListItem>
-                <Button
-                  variant={showSubmit ? ButtonVariant.secondary : ButtonVariant.primary}
-                  onClick={isLast ? onSubmit : goToNextStep}
-                  isDisabled={isLast || !isValid}
-                >
-                  Next
-                </Button>
-              </ActionListItem>
+              {!isLast || !showSubmit ? (
+                <ActionListItem>
+                  <Button variant={showSubmit ? ButtonVariant.secondary : ButtonVariant.primary} onClick={goToNextStep} isDisabled={isLast}>
+                    Next
+                  </Button>
+                </ActionListItem>
+              ) : null}
               {showSubmit ? (
                 <ActionListItem>
                   <Button variant={ButtonVariant.primary} type="submit" onClick={handleSubmit}>

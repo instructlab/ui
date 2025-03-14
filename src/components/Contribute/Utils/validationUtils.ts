@@ -1,6 +1,8 @@
 import { ValidatedOptions } from '@patternfly/react-core';
 import { ContributionFormData, KnowledgeFormData, SkillFormData } from '@/types';
 
+export const MAX_SUMMARY_CHARS = 256;
+
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
 export const isEmailValid = (email: string): boolean => {
@@ -10,38 +12,11 @@ export const isEmailValid = (email: string): boolean => {
 export const isAuthInfoValid = (knowledgeFormData: ContributionFormData): boolean =>
   isEmailValid(knowledgeFormData.email) && !!knowledgeFormData.name;
 
-export const isKnowledgeInfoValid = (knowledgeFormData: KnowledgeFormData): boolean => {
-  const description = knowledgeFormData.submissionSummary.trim();
-  if (!description.length) {
-    return false;
-  }
+export const isSubmissionSummaryValid = (formData: ContributionFormData): boolean =>
+  formData.submissionSummary.trim().length > 0 && formData.submissionSummary.trim().length <= MAX_SUMMARY_CHARS;
 
-  const domain = knowledgeFormData.domain.trim();
-  if (!domain.length) {
-    return false;
-  }
-
-  const outline = knowledgeFormData.documentOutline.trim();
-  if (outline.length < 40) {
-    return false;
-  }
-
-  return true;
-};
-
-export const isSkillInfoValid = (knowledgeFormData: SkillFormData): boolean => {
-  const description = knowledgeFormData.submissionSummary.trim();
-  if (!description.length) {
-    return false;
-  }
-
-  const outline = knowledgeFormData.documentOutline.trim();
-  if (outline.length < 40) {
-    return false;
-  }
-
-  return true;
-};
+export const isDetailsValid = (formData: ContributionFormData): boolean =>
+  isAuthInfoValid(formData) && isSubmissionSummaryValid(formData) && isFilePathInfoValid(formData);
 
 export const isFilePathInfoValid = (knowledgeFormData: ContributionFormData): boolean => knowledgeFormData.filePath.trim().length > 0;
 

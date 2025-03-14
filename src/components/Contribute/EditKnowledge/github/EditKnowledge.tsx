@@ -37,8 +37,6 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
             email: '',
             name: '',
             submissionSummary: '',
-            domain: '',
-            documentOutline: '',
             filePath: '',
             seedExamples: [],
             knowledgeDocumentRepositoryUrl: '',
@@ -48,7 +46,8 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
             linkWork: '',
             revision: '',
             licenseWork: '',
-            creators: ''
+            creators: '',
+            filesToUpload: []
           };
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
@@ -79,8 +78,6 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
           console.log('Parsed Knowledge YAML data:', yamlData);
 
           // Populate the form fields with YAML data
-          knowledgeExistingFormData.documentOutline = yamlData.document_outline;
-          knowledgeExistingFormData.domain = yamlData.domain;
           knowledgeExistingFormData.knowledgeDocumentRepositoryUrl = yamlData.document.repo;
           knowledgeExistingFormData.knowledgeDocumentCommit = yamlData.document.commit;
           knowledgeExistingFormData.documentName = yamlData.document.patterns.join(', ');

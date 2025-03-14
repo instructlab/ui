@@ -85,6 +85,7 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
       }, []),
     [steps]
   );
+  const getStepIndex = (stepId: string) => stepIds.indexOf(stepId);
 
   React.useEffect(() => {
     const getEnvVariables = async () => {
@@ -149,15 +150,14 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
   }, [steps]);
 
   return (
-    <PageGroup>
-      <PageBreadcrumb>
+    <PageGroup isFilled style={{ overflowY: 'hidden', flex: 1 }}>
+      <PageBreadcrumb stickyOnBreakpoint={{ default: 'top' }}>
         <Breadcrumb>
           <BreadcrumbItem to="/">Contribute</BreadcrumbItem>
           <BreadcrumbItem isActive>{title}</BreadcrumbItem>
         </Breadcrumb>
       </PageBreadcrumb>
-
-      <PageSection className="knowledge-form" isFilled>
+      <PageSection className="knowledge-form" style={{ overflowY: 'hidden' }}>
         <Flex direction={{ default: 'column' }}>
           <FlexItem>
             <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
@@ -178,41 +178,54 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
           <FlexItem>
             <Content component="p">{description}</Content>
           </FlexItem>
-          <FlexItem flex={{ default: 'flex_1' }}>
-            <Wizard
-              height={600}
-              startIndex={1}
-              onClose={handleCancel}
-              onStepChange={(_ev, currentStep) => setActiveStepIndex(stepIds.indexOf(String(currentStep.id)))}
-              footer={
-                <ContributionWizardFooter
-                  onCancel={handleCancel}
-                  formData={formData}
-                  isGithubMode={isGithubMode}
-                  isSkillContribution={isSkillContribution}
-                  onSubmit={() => onSubmit(githubUsername)}
-                  isValid={true}
-                  showSubmit={submitEnabled}
-                  isEdit={!!editFormData}
-                  convertToYaml={convertToYaml}
-                />
+        </Flex>
+      </PageSection>
+      <PageSection isFilled style={{ flex: 1, overflowY: 'hidden' }}>
+        <Wizard
+          style={{ maxHeight: '100%' }}
+          startIndex={1}
+          onClose={handleCancel}
+          onStepChange={(_ev, currentStep) => setActiveStepIndex(stepIds.indexOf(String(currentStep.id)))}
+          footer={
+            <ContributionWizardFooter
+              onCancel={handleCancel}
+              formData={formData}
+              isGithubMode={isGithubMode}
+              isSkillContribution={isSkillContribution}
+              onSubmit={() => onSubmit(githubUsername)}
+              showSubmit={submitEnabled}
+              isEdit={!!editFormData}
+              convertToYaml={convertToYaml}
+            />
+          }
+        >
+          {steps.map((step) => (
+            <WizardStep
+              key={step.id}
+              id={step.id}
+              name={step.name}
+              navItem={{ content: <span>{step.name}</span> }}
+              status={getStepIndex(step.id) < activeStepIndex ? step.status : StepStatus.Default}
+              steps={
+                step.subSteps
+                  ? step.subSteps.map((subStep) => (
+                      <WizardStep
+                        key={subStep.id}
+                        id={subStep.id}
+                        name={subStep.name}
+                        navItem={{ content: <span>{subStep.name}</span> }}
+                        status={getStepIndex(subStep.id) < activeStepIndex ? subStep.status : StepStatus.Default}
+                      >
+                        {subStep.component}
+                      </WizardStep>
+                    ))
+                  : undefined
               }
             >
-              {steps.map((step, index) => (
-                <WizardStep
-                  key={step.id}
-                  id={step.id}
-                  name={step.name}
-                  status={
-                    index === activeStepIndex || (step.status === StepStatus.Error && index > activeStepIndex) ? StepStatus.Default : step.status
-                  }
-                >
-                  {step.component}
-                </WizardStep>
-              ))}
-            </Wizard>
-          </FlexItem>
-        </Flex>
+              {!step.subSteps ? step.component : null}
+            </WizardStep>
+          ))}
+        </Wizard>
       </PageSection>
     </PageGroup>
   );

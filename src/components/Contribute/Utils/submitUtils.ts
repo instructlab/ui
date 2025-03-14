@@ -17,6 +17,14 @@ import { validateKnowledgeFormFields, validateSkillFormFields } from '@/componen
 const KNOWLEDGE_DIR = 'knowledge/';
 const SKILLS_DIR = 'compositional_skills/';
 
+const domainFromFilePath = (filePath: string): string => {
+  if (!filePath) {
+    return '';
+  }
+  const pathElements = filePath.split('/').filter((element) => !!element);
+  return pathElements[pathElements.length - 1] || '';
+};
+
 export const submitNativeKnowledgeData = async (
   knowledgeFormData: KnowledgeFormData,
   setActionGroupAlertContent: (content: ActionGroupAlertContent) => void
@@ -32,8 +40,8 @@ export const submitNativeKnowledgeData = async (
   const knowledgeYamlData: KnowledgeYamlData = {
     created_by: knowledgeFormData.email,
     version: KnowledgeSchemaVersion,
-    domain: knowledgeFormData.domain!,
-    document_outline: knowledgeFormData.documentOutline!,
+    domain: domainFromFilePath(knowledgeFormData.filePath),
+    document_outline: knowledgeFormData.submissionSummary,
     seed_examples: knowledgeFormData.seedExamples.map((example) => ({
       context: example.context!,
       questions_and_answers: example.questionAndAnswers.map((questionAndAnswer) => ({
@@ -51,7 +59,7 @@ export const submitNativeKnowledgeData = async (
   const yamlString = dumpYaml(knowledgeYamlData);
 
   const waitForSubmissionAlert: ActionGroupAlertContent = {
-    title: 'Knowledge contribution submission in progress!',
+    title: 'Knowledge contribution submission in progress.',
     message: `Once the submission is successful, it will provide the link to the newly created Pull Request.`,
     success: true,
     waitAlert: true,
@@ -59,7 +67,7 @@ export const submitNativeKnowledgeData = async (
   };
   setActionGroupAlertContent(waitForSubmissionAlert);
 
-  const { name, submissionSummary, documentOutline, email } = knowledgeFormData;
+  const { name, submissionSummary, email } = knowledgeFormData;
 
   const response = await fetch('/api/native/pr/knowledge', {
     method: 'POST',
@@ -73,7 +81,7 @@ export const submitNativeKnowledgeData = async (
       name,
       email,
       submissionSummary,
-      documentOutline,
+      documentOutline: submissionSummary,
       filePath: sanitizedFilePath,
       oldFilesPath: sanitizedFilePath
     })
@@ -115,8 +123,8 @@ export const submitGithubKnowledgeData = async (
   const knowledgeYamlData: KnowledgeYamlData = {
     created_by: githubUsername!,
     version: KnowledgeSchemaVersion,
-    domain: knowledgeFormData.domain!,
-    document_outline: knowledgeFormData.documentOutline!,
+    domain: domainFromFilePath(knowledgeFormData.filePath),
+    document_outline: knowledgeFormData.submissionSummary,
     seed_examples: knowledgeFormData.seedExamples.map((example) => ({
       context: example.context!,
       questions_and_answers: example.questionAndAnswers.map((questionAndAnswer) => ({
@@ -142,7 +150,7 @@ export const submitGithubKnowledgeData = async (
   };
 
   const waitForSubmissionAlert: ActionGroupAlertContent = {
-    title: 'Knowledge contribution submission in progress.!',
+    title: 'Knowledge contribution submission in progress.',
     message: `Once the submission is successful, it will provide the link to the newly created Pull Request.`,
     success: true,
     waitAlert: true,
@@ -150,7 +158,7 @@ export const submitGithubKnowledgeData = async (
   };
   setActionGroupAlertContent(waitForSubmissionAlert);
 
-  const { name, submissionSummary, documentOutline, email } = knowledgeFormData;
+  const { name, submissionSummary, email } = knowledgeFormData;
   const response = await fetch('/api/github/pr/knowledge', {
     method: 'POST',
     headers: {
@@ -162,7 +170,7 @@ export const submitGithubKnowledgeData = async (
       name,
       email,
       submissionSummary,
-      documentOutline,
+      documentOutline: submissionSummary,
       filePath: sanitizedFilePath
     })
   });
@@ -198,25 +206,25 @@ export const updateNativeKnowledgeData = async (
     return false;
   }
   // Strip leading slash and ensure trailing slash in the file path
-  let sanitizedFilePath = knowledgeFormData.filePath!.startsWith('/') ? knowledgeFormData.filePath!.slice(1) : knowledgeFormData.filePath;
-  sanitizedFilePath = sanitizedFilePath!.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
+  let sanitizedFilePath = knowledgeFormData.filePath?.startsWith('/') ? knowledgeFormData.filePath!.slice(1) : knowledgeFormData.filePath;
+  sanitizedFilePath = sanitizedFilePath?.endsWith('/') ? sanitizedFilePath : `${sanitizedFilePath}/`;
 
   const knowledgeYamlData: KnowledgeYamlData = {
     created_by: knowledgeFormData.email,
     version: KnowledgeSchemaVersion,
-    domain: knowledgeFormData.domain!,
-    document_outline: knowledgeFormData.documentOutline!,
+    domain: domainFromFilePath(knowledgeFormData.filePath),
+    document_outline: knowledgeFormData.submissionSummary,
     seed_examples: knowledgeFormData.seedExamples.map((example) => ({
-      context: example.context!,
+      context: example.context,
       questions_and_answers: example.questionAndAnswers.map((questionAndAnswer) => ({
         question: questionAndAnswer.question,
         answer: questionAndAnswer.answer
       }))
     })),
     document: {
-      repo: knowledgeFormData.knowledgeDocumentRepositoryUrl!,
-      commit: knowledgeFormData.knowledgeDocumentCommit!,
-      patterns: knowledgeFormData.documentName!.split(',').map((pattern) => pattern.trim())
+      repo: knowledgeFormData.knowledgeDocumentRepositoryUrl,
+      commit: knowledgeFormData.knowledgeDocumentCommit,
+      patterns: knowledgeFormData.documentName?.split(',').map((pattern) => pattern.trim())
     }
   };
 
@@ -231,7 +239,7 @@ export const updateNativeKnowledgeData = async (
   };
   setActionGroupAlertContent(waitForSubmissionAlert);
 
-  const { name, email, submissionSummary, documentOutline } = knowledgeFormData;
+  const { name, email, submissionSummary } = knowledgeFormData;
   const { branchName, oldFilesPath } = knowledgeEditFormData;
   const response = await fetch('/api/native/pr/knowledge', {
     method: 'POST',
@@ -245,7 +253,7 @@ export const updateNativeKnowledgeData = async (
       name,
       email,
       submissionSummary,
-      documentOutline,
+      documentOutline: submissionSummary,
       filePath: sanitizedFilePath,
       oldFilesPath: oldFilesPath
     })
@@ -286,8 +294,7 @@ export const updateGithubKnowledgeData = async (
     try {
       console.log(`Updating PR with number: ${knowledgeEditFormData.pullRequestNumber}`);
       await updatePullRequest(session.accessToken, knowledgeEditFormData.pullRequestNumber, {
-        title: knowledgeFormData.submissionSummary,
-        body: knowledgeFormData.documentOutline
+        title: knowledgeFormData.submissionSummary
       });
 
       const headers = {
@@ -303,8 +310,8 @@ export const updateGithubKnowledgeData = async (
       const knowledgeYamlData: KnowledgeYamlData = {
         created_by: githubUsername!,
         version: KnowledgeSchemaVersion,
-        domain: knowledgeFormData.domain!,
-        document_outline: knowledgeFormData.documentOutline!,
+        domain: domainFromFilePath(knowledgeFormData.filePath),
+        document_outline: knowledgeFormData.submissionSummary,
         seed_examples: knowledgeFormData.seedExamples.map((example) => ({
           context: example.context!,
           questions_and_answers: example.questionAndAnswers.map((questionAndAnswer) => ({
@@ -423,7 +430,7 @@ export const submitNativeSkillData = async (
   const skillYamlData: SkillYamlData = {
     created_by: skillFormData.name,
     version: SkillSchemaVersion,
-    task_description: skillFormData.documentOutline!,
+    task_description: skillFormData.submissionSummary,
     seed_examples: skillFormData.seedExamples.map((example) => ({
       context: example.context,
       question: example.questionAndAnswer.question,
@@ -442,7 +449,7 @@ export const submitNativeSkillData = async (
   };
   setActionGroupAlertContent(waitForSubmissionAlert);
 
-  const { name, email, submissionSummary, documentOutline } = skillFormData;
+  const { name, email, submissionSummary } = skillFormData;
 
   const response = await fetch('/api/native/pr/skill/', {
     method: 'POST',
@@ -456,7 +463,6 @@ export const submitNativeSkillData = async (
       name,
       email,
       submissionSummary,
-      documentOutline,
       filePath: sanitizedFilePath,
       oldFilesPath: sanitizedFilePath
     })
@@ -499,7 +505,7 @@ export const submitGithubSkillData = async (
   const skillYamlData: SkillYamlData = {
     created_by: githubUsername!,
     version: SkillSchemaVersion,
-    task_description: skillFormData.documentOutline!,
+    task_description: skillFormData.submissionSummary!,
     seed_examples: skillFormData.seedExamples.map((example) => ({
       context: example.context,
       question: example.questionAndAnswer.question,
@@ -526,7 +532,7 @@ export const submitGithubSkillData = async (
   };
   setActionGroupAlertContent(waitForSubmissionAlert);
 
-  const { name, email, submissionSummary, documentOutline } = skillFormData;
+  const { name, email, submissionSummary } = skillFormData;
   const response = await fetch('/api/github/pr/skill', {
     method: 'POST',
     headers: {
@@ -538,7 +544,6 @@ export const submitGithubSkillData = async (
       name,
       email,
       submissionSummary,
-      documentOutline,
       filePath: sanitizedFilePath
     })
   });
@@ -580,7 +585,7 @@ export const updateNativeSkillData = async (
   const skillYamlData: SkillYamlData = {
     created_by: skillFormData.name,
     version: SkillSchemaVersion,
-    task_description: skillFormData.documentOutline!,
+    task_description: skillFormData.submissionSummary,
     seed_examples: skillFormData.seedExamples.map((example) => ({
       context: example.context,
       question: example.questionAndAnswer.question,
@@ -599,7 +604,7 @@ export const updateNativeSkillData = async (
   };
   setActionGroupAlertContent(waitForSubmissionAlert);
 
-  const { name, email, submissionSummary, documentOutline } = skillFormData;
+  const { name, email, submissionSummary } = skillFormData;
   const { branchName, oldFilesPath } = skillEditFormData;
 
   const response = await fetch('/api/native/pr/skill/', {
@@ -614,7 +619,6 @@ export const updateNativeSkillData = async (
       name,
       email,
       submissionSummary,
-      documentOutline,
       filePath: sanitizedFilePath,
       oldFilesPath: oldFilesPath
     })
@@ -655,8 +659,7 @@ export const updateGithubSkillData = async (
     try {
       console.log(`Updating PR with number: ${pullRequestNumber}`);
       await updatePullRequest(session.accessToken, pullRequestNumber, {
-        title: skillFormData.submissionSummary,
-        body: skillFormData.documentOutline
+        title: skillFormData.submissionSummary
       });
 
       const headers = {
@@ -671,7 +674,7 @@ export const updateGithubSkillData = async (
       const skillYamlData: SkillYamlData = {
         created_by: githubUsername!,
         version: SkillSchemaVersion,
-        task_description: skillFormData.documentOutline!,
+        task_description: skillFormData.submissionSummary,
         seed_examples: skillFormData.seedExamples.map((example) => ({
           context: example.context,
           question: example.questionAndAnswer.question,

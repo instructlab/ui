@@ -47,8 +47,6 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
             email: '',
             name: '',
             submissionSummary: '',
-            domain: '',
-            documentOutline: '',
             filePath: '',
             seedExamples: [],
             knowledgeDocumentRepositoryUrl: '',
@@ -58,7 +56,8 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
             linkWork: '',
             revision: '',
             licenseWork: '',
-            creators: ''
+            creators: '',
+            filesToUpload: []
           };
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
@@ -88,8 +87,6 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
                   const yamlData: KnowledgeYamlData = yaml.load(change.content) as KnowledgeYamlData;
                   console.log('Parsed Knowledge YAML data:', yamlData);
                   // Populate the form fields with YAML data
-                  knowledgeExistingFormData.documentOutline = yamlData.document_outline;
-                  knowledgeExistingFormData.domain = yamlData.domain;
                   knowledgeExistingFormData.knowledgeDocumentRepositoryUrl = yamlData.document.repo;
                   knowledgeExistingFormData.knowledgeDocumentCommit = yamlData.document.commit;
                   knowledgeExistingFormData.documentName = yamlData.document.patterns.join(', ');
