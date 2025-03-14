@@ -1,8 +1,3 @@
-a {
-  color: white;
-  text-decoration: underline;
-}
-
 .login-page-background {
   background-image: url('../../../public/InstructLab-Background-Image.svg');
   background-size: contain;
@@ -18,6 +13,17 @@ a {
   overflow-x: auto;
 }
 
+.loading-container {
+  display: flex;
+  gap: 0.5rem;
+  color: white;
+  font-size: medium !important;
+  width: 50%;
+}
+.loading-container .pf-v6-c-spinner {
+  --pf-v6-c-spinner--Color: white;
+}
+
 .login-container {
   text-align: center;
   font-size: medium !important;
@@ -26,10 +32,33 @@ a {
   padding: 20px;
 }
 
+.login-form .pf-v6-c-form__label-text,
+.login-form .pf-v6-c-helper-text__item-text {
+  color: white;
+}
+
+.login-form .pf-v6-c-form__label-required {
+  color: #fbc5c5;
+}
+
+.login-form .pf-v6-c-button.pf-m-primary,
+.login-button {
+  background-color: black !important;
+  font-weight: bold !important;
+}
+
+.login-form .pf-v6-c-button.pf-m-primary:hover,
+.login-button:hover {
+  background-color: #252525 !important;
+}
+
+.login-alert {
+  margin-bottom: 1rem;
+}
 .sign-in-text {
   margin-top: 1rem;
   color: white !important;
-  padding: 20px;
+  padding: 20px 0;
   font-size: xx-large !important;
   font-weight: bold !important;
 }
@@ -42,16 +71,9 @@ a {
   font-style: italic;
 }
 
-.urls-text {
-  margin-top: 1rem;
-  color: white;
-  font-size: large;
-}
-
-.urls-text-medium {
-  color: white;
-  text-align: center;
-  font-size: medium;
+.urls-text a {
+  color: white !important;
+  text-decoration: underline !important;
 }
 
 .policy-text {
@@ -61,18 +83,16 @@ a {
   font-size: large;
 }
 
-.login-button {
-  background-color: black !important;
-  font-weight: bold !important;
-}
-
-.login-button:hover {
-  background-color: #252525 !important;
-}
-
 .account-create-text {
+  text-align: center;
   margin-top: 1rem;
   color: white !important;
   padding-bottom: 50px;
   font-size: large !important;
+}
+.account-create-text .create-button {
+  text-decoration: underline;
+  color: #b9dafc;
+  font-size: large;
+  margin-left: 0.5rem;
 }

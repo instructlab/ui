@@ -1,15 +1,14 @@
 // src/app/login/page.tsx
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import './githublogin.css';
+import React, { useState, useEffect } from 'react';
+import { Grid, GridItem, Spinner } from '@patternfly/react-core';
 import NativeLogin from '@/app/login/nativelogin';
 import GithubLogin from '@/app/login/githublogin';
-import DevModeLogin from './devmodelogin';
+import './login-page.css';
 
 const Login: React.FunctionComponent = () => {
   const [deploymentType, setDeploymentType] = useState<string | 'github'>();
-  const [isDevModeEnabled, setIsDevModeEnabled] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -18,7 +17,6 @@ const Login: React.FunctionComponent = () => {
         const res = await fetch('/api/envConfig');
         const envConfig = await res.json();
         setDeploymentType(envConfig.DEPLOYMENT_TYPE);
-        setIsDevModeEnabled(envConfig.ENABLE_DEV_MODE === 'true');
       } catch (error) {
         console.error('Error fetching environment config:', error);
         setDeploymentType('github');
@@ -29,21 +27,19 @@ const Login: React.FunctionComponent = () => {
     chooseLoginPage();
   }, []);
 
-  // Don't render the page until the useEffect finishes fetching environment data
-  if (isLoading || deploymentType === null) {
-    return <div style={{ color: 'white', padding: '1rem' }}>Loading...</div>;
-  }
-
-  if (isDevModeEnabled) {
-    return <DevModeLogin />;
-  }
-  if (deploymentType === 'native') {
-    return <NativeLogin />;
-  }
   return (
-    <Suspense>
-      <GithubLogin />
-    </Suspense>
+    <div className="login-page-background">
+      {isLoading ? (
+        <div className="loading-container">
+          <Spinner size="lg" />
+          Loading...
+        </div>
+      ) : (
+        <Grid hasGutter span={12}>
+          <GridItem span={6}>{deploymentType === 'native' ? <NativeLogin /> : <GithubLogin />}</GridItem>
+        </Grid>
+      )}
+    </div>
   );
 };
 

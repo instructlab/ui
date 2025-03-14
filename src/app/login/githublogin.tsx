@@ -1,9 +1,9 @@
-import React, { useEffect, useState, Suspense } from 'react';
-import './githublogin.css';
+import React, { useEffect, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button, Content, Grid, GridItem, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
+import { Button, Content, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { GithubIcon } from '@patternfly/react-icons';
+import LoginLinks from '@/app/login/LoginLinks';
 
 const GithubLogin: React.FC = () => {
   const router = useRouter();
@@ -66,99 +66,60 @@ const GithubLogin: React.FC = () => {
   };
 
   return (
-    <Suspense>
-      <div className="login-page-background">
-        <Grid hasGutter span={12}>
-          <GridItem span={6} className="login-container">
-            <div>
-              <Content>
-                <Content component="p" className="sign-in-text">
-                  Login in to your account
-                </Content>
-              </Content>
-              <Content>
-                <Content component="p" className="description-text">
-                  Join the novel, community based movement to <br></br>create truly open source LLMs
-                </Content>
-              </Content>
-              <div className="login-container">
-                <Button variant="primary" className="login-button" icon={<GithubIcon />} iconPosition="left" size="lg" onClick={handleGitHubLogin}>
-                  Sign in with GitHub
-                </Button>
-              </div>
-              <Content>
-                <Content component="p" className="account-create-text">
-                  New to GitHub?{' '}
-                  <a
-                    href="https://github.com/signup?return_to=https%3A%2F%2Fgithub.com%2Finstructlab%2F&source=login"
-                    style={{ textDecoration: 'underline', color: '#B9DAFC' }}
-                    target="_blank"
-                  >
-                    Create an account
-                  </a>
-                </Content>
-                <Content component="p" className="urls-text">
-                  <a href="https://github.com/instructlab/" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
-                    GitHub
-                  </a>{' '}
-                  |{' '}
-                  <a
-                    href="https://github.com/instructlab/community/blob/main/Collaboration.md"
-                    style={{ color: 'white', textDecoration: 'underline' }}
-                    target="_blank"
-                  >
-                    Collaborate
-                  </a>{' '}
-                  |{' '}
-                  <a
-                    href="https://github.com/instructlab/community/blob/main/CODE_OF_CONDUCT.md"
-                    style={{ color: 'white', textDecoration: 'underline' }}
-                    target="_blank"
-                  >
-                    Code Of Conduct
-                  </a>
-                </Content>
-                <Content component="p" className="urls-text-medium">
-                  <a href="https://www.redhat.com/en/about/terms-use" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
-                    Terms of use
-                  </a>{' '}
-                  |{' '}
-                  <a href="https://www.redhat.com/en/about/privacy-policy" style={{ color: 'white', textDecoration: 'underline' }} target="_blank">
-                    Privacy Policy
-                  </a>
-                </Content>
-              </Content>
-            </div>
-          </GridItem>
-        </Grid>
-        {showError && (
-          <div>
-            <Modal
-              variant={ModalVariant.medium}
-              title="Join InstructLab on GitHub"
-              isOpen={showError}
-              onClose={() => handleOnClose()}
-              aria-labelledby="join-ilab-modal-title"
-              aria-describedby="join-ilab-body-variant"
-            >
-              <ModalHeader title="Join InstructLab on GitHub" labelId="join-ilab-modal-title" titleIconVariant="danger" />
-              <ModalBody id="join-ilab-body-variant">
-                <p>{errorMsg}</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button key="confirm" variant="primary" onClick={() => sendInvite()}>
-                  Send Invite to {githubUsername}
-                </Button>
-                ,
-                <Button key="cancel" variant="secondary" onClick={() => handleOnClose()}>
-                  No, Thanks
-                </Button>
-              </ModalFooter>
-            </Modal>
-          </div>
-        )}
+    <div className="login-container">
+      <Content>
+        <Content component="p" className="sign-in-text">
+          Sign in to your account
+        </Content>
+      </Content>
+      <Content>
+        <Content component="p" className="description-text">
+          Join the novel, community based movement to <br></br>create truly open source LLMs
+        </Content>
+      </Content>
+      <div className="login-container">
+        <Button variant="primary" className="login-button" icon={<GithubIcon />} iconPosition="left" size="lg" onClick={handleGitHubLogin}>
+          Sign in with GitHub
+        </Button>
       </div>
-    </Suspense>
+      <Content component="p" className="account-create-text">
+        New to GitHub?
+        <a
+          className="create-button"
+          href="https://github.com/signup?return_to=https%3A%2F%2Fgithub.com%2Finstructlab%2F&source=login"
+          target="_blank"
+        >
+          Create an account
+        </a>
+      </Content>
+      <LoginLinks />
+      {showError && (
+        <div>
+          <Modal
+            variant={ModalVariant.medium}
+            title="Join InstructLab on GitHub"
+            isOpen={showError}
+            onClose={() => handleOnClose()}
+            aria-labelledby="join-ilab-modal-title"
+            aria-describedby="join-ilab-body-variant"
+          >
+            <ModalHeader title="Join InstructLab on GitHub" labelId="join-ilab-modal-title" titleIconVariant="danger" />
+            <ModalBody id="join-ilab-body-variant">
+              <p>{errorMsg}</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button key="confirm" variant="primary" onClick={() => sendInvite()}>
+                Send Invite to {githubUsername}
+              </Button>
+              ,
+              <Button key="cancel" variant="secondary" onClick={() => handleOnClose()}>
+                No, Thanks
+              </Button>
+            </ModalFooter>
+          </Modal>
+        </div>
+      )}
+    </div>
   );
 };
 
