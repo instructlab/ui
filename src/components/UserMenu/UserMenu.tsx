@@ -1,23 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { signOut, useSession } from 'next-auth/react';
+import React, { useState } from 'react';
+import { signOut } from 'next-auth/react';
 import { Dropdown, MenuToggleElement, MenuToggle, Flex, FlexItem, Avatar, DropdownList, DropdownItem } from '@patternfly/react-core';
 import { CaretDownIcon } from '@patternfly/react-icons';
+import { useUserInfo } from '@/hooks/useUserInfo';
 
 const UserMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const { data: session } = useSession();
-  const [userName, setUserName] = useState<string>('');
-  const [userImage, setUserImage] = useState<string>('');
-
-  useEffect(() => {
-    if (session?.user?.name === 'Admin') {
-      setUserName(session?.user?.name);
-      setUserImage('/default-avatar.png');
-    } else {
-      setUserName(session?.user?.name ?? '');
-      setUserImage(session?.user?.image || '');
-    }
-  }, [session?.user?.name, session?.user?.image]);
+  const { userName, userImage } = useUserInfo();
 
   const onToggleClick = () => {
     setIsOpen(!isOpen);

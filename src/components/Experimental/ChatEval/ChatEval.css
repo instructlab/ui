@@ -1,10 +1,11 @@
-.chat-eval__chatbots-container {
+.chat-loading-container {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-left: 1rem;
-  margin-right: 1rem;
-  @media (min-width: 1695px) {
-    flex-direction: row;
-  }
+  gap: 0.5rem;
+  font-size: medium !important;
+  justify-content: center;
+  width: 50%;
+}
+
+.pf-chatbot__compare-toggle .pf-v6-c-toggle-group__button {
+  height: 100%;
 }

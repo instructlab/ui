@@ -110,8 +110,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
       path: '/experimental',
       label: 'Experimental Features',
       children: [
-        { path: '/experimental/fine-tune/', label: 'Fine-tuning' },
-        { path: '/experimental/chat-eval/', label: 'Model Chat Eval' }
+        { path: '/experimental/fine-tune', label: 'Fine-tuning' },
+        { path: '/experimental/chat-eval', label: 'Model Chat Eval' }
       ]
     }
   ].filter(Boolean) as Route[];
