@@ -23,6 +23,7 @@ import {
   Form,
   FormGroup,
   InputGroup,
+  MenuToggleElement,
   Modal,
   ModalBody,
   ModalFooter,
@@ -92,6 +93,7 @@ async function checkEndpointStatus(
 interface ExtendedEndpoint extends Endpoint {
   isApiKeyVisible?: boolean;
   status?: ModelEndpointStatus;
+  optionsOpen?: boolean;
 }
 
 const EndpointsPage: React.FC = () => {
@@ -105,7 +107,7 @@ const EndpointsPage: React.FC = () => {
   const [modelDescription, setModelDescription] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [endpointStatus, setEndpointStatus] = useState(unknownModelEndpointStatus);
-  const [endpointOptionsOpen, setEndpointOptionsOpen] = useState('')
+  const [endpointOptionsOpen, setEndpointOptionsOpen] = useState(false)
 
   useEffect(() => {
     const storedEndpoints = localStorage.getItem('endpoints');
@@ -118,17 +120,13 @@ const EndpointsPage: React.FC = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  const handleEndpointOptionsToggle = (endpointId: string) => {
-    console.log("endpoint has been toggled: ", endpointId)
-    if (endpointOptionsOpen != '') {
-      setEndpointOptionsOpen('')
-    } else {
-      setEndpointOptionsOpen(endpointId)
-    }
+  const handleEndpointOptionsToggle = (endpoint: ExtendedEndpoint) => {
+    console.log("endpoint has been toggled: ", endpoint.id)
+    setEndpointOptionsOpen(!endpoint.optionsOpen)
   }
 
   const handleDeselectEndpointOptions = () => {
-    setEndpointOptionsOpen('')
+    setEndpointOptionsOpen(false)
   }
 
   const removeTrailingSlash = (inputUrl: string): string => {
@@ -274,9 +272,6 @@ const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
                   <DataListCell key="statusHeader">
                   <strong>Endpoint Status</strong>
                   </DataListCell>,
-                  <DataListCell key="descriptionHeader">
-                    <strong>Endpoint Description</strong>
-                  </DataListCell>,
                   <DataListCell key="urlHeader">
                     <strong>URL</strong>
                   </DataListCell>,
@@ -295,11 +290,18 @@ const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
               <DataListItemRow wrapModifier="breakWord" style={{ padding: "0 0 0 0"}}>
                 <DataListItemCells
                   dataListCells={[
-                    <DataListCell style={{ paddingLeft: "12px" }} key="name"> {endpoint.name} </DataListCell>,
+                    <DataListCell style={{ paddingLeft: "12px" }} key="name"> 
+                      <h4> {endpoint.name} </h4>
+                      <br/>
+                      <p> {endpoint.description} </p>
+                    </DataListCell>,
                     <DataListCell style={{ paddingLeft: "12px" }} key="status"> {endpoint.status?.status} {endpoint.status?.icon} </DataListCell>,
-                    <DataListCell style={{ paddingLeft: "12px" }} key="description"> {endpoint.description} </DataListCell>,
                     <DataListCell style={{ paddingLeft: "12px" }} key="url"> {endpoint.url} </DataListCell>,
-                    <DataListCell style={{ paddingLeft: "12px" }} key="modelName"> {endpoint.modelName} </DataListCell>,
+                    <DataListCell style={{ paddingLeft: "12px" }} key="modelName">
+                      <h4> {endpoint.modelName} </h4>
+                      <br/>
+                      <p> {endpoint.modelDescription} </p>
+                    </DataListCell>,
                     <DataListCell style={{ paddingLeft: "12px" }} key="apiKey">
                       {renderApiKey(endpoint.apiKey, endpoint.isApiKeyVisible || false)}
                       <Button variant="link" onClick={() => toggleApiKeyVisibility(endpoint.id)}>
@@ -310,23 +312,22 @@ const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
                 />
                 <DataListAction aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
                   <Button variant="secondary" onClick={() => handleEditEndpoint(endpoint)}>
-                    Disable
+                    edit
                   </Button>
-                  <Button variant="secondary" onClick={() => handleEndpointOptionsToggle(endpoint.id)}>
+                  <Button variant="secondary" onClick={() => handleEndpointOptionsToggle(endpoint)}>
                     <EllipsisVIcon>
                   </EllipsisVIcon>
                   </Button>
-                  {/* {endpointOptionsOpen && endpointOptionsOpen == endpoint.id && (
+                  {/* {endpointOptionsOpen && (
                     <Dropdown
-                      isOpen={endpointOptionsOpen == '' ? false : true}
+                      isOpen={endpointOptionsOpen}
                       onSelect={handleDeselectEndpointOptions}
-                      onOpenChange={(endpointId: string) => setEndpointOptionsOpen(endpointId)}
+                      onOpenChange={(endpointOptionsOpen: boolean) => setEndpointOptionsOpen(endpointOptionsOpen)}
                       toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                        <Button ref={toggleRef} onClick={onToggleClick}>
+                        <Button ref={toggleRef} onClick={handleEndpointOptionsToggle(endpoint)}>
                           <Flex gap={{ default: 'gapMd' }}>
                             <FlexItem>YAML/Attribution files</FlexItem>
                             <FlexItem>
-                              <CaretDownIcon />
                             </FlexItem>
                           </Flex>
                         </Button>
