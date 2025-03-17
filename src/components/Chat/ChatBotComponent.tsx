@@ -214,6 +214,7 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
 
   const handleCleanup = () => {
     setMessages([]);
+    window.analytics.trackSingleItem('Chat Cleared', {});
   };
 
   return (

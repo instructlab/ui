@@ -158,7 +158,7 @@ export const FileConversionModal: React.FunctionComponent<Props> = ({ filesToCon
     return () => {
       canceled = true;
     };
-  }, [convertToMarkdownIfNeeded, filesToConvert, isUploading, onConverted, onError]);
+  }, [convertToMarkdownIfNeeded, currentFiles, filesToConvert, isUploading, onConverted, onError]);
 
   return (
     <Modal isOpen title="Upload in progress" variant="small" aria-label="uploading" aria-labelledby="upload-modal-title" disableFocusTrap>
