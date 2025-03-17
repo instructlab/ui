@@ -1,12 +1,13 @@
 // src/components/Chat/ChatBotContainer.tsx
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { ChatbotFooter, ChatbotFootnote, Compare, MessageBar, MessageProps } from '@patternfly/chatbot';
 import { Model } from '@/types';
 import { ModelsContext } from './ModelsContext';
-import { ChatBotComponent } from './ChatBotComponent';
+import { ChatBotComponent, getId } from './ChatBotComponent';
 
 import '@patternfly/chatbot/dist/css/main.css';
 import styles from './chat.module.css';
@@ -15,13 +16,16 @@ const MAX_COMPARES = 2;
 
 const ChatBotContainer: React.FC = () => {
   const router = useRouter();
+  const { data: session } = useSession();
   const searchParams = useSearchParams();
   const { availableModels } = React.useContext(ModelsContext);
   const modelNames: string[] = React.useMemo(
     () => searchParams.get('models')?.split(',') ?? [availableModels[0]?.name],
     [searchParams, availableModels]
   );
-  const [submittedMessage, setSubmittedMessage] = React.useState<string>();
+  const [submittedMessage, setSubmittedMessage] = React.useState<MessageProps>();
+  const [userName, setUserName] = useState<string>('');
+  const [userImage, setUserImage] = useState<string>('');
 
   const [mainChatMessages, setMainChatMessages] = React.useState<MessageProps[]>([]);
   const [mainChatFetching, setMainChatFetching] = React.useState<boolean>();
@@ -33,6 +37,16 @@ const ChatBotContainer: React.FC = () => {
   const [altChatController, setAltChatController] = React.useState<AbortController | null>();
   const stopAltChatFn = React.useRef<() => void>();
 
+  useEffect(() => {
+    if (session?.user?.name === 'Admin') {
+      setUserName(session?.user?.name);
+      setUserImage('/default-avatar.png');
+    } else {
+      setUserName(session?.user?.name ?? '');
+      setUserImage(session?.user?.image || '');
+    }
+  }, [session?.user?.name, session?.user?.image]);
+
   const selectedModels = React.useMemo(
     () =>
       modelNames.reduce<Model[]>((acc, nextName) => {
@@ -43,6 +57,24 @@ const ChatBotContainer: React.FC = () => {
         return acc;
       }, []),
     [modelNames, availableModels]
+  );
+
+  const onSubmitMessage = React.useCallback(
+    (message: string | number) => {
+      const date = new Date();
+
+      const newMessage: MessageProps = {
+        avatar: userImage,
+        id: getId(),
+        name: userName,
+        role: 'user',
+        content: typeof message === 'string' ? message : String(message),
+        timestamp: `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
+      };
+
+      setSubmittedMessage(newMessage);
+    },
+    [userImage, userName]
   );
 
   const onCloseChat = (indexToRemove: number) => {
@@ -87,7 +119,8 @@ const ChatBotContainer: React.FC = () => {
   const mainChat = (
     <ChatBotComponent
       model={selectedModels[0]}
-      showCompare={selectedModels.length < MAX_COMPARES}
+      userName={userName}
+      showCompare={selectedModels.length < MAX_COMPARES && availableModels.length > 1}
       onCompare={onCompare}
       messages={mainChatMessages}
       setMessages={setMainChatMessages}
@@ -106,6 +139,7 @@ const ChatBotContainer: React.FC = () => {
     selectedModels.length > 1 ? (
       <ChatBotComponent
         model={selectedModels[1]}
+        userName={userName}
         showCompare={false}
         onCompare={onCompare}
         messages={altChatMessages}
@@ -138,9 +172,7 @@ const ChatBotContainer: React.FC = () => {
       <ChatbotFooter>
         <MessageBar
           className={styles.chatBotMessageBar}
-          onSendMessage={(message) => {
-            setSubmittedMessage(typeof message === 'string' ? message : String(message));
-          }}
+          onSendMessage={onSubmitMessage}
           hasMicrophoneButton
           hasAttachButton={false}
           isSendButtonDisabled={mainChatFetching || altChatFetching}
