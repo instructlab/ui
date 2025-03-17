@@ -32,6 +32,7 @@ import {
 import { BarsIcon } from '@patternfly/react-icons';
 import ThemePreference from '@/components/ThemePreference/ThemePreference';
 import '../styles/globals.scss';
+import { initAnalytics } from '@/components/analytics/initAnalytics';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -60,6 +61,28 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     };
     fetchExperimentalFeature();
   }, []);
+
+  React.useEffect(() => {
+    console.log("Get analytics effect " + window.analytics);
+    if (!window.analytics) {
+      initAnalytics();
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (window.analytics) {
+      window.analytics.trackPageView(pathname);
+    }
+
+  }, [pathname]);
+
+  React.useEffect(() => {
+    console.log(("Identify effect " + session?.user) )
+    if (window.analytics) {
+      // TODO we may potentially want to hash this. Also different code per target install?
+      window.analytics.identify(session?.user?.name ? session.user.name : '-unknown-user-name ');
+    }
+  },[session?.user?.name,session?.user]);
 
   React.useEffect(() => {
     if (status === 'loading') return; // Do nothing while loading
