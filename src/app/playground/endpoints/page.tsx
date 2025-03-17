@@ -24,7 +24,7 @@ import { Endpoint, ModelEndpointStatus } from '@/types';
 import EditEndpointModal from '@/app/playground/endpoints/EditEndpointModal';
 import DeleteEndpointModal from '@/app/playground/endpoints/DeleteEndpoinModal';
 import EndpointActions from '@/app/playground/endpoints/EndpointActions';
-import { fetchEndpointStatus } from '@/components/Chat/modelService';
+import { fetchEndpointStatus } from '@/services/modelService';
 
 const iconForStatus = (status: ModelEndpointStatus) => {
   switch (status) {

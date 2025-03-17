@@ -6,9 +6,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ChatbotFooter, ChatbotFootnote, Compare, MessageBar, MessageProps } from '@patternfly/chatbot';
 import { Model } from '@/types';
 import { ModelsContext } from './ModelsContext';
-import { ChatBotComponent } from './ChatBotComponent';
+import { ChatBotComponent, getId } from './ChatBotComponent';
+import { useUserInfo } from '@/hooks/useUserInfo';
 
-import '@patternfly/chatbot/dist/css/main.css';
 import styles from './chat.module.css';
 
 const MAX_COMPARES = 2;
@@ -21,7 +21,9 @@ const ChatBotContainer: React.FC = () => {
     () => searchParams.get('models')?.split(',') ?? [availableModels[0]?.name],
     [searchParams, availableModels]
   );
-  const [submittedMessage, setSubmittedMessage] = React.useState<string>();
+  const [submittedMessage, setSubmittedMessage] = React.useState<MessageProps>();
+  const { userName, userImage } = useUserInfo();
+  const [question, setQuestion] = React.useState<string>('');
 
   const [mainChatMessages, setMainChatMessages] = React.useState<MessageProps[]>([]);
   const [mainChatFetching, setMainChatFetching] = React.useState<boolean>();
@@ -43,6 +45,24 @@ const ChatBotContainer: React.FC = () => {
         return acc;
       }, []),
     [modelNames, availableModels]
+  );
+
+  const onSubmitMessage = React.useCallback(
+    (message: string | number) => {
+      const date = new Date();
+
+      const newMessage: MessageProps = {
+        avatar: userImage,
+        id: getId(),
+        name: userName,
+        role: 'user',
+        content: typeof message === 'string' ? message : String(message),
+        timestamp: `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
+      };
+
+      setSubmittedMessage(newMessage);
+    },
+    [userImage, userName]
   );
 
   const onCloseChat = (indexToRemove: number) => {
@@ -87,7 +107,8 @@ const ChatBotContainer: React.FC = () => {
   const mainChat = (
     <ChatBotComponent
       model={selectedModels[0]}
-      showCompare={selectedModels.length < MAX_COMPARES}
+      userName={userName}
+      showCompare={selectedModels.length < MAX_COMPARES && availableModels.length > 1}
       onCompare={onCompare}
       messages={mainChatMessages}
       setMessages={setMainChatMessages}
@@ -106,6 +127,7 @@ const ChatBotContainer: React.FC = () => {
     selectedModels.length > 1 ? (
       <ChatBotComponent
         model={selectedModels[1]}
+        userName={userName}
         showCompare={false}
         onCompare={onCompare}
         messages={altChatMessages}
@@ -124,7 +146,7 @@ const ChatBotContainer: React.FC = () => {
   return (
     <>
       {altChat ? (
-        <div className="pf-chatbot__compare-container">
+        <div className="pf-chatbot__compare-container m-is-unified">
           <Compare
             firstChild={mainChat}
             secondChild={altChat}
@@ -137,13 +159,14 @@ const ChatBotContainer: React.FC = () => {
       )}
       <ChatbotFooter>
         <MessageBar
-          className={styles.chatBotMessageBar}
-          onSendMessage={(message) => {
-            setSubmittedMessage(typeof message === 'string' ? message : String(message));
-          }}
+          onSendMessage={onSubmitMessage}
           hasMicrophoneButton
           hasAttachButton={false}
-          isSendButtonDisabled={mainChatFetching || altChatFetching}
+          onChange={(_, val) => {
+            setQuestion(typeof val === 'string' ? val : String(val));
+          }}
+          alwayShowSendButton
+          isSendButtonDisabled={!question.trim() || mainChatFetching || altChatFetching}
           hasStopButton={mainChatFetching || altChatFetching}
           handleStopButton={handleStopButton}
         />
