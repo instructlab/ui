@@ -189,7 +189,10 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
           style={{ maxHeight: '100%' }}
           startIndex={1}
           onClose={handleCancel}
-          onStepChange={(_ev, currentStep) => setActiveStepIndex(stepIds.indexOf(String(currentStep.id)))}
+          onStepChange={(_ev, currentStep) => {
+            setActiveStepIndex(stepIds.indexOf(String(currentStep.id)));
+            window.analytics.trackSingleItem('Wizard Step Changed', { isSkillContribution, step: currentStep.id });}
+          }
           footer={
             <ContributionWizardFooter
               onCancel={handleCancel}

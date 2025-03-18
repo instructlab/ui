@@ -176,7 +176,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
   };
 
   const handleSubmit = async (githubUsername: string): Promise<boolean> => {
-    window.analytics.trackSingleItem("Knowledge Contribution Submitted", {}); // TODO better place, add data
+    window.analytics.trackSingleItem("Skill Contribution Submitted", {}); // TODO better place, add data
     if (skillEditFormData) {
       const result = isGithubMode
         ? await updateGithubSkillData(session, skillFormData, skillEditFormData, updateActionGroupAlertContent)
