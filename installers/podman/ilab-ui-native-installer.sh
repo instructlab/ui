@@ -18,6 +18,7 @@ declare DEV_MODE="false"
 declare EXPERIMENTAL_FEATURES=""
 declare PYENV_DIR=""
 declare API_SERVER_URL=""
+declare DEPLOY="released"
 
 BINARY_INSTALL_DIR=./
 IS_ILAB_INSTALLED="true"
@@ -54,6 +55,9 @@ usage_install() {
 	echo -e "                                         Installer auto enable these features if InstructLab is setup on host."
 	echo -e "${green}  --python-venv-dir ${reset}           (Optional)Path to the InstructLab Python virtual environment directory."
 	echo -e "                                         e.g /var/home/cloud-user/instructlab/venv \n"
+	echo -e "${green}  --deploy TEXT${reset}                (Optional)Version of UI to install."
+	echo -e "                               \"main\" for deploying latest UI"
+	echo -e "                               \"released\" for deploying the latest released version of ui. (Default: released)"
 	exit 1
 }
 
@@ -326,6 +330,10 @@ if [[ "$COMMAND" == "install" ]]; then
 			PYENV_DIR=$(echo "$2" | sed 's/^ *//;s/ *$//')
 			shift 2
 			;;
+		--deploy)
+			DEPLOY="$2"
+			shift 2
+			;;
 		--help)
 			usage_install
 			;;
@@ -543,6 +551,21 @@ if [[ "$COMMAND" == "install" ]]; then
 	# Run Podman commands
 	echo -e "${green}Deploying the secrets in Podman...${reset}\n"
 	podman kube play secret.yaml
+
+	# Replace image tags in the manifest file
+	if [[ "$DEPLOY" == "main" ]]; then
+		if [[ "$OS" == "darwin" ]]; then
+			sed -i "" "s|<IMAGE_TAG>|main|g" instructlab-ui.yaml
+		else
+			sed -i "s|<IMAGE_TAG>|main|g" instructlab-ui.yaml
+		fi
+	else
+		if [[ "$OS" == "darwin" ]]; then
+			sed -i "" "s|<IMAGE_TAG>|latest|g" instructlab-ui.yaml
+		else
+			sed -i "s|<IMAGE_TAG>|latest|g" instructlab-ui.yaml
+		fi
+	fi
 
 	echo -e "\n${green}Deploying the UI stack containers in Podman...${reset}\n"
 	podman kube play instructlab-ui.yaml

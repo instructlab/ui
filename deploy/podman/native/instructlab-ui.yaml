@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: pathservice
-        image: quay.io/instructlab-ui/pathservice:latest
+        image: quay.io/instructlab-ui/pathservice:<IMAGE_TAG>
         ports:
         - containerPort: 4000
           hostPort: 4000
@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
       - name: doclingserve
-        image: quay.io/ds4sd/docling-serve:latest
+        image: quay.io/ds4sd/docling-serve:<IMAGE_TAG>
         ports:
         - containerPort: 5001
           hostPort: 5001
@@ -58,7 +58,7 @@ spec:
     spec:
       containers:
       - name: ui
-        image: quay.io/instructlab-ui/ui:latest
+        image: quay.io/instructlab-ui/ui:<IMAGE_TAG>
         securityContext:
           runAsGroup: 1000
         volumeMounts:
