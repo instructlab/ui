@@ -113,7 +113,7 @@ Are you sure you want to uninstall the InstructLab UI stack? (yes/no): yes
 
 If pod startup times out with:
 
-```
+```text
 Error: playing YAML file: encountered while bringing up pod pathservice-pod: initializing source docker://quay.io/instructlab-ui/pathservice:latest: pinging container registry quay.io: Get "https://quay.io/v2/": dial tcp: lookup quay.io: no such host
 ```
 
