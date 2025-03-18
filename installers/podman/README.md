@@ -108,3 +108,13 @@ To stop the UI, the `uninstall` command can be used with the `ilab-ui-native-ins
 ./ilab-ui-native-installer.sh uninstall
 Are you sure you want to uninstall the InstructLab UI stack? (yes/no): yes
 ```
+
+## Troubleshooting
+
+If pod startup times out with:
+
+```
+Error: playing YAML file: encountered while bringing up pod pathservice-pod: initializing source docker://quay.io/instructlab-ui/pathservice:latest: pinging container registry quay.io: Get "https://quay.io/v2/": dial tcp: lookup quay.io: no such host
+```
+
+If Docker compatibility mode is enabled, try disabling it.
