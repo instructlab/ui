@@ -36,7 +36,6 @@ const ChatPage: React.FC = () => {
           variant="link"
           isInline
           onClick={(e) => {
-            window.analytics.trackSingleItem('Chat Cleared', {});
             e.preventDefault();
             router.push('/playground/endpoints');
           }}

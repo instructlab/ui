@@ -48,6 +48,7 @@ type Route = {
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className }) => {
   const { data: session, status } = useSession();
   const [isExperimentalEnabled, setExperimental] = useState(false);
+  const [analyticsInitialised, setAnalyticsInitialised] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -63,9 +64,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
   }, []);
 
   React.useEffect(() => {
-    console.log("Get analytics effect " + window.analytics);
     if (!window.analytics) {
       initAnalytics();
+      setAnalyticsInitialised(true);
     }
   }, []);
 
@@ -74,15 +75,16 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
       window.analytics.trackPageView(pathname);
     }
 
-  }, [pathname]);
+  }, [pathname, analyticsInitialised]);
 
   React.useEffect(() => {
-    console.log(("Identify effect " + session?.user) )
     if (window.analytics) {
       // TODO we may potentially want to hash this. Also different code per target install?
-      window.analytics.identify(session?.user?.name ? session.user.name : '-unknown-user-name ');
+      // TODO pass other parameters as properties
+      window.analytics.identify(session?.user?.name ? session.user.name : '-unknown-user-name ', {}
+      );
     }
-  },[session?.user?.name,session?.user]);
+  },[analyticsInitialised, session?.user?.name,session?.user]);
 
   React.useEffect(() => {
     if (status === 'loading') return; // Do nothing while loading
