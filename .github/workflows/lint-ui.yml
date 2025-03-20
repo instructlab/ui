@@ -39,6 +39,7 @@ jobs:
       - name: Check for Formatting Changes
         run: |
           if [ -n "$(git status --porcelain)" ]; then
+            git status --porcelain
             echo "❌ Code formatting issues detected. Please run 'npm run pretty' and amend the commit."
             exit 1
           else
