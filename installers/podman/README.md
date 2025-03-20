@@ -50,6 +50,12 @@ Once the ilab is set up, run `ilab-ui-native-installer.sh` with the username and
 ./ilab-ui-native-installer.sh install --username admin --password passw0rd!
 ```
 
+If you want to install the main branch of the UI project, use the following command
+
+```bash
+./ilab-ui-native-installer.sh install --username admin --password passw0rd! --deploy main
+```
+
 UI Installer does the following:
 
 - Check if InstructLab is set up on the host.
