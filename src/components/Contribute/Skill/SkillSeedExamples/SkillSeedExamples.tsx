@@ -49,10 +49,12 @@ const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onSelectContext, onU
     seedExample.immutable = false;
     seedExample.isExpanded = true;
     onUpdateSeedExamples([...seedExamples, seedExample]);
+    window.analytics.trackSingleItem("Added Seed", {isSkillContribution: true});
   };
 
   const deleteSeedExample = (seedExampleIndex: number): void => {
     onUpdateSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
+    window.analytics.trackSingleItem("Deleted Seed", {isSkillContribution: true});
   };
 
   return (

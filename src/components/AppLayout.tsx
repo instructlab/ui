@@ -32,6 +32,7 @@ import {
 import { BarsIcon } from '@patternfly/react-icons';
 import ThemePreference from '@/components/ThemePreference/ThemePreference';
 import '../styles/globals.scss';
+import { initAnalytics } from '@/components/analytics/initAnalytics';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -47,6 +48,7 @@ type Route = {
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className }) => {
   const { data: session, status } = useSession();
   const [isExperimentalEnabled, setExperimental] = useState(false);
+  const [analyticsInitialised, setAnalyticsInitialised] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -60,6 +62,29 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     };
     fetchExperimentalFeature();
   }, []);
+
+  React.useEffect(() => {
+    if (!window.analytics) {
+      initAnalytics();
+      setAnalyticsInitialised(true);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (window.analytics) {
+      window.analytics.trackPageView(pathname);
+    }
+
+  }, [pathname, analyticsInitialised]);
+
+  React.useEffect(() => {
+    if (window.analytics) {
+      // TODO we may potentially want to hash this. Also different code per target install?
+      // TODO pass other parameters as properties
+      window.analytics.identify(session?.user?.name ? session.user.name : '-unknown-user-name ', {}
+      );
+    }
+  },[analyticsInitialised, session?.user?.name,session?.user]);
 
   React.useEffect(() => {
     if (status === 'loading') return; // Do nothing while loading

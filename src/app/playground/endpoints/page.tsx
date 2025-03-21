@@ -66,6 +66,7 @@ const EndpointsPage: React.FC = () => {
   };
 
   const handleSaveEndpoint = () => {
+    window.analytics.trackSingleItem(currentEndpoint ? 'Model Endpoint edited' : 'Model Endpoint added', {})
     const updatedUrl = removeTrailingSlash(url);
     if (currentEndpoint) {
       const updatedEndpoint: ExtendedEndpoint = {

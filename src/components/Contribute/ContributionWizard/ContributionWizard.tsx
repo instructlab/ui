@@ -139,9 +139,11 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
 
   const autoFillForm = (): void => {
     setFormData(isSkillContribution ? { ...autoFillSkillsFields } : { ...autoFillKnowledgeFields });
+    window.analytics.trackSingleItem('AutoFill Clicked', {isSkillContribution});
   };
 
   const handleCancel = () => {
+    window.analytics.trackSingleItem('Contribution Cancelled', {isSkillContribution});
     router.push('/dashboard');
   };
 
