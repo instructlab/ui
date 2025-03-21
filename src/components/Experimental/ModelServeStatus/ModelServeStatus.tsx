@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Label, LabelProps } from '@patternfly/react-core';
-
-// map vllm-status => color
-function getStatusColor(status: string): LabelProps['color'] {
-  switch (status) {
-    case 'running':
-      return 'green';
-    case 'loading':
-      return 'orange';
-    case 'stopped':
-    default:
-      return 'grey';
-  }
-}
+import { Icon, Spinner, Tooltip } from '@patternfly/react-core';
+import { GRANITE_BASE_MODEL_NAME, GRANITE_LATEST_MODEL_NAME } from '@/components/Experimental/ChatEval/const';
+import { CheckCircleIcon, ExclamationCircleIcon, InfoCircleIcon } from '@patternfly/react-icons';
 
 interface ModelStatusProps {
   modelName: string | null; // e.g. 'granite-base-served', 'granite-latest-served', or custom
@@ -20,18 +9,19 @@ interface ModelStatusProps {
 
 const ModelStatusIndicator: React.FC<ModelStatusProps> = ({ modelName }) => {
   const [status, setStatus] = useState<string>('stopped'); // or 'unknown'
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // If modelName is not "granite-base-served" or "granite-latest-served", we can treat as 'stopped'/no status
-    if (modelName !== 'granite-base-served' && modelName !== 'granite-latest-served') {
-      setStatus('stopped');
+    // If not a served granite model, we can ignore
+    if (modelName !== GRANITE_BASE_MODEL_NAME && modelName !== GRANITE_LATEST_MODEL_NAME) {
+      setIsLoading(false);
       return;
     }
 
-    // Map to 'pre-train' or 'post-train'
-    const vllmName = modelName === 'granite-base-served' ? 'pre-train' : 'post-train';
-
     const fetchStatus = async () => {
+      // Map to 'pre-train' or 'post-train'
+      const vllmName = modelName === GRANITE_BASE_MODEL_NAME ? 'pre-train' : 'post-train';
+
       try {
         const res = await fetch(`/api/fine-tune/model/vllm-status?modelName=${vllmName}`);
         if (!res.ok) {
@@ -48,6 +38,8 @@ const ModelStatusIndicator: React.FC<ModelStatusProps> = ({ modelName }) => {
       } catch (error) {
         console.error('Error fetching vllm status:', error);
         setStatus('stopped');
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -56,18 +48,34 @@ const ModelStatusIndicator: React.FC<ModelStatusProps> = ({ modelName }) => {
 
     // Optionally poll every X seconds
     const intervalId = setInterval(fetchStatus, 5000); // poll every 5s
+
     return () => clearInterval(intervalId);
   }, [modelName]);
 
-  if (status === 'stopped') {
-    // If not a vllm model or container is not running, show nothing or grey
+  if (modelName !== GRANITE_BASE_MODEL_NAME && modelName !== GRANITE_LATEST_MODEL_NAME) {
     return null;
   }
 
+  if (isLoading) {
+    return <Spinner size="sm" />;
+  }
+
   return (
-    <Label className="square-label.pf-c-label" color={getStatusColor(status)}>
-      {status}
-    </Label>
+    <Tooltip content={<span style={{ textTransform: 'capitalize' }}>{status}</span>}>
+      {status === 'running' ? (
+        <Icon status="success">
+          <CheckCircleIcon />
+        </Icon>
+      ) : status === 'stopped' ? (
+        <Icon status="danger">
+          <ExclamationCircleIcon />
+        </Icon>
+      ) : (
+        <Icon status="info">
+          <InfoCircleIcon />
+        </Icon>
+      )}
+    </Tooltip>
   );
 };
 

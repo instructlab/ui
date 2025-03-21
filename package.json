@@ -13,13 +13,13 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "lint:fix": "npx eslint --fix 'src/**/*.{js,jsx,ts,tsx}'",
-    "pretty": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md}'",
+    "pretty": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,scss,md}'",
     "test:e2e": "npx playwright test"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@next/env": "^15.2.2",
-    "@patternfly/chatbot": "^2.2.0-prerelease.34",
+    "@patternfly/chatbot": "^2.2.0-prerelease.36",
     "@patternfly/react-core": "^6.1.0",
     "@patternfly/react-icons": "^6.0.0",
     "@patternfly/react-styles": "^6.0.0",
