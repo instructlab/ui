@@ -251,6 +251,7 @@ const knowledgeSeedExamples: KnowledgeSeedExample[] = [
 ];
 
 export const autoFillKnowledgeFields: KnowledgeFormData = {
+  branchName: `knowledge-contribution-${Date.now()}`,
   email: 'helloworld@instructlab.com',
   name: 'juliadenham',
   submissionSummary: 'Information about the Phoenix Constellation.',
@@ -264,7 +265,8 @@ export const autoFillKnowledgeFields: KnowledgeFormData = {
   revision: 'https://en.wikipedia.org/w/index.php?title=Phoenix_(constellation)&oldid=1237187773',
   licenseWork: 'CC-BY-SA-4.0',
   creators: 'Wikipedia Authors',
-  filesToUpload: []
+  filesToUpload: [],
+  uploadedFiles: []
 };
 
 const skillsSeedExamples: SkillSeedExample[] = [
@@ -351,6 +353,7 @@ const skillsSeedExamples: SkillSeedExample[] = [
 ];
 
 export const autoFillSkillsFields: SkillFormData = {
+  branchName: `knowledge-contribution-${Date.now()}`,
   email: 'helloworld@instructlab.com',
   name: 'juliadenham',
   submissionSummary: 'Teaching a model to rhyme.',

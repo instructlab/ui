@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { content, attribution, name, email, submissionSummary, filePath } = body;
+    const { branchName, content, attribution, name, email, submissionSummary, filePath } = body;
 
     const knowledgeData: KnowledgeYamlData = yaml.load(content) as KnowledgeYamlData;
     const attributionData: AttributionData = attribution;
@@ -45,7 +45,6 @@ export async function POST(req: NextRequest) {
       await createFork(headers, UPSTREAM_REPO_OWNER, UPSTREAM_REPO_NAME, githubUsername);
     }
 
-    const branchName = `knowledge-contribution-${Date.now()}`;
     const newYamlFilePath = `${KNOWLEDGE_DIR}/${filePath}qna.yaml`;
     const newAttributionFilePath = `${KNOWLEDGE_DIR}/${filePath}attribution.txt`;
 

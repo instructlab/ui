@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { content, attribution, name, email, submissionSummary, filePath } = body;
+    const { branchName, content, attribution, name, email, submissionSummary, filePath } = body;
 
     const githubUsername = await getGitHubUsername(headers);
     console.log('Skill contribution from gitHub Username:', githubUsername);
@@ -41,7 +41,6 @@ export async function POST(req: NextRequest) {
       await createFork(headers, UPSTREAM_REPO_OWNER, UPSTREAM_REPO_NAME, githubUsername);
     }
 
-    const branchName = `skill-contribution-${Date.now()}`;
     const newYamlFilePath = `${SKILLS_DIR}/${filePath}qna.yaml`;
     const newAttributionFilePath = `${SKILLS_DIR}/${filePath}attribution.txt`;
 

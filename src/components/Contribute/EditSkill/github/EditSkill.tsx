@@ -32,6 +32,7 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
           const prData = await fetchPullRequest(session.accessToken, prNumber);
 
           const skillExistingFormData: SkillFormData = {
+            branchName: '',
             email: '',
             name: '',
             submissionSummary: '',
@@ -45,13 +46,12 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
           const skillEditFormData: SkillEditFormData = {
             isEditForm: true,
             version: SkillSchemaVersion,
-            branchName: '',
             formData: skillExistingFormData,
             pullRequestNumber: prNumber,
             oldFilesPath: ''
           };
 
-          skillEditFormData.branchName = prData.head.ref; // Store the branch name from the pull request
+          skillExistingFormData.branchName = prData.head.ref; // Store the branch name from the pull request
 
           const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, prNumber);
 

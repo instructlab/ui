@@ -16,7 +16,7 @@ import {
   updateNativeSkillData
 } from '@/components/Contribute/Utils/submitUtils';
 import { addYamlUploadSkill } from '@/components/Contribute/Utils/uploadUtils';
-import { createDefaultSkillSeedExamples } from '@/components/Contribute/Utils/seedExampleUtils';
+import { getDefaultSkillFormData } from '@/components/Contribute/Utils/contributionUtils';
 import AttributionInformation from '@/components/Contribute/AttributionInformation/AttributionInformation';
 import { ContributionWizard, StepStatus, StepType } from '@/components/Contribute/ContributionWizard/ContributionWizard';
 import { YamlFileUploadModal } from '@/components/Contribute/YamlFileUploadModal';
@@ -27,17 +27,6 @@ import SkillSeedExamplesReviewSection from '@/components/Contribute/Skill/SkillS
 
 import './skills.css';
 import DetailsPage from '@/components/Contribute/DetailsPage/DetailsPage';
-
-const DefaultSkillFormData: SkillFormData = {
-  email: '',
-  name: '',
-  submissionSummary: '',
-  filePath: '',
-  seedExamples: createDefaultSkillSeedExamples(),
-  titleWork: '',
-  licenseWork: '',
-  creators: ''
-};
 
 export interface Props {
   skillEditFormData?: SkillEditFormData;
@@ -67,7 +56,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
             }
           }))
         }
-      : DefaultSkillFormData
+      : getDefaultSkillFormData()
   );
   const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
   const [isYamlModalOpen, setIsYamlModalOpen] = useState<boolean>(false);
@@ -200,7 +189,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
       ? await submitGithubSkillData(skillFormData, githubUsername, updateActionGroupAlertContent)
       : await submitNativeSkillData(skillFormData, updateActionGroupAlertContent);
     if (result) {
-      const newFormData = { ...DefaultSkillFormData };
+      const newFormData = { ...getDefaultSkillFormData() };
       newFormData.name = skillFormData.name;
       newFormData.email = skillFormData.email;
 

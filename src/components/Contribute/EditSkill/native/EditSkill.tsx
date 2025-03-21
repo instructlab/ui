@@ -42,6 +42,7 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
         const result = await response.json();
         if (response.ok) {
           const skillExistingFormData: SkillFormData = {
+            branchName: branchName,
             email: '',
             name: '',
             submissionSummary: '',
@@ -56,7 +57,6 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
             isEditForm: true,
             version: SkillSchemaVersion,
             pullRequestNumber: 0,
-            branchName: branchName,
             formData: skillExistingFormData,
             oldFilesPath: ''
           };
