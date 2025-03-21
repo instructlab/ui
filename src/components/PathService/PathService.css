@@ -1,0 +1,15 @@
+.path-service-tree {
+  max-height: 400px;
+  overflow-y: auto;
+}
+.path-service-tree .pf-v6-c-tree-view__node-text {
+  flex: 1;
+}
+
+.add-directory-parent {
+  max-width: 30%;
+}
+.add-directory-parent .pf-v6-c-truncate {
+  --pf-v6-c-truncate--MinWidth: fit-content;
+  --pf-v6-c-truncate__start--MinWidth: fit-content;
+}
