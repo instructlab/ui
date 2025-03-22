@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button, Content, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
+import { Button, Content, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant, Alert } from '@patternfly/react-core';
 import { GithubIcon } from '@patternfly/react-icons';
 import LoginLinks from '@/app/login/LoginLinks';
 
@@ -11,6 +11,7 @@ const GithubLogin: React.FC = () => {
   const [showError, setShowError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('Something went wrong.');
   const [githubUsername, setGithubUsername] = useState<string | null>(null);
+  const [invalidToken, setInvalidToken] = useState<boolean>(false);
 
   useEffect(() => {
     const githubUsername = searchParams.get('user');
@@ -23,6 +24,9 @@ const GithubLogin: React.FC = () => {
          Then, accept the invite and try accessing the InstructLab UI again.';
       setErrorMsg(errorMessage);
       setShowError(true);
+    }
+    if (error === 'InvalidToken') {
+      setInvalidToken(true);
     }
   }, [searchParams]);
 
@@ -77,6 +81,7 @@ const GithubLogin: React.FC = () => {
           Join the novel, community based movement to <br></br>create truly open source LLMs
         </Content>
       </Content>
+      {invalidToken && <Alert variant="danger" title="GitHub token invalid. Try again." />}
       <div className="login-container">
         <Button variant="primary" className="login-button" icon={<GithubIcon />} iconPosition="left" size="lg" onClick={handleGitHubLogin}>
           Sign in with GitHub
