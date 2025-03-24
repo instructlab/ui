@@ -7,7 +7,7 @@ import '@patternfly/react-styles/css/components/Menu/menu.css';
 
 export const metadata = {
   title: 'InstructLab UI',
-  description: 'InstructLab UI'
+  description: 'User interface for creating InstructLab contributions'
 };
 
 interface RootLayoutProps {
