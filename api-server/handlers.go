@@ -660,22 +660,20 @@ func (srv *ILabServer) runVllmContainerHandler(
 	srv.log.Infof("No existing job found for model '%s'. Starting a new job.", servedModelName)
 
 	cmdArgs := []string{
-		"run", "--rm",
-		fmt.Sprintf("--device=nvidia.com/gpu=%d", gpuIndex),
-		fmt.Sprintf("-e=NVIDIA_VISIBLE_DEVICES=%d", gpuIndex),
-		"-v", "/usr/local/cuda-12.4/lib64:/usr/local/cuda-12.4/lib64",
+		"run", "--rm", "-it",
+		"--device", fmt.Sprintf("nvidia.com/gpu=%d", gpuIndex),
+		"--security-opt", "label=disable",
+		"--net", "host",
+		"--shm-size", "10G",
+		"--pids-limit", "-1",
 		"-v", fmt.Sprintf("%s:%s", hostVolume, containerVolume),
-		"-p", fmt.Sprintf("%s:%s", port, port),
-		"--ipc=host",
-		"vllm/vllm-openai:latest",
-		"--host", "0.0.0.0",
-		"--port", port,
-		"--model", modelPath,
-		"--load-format", "safetensors",
-		"--config-format", "hf",
-		"--trust-remote-code",
-		"--device", "cuda",
+		"--entrypoint", "/opt/app-root/bin/vllm",
+		"registry.redhat.io/rhelai1/instructlab-nvidia-rhel9:1.4-1738905416",
+		"serve", modelPath,
 		"--served-model-name", servedModelName,
+		"--load-format", "safetensors",
+		"--host", "127.0.0.1",
+		"--port", port,
 	}
 
 	// Log the command for debugging
@@ -685,7 +683,7 @@ func (srv *ILabServer) runVllmContainerHandler(
 	// Create a unique job ID and a log file
 	jobID := fmt.Sprintf("v-%d", time.Now().UnixNano())
 	logFilePath := filepath.Join("logs", fmt.Sprintf("%s.log", jobID))
-	srv.log.Infof("Starting vllm-openai container with job_id: %s, logs: %s", jobID, logFilePath)
+	srv.log.Infof("Starting vllm container with job_id: %s, logs: %s", jobID, logFilePath)
 
 	cmd := exec.Command("podman", cmdArgs...)
 
