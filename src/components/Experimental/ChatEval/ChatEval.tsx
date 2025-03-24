@@ -723,11 +723,11 @@ const ChatModelEval: React.FC = () => {
               <ChatbotFooter className="pf-chatbot__footer">
                 <MessageBar
                   onSendMessage={(message) => {
-                    handleSendLeft(message);
+                    handleSendLeft(typeof message === 'string' ? message : String(message));
                   }}
                   hasAttachButton={false}
-                  onChange={(event: React.ChangeEvent<HTMLDivElement>, val: string) => {
-                    setQuestionLeft(val);
+                  onChange={(_, val) => {
+                    setQuestionLeft(typeof val === 'string' ? val : String(val));
                   }}
                   // value={questionLeft}
                   // placeholder="Type your prompt for the left model..."
@@ -849,11 +849,11 @@ const ChatModelEval: React.FC = () => {
               <ChatbotFooter className="pf-chatbot__footer">
                 <MessageBar
                   onSendMessage={(message) => {
-                    handleSendRight(message);
+                    handleSendRight(typeof message === 'string' ? message : String(message));
                   }}
                   hasAttachButton={false}
-                  onChange={(event: React.ChangeEvent<HTMLDivElement>, val: string) => {
-                    setQuestionRight(val);
+                  onChange={(_, val) => {
+                    setQuestionRight(typeof val === 'string' ? val : String(val));
                   }}
                   // value={questionRight}
                   // placeholder="Type your prompt for the right model..."
@@ -898,11 +898,11 @@ const ChatModelEval: React.FC = () => {
           <ChatbotFooter className="pf-chatbot__footer">
             <MessageBar
               onSendMessage={(message) => {
-                handleUnifiedSend(message);
+                handleUnifiedSend(typeof message === 'string' ? message : String(message));
               }}
               hasAttachButton={false}
-              onChange={(event: React.ChangeEvent<HTMLDivElement>, val: string) => {
-                setQuestionUnified(val);
+              onChange={(_, val) => {
+                setQuestionUnified(typeof val === 'string' ? val : String(val));
               }}
               // value={questionUnified}
               // placeholder="Type your prompt here and send to both models..."
