@@ -145,6 +145,7 @@ const DetailsPage: React.FC<Props> = ({
                   path={filePath}
                   handlePathChange={setFilePath}
                   helperText={`Specify the file path for the QnA${isGithubMode ? ' and Attribution' : ''} files.`}
+                  isGithubMode={isGithubMode}
                 />
               </FormGroup>
             </Form>
