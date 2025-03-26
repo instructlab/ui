@@ -11,7 +11,7 @@ const EditSkillPage = async ({ params }: PageProps) => {
   const branchName = await params;
 
   return (
-    <AppLayout>
+    <AppLayout className="contribute-page">
       <EditSkillNative branchName={branchName.id} />
     </AppLayout>
   );

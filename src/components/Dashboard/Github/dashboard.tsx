@@ -227,6 +227,7 @@ const DashboardGithub: React.FunctionComponent = () => {
                           )}
                           isOpen={isActionMenuOpen[pr.number] || false}
                           onOpenChange={(isOpen: boolean) => onActionMenuToggle(pr.number, isOpen)}
+                          popperProps={{ position: 'end' }}
                         >
                           <DropdownList>
                             <DropdownItem key="view-pr" to={pr.html_url} target="_blank" rel="noopener noreferrer">
