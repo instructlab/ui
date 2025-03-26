@@ -102,10 +102,9 @@ const authOptions: NextAuthOptions = {
               'X-GitHub-Api-Version': '2022-11-28'
             },
             validateStatus: (status) => {
-              return [204, 302, 404].includes(status);
+              return [204, 302, 404, 401].includes(status);
             }
           });
-
           if (response.status === 204) {
             console.log(`User ${githubProfile.login} successfully authenticated with GitHub organization - ${ORG}`);
             logger.info(`User ${githubProfile.login} successfully authenticated with GitHub organization - ${ORG}`);
@@ -114,6 +113,10 @@ const authOptions: NextAuthOptions = {
             console.log(`User ${githubProfile.login} is not a member of the ${ORG} organization`);
             logger.warn(`User ${githubProfile.login} is not a member of the ${ORG} organization`);
             return `/login?error=NotOrgMember&user=${githubProfile.login}`; // Redirect to custom error page
+          } else if (response.status === 401) {
+            console.log(`The GitHub token is invalid.`);
+            logger.warn(`The GitHub token is invalid.`);
+            return `/login?error=InvalidToken`;
           } else {
             console.log(`Unexpected error while authenticating user ${githubProfile.login} with ${ORG} github organization.`);
             logger.error(`Unexpected error while authenticating user ${githubProfile.login} with ${ORG} github organization.`);
