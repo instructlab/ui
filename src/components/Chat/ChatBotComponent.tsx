@@ -153,7 +153,11 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
       };
 
       stopped.current = false;
-      await modelFetcher(model, input, setCurrentMessage, setController);
+      try {
+        await modelFetcher(model, input, setCurrentMessage, setController);
+      } catch (e) {
+        console.error(`Model fetch failed: `, e);
+      }
 
       setIsLoading(false);
       setFetching(false);
