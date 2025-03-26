@@ -77,10 +77,10 @@ const ChatBotContainer: React.FC = () => {
 
   const handleStopButton = () => {
     if (mainChatController) {
-      mainChatController.abort();
+      mainChatController.abort('user stopped');
     }
     if (altChatController) {
-      altChatController.abort();
+      altChatController.abort('user stopped');
     }
   };
 

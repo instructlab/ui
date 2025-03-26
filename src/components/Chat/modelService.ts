@@ -115,7 +115,7 @@ export const defaultModelFetcher = async (
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ input, systemRole }),
+      body: JSON.stringify({ question: input, systemRole }),
       signal: newController.signal
     }
   );
