@@ -7,8 +7,6 @@ import { AppLayout } from '@/components/AppLayout';
 import KnowledgeFormGithub from '@/components/Contribute/Knowledge/Github';
 import KnowledgeFormNative from '@/components/Contribute/Knowledge/Native';
 
-import '../contribute-page.scss';
-
 const KnowledgeFormPage: React.FunctionComponent = () => {
   const [deploymentType, setDeploymentType] = useState<string | undefined>();
   const [loaded, setLoaded] = useState<boolean>();

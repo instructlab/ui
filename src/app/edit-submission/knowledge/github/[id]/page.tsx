@@ -12,7 +12,7 @@ const EditKnowledgePage = async ({ params }: PageProps) => {
   const prNumber = parseInt(resolvedParams.id, 10);
 
   return (
-    <AppLayout>
+    <AppLayout className="contribute-page">
       <EditKnowledge prNumber={prNumber} />
     </AppLayout>
   );

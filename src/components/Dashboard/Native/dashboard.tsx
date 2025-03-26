@@ -413,6 +413,7 @@ const DashboardNative: React.FunctionComponent = () => {
                           )}
                           isOpen={isActionMenuOpen[branch.name] || false}
                           onOpenChange={(isOpen: boolean) => onActionMenuToggle(branch.name, isOpen)}
+                          popperProps={{ position: 'end' }}
                         >
                           <DropdownList>
                             <DropdownItem key="show-changes" onClick={() => handleShowChanges(branch.name)}>

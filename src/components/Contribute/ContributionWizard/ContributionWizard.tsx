@@ -22,6 +22,8 @@ import {
 import { getGitHubUserInfo } from '@/utils/github';
 import ContributionWizardFooter from '@/components/Contribute/ContributionWizard/ContributionWizardFooter';
 
+import './contribute-page.scss';
+
 export enum StepStatus {
   Default = 'default',
   Error = 'error',

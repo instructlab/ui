@@ -11,7 +11,7 @@ const EditKnowledgePage = async ({ params }: PageProps) => {
   const branchName = await params;
 
   return (
-    <AppLayout>
+    <AppLayout className="contribute-page">
       <EditKnowledgeNative branchName={branchName.id} />
     </AppLayout>
   );
