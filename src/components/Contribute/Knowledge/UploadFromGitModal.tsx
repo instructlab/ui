@@ -68,7 +68,7 @@ export const UploadFromGitModal: React.FunctionComponent<Props> = ({ onAddFile, 
 
     try {
       // Call the API to get the document
-      const res = await fetch('/api/native/convert-http', {
+      const res = await fetch('/api/convert-http', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
