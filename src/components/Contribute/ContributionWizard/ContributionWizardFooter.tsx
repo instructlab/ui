@@ -17,7 +17,6 @@ import { ContributionFormData } from '@/types';
 interface Props {
   formData: ContributionFormData;
   isGithubMode: boolean;
-  isSkillContribution: boolean;
   showSubmit: boolean;
   isEdit: boolean;
   onSubmit: () => Promise<boolean>;
@@ -25,7 +24,7 @@ interface Props {
   onCancel: () => void;
 }
 
-const ContributionWizardFooter: React.FC<Props> = ({ formData, isGithubMode, isSkillContribution, showSubmit, onSubmit, convertToYaml, isEdit }) => {
+const ContributionWizardFooter: React.FC<Props> = ({ formData, isGithubMode, showSubmit, onSubmit, convertToYaml, isEdit }) => {
   const { steps, activeStep, goToNextStep, goToPrevStep, goToStepByIndex, close } = useWizardContext();
 
   const prevDisabled = steps.indexOf(activeStep) < 1;
@@ -81,12 +80,7 @@ const ContributionWizardFooter: React.FC<Props> = ({ formData, isGithubMode, isS
         <FlexItem>
           <ActionList>
             <ActionListItem>
-              <ViewDropdownButton
-                formData={formData}
-                isGithubMode={isGithubMode}
-                isSkillContribution={isSkillContribution}
-                convertToYaml={convertToYaml}
-              />
+              <ViewDropdownButton formData={formData} isGithubMode={isGithubMode} convertToYaml={convertToYaml} />
             </ActionListItem>
           </ActionList>
         </FlexItem>

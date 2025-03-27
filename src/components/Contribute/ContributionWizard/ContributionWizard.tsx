@@ -193,7 +193,6 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
               onCancel={handleCancel}
               formData={formData}
               isGithubMode={isGithubMode}
-              isSkillContribution={isSkillContribution}
               onSubmit={() => onSubmit(githubUsername)}
               showSubmit={submitEnabled}
               isEdit={!!editFormData}

@@ -9,10 +9,9 @@ interface Props {
   formData: ContributionFormData;
   convertToYaml: (formData: ContributionFormData) => unknown;
   isGithubMode: boolean;
-  isSkillContribution: boolean;
 }
 
-export const ViewDropdownButton: React.FunctionComponent<Props> = ({ formData, convertToYaml, isGithubMode, isSkillContribution }) => {
+export const ViewDropdownButton: React.FunctionComponent<Props> = ({ formData, convertToYaml, isGithubMode }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isYamlModalOpen, setIsYamlModalOpen] = useState<boolean>(false);
   const [isAttributionModalOpen, setIsAttributionModalOpen] = useState<boolean>(false);
@@ -32,7 +31,7 @@ export const ViewDropdownButton: React.FunctionComponent<Props> = ({ formData, c
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = isSkillContribution ? 'skill.yaml' : 'knowledge.yaml';
+    a.download = 'qna.yaml';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
