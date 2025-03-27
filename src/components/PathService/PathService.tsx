@@ -71,6 +71,9 @@ interface PathServiceProps {
   isGithubMode: boolean;
 }
 
+const GITHUB_TAXONOMY_TREE_URL = '/api/github/tree';
+const NATIVE_TAXONOMY_TREE_URL = '/api/native/tree';
+
 const PathService: React.FC<PathServiceProps> = ({ fieldId, rootPath, path, handlePathChange, helperText, isGithubMode }) => {
   const [topLevelItems, setTopLevelItems] = React.useState<PathItem[]>([]);
   const [treeData, setTreeData] = React.useState<PathItem[]>([]);
@@ -85,7 +88,7 @@ const PathService: React.FC<PathServiceProps> = ({ fieldId, rootPath, path, hand
   const fetchChildren = React.useCallback(
     async (subpath: string = ''): Promise<PathItem[]> => {
       try {
-        const response = await fetch('/api/tree', {
+        const response = await fetch(isGithubMode ? GITHUB_TAXONOMY_TREE_URL : NATIVE_TAXONOMY_TREE_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -113,7 +116,7 @@ const PathService: React.FC<PathServiceProps> = ({ fieldId, rootPath, path, hand
         return [];
       }
     },
-    [rootPath]
+    [rootPath, isGithubMode]
   );
 
   React.useEffect(() => {

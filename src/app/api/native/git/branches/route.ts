@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as git from 'isomorphic-git';
 import fs from 'fs';
 import path from 'path';
+import { findTaxonomyRepoPath } from '@/app/api/native/utils';
 
 // Get the repository path from the environment variable
 const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || `${process.env.HOME}/.instructlab-ui`;
 const REMOTE_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || '';
-const REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR = '/tmp/.instructlab-ui';
 
 interface CommitDetails {
   message: string;
@@ -76,23 +76,10 @@ export async function POST(req: NextRequest) {
   }
 
   if (action === 'publish') {
-    let remoteTaxonomyRepoDirFinal: string = '';
+    const remoteTaxonomyRepoDirFinal: string = findTaxonomyRepoPath();
 
-    const remoteTaxonomyRepoContainerMountDir = path.join(REMOTE_TAXONOMY_REPO_CONTAINER_MOUNT_DIR, '/taxonomy');
-    const remoteTaxonomyRepoDir = path.join(REMOTE_TAXONOMY_ROOT_DIR, '/taxonomy');
-
-    // Check if there is taxonomy repository mounted in the container
-    if (fs.existsSync(remoteTaxonomyRepoContainerMountDir) && fs.readdirSync(remoteTaxonomyRepoContainerMountDir).length !== 0) {
-      remoteTaxonomyRepoDirFinal = remoteTaxonomyRepoContainerMountDir;
-      console.log('Remote taxonomy repository ', remoteTaxonomyRepoDir, ' is mounted at:', remoteTaxonomyRepoDirFinal);
-    } else {
-      // If remote taxonomy is not mounted, it means it's local deployment and we can directly use the paths
-      if (fs.existsSync(remoteTaxonomyRepoDir) && fs.readdirSync(remoteTaxonomyRepoDir).length !== 0) {
-        remoteTaxonomyRepoDirFinal = remoteTaxonomyRepoDir;
-      }
-    }
     if (remoteTaxonomyRepoDirFinal === '') {
-      return NextResponse.json({ error: 'Remote taxonomy repository path does not exist.' }, { status: 400 });
+      return NextResponse.json({ error: 'Unable to locate taxonomy repository path.' }, { status: 400 });
     }
 
     console.log('Remote taxonomy repository path:', remoteTaxonomyRepoDirFinal);

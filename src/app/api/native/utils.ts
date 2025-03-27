@@ -11,18 +11,9 @@ export const TAXONOMY_KNOWLEDGE_DOCS_REPO_URL =
 
 export const cloneTaxonomyDocsRepo = async (): Promise<string | null> => {
   // Check the location of the taxonomy repository and create the taxonomy-knowledge-doc repository parallel to that.
-  let remoteTaxonomyRepoDirFinal: string = '';
-  // Check if directory pointed by remoteTaxonomyRepoDir exists and not empty
-  const remoteTaxonomyRepoContainerMountDir = path.join(TAXONOMY_DOCS_CONTAINER_MOUNT_DIR, '/taxonomy');
-  const remoteTaxonomyRepoDir = path.join(TAXONOMY_DOCS_ROOT_DIR, '/taxonomy');
-  if (fs.existsSync(remoteTaxonomyRepoContainerMountDir) && fs.readdirSync(remoteTaxonomyRepoContainerMountDir).length !== 0) {
-    remoteTaxonomyRepoDirFinal = TAXONOMY_DOCS_CONTAINER_MOUNT_DIR;
-  } else {
-    if (fs.existsSync(remoteTaxonomyRepoDir) && fs.readdirSync(remoteTaxonomyRepoDir).length !== 0) {
-      remoteTaxonomyRepoDirFinal = TAXONOMY_DOCS_ROOT_DIR;
-    }
-  }
+  const remoteTaxonomyRepoDirFinal: string = findTaxonomyRepoPath();
   if (remoteTaxonomyRepoDirFinal === '') {
+    console.warn('Unable to locate taxonomy directory.');
     return null;
   }
 
@@ -46,7 +37,7 @@ export const cloneTaxonomyDocsRepo = async (): Promise<string | null> => {
 
     // Include the full path in the response for client display. Path displayed here is the one
     // that user set in the environment variable.
-    console.log(`Taxonomy knowledge docs repository cloned successfully to ${remoteTaxonomyRepoDir}.`);
+    console.log(`Taxonomy knowledge docs repository cloned successfully to ${path.join(TAXONOMY_DOCS_ROOT_DIR, '/taxonomy')}.`);
     // Return the path that the UI sees (direct or mounted)
     return taxonomyDocsDirectoryPath;
   } catch (error: unknown) {
@@ -56,6 +47,9 @@ export const cloneTaxonomyDocsRepo = async (): Promise<string | null> => {
   }
 };
 
+// Locate the taxonomy-knowledge-docs directory. UI can be deployed locally on host as well as in containers.
+// It checks if the directory is mounted at the specified location in container and not empty.
+// If it doesn't find the taxonomy-knowledge-docs repo in mounted directory, it checks locally on host.
 export const findTaxonomyDocRepoPath = (): string => {
   // Check the location of the taxonomy docs repository .
   let remoteTaxonomyDocsRepoDirFinal: string = '';
@@ -75,4 +69,26 @@ export const findTaxonomyDocRepoPath = (): string => {
 
   const taxonomyDocsDirectoryPath = path.join(remoteTaxonomyDocsRepoDirFinal, '/taxonomy-knowledge-docs');
   return taxonomyDocsDirectoryPath;
+};
+
+// Locate the taxonomy directory. UI can be deployed locally on host as well as in containers.
+// It checks if the directory is mounted at the specified location in container and not empty.
+// If it doesn't find the taxonomy repo in mounted directory, it checks locally on host.
+export const findTaxonomyRepoPath = (): string => {
+  let remoteTaxonomyRepoDirFinal: string = '';
+  // Check if directory pointed by remoteTaxonomyRepoDir exists and not empty
+  const remoteTaxonomyRepoContainerMountDir = path.join(TAXONOMY_DOCS_CONTAINER_MOUNT_DIR, '/taxonomy');
+  const remoteTaxonomyRepoDir = path.join(TAXONOMY_DOCS_ROOT_DIR, '/taxonomy');
+  if (fs.existsSync(remoteTaxonomyRepoContainerMountDir) && fs.readdirSync(remoteTaxonomyRepoContainerMountDir).length !== 0) {
+    remoteTaxonomyRepoDirFinal = TAXONOMY_DOCS_CONTAINER_MOUNT_DIR;
+    console.log('Remote taxonomy repository ', remoteTaxonomyRepoDir, ' is mounted at:', remoteTaxonomyRepoDirFinal);
+  } else {
+    if (fs.existsSync(remoteTaxonomyRepoDir) && fs.readdirSync(remoteTaxonomyRepoDir).length !== 0) {
+      remoteTaxonomyRepoDirFinal = TAXONOMY_DOCS_ROOT_DIR;
+    }
+  }
+  if (remoteTaxonomyRepoDirFinal === '') {
+    return '';
+  }
+  return remoteTaxonomyRepoDirFinal;
 };

@@ -1,28 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pathservice
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: pathservice
-  template:
-    metadata:
-      labels:
-        app: pathservice
-    spec:
-      containers:
-      - name: pathservice
-        image: quay.io/instructlab-ui/pathservice:<IMAGE_TAG>
-        ports:
-        - containerPort: 4000
-          hostPort: 4000
-        imagePullPolicy: Always
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: doclingserve
 spec:
   replicas: 1
