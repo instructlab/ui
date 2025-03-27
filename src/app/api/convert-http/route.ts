@@ -1,28 +1,26 @@
-// src/app/api/native/convert/route.ts
+// src/app/api/convert-http/route.ts
+'use server';
+
 import { NextResponse } from 'next/server';
 
-`use server`;
-
-interface ConvertRequestBody {
+interface ConvertHttpRequestBody {
   options?: {
-    output_markdown?: boolean;
+    from_formats?: string[];
+    to_formats?: string[];
+    image_export_mode?: string;
+    table_mode?: string;
+    abort_on_error?: boolean;
+    return_as_file?: boolean;
+    do_table_structure?: boolean;
     include_images?: boolean;
   };
-  file_source: {
-    base64_string: string;
-    filename: string;
-  };
+  http_sources: { url: string }[];
 }
 
-// This route calls the external REST service to convert any doc => markdown
+// convert a doc from a URL (provided via http_sources) to Markdown.
 export async function POST(request: Request) {
-  // 1. Parse JSON body from client
-  const body: ConvertRequestBody = await request.json();
-
-  // 2. Read the IL_FILE_CONVERSION_SERVICE from .env
   const baseUrl = process.env.IL_FILE_CONVERSION_SERVICE || 'http://doclingserve:5001';
 
-  // 3. Check the health of the conversion service before proceeding
   try {
     const healthRes = await fetch(`${baseUrl}/health`);
     if (!healthRes.ok) {
@@ -30,10 +28,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Conversion service is offline, only markdown files accepted.' }, { status: 503 });
     }
 
-    // Parse the health response body in case we need to verify its "status":"ok"
     const healthData = await healthRes.json();
     if (!healthData.status || healthData.status !== 'ok') {
-      console.error('Doc->md conversion service health check response not "ok":', healthData);
+      console.error('Conversion service health check response not "ok":', healthData);
       return NextResponse.json({ error: 'Conversion service is offline, only markdown files accepted.' }, { status: 503 });
     }
   } catch (error: unknown) {
@@ -41,13 +38,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Conversion service is offline, only markdown files accepted.' }, { status: 503 });
   }
 
-  // 4. Service is healthy, proceed with md conversion
   try {
+    const body: ConvertHttpRequestBody = await request.json();
+
     const res = await fetch(`${baseUrl}/v1alpha/convert/source`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
 
@@ -56,18 +52,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Conversion service call failed. ${res.statusText}` }, { status: 500 });
     }
 
-    // 5. Wait for the docling service to return the user submitted file converted to markdown
     const data = await res.json();
 
-    // Return the markdown wrapped in JSON so the client side can parse it
+    // Return the markdown wrapped in JSON for the client to parse
     return NextResponse.json({ content: data }, { status: 200 });
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error('Error during doc->md conversion route call:', error);
-      return NextResponse.json({ error: 'md conversion failed.', message: error.message }, { status: 500 });
+      console.error('Error during URL conversion route call:', error);
+      return NextResponse.json({ error: 'URL conversion failed.', message: error.message }, { status: 500 });
     } else {
       console.error('Unknown error during conversion route call:', error);
-      return NextResponse.json({ error: 'conversion failed due to an unknown error.' }, { status: 500 });
+      return NextResponse.json({ error: 'Conversion failed due to an unknown error.' }, { status: 500 });
     }
   }
 }

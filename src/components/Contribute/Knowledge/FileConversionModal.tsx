@@ -54,7 +54,7 @@ export const FileConversionModal: React.FunctionComponent<Props> = ({ filesToCon
 
     // 2) Attempt conversion call
     try {
-      const res = await fetch('/api/native/convert', {
+      const res = await fetch('/api/convert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
