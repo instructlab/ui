@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { Button, ValidatedOptions } from '@patternfly/react-core';
 import { devLog } from '@/utils/devlog';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
-import { addDocumentInfoToKnowledgeFormData } from '@/components/Contribute/Utils/documentUtils';
+import { UploadKnowledgeDocuments } from '@/components/Contribute/Utils/documentUtils';
 import {
   isDetailsValid,
   isDocumentInfoValid,
@@ -30,29 +30,9 @@ import { YamlFileUploadModal } from '@/components/Contribute/YamlFileUploadModal
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
 import { addYamlUploadKnowledge } from '@/components/Contribute/Utils/uploadUtils';
 import ReviewSubmission from '@/components/Contribute/ReviewSubmission/ReviewSubmission';
-import { createDefaultKnowledgeSeedExamples } from '@/components/Contribute/Utils/seedExampleUtils';
 import KnowledgeSeedExamplesReviewSection from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamplesReviewSection';
 import DetailsPage from '@/components/Contribute/DetailsPage/DetailsPage';
-
-const GITHUB_GIT_INFO_URL = '/api/github/git-info';
-const NATIVE_GIT_INFO_URL = '/api/native/git/info';
-
-const DefaultKnowledgeFormData: KnowledgeFormData = {
-  email: '',
-  name: '',
-  submissionSummary: '',
-  filePath: '',
-  seedExamples: createDefaultKnowledgeSeedExamples(),
-  knowledgeDocumentRepositoryUrl: '',
-  knowledgeDocumentCommit: '',
-  documentName: '',
-  titleWork: '',
-  linkWork: '',
-  revision: '',
-  licenseWork: '',
-  creators: '',
-  filesToUpload: []
-};
+import { getDefaultKnowledgeFormData } from '@/components/Contribute/Utils/contributionUtils';
 
 export interface KnowledgeFormProps {
   knowledgeEditFormData?: KnowledgeEditFormData;
@@ -81,44 +61,15 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
               answerValidationError: qa.answerValidationError || ''
             }))
           })),
-          filesToUpload: []
+          filesToUpload: [],
+          uploadedFiles: knowledgeEditFormData.formData.uploadedFiles
         }
-      : DefaultKnowledgeFormData
+      : getDefaultKnowledgeFormData()
   );
   const [actionGroupAlertContent, setActionGroupAlertContent] = useState<ActionGroupAlertContent | undefined>();
   const [isYamlModalOpen, setIsYamlModalOpen] = useState<boolean>(false); // **New State Added**
 
   const router = useRouter();
-
-  React.useEffect(() => {
-    let canceled = false;
-    const fetchInfo = async () => {
-      const response = await fetch(isGithubMode ? GITHUB_GIT_INFO_URL : NATIVE_GIT_INFO_URL, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!canceled && (response.status === 201 || response.ok)) {
-        const result = await response.json();
-        setKnowledgeFormData((prev) => ({
-          ...prev,
-          knowledgeDocumentRepositoryUrl: result.repoUrl,
-          knowledgeDocumentCommit: result.commitSha,
-          documentName: result.fileNames
-        }));
-      }
-    };
-
-    if (!knowledgeEditFormData?.isEditForm) {
-      fetchInfo();
-    }
-
-    return () => {
-      canceled = true;
-    };
-  }, [isGithubMode, knowledgeEditFormData?.isEditForm]);
 
   const onCloseActionGroupAlert = () => {
     setActionGroupAlertContent(undefined);
@@ -132,25 +83,6 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
     }
   };
 
-  // Function to append document information (Updated for single repositoryUrl and commitSha)
-  // Within src/components/Contribute/Native/index.tsx
-  const addDocumentInfoHandler = React.useCallback(
-    (repoUrl: string, commitShaValue: string, docName: string) => {
-      devLog(`addDocumentInfoHandler: repoUrl=${repoUrl}, commitSha=${commitShaValue}, docName=${docName}`);
-      if (knowledgeFormData.knowledgeDocumentCommit && commitShaValue !== knowledgeFormData.knowledgeDocumentCommit) {
-        console.error('Cannot add documents from different commit SHAs.');
-        updateActionGroupAlertContent({
-          title: 'Invalid Selection',
-          message: 'All documents must be from the same commit SHA.',
-          success: false
-        });
-        return;
-      }
-      setKnowledgeFormData((prev) => addDocumentInfoToKnowledgeFormData(prev, repoUrl, commitShaValue, docName));
-    },
-    [knowledgeFormData.knowledgeDocumentCommit]
-  );
-
   const setFilePath = React.useCallback((filePath: string) => setKnowledgeFormData((prev) => ({ ...prev, filePath })), []);
 
   useEffect(() => {
@@ -163,20 +95,11 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       name: 'Upload documents',
       component: (
         <DocumentInformation
-          isGithubMode={isGithubMode}
-          setKnowledgeDocumentRepositoryUrl={(knowledgeDocumentRepositoryUrl) =>
-            setKnowledgeFormData((prev) => ({ ...prev, knowledgeDocumentRepositoryUrl }))
-          }
-          setKnowledgeDocumentCommit={(knowledgeDocumentCommit) =>
+          existingFiles={knowledgeFormData.uploadedFiles}
+          setExistingFiles={(files) =>
             setKnowledgeFormData((prev) => ({
               ...prev,
-              knowledgeDocumentCommit
-            }))
-          }
-          setDocumentName={(documentName) =>
-            setKnowledgeFormData((prev) => ({
-              ...prev,
-              documentName
+              uploadedFiles: files
             }))
           }
           filesToUpload={knowledgeFormData.filesToUpload}
@@ -186,7 +109,6 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
               filesToUpload: files
             }))
           }
-          setActionGroupAlertContent={updateActionGroupAlertContent}
         />
       ),
       status: isDocumentInfoValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
@@ -285,6 +207,8 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         component: (
           <KnowledgeSeedExamples
             isGithubMode={isGithubMode}
+            filesToUpload={knowledgeFormData.filesToUpload}
+            uploadedFiles={knowledgeFormData.uploadedFiles}
             seedExamples={knowledgeFormData.seedExamples}
             onUpdateSeedExamples={(seedExamples) =>
               setKnowledgeFormData((prev) => ({
@@ -292,9 +216,6 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
                 seedExamples
               }))
             }
-            addDocumentInfo={addDocumentInfoHandler}
-            repositoryUrl={knowledgeFormData.knowledgeDocumentRepositoryUrl}
-            commitSha={knowledgeFormData.knowledgeDocumentCommit}
           />
         ),
         status: isKnowledgeSeedExamplesValid(knowledgeFormData) ? StepStatus.Success : StepStatus.Error
@@ -313,7 +234,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         status: StepStatus.Default
       }
     ];
-  }, [addDocumentInfoHandler, isGithubMode, knowledgeEditFormData?.isEditForm, knowledgeFormData, setFilePath]);
+  }, [isGithubMode, knowledgeEditFormData?.isEditForm, knowledgeFormData, setFilePath]);
 
   const convertToYaml = (contributionFormData: ContributionFormData) => {
     const formData = contributionFormData as KnowledgeFormData;
@@ -340,6 +261,14 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
   };
 
   const handleSubmit = async (githubUsername: string): Promise<boolean> => {
+    // Upload the knowledge related documents
+
+    const isDocUploaded = await UploadKnowledgeDocuments(isGithubMode, knowledgeFormData, updateActionGroupAlertContent);
+    if (!isDocUploaded) {
+      console.error('Document upload failed for knowledge contribution :', knowledgeFormData.branchName);
+      return isDocUploaded;
+    }
+
     if (knowledgeEditFormData) {
       const result = isGithubMode
         ? await updateGithubKnowledgeData(session, knowledgeFormData, knowledgeEditFormData, updateActionGroupAlertContent)
@@ -353,7 +282,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       ? await submitGithubKnowledgeData(knowledgeFormData, githubUsername, updateActionGroupAlertContent)
       : await submitNativeKnowledgeData(knowledgeFormData, updateActionGroupAlertContent);
     if (result) {
-      const newFormData = { ...DefaultKnowledgeFormData };
+      const newFormData = { ...getDefaultKnowledgeFormData() };
       newFormData.name = knowledgeFormData.name;
       newFormData.email = knowledgeFormData.email;
       setKnowledgeFormData(newFormData);

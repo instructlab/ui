@@ -67,7 +67,7 @@ export const submitNativeKnowledgeData = async (
   };
   setActionGroupAlertContent(waitForSubmissionAlert);
 
-  const { name, submissionSummary, email } = knowledgeFormData;
+  const { branchName, name, submissionSummary, email } = knowledgeFormData;
 
   const response = await fetch('/api/native/pr/knowledge', {
     method: 'POST',
@@ -76,7 +76,7 @@ export const submitNativeKnowledgeData = async (
     },
     body: JSON.stringify({
       action: 'submit',
-      branch: '',
+      branchName: branchName,
       content: yamlString,
       name,
       email,
@@ -158,13 +158,14 @@ export const submitGithubKnowledgeData = async (
   };
   setActionGroupAlertContent(waitForSubmissionAlert);
 
-  const { name, submissionSummary, email } = knowledgeFormData;
+  const { branchName, name, submissionSummary, email } = knowledgeFormData;
   const response = await fetch('/api/github/pr/knowledge', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
+      branchName: branchName,
       content: yamlString,
       attribution: attributionData,
       name,
@@ -239,8 +240,8 @@ export const updateNativeKnowledgeData = async (
   };
   setActionGroupAlertContent(waitForSubmissionAlert);
 
-  const { name, email, submissionSummary } = knowledgeFormData;
-  const { branchName, oldFilesPath } = knowledgeEditFormData;
+  const { branchName, name, email, submissionSummary } = knowledgeFormData;
+  const { oldFilesPath } = knowledgeEditFormData;
   const response = await fetch('/api/native/pr/knowledge', {
     method: 'POST',
     headers: {
@@ -384,7 +385,7 @@ Creator names: ${attributionData.creator_names}
         newFilePath,
         yamlString,
         attributionContent,
-        knowledgeEditFormData.branchName,
+        knowledgeFormData.branchName,
         commitMessage
       );
       console.log('Amended commit response:', amendedCommitResponse);
@@ -449,7 +450,7 @@ export const submitNativeSkillData = async (
   };
   setActionGroupAlertContent(waitForSubmissionAlert);
 
-  const { name, email, submissionSummary } = skillFormData;
+  const { branchName, name, email, submissionSummary } = skillFormData;
 
   const response = await fetch('/api/native/pr/skill/', {
     method: 'POST',
@@ -458,7 +459,7 @@ export const submitNativeSkillData = async (
     },
     body: JSON.stringify({
       action: 'submit',
-      branchName: '',
+      branchName: branchName,
       content: yamlString,
       name,
       email,
@@ -532,13 +533,14 @@ export const submitGithubSkillData = async (
   };
   setActionGroupAlertContent(waitForSubmissionAlert);
 
-  const { name, email, submissionSummary } = skillFormData;
+  const { branchName, name, email, submissionSummary } = skillFormData;
   const response = await fetch('/api/github/pr/skill', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
+      branchName: branchName,
       content: yamlString,
       attribution: attributionData,
       name,
@@ -604,8 +606,8 @@ export const updateNativeSkillData = async (
   };
   setActionGroupAlertContent(waitForSubmissionAlert);
 
-  const { name, email, submissionSummary } = skillFormData;
-  const { branchName, oldFilesPath } = skillEditFormData;
+  const { branchName, name, email, submissionSummary } = skillFormData;
+  const { oldFilesPath } = skillEditFormData;
 
   const response = await fetch('/api/native/pr/skill/', {
     method: 'POST',
@@ -655,7 +657,7 @@ export const updateGithubSkillData = async (
     return false;
   }
   if (session?.accessToken) {
-    const { pullRequestNumber, oldFilesPath, branchName } = skillEditFormData;
+    const { pullRequestNumber, oldFilesPath } = skillEditFormData;
     try {
       console.log(`Updating PR with number: ${pullRequestNumber}`);
       await updatePullRequest(session.accessToken, pullRequestNumber, {
@@ -735,7 +737,7 @@ Creator names: ${attributionData.creator_names}
         newFilePath,
         yamlString,
         attributionContent,
-        branchName,
+        skillFormData.branchName,
         commitMessage
       );
       console.log('Amended commit response:', amendedCommitResponse);

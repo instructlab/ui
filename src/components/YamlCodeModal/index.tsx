@@ -10,7 +10,8 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  ButtonVariant
+  ButtonVariant,
+  Alert
 } from '@patternfly/react-core';
 import React from 'react';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
@@ -34,6 +35,7 @@ export const YamlCodeModal: React.FC<YamlCodeModalProps> = ({ isModalOpen, handl
     >
       <ModalHeader title="Current YAML" labelId="show-yaml-modal-title" titleIconVariant="info" />
       <ModalBody id="show-yaml-body-variant">
+        <Alert isInline variant="warning" title={` Document section in the below yaml will be updated once you submit the knowledge contribution.`} />
         <CodeBlock
           actions={
             <CodeBlockAction>

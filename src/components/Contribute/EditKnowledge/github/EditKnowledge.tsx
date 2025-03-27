@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import KnowledgeFormGithub from '../../Knowledge/Github';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
+import { fetchExistingKnowledgeDocuments } from '@/components/Contribute/Utils/documentUtils';
 
 interface EditKnowledgeClientComponentProps {
   prNumber: number;
@@ -34,6 +35,7 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
 
           // Create KnowledgeFormData from existing form.
           const knowledgeExistingFormData: KnowledgeFormData = {
+            branchName: '',
             email: '',
             name: '',
             submissionSummary: '',
@@ -47,20 +49,20 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
             revision: '',
             licenseWork: '',
             creators: '',
-            filesToUpload: []
+            filesToUpload: [],
+            uploadedFiles: []
           };
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
             isEditForm: true,
             version: KnowledgeSchemaVersion,
-            branchName: '',
             formData: knowledgeExistingFormData,
             pullRequestNumber: prNumber,
             oldFilesPath: ''
           };
 
           knowledgeExistingFormData.submissionSummary = prData.title;
-          knowledgeEditFormData.branchName = prData.head.ref; // Store the branch name from the pull request
+          knowledgeExistingFormData.branchName = prData.head.ref; // Store the branch name from the pull request
 
           const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, prNumber);
 
@@ -127,6 +129,11 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
             knowledgeExistingFormData.creators = attributionData.creator_names;
           }
           setKnowledgeEditFormData(knowledgeEditFormData);
+          const existingFiles = await fetchExistingKnowledgeDocuments(true, knowledgeEditFormData.formData.knowledgeDocumentCommit);
+          if (existingFiles.length != 0) {
+            console.log(`Contribution has ${existingFiles.length} existing knowledge documents`);
+            knowledgeExistingFormData.uploadedFiles.push(...existingFiles);
+          }
           setIsLoading(false);
         } catch (error) {
           if (axios.isAxiosError(error)) {
