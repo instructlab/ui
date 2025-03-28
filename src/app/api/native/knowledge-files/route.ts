@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as git from 'isomorphic-git';
 import fs from 'fs';
 import path from 'path';
-import { cloneTaxonomyDocsRepo, findTaxonomyDocRepoPath, TAXONOMY_DOCS_ROOT_DIR } from '@/app/api/native/git/utils';
+import { cloneTaxonomyDocsRepo, findTaxonomyDocRepoPath, TAXONOMY_DOCS_ROOT_DIR } from '@/app/api/native/utils';
 
 const BASE_BRANCH = 'main';
 

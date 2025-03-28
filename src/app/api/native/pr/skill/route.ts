@@ -14,6 +14,7 @@ const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR 
 
 const SKILLS_DIR = 'compositional_skills';
 
+// This API submit the skill contribution to the local cached taxonomy and not to the remote taxonomy.
 export async function POST(req: NextRequest) {
   const REPO_DIR = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
   try {

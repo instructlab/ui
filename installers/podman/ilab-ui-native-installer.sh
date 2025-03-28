@@ -104,7 +104,7 @@ find_hostip() {
 
 # Check if the ports required by UI stacks are free
 check_ports() {
-	ports=(3000 4000 5001 8080)
+	ports=(3000 5001 8080)
 	for port in "${ports[@]}"; do
 		if lsof -i :"$port" &>/dev/null || netstat -an 2>/dev/null | grep -q ":$port "; then
 			echo -e "${red}Warning: Port $port is required by the InstructLab UI and it's currently in use.${reset}"
@@ -117,7 +117,7 @@ check_ports() {
 # Check if UI stack is already running
 check_ui_stack() {
 	# Check if UI containers are already running
-	containers=("ui-pod-ui" "doclingserve-pod-doclingserve" "pathservice-pod-pathservice")
+	containers=("ui-pod-ui" "doclingserve-pod-doclingserve")
 
 	# Check each container
 	for container in "${containers[@]}"; do

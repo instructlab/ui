@@ -15,6 +15,7 @@ const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR 
 
 const KNOWLEDGE_DIR = 'knowledge';
 
+// This API submit the knowledge contribution to the local cached taxonomy and not to the remote taxonomy.
 export async function POST(req: NextRequest) {
   const REPO_DIR = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
   try {

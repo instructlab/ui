@@ -1,64 +1,13 @@
 
 # InstructLab UI Native mode deployment in Podman
 
-Please follow the below instructions to deploy UI stack with Native mode enabled in Podman.
+Please follow the below instructions to deploy UI stack with Native mode enabled in Podman. These instructions are mostly manual instructions. If you would like to use installer to install the UI stack, please follow the instruction provided [here](../../../installers/podman/README.md).
 
-## Deploy using the installer (Recommended)
-
-Make a temporary directory and download the installer
-
-```shell
-mkdir instructlab-ui
-cd instructlab-ui
-
-curl -o ilab-ui-native-installer.sh -fsSL https://raw.githubusercontent.com/instructlab/ui/refs/heads/main/installers/podman/ilab-ui-native-installer.sh
-```
-
-Give execution permission to the install
-
-```shell
-chmod a+x ilab-ui-native-installer.sh
-```
-
-Execute the installer and follow the instructions prompted on the terminal.
-
-If your deployment machine has InstructLab (ilab CLI) setup, either on the host or in python virtual environment, use the following command
-
-```shell
-./ilab-ui-native-installer.sh install --username <USERNAME> --password <PASSWORD>
-
-e.g ./ilab-ui-native-installer.sh install --username admin --password passw0rd
-```
-
-If your deployment machine don't have InstructLab CLI setup, please clone the taxonomy repo and fire the following command.
-
-```shell
-./ilab-ui-native-installer.sh install --username <USERNAME> --password <PASSWORD> --taxonomy-dir <TAXONOMY_DIR>
-
-e.g ./ilab-ui-native-installer.sh install --username admin --password passw0rd --taxonomy-dir /Users/johndoe/instructlab/taxonomy
-```
-
->[!NOTE]
-> In the absence of InstructLab CLI, UI won't be able to support the synthetic data generation and fine tuning, but skill and knowledge contribution should work as expected.
-
-If you are deploying the UI stack on a remote machine, please provide the auth url in the input
-
-```shell
-./ilab-ui-native-installer.sh install --username <USERNAME> --password <PASSWORD> --taxonomy-dir <TAXONOMY_DIR> --auth-url http://<REMOTE-IP>:3000
-```
-
-Please use `--help` to see more options supported by the installer.
-
-## Deploy manually
-
-If you would like to install the UI stack manually, it's a two step process
-
-- Generate the secret file with the required input
-- Deploy the UI stack manifest file using podman.
+## Generate Secret
 
 A secret is required to provide required input to the UI stack in a secure way.
 
-There are two options to generate the secret's file, either using `kubectl` or filling in values in the `secret.yaml` provided.
+Two options exist to generate the secret, either using `kubectl` or filling in values in the `secret.yaml` provided.
 
 ### Generate secrets using kubectl
 
@@ -119,26 +68,12 @@ podman kube play instructlab-ui.yaml
 > 1. Uncomment the `securityContext` in the `instructlab-ui.yaml` file and set the value of `runAsGroup` to the value of the host user's group id.
 > `id` command should give you the `gid` of the host user.
 >
-> 2. Make sure cpu and cpusets cgroup controllers are enabled for the user. To check if the cgroup controllers are enabled, run the following command:
-> ```cat "/sys/fs/cgroup/user.slice/user-$(id -u).slice/user@$(id -u).service/cgroup.controllers"```
->
-> If the output of the above command does not contain `cpu` and `cpuset`, then you need to enable these cgroup controllers for the user. To enable these cgroup controllers, create the following file `/etc/systemd/system/user@.service.d/delegate.conf` with the following content:
->
->```[Service]
-> Delegate=memory pids cpu cpuset```
-> Save the file and run `sudo systemctl daemon-reload` followed by `sudo systemctl restart user@$(id -u).service` to apply the changes.
 
 ## Accessing the UI
 
 The Instructlab UI should now be accessible from `http://localhost:3000` or `http://<host-ip>:3000` depending on where the UI stack is deployed.
 
 ## Cleaning up
-
-If you used installer to install the UI stack, fire the following command
-
-```shell
-./ilab-ui-native-installer.sh uninstall
-```
 
 To clean up the deployment, use `podman kube down` to delete the deployment.
 

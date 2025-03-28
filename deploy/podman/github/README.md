@@ -87,14 +87,6 @@ If you are playing with Github mode deployment for making upstream contributions
 > 1. Uncomment the `securityContext` in the `instructlab-ui.yaml` file and set the value of `runAsGroup` to the value of the host user's group id.
 > `id` command should give you the `gid` of the host user.
 >
-> 2. Make sure cpu and cpusets cgroup controllers are enabled for the user. To check if the cgroup controllers are enabled, run the following command:
-> ```cat "/sys/fs/cgroup/user.slice/user-$(id -u).slice/user@$(id -u).service/cgroup.controllers"```
->
-> If the output of the above command does not contain `cpu` and `cpuset`, then you need to enable these cgroup controllers for the user. To enable these cgroup controllers, create the following file `/etc/systemd/system/user@.service.d/delegate.conf` with the following content:
->
->```[Service]
-> Delegate=memory pids cpu cpuset```
-> Save the file and run `sudo systemctl daemon-reload` followed by `sudo systemctl restart user@$(id -u).service` to apply the changes.
 
 ## Accessing the UI
 
