@@ -33,7 +33,8 @@ import {
   PageSection,
   Popover,
   TextInput,
-  Title
+  Title,
+  ValidatedOptions
 } from '@patternfly/react-core';
 import { BanIcon, CheckCircleIcon, EyeSlashIcon, EllipsisVIcon , EyeIcon, QuestionCircleIcon } from '@patternfly/react-icons';
 
@@ -333,14 +334,16 @@ const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
                   ) : null} */}
                   {endpointOptionsOpen ? (
                     <Dropdown
-                      onOpenChange={(isEndpointOptionsOpen) => setEndpointOptionsOpen(isEndpointOptionsOpen)}
+                      onOpenChange={() => setEndpointOptionsOpen(true)}
                       onSelect={() => setEndpointOptionsOpen(false)}
                       toggle={(toggleRef) => (
                         <MenuToggle
                           aria-label="actions"
                           variant="plain"
                           ref={toggleRef}
-                          onClick={() => setEndpointOptionsOpen(!endpointOptionsOpen)}
+                          onClick={() => {
+                            setEndpointOptionsOpen(!endpointOptionsOpen)}
+                          }
                           isExpanded={endpointOptionsOpen}
                         >
                           <p> SOMETHING SHOW UP</p>
@@ -350,10 +353,10 @@ const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
                       isOpen={endpointOptionsOpen}
                       ouiaId="ModelEndpointDropdown"
                     >
-                    <DropdownList>
+                    {/* <DropdownList>
                       <DropdownItem >Clear chat</DropdownItem>
-                      {/* {onClose ? <DropdownItem onClick={onClose}>Close chat</DropdownItem> : null} */}
-                    </DropdownList>
+                      {onClose ? <DropdownItem onClick={onClose}>Close chat</DropdownItem> : null}
+                    </DropdownList> */}
                     </Dropdown>
                   ) : null }
                 </DataListAction>
