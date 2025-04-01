@@ -23,7 +23,7 @@ import {
   Form,
   FormGroup,
   InputGroup,
-  MenuToggleElement,
+  MenuToggle,
   Modal,
   ModalBody,
   ModalFooter,
@@ -107,7 +107,8 @@ const EndpointsPage: React.FC = () => {
   const [modelDescription, setModelDescription] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [endpointStatus, setEndpointStatus] = useState(unknownModelEndpointStatus);
-  const [endpointOptionsOpen, setEndpointOptionsOpen] = useState(false)
+  const [endpointOptionsOpen, setEndpointOptionsOpen] = React.useState<boolean>(false);
+  const [deleteEndpointModalOpen, setDeleteEndpointModalOpen] = useState(false)
 
   useEffect(() => {
     const storedEndpoints = localStorage.getItem('endpoints');
@@ -122,12 +123,11 @@ const EndpointsPage: React.FC = () => {
 
   const handleEndpointOptionsToggle = (endpoint: ExtendedEndpoint) => {
     console.log("endpoint has been toggled: ", endpoint.id)
-    setEndpointOptionsOpen(!endpoint.optionsOpen)
-  }
-
-  const handleDeselectEndpointOptions = () => {
-    setEndpointOptionsOpen(false)
-  }
+    console.log("endpoint's setting open?", !endpoint.optionsOpen)
+    console.log("endpoint options open before?: ", endpointOptionsOpen)
+    setEndpointOptionsOpen(!endpointOptionsOpen)
+    console.log("endpoint options open before?: ", endpointOptionsOpen)
+  };
 
   const removeTrailingSlash = (inputUrl: string): string => {
     if (typeof inputUrl !== 'string') {
@@ -311,60 +311,51 @@ const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
                   ]}
                 />
                 <DataListAction aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
-                  <Button variant="secondary" onClick={() => handleEditEndpoint(endpoint)}>
-                    edit
+                  <Button variant="secondary" onClick={() => console.log("stubbing disable")}>
+                    disable
                   </Button>
-                  <Button variant="secondary" onClick={() => handleEndpointOptionsToggle(endpoint)}>
-                    <EllipsisVIcon>
-                  </EllipsisVIcon>
+                  <Button variant="secondary" onClick={() => setEndpointOptionsOpen(true)}>
+                    <EllipsisVIcon/>
                   </Button>
-                  {/* {endpointOptionsOpen && (
-                    <Dropdown
-                      isOpen={endpointOptionsOpen}
-                      onSelect={handleDeselectEndpointOptions}
-                      onOpenChange={(endpointOptionsOpen: boolean) => setEndpointOptionsOpen(endpointOptionsOpen)}
-                      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                        <Button ref={toggleRef} onClick={handleEndpointOptionsToggle(endpoint)}>
-                          <Flex gap={{ default: 'gapMd' }}>
-                            <FlexItem>YAML/Attribution files</FlexItem>
-                            <FlexItem>
-                            </FlexItem>
-                          </Flex>
-                        </Button>
-                      )}
-                      ouiaId="DownloadDropdown"
-                      shouldFocusToggleOnSelect
+                  {/* {deleteEndpointModalOpen ? (
+                    <Modal
+                      variant={ModalVariant.medium}
+                      isOpen={isModalOpen}
+                      onClose={handleModalToggle}
+                      aria-labelledby="confirm-delete-custom-model-endpoint"
+                      aria-describedby="show-yaml-body-variant"
                     >
-                      <DropdownList>
-                        <DropdownItem
-                          key="view-yaml"
-                          onClick={handleViewYaml}
-                          icon={
-                            <Icon>
-                              <CodeIcon />
-                            </Icon>
-                          }
+                      <ModalHeader titleIconVariant="warning" title="Delete custom model endpoint?" labelId="confirm-delete-custom-model-endpoint-title" />
+                      <ModalBody id="delete-custom-model-endpoint">
+                        some text here
+                      </ModalBody>
+                    </Modal>
+                  ) : null} */}
+                  {endpointOptionsOpen ? (
+                    <Dropdown
+                      onOpenChange={(isEndpointOptionsOpen) => setEndpointOptionsOpen(isEndpointOptionsOpen)}
+                      onSelect={() => setEndpointOptionsOpen(false)}
+                      toggle={(toggleRef) => (
+                        <MenuToggle
+                          aria-label="actions"
+                          variant="plain"
+                          ref={toggleRef}
+                          onClick={() => setEndpointOptionsOpen(!endpointOptionsOpen)}
+                          isExpanded={endpointOptionsOpen}
                         >
-                          {' '}
-                          YAML Content
-                        </DropdownItem>
-                        {isGithubMode && (
-                          <DropdownItem
-                            key="view-attribution"
-                            onClick={handleViewAttribution}
-                            icon={
-                              <Icon>
-                                <FileIcon />
-                              </Icon>
-                            }
-                          >
-                            {' '}
-                            Attribution Content
-                          </DropdownItem>
-                        )}
-                      </DropdownList>
+                          <p> SOMETHING SHOW UP</p>
+                          <EllipsisVIcon />
+                        </MenuToggle>                   
+                      )}
+                      isOpen={endpointOptionsOpen}
+                      ouiaId="ModelEndpointDropdown"
+                    >
+                    <DropdownList>
+                      <DropdownItem >Clear chat</DropdownItem>
+                      {/* {onClose ? <DropdownItem onClick={onClose}>Close chat</DropdownItem> : null} */}
+                    </DropdownList>
                     </Dropdown>
-                  )} */}
+                  ) : null }
                 </DataListAction>
               </DataListItemRow>
             </DataListItem>
