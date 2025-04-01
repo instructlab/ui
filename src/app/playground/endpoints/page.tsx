@@ -109,7 +109,8 @@ const EndpointsPage: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [endpointStatus, setEndpointStatus] = useState(unknownModelEndpointStatus);
   const [endpointOptionsOpen, setEndpointOptionsOpen] = React.useState<boolean>(false);
-  const [deleteEndpointModalOpen, setDeleteEndpointModalOpen] = useState(false)
+  const [deleteEndpointModalOpen, setDeleteEndpointModalOpen] = React.useState<boolean>(false);
+  const [deleteEndpointName, setDeleteEndpointName] = useState('');
 
   useEffect(() => {
     const storedEndpoints = localStorage.getItem('endpoints');
@@ -187,10 +188,16 @@ const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
     }
   };
 
-  const handleDeleteEndpoint = (id: string) => {
-    const updatedEndpoints = endpoints.filter((ep) => ep.id !== id);
-    setEndpoints(updatedEndpoints);
-    localStorage.setItem('endpoints', JSON.stringify(updatedEndpoints));
+  const handleDeleteEndpoint = (id: string, endpointName: string) => {
+    if (deleteEndpointName && deleteEndpointName == endpointName) {
+      const updatedEndpoints = endpoints.filter((ep) => ep.id !== id);
+      setEndpoints(updatedEndpoints);
+      localStorage.setItem('endpoints', JSON.stringify(updatedEndpoints));
+      setDeleteEndpointModalOpen(false)
+      setDeleteEndpointName('')
+    } else {
+      alert("error: endpoint name did not match!")
+    }
   };
 
   async function handleEditEndpoint (endpoint: ExtendedEndpoint) {
@@ -312,26 +319,49 @@ const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
                   ]}
                 />
                 <DataListAction aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
-                  <Button variant="secondary" onClick={() => console.log("stubbing disable")}>
+                  <Button variant="secondary" onClick={() => {
+                    setDeleteEndpointModalOpen(true)
+                  }}>
                     disable
                   </Button>
                   <Button variant="secondary" onClick={() => setEndpointOptionsOpen(true)}>
                     <EllipsisVIcon/>
                   </Button>
-                  {/* {deleteEndpointModalOpen ? (
+                  {deleteEndpointModalOpen ? (
                     <Modal
                       variant={ModalVariant.medium}
-                      isOpen={isModalOpen}
-                      onClose={handleModalToggle}
+                      title="Delete custom model endpoint?"
+                      isOpen={deleteEndpointModalOpen}
+                      onClose={() => setDeleteEndpointModalOpen(false)}
                       aria-labelledby="confirm-delete-custom-model-endpoint"
                       aria-describedby="show-yaml-body-variant"
                     >
                       <ModalHeader titleIconVariant="warning" title="Delete custom model endpoint?" labelId="confirm-delete-custom-model-endpoint-title" />
                       <ModalBody id="delete-custom-model-endpoint">
-                        some text here
+                        <p style={{ fontSize: "1.25em"}}>The <strong>{endpoint.name}</strong> custom model endpoint will be deleted.</p>
+                        <br/>
+                        <p>Type <strong>{endpoint.name}</strong> to confirm. </p>
+                        <TextInput
+                          isRequired
+                          type="text"
+                          id="deleteEndpointByName"
+                          name="deleteEndpointByName"
+                          title="type {endpoint.name} to confirm."
+                          value={deleteEndpointName}
+                          onChange={(_, value) => setDeleteEndpointName(value)}
+                        />
                       </ModalBody>
+                      <ModalFooter>
+                        <Button key="confirm" variant="primary" onClick={() => {handleDeleteEndpoint(endpoint.id, endpoint.name)}}>
+                          Delete
+                        </Button>
+                        ,
+                        <Button key="cancel" variant="secondary" onClick={() => {setDeleteEndpointName(''); setDeleteEndpointModalOpen(false)}}>
+                          Cancel
+                        </Button>
+                      </ModalFooter>
                     </Modal>
-                  ) : null} */}
+                  ) : null}
                   {endpointOptionsOpen ? (
                     <Dropdown
                       onOpenChange={() => setEndpointOptionsOpen(true)}
@@ -353,10 +383,6 @@ const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
                       isOpen={endpointOptionsOpen}
                       ouiaId="ModelEndpointDropdown"
                     >
-                    {/* <DropdownList>
-                      <DropdownItem >Clear chat</DropdownItem>
-                      {onClose ? <DropdownItem onClick={onClose}>Close chat</DropdownItem> : null}
-                    </DropdownList> */}
                     </Dropdown>
                   ) : null }
                 </DataListAction>
