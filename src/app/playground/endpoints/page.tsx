@@ -59,6 +59,20 @@ const unknownModelEndpointStatus: ModelEndpointStatus = {
   icon: <QuestionCircleIcon style={{color: "var(--pf-t--global--icon--color--disabled)"}} />,
 };
 
+interface ModelDisabledStatus {
+  disabled: boolean;
+  color: string;
+}
+
+const modelEnabled: ModelDisabledStatus = {
+  disabled: false,
+  color: "#999999"
+}
+
+const modelDisabled: ModelDisabledStatus = {
+  disabled: true,
+  color: "transparent"
+}
 
 async function checkEndpointStatus(
   endpointURL: string,
@@ -94,7 +108,7 @@ async function checkEndpointStatus(
 interface ExtendedEndpoint extends Endpoint {
   isApiKeyVisible?: boolean;
   status?: ModelEndpointStatus;
-  optionsOpen?: boolean;
+  disabled?: ModelDisabledStatus;
 }
 
 const EndpointsPage: React.FC = () => {
@@ -109,8 +123,17 @@ const EndpointsPage: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [endpointStatus, setEndpointStatus] = useState(unknownModelEndpointStatus);
   const [endpointOptionsOpen, setEndpointOptionsOpen] = React.useState<boolean>(false);
+  const [endpointOptionsID, setEndpointOptionsID] = React.useState<string>('');
   const [deleteEndpointModalOpen, setDeleteEndpointModalOpen] = React.useState<boolean>(false);
   const [deleteEndpointName, setDeleteEndpointName] = useState('');
+
+  const disableEndpoint = (endpoint: ExtendedEndpoint) => {
+    endpoint.disabled = modelDisabled
+  }
+
+  const enableEndpoint = (endpoint: ExtendedEndpoint) => {
+    endpoint.disabled = modelEnabled
+  }
 
   useEffect(() => {
     const storedEndpoints = localStorage.getItem('endpoints');
@@ -123,14 +146,6 @@ const EndpointsPage: React.FC = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  const handleEndpointOptionsToggle = (endpoint: ExtendedEndpoint) => {
-    console.log("endpoint has been toggled: ", endpoint.id)
-    console.log("endpoint's setting open?", !endpoint.optionsOpen)
-    console.log("endpoint options open before?: ", endpointOptionsOpen)
-    setEndpointOptionsOpen(!endpointOptionsOpen)
-    console.log("endpoint options open before?: ", endpointOptionsOpen)
-  };
-
   const removeTrailingSlash = (inputUrl: string): string => {
     if (typeof inputUrl !== 'string') {
       throw new Error('Invalid url');
@@ -141,15 +156,15 @@ const EndpointsPage: React.FC = () => {
     return inputUrl;
   };
 
-const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
-  let returnValue = true
-  EndpointRequiredFields.forEach((requiredField) => {
-    if (endpoint[requiredField]?.trim().length == 0) {
-      returnValue = false
-    }
-  })
-  return returnValue
-}
+  const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
+    let returnValue = true
+    EndpointRequiredFields.forEach((requiredField) => {
+      if (endpoint[requiredField]?.trim().length == 0) {
+        returnValue = false
+      }
+    })
+    return returnValue
+  }
 
   async function handleSaveEndpoint () {
     const updatedUrl = removeTrailingSlash(url);
@@ -294,21 +309,21 @@ const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
             </DataListItemRow>
           </DataListItem>
           {endpoints.map((endpoint) => (
-            <DataListItem key={endpoint.id} style={{ padding: "0 0 0 0"}}>
-              <DataListItemRow wrapModifier="breakWord" style={{ padding: "0 0 0 0"}}>
+            <DataListItem key={endpoint.id} style={{ padding: "0 0 0 0", backgroundColor: endpoint.disabled?.color}}>
+              <DataListItemRow wrapModifier="breakWord" style={{ padding: "0 0 0 0"} }>
                 <DataListItemCells
                   dataListCells={[
                     <DataListCell style={{ paddingLeft: "12px" }} key="name"> 
-                      <h4> {endpoint.name} </h4>
-                      <br/>
-                      <p> {endpoint.description} </p>
+                      <p>   {endpoint.name} </p>
+                      <br />
+                      <p style={{ fontSize: "0.85em", color: "#989799"}}>   {endpoint.description} </p>
                     </DataListCell>,
                     <DataListCell style={{ paddingLeft: "12px" }} key="status"> {endpoint.status?.status} {endpoint.status?.icon} </DataListCell>,
                     <DataListCell style={{ paddingLeft: "12px" }} key="url"> {endpoint.url} </DataListCell>,
                     <DataListCell style={{ paddingLeft: "12px" }} key="modelName">
-                      <h4> {endpoint.modelName} </h4>
+                      <p>   {endpoint.modelName} </p>
                       <br/>
-                      <p> {endpoint.modelDescription} </p>
+                      <p style={{ fontSize: "0.85em", color: "#989799"}}>   {endpoint.modelDescription} </p>
                     </DataListCell>,
                     <DataListCell style={{ paddingLeft: "12px" }} key="apiKey">
                       {renderApiKey(endpoint.apiKey, endpoint.isApiKeyVisible || false)}
@@ -319,12 +334,23 @@ const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
                   ]}
                 />
                 <DataListAction aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
+                  {endpoint.disabled?.disabled == false ? (
+                    <Button variant="secondary" onClick={() => {
+                      disableEndpoint(endpoint)
+                    }}>
+                      disable
+                    </Button>
+                  ): (
+                    <Button variant="secondary" onClick={() => {
+                      enableEndpoint(endpoint)
+                    }}>
+                      enable
+                    </Button>
+                  )}
                   <Button variant="secondary" onClick={() => {
-                    setDeleteEndpointModalOpen(true)
+                    setEndpointOptionsOpen(!endpointOptionsOpen)
+                    setEndpointOptionsID(endpoint.id)
                   }}>
-                    disable
-                  </Button>
-                  <Button variant="secondary" onClick={() => setEndpointOptionsOpen(true)}>
                     <EllipsisVIcon/>
                   </Button>
                   {deleteEndpointModalOpen ? (
@@ -362,27 +388,30 @@ const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
                       </ModalFooter>
                     </Modal>
                   ) : null}
-                  {endpointOptionsOpen ? (
+                  {endpointOptionsOpen && endpointOptionsID == endpoint.id ? (
                     <Dropdown
-                      onOpenChange={() => setEndpointOptionsOpen(true)}
-                      onSelect={() => setEndpointOptionsOpen(false)}
+                      onOpenChange={() => { setEndpointOptionsID(endpoint.id); setEndpointOptionsOpen(true)}}
+                      onSelect={() => {setEndpointOptionsID(endpoint.id); setEndpointOptionsOpen(false)}}
                       toggle={(toggleRef) => (
                         <MenuToggle
                           aria-label="actions"
                           variant="plain"
                           ref={toggleRef}
                           onClick={() => {
+                            setEndpointOptionsID(endpoint.id);
                             setEndpointOptionsOpen(!endpointOptionsOpen)}
                           }
                           isExpanded={endpointOptionsOpen}
                         >
-                          <p> SOMETHING SHOW UP</p>
-                          <EllipsisVIcon />
-                        </MenuToggle>                   
+                        </MenuToggle>     
                       )}
                       isOpen={endpointOptionsOpen}
                       ouiaId="ModelEndpointDropdown"
                     >
+                      <DropdownList>
+                        <DropdownItem onClick={() => handleEditEndpoint(endpoint)}>Edit Endpoint</DropdownItem>
+                        <DropdownItem key="delete" style={{ color: "red"}} onClick={() => setDeleteEndpointModalOpen(true)}>Delete Endpoint</DropdownItem>
+                      </DropdownList>
                     </Dropdown>
                   ) : null }
                 </DataListAction>
