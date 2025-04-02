@@ -3,10 +3,15 @@ import { ValidatedOptions } from '@patternfly/react-core';
 
 export interface Endpoint {
   id: string;
+  name: string;
+  description?: string;
   url: string;
-  apiKey: string;
   modelName: string;
+  modelDescription?: string;
+  apiKey: string;
 }
+
+export  const EndpointRequiredFields: (keyof Endpoint)[] = ["name", "url", "modelName"];
 
 export interface Model {
   isDefault?: boolean;
