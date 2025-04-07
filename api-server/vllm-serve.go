@@ -29,7 +29,7 @@ func (srv *ILabServer) ListVllmContainers() ([]VllmContainer, error) {
 	format := "{{.ID}}|{{.Image}}|{{.Command}}|{{.CreatedAt}}|{{.Status}}|{{.Ports}}|{{.Names}}"
 
 	cmd := exec.Command("podman", "ps",
-		"--filter", "ancestor=vllm/vllm-openai:latest",
+		"--filter", "ancestor=registry.redhat.io/rhelai1/instructlab-nvidia-rhel9",
 		"--format", format,
 	)
 
