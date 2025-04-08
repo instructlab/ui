@@ -29,7 +29,7 @@ func (srv *ILabServer) ListVllmContainers() ([]VllmContainer, error) {
 	format := "{{.ID}}|{{.Image}}|{{.Command}}|{{.CreatedAt}}|{{.Status}}|{{.Ports}}|{{.Names}}"
 
 	cmd := exec.Command("podman", "ps",
-		"--filter", "ancestor=registry.redhat.io/rhelai1/instructlab-nvidia-rhel9",
+		"--filter", "ancestor=registry.redhat.io/rhelai1/instructlab-nvidia-rhel9:1.4-1738905416",
 		"--format", format,
 	)
 
@@ -102,7 +102,8 @@ func (srv *ILabServer) ExtractVllmArgs(containerID string) (string, string, erro
 			containerID, err, inspectErr.String())
 	}
 
-	// The command is a JSON array, e.g. ["--host","0.0.0.0","--port","8000","--model","/path","--served-model-name","pre-train"]
+	// The command is a JSON array, e.g.:
+	// ["serve","/var/home/cloud-user/.cache/instructlab/models/granite-8b-starter-v1","--served-model-name","pre-train","--load-format","safetensors","--host","127.0.0.1","--port","8000"]
 	var cmdArgs []string
 	if err := json.Unmarshal(inspectOut.Bytes(), &cmdArgs); err != nil {
 		return "", "", fmt.Errorf("error unmarshalling command args for container %s: %v",
@@ -138,6 +139,13 @@ func (srv *ILabServer) parseVllmArgs(args []string) (string, string, error) {
 			}
 		}
 	}
+
+	// If modelPath wasn't set via the flag, check for a positional model path.
+	// If the command starts with "serve" and a second argument exists, use that as the model path.
+	if modelPath == "" && len(args) > 1 && args[0] == "serve" {
+		modelPath = args[1]
+	}
+
 	if servedModelName == "" || modelPath == "" {
 		return "", "", errors.New("required arguments --served-model-name or --model not found")
 	}
