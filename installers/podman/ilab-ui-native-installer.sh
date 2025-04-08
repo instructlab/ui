@@ -250,7 +250,8 @@ discover_taxonomy_path() {
 			taxonomy_path=$(ilab config show 2>/dev/null | grep "taxonomy_path" | head -n 1 | cut -d ':' -f 2 | sed 's/^ *//;s/ *$//' | tr -d '\r\n')
 		else
 			# Always use discovered python virtual environment,
-			venv_ilab="$DISCOVERED_PYENV_DIR/bin/ilab"
+			venv_ilab_dir=$([ -z "$DISCOVERED_PYENV_DIR" ] && echo "$PYENV_DIR" || echo "$DISCOVERED_PYENV_DIR")
+			venv_ilab="$venv_ilab_dir/bin/ilab"
 			taxonomy_path=$($venv_ilab config show 2>/dev/null | grep "taxonomy_path" | head -n 1 | cut -d ':' -f 2 | sed 's/^ *//;s/ *$//' | tr -d '\r\n')
 		fi
 	else
@@ -283,6 +284,19 @@ normalize_taxonomy_path() {
 			USER_TAXONOMY_DIR="$(cd "$(dirname "$USER_TAXONOMY_DIR")" && pwd)/$(basename "$USER_TAXONOMY_DIR")"
 		fi
 		echo -e "${blue} Taxonomy path normalized to absolute path $USER_TAXONOMY_DIR${reset}\n"
+	fi
+}
+
+normalize_pyvenv_dir_path() {
+		echo -e "normalize_pyvenv_dir_path called- $PYENV_DIR"
+
+	if [[ "$PYENV_DIR" != /* ]]; then
+		if ! command -v realpath &>/dev/null; then
+			PYENV_DIR=$(realpath "$PYENV_DIR" 2>/dev/null)
+		else
+			PYENV_DIR="$(cd "$(dirname "$PYENV_DIR")" && pwd)/$(basename "$PYENV_DIR")"
+		fi
+		echo -e "${blue} Python virtual environment path normalized to absolute path $PYENV_DIR${reset}\n"
 	fi
 }
 
@@ -328,6 +342,7 @@ if [[ "$COMMAND" == "install" ]]; then
 			;;
 		--python-venv-dir)
 			PYENV_DIR=$(echo "$2" | sed 's/^ *//;s/ *$//')
+			normalize_pyvenv_dir_path
 			shift 2
 			;;
 		--deploy)
