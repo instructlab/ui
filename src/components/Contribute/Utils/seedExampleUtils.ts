@@ -11,7 +11,7 @@ export const validateQuestion = (question: string) => {
   if (tokens.length > 0 && tokens.length < 250) {
     return { msg: 'Valid input', status: ValidatedOptions.success };
   }
-  return { msg: 'Question must be less than 250 words. Current word count: ' + tokens.length, status: ValidatedOptions.error };
+  return { msg: 'Question must be less than 250 words. Current word count: ' + tokens.length, status: ValidatedOptions.warning };
 };
 
 export const validateAnswer = (answer: string) => {
@@ -23,7 +23,7 @@ export const validateAnswer = (answer: string) => {
   if (tokens.length > 0 && tokens.length < 250) {
     return { msg: 'Valid input', status: ValidatedOptions.success };
   }
-  return { msg: 'Answer must be less than 250 words. Current word count: ' + tokens.length, status: ValidatedOptions.error };
+  return { msg: 'Answer must be less than 250 words. Current word count: ' + tokens.length, status: ValidatedOptions.warning };
 };
 
 export const validateContext = (context?: string) => {
@@ -37,7 +37,7 @@ export const validateContext = (context?: string) => {
     return { msg: 'Valid Input', status: ValidatedOptions.success };
   }
   const errorMsg = 'Context must be less than 500 words. Current word count: ' + tokens.length;
-  return { msg: errorMsg, status: ValidatedOptions.error };
+  return { msg: errorMsg, status: ValidatedOptions.warning };
 };
 
 export const handleSkillSeedExamplesContextInputChange = (

@@ -12,7 +12,8 @@ import {
   ValidatedOptions,
   Form,
   Flex,
-  FlexItem
+  FlexItem,
+  Alert
 } from '@patternfly/react-core';
 import { CatalogIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import { t_global_spacer_md as MdSpacerSize } from '@patternfly/react-tokens';
@@ -41,17 +42,28 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
   handleAnswerBlur
 }) => {
   const [contextWordCount, setContextWordCount] = useState(0);
+  const [allQnAWordCount, setAllQnAWordCount] = useState(0);
   const MAX_WORDS = 500;
+  const MAX_QnA_WORDS = 250;
 
   // TODO: replace with a tokenizer library
   const countWords = (text: string) => {
     return text.trim().split(/\s+/).filter(Boolean).length;
   };
 
+  const countQnAWords = (QnAs: QuestionAndAnswerPair[]) => {
+    let count = 0;
+    QnAs.map((qna) => {
+      count += countWords(qna.question) + countWords(qna.answer);
+    });
+    return count;
+  };
+
   // Update word count whenever context changes
   useEffect(() => {
     setContextWordCount(seedExample.context ? countWords(seedExample.context) : 0);
-  }, [seedExample.context]);
+    setAllQnAWordCount(countQnAWords(seedExample.questionAndAnswers));
+  }, [seedExample.context, seedExample.questionAndAnswers]);
 
   // Handle context input change with word count validation
   const onContextChange = (_event: React.FormEvent<HTMLTextAreaElement>, contextValue: string) => {
@@ -101,6 +113,26 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
               </FormHelperText>
             ) : null}
           </FormGroup>
+          {allQnAWordCount > 250 && (
+            <Alert
+              variant="warning"
+              title=<p>
+                The combined total word count for all 3 question-and-answer pairs should be less than 250 words. Current word count :{' '}
+                {allQnAWordCount}/{MAX_QnA_WORDS} words
+              </p>
+              ouiaId="InfoAlert"
+            />
+          )}
+          {allQnAWordCount <= 250 && (
+            <Alert
+              variant="info"
+              title=<p>
+                The combined total word count for all 3 question-and-answer pairs should be less than 250 words. Current word count :{' '}
+                {allQnAWordCount}/{MAX_QnA_WORDS} words
+              </p>
+              ouiaId="InfoAlert"
+            />
+          )}
           {seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, questionAnswerIndex: number) => (
             <FormGroup
               key={seedExampleIndex * 100 + questionAnswerIndex * 10 + 0}
@@ -115,12 +147,12 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
                     aria-label={`Question ${seedExampleIndex + 1}-${questionAnswerIndex + 1}`}
                     placeholder={`Enter question ${questionAnswerIndex + 1}`}
                     value={questionAndAnswerPair.question}
-                    maxLength={250}
                     validated={questionAndAnswerPair.isQuestionValid}
                     onChange={(_event, questionValue) => handleQuestionInputChange(seedExampleIndex, questionAnswerIndex, questionValue)}
                     onBlur={() => handleQuestionBlur(seedExampleIndex, questionAnswerIndex)}
                   />
-                  {questionAndAnswerPair.isQuestionValid === ValidatedOptions.error && (
+                  {(questionAndAnswerPair.isQuestionValid === ValidatedOptions.warning ||
+                    questionAndAnswerPair.isQuestionValid === ValidatedOptions.error) && (
                     <FormHelperText>
                       <HelperText>
                         <HelperTextItem icon={<ExclamationCircleIcon />} variant={questionAndAnswerPair.isQuestionValid}>
@@ -138,13 +170,13 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
                     aria-label={`Answer ${seedExampleIndex + 1}-${questionAnswerIndex + 1}`}
                     placeholder={`Enter answer ${questionAnswerIndex + 1}`}
                     value={questionAndAnswerPair.answer}
-                    maxLength={250}
                     validated={questionAndAnswerPair.isAnswerValid}
                     onChange={(_event, answerValue) => handleAnswerInputChange(seedExampleIndex, questionAnswerIndex, answerValue)}
                     onBlur={() => handleAnswerBlur(seedExampleIndex, questionAnswerIndex)}
                   />
                 </FlexItem>
-                {questionAndAnswerPair.isAnswerValid === ValidatedOptions.error ? (
+                {questionAndAnswerPair.isAnswerValid === ValidatedOptions.warning ||
+                questionAndAnswerPair.isAnswerValid === ValidatedOptions.error ? (
                   <FlexItem>
                     <FormHelperText>
                       <HelperText>
