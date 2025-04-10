@@ -47,8 +47,9 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
     knowledgeEditFormData?.formData
       ? {
           ...knowledgeEditFormData.formData,
-          seedExamples: knowledgeEditFormData.formData.seedExamples.map((example) => ({
+          seedExamples: knowledgeEditFormData.formData.seedExamples.map((example, index) => ({
             ...example,
+            isExpanded: index === 0,
             immutable: example.immutable !== undefined ? example.immutable : true, // Ensure immutable is set
             isContextValid: example.isContextValid || ValidatedOptions.default,
             validationError: example.validationError || '',

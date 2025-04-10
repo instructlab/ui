@@ -182,7 +182,7 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
           </FlexItem>
         </Flex>
       </PageSection>
-      <PageSection isFilled style={{ flex: 1, overflowY: 'hidden' }}>
+      <PageSection isFilled style={{ flex: 1, overflowY: 'hidden', paddingTop: 0 }}>
         <Wizard
           style={{ maxHeight: '100%' }}
           startIndex={1}

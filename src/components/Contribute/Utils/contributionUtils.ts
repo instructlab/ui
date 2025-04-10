@@ -35,3 +35,5 @@ export const getDefaultSkillFormData = (): SkillFormData => {
     creators: ''
   };
 };
+
+export const getWordCount = (text?: string): number => text?.split(/\s+/).filter((word) => word.length > 0).length ?? 0;

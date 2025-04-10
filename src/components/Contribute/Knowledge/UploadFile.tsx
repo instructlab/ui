@@ -18,10 +18,10 @@ import {
 import { UploadIcon } from '@patternfly/react-icons';
 import React, { useState, useEffect } from 'react';
 import { FileRejection, DropEvent } from 'react-dropzone';
+import { KnowledgeFile } from '@/types';
 import UploadFromGitModal from '@/components/Contribute/Knowledge/UploadFromGitModal';
 import MultiFileUploadArea from '@/components/Contribute/Knowledge/MultFileUploadArea';
 import FileConversionModal from '@/components/Contribute/Knowledge/FileConversionModal';
-import { KnowledgeFile } from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamples';
 
 interface ReadFile {
   fileName: string;

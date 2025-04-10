@@ -1,0 +1,34 @@
+.knowledge-seed-example-card {
+  &__expanded-alert {
+    margin-top: calc(-1 * var(--pf-t--global--spacer--md));
+    .pf-v6-c-alert {
+      padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--lg);
+      border-radius: 0;
+      border-width: 1px;
+      border-style: solid;
+      &.pf-m-info {
+        background-color: var(--pf-t--color--blue--10);
+      }
+      &.pf-m-danger {
+        background-color: #faeae8;
+      }
+    }
+  }
+  &__q-and-a {
+    &.pf-v6-c-card {
+      border-top-right-radius: 0;
+      border-top-left-radius: 0;
+      &:before {
+        border-top: 0;
+      }
+    }
+    .q-and-a-field {
+      position: relative;
+      &__text-help {
+        position: absolute;
+        bottom: var(--pf-t--global--spacer--sm);
+        left: var(--pf-t--global--spacer--md);
+      }
+    }
+  }
+}

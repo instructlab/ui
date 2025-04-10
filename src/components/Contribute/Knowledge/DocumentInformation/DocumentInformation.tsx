@@ -1,10 +1,10 @@
 // src/components/Contribute/Knowledge/Native/DocumentInformation/DocumentInformation.tsx
 import React from 'react';
 import { Button, Flex, FlexItem } from '@patternfly/react-core';
+import { ExternalLinkAltIcon } from '@patternfly/react-icons';
+import { KnowledgeFile } from '@/types';
 import { UploadFile } from '@/components/Contribute/Knowledge/UploadFile';
 import WizardPageHeader from '@/components/Common/WizardPageHeader';
-import { ExternalLinkAltIcon } from '@patternfly/react-icons';
-import { KnowledgeFile } from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamples';
 
 interface Props {
   existingFiles: KnowledgeFile[];
