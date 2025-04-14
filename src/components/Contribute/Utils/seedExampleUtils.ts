@@ -5,7 +5,7 @@ import { devLog } from '@/utils/devlog';
 export const validateQuestion = (question: string) => {
   const questionStr = question.trim();
   if (questionStr.length === 0) {
-    return { msg: 'Question is required', status: ValidatedOptions.error };
+    return { msg: 'Required', status: ValidatedOptions.error };
   }
   const tokens = questionStr.split(/\s+/);
   if (tokens.length > 0 && tokens.length < 250) {
@@ -17,7 +17,7 @@ export const validateQuestion = (question: string) => {
 export const validateAnswer = (answer: string) => {
   const answerStr = answer.trim();
   if (answerStr.length === 0) {
-    return { msg: 'Answer is required', status: ValidatedOptions.error };
+    return { msg: 'Required', status: ValidatedOptions.error };
   }
   const tokens = answerStr.split(/\s+/);
   if (tokens.length > 0 && tokens.length < 250) {
@@ -167,7 +167,7 @@ export const handleKnowledgeSeedExamplesQuestionInputChange = (
   questionAndAnswerIndex: number,
   questionValue: string
 ): KnowledgeSeedExample[] => {
-  devLog(`Question Input Changed for Seed Example ${seedExampleIndex + 1}, Q&A Pair ${questionAndAnswerIndex + 1}: "${questionValue}"`);
+  devLog(`Question Input Changed for Seed Example ${seedExampleIndex + 1}, Q and A Pair ${questionAndAnswerIndex + 1}: "${questionValue}"`);
   return seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
     index === seedExampleIndex
       ? {
@@ -197,7 +197,7 @@ export const handleKnowledgeSeedExamplesQuestionBlur = (
           questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) => {
             if (qaIndex === questionAndAnswerIndex) {
               const { msg, status } = validateQuestion(questionAndAnswerPair.question);
-              devLog(`Question Validation for Seed Example ${seedExampleIndex + 1}, Q&A Pair ${questionAndAnswerIndex + 1}: ${msg} (${status})`);
+              devLog(`Question Validation for Seed Example ${seedExampleIndex + 1}, Q and A Pair ${questionAndAnswerIndex + 1}: ${msg} (${status})`);
               return {
                 ...questionAndAnswerPair,
                 isQuestionValid: status,

@@ -6,15 +6,15 @@ import {
   ModalVariant,
   Alert,
   Spinner,
-  Stack,
-  StackItem,
   Card,
   CardHeader,
   CardBody,
   ExpandableSection,
   Content,
   ModalHeader,
-  ModalBody
+  ModalBody,
+  Flex,
+  FlexItem
 } from '@patternfly/react-core';
 
 interface KnowledgeFile {
@@ -103,92 +103,95 @@ const KnowledgeFileSelectModal: React.FC<Props> = ({ knowledgeFiles, isLoading, 
   // Update word count whenever context changes
   return (
     <Modal variant={ModalVariant.large} isOpen onClose={handleCloseModal}>
-      <ModalHeader title="Select Context from Files" labelId="select-context-from-files-title" />
+      <ModalHeader
+        title="Select context from files"
+        description={
+          <>
+            Highlight up to 500 words from a single file at a time to populate the <strong>context</strong> field. If selecting contexts from multiple
+            files, the files must belong to the same commit (SHA).
+          </>
+        }
+        labelId="select-context-from-files-title"
+      />
       <ModalBody id="select-context-from-files-body">
-        <Alert variant="info" isInline isPlain title="Instructions">
-          Please highlight up to <strong>500 words </strong>and click the &quot;Use Selected Text For Context&quot; button to populate the context
-          field. <strong>Knowledge context must be verbatim from the knowledge file by selecting the text</strong>. Each context can be selected from
-          different file.
-        </Alert>
-
-        {isLoading && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Spinner size="md" />
-            <span>Loading knowledge files and their commits...</span>
-          </div>
-        )}
-        {!isLoading && error && <div style={{ color: 'red' }}>{error}</div>}
-        {!isLoading && !error && knowledgeFiles.length === 0 && (
-          <div>
-            <strong>No knowledge files were uploaded for the knowledge contribution.</strong>
-          </div>
-        )}
-        {!isLoading && !error && knowledgeFiles.length > 0 && (
-          <Stack hasGutter>
-            <StackItem key={'knowledge-documents'}>
+        <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+          {isLoading && (
+            <FlexItem style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Spinner size="md" />
+              <span>Loading knowledge files and their commits...</span>
+            </FlexItem>
+          )}
+          {!isLoading && error && <FlexItem style={{ color: 'red' }}>{error}</FlexItem>}
+          {!isLoading && !error && knowledgeFiles.length === 0 && (
+            <FlexItem>
+              <Alert variant="warning" isInline title="To select a context directly from a file, you must first upload a knowledge file." />
+            </FlexItem>
+          )}
+          {!isLoading && !error && knowledgeFiles.length > 0 && (
+            <FlexItem flex={{ default: 'flex_1' }}>
               <Card>
-                <CardHeader>
-                  <strong>Uploaded Documents:</strong> <br />
-                </CardHeader>
+                <CardHeader>Uploaded Documents:</CardHeader>
                 <CardBody>
-                  {knowledgeFiles.map((file) => (
-                    <div key={file.filename}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ marginRight: '10px', fontWeight: 'bold' }}>{file.filename}</div>
-                        <div>
-                          <Button variant="link" onClick={() => toggleFileContent(file.filename)} style={{ marginRight: '10px' }}>
-                            {expandedFiles[file.filename] ? 'Hide' : 'Show'} Contents for Context Selection
-                          </Button>
-                        </div>
-                      </div>
-                      {expandedFiles[file.filename] && (
-                        <ExpandableSection
-                          onToggle={() => toggleFileContent(file.filename)}
-                          isExpanded={expandedFiles[file.filename]}
-                          style={{ marginTop: '10px' }}
-                        >
-                          <pre
-                            ref={setPreRef(file.filename)}
-                            style={{
-                              whiteSpace: 'pre-wrap',
-                              wordBreak: 'break-word',
-                              backgroundColor: '#f5f5f5',
-                              borderRadius: '2px',
-                              maxHeight: '550px',
-                              overflowY: 'auto',
-                              userSelect: 'text'
-                            }}
-                          >
-                            {file.content}
-                          </pre>
-                          <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
-                            <Button
-                              variant="primary"
-                              onClick={() => handleUseSelectedText()}
-                              isDisabled={selectedWordCount === 0 || selectedWordCount > 500} // Disable if word count exceeds 500
-                              style={{ marginRight: '10px' }}
-                            >
-                              Use Selected Text For Context
+                  <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+                    {knowledgeFiles.map((file) => (
+                      <FlexItem key={file.filename}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ marginRight: '10px', fontWeight: 'bold' }}>{file.filename}</div>
+                          <div>
+                            <Button variant="link" onClick={() => toggleFileContent(file.filename)} style={{ marginRight: '10px' }}>
+                              {expandedFiles[file.filename] ? 'Hide' : 'Show'} Contents for Context Selection
                             </Button>
-                            <Content
-                              component="small"
+                          </div>
+                        </div>
+                        {expandedFiles[file.filename] && (
+                          <ExpandableSection
+                            onToggle={() => toggleFileContent(file.filename)}
+                            isExpanded={expandedFiles[file.filename]}
+                            style={{ marginTop: '10px' }}
+                          >
+                            <pre
+                              ref={setPreRef(file.filename)}
                               style={{
-                                fontWeight: 'bold',
-                                color: selectedWordCount > 500 ? 'red' : 'green'
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word',
+                                backgroundColor: '#f5f5f5',
+                                borderRadius: '2px',
+                                maxHeight: '550px',
+                                overflowY: 'auto',
+                                userSelect: 'text'
                               }}
                             >
-                              {selectedWordCount}/500 words selected
-                            </Content>
-                          </div>
-                        </ExpandableSection>
-                      )}
-                    </div>
-                  ))}
+                              {file.content}
+                            </pre>
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+                              <Button
+                                variant="primary"
+                                onClick={() => handleUseSelectedText()}
+                                isDisabled={selectedWordCount === 0 || selectedWordCount > 500} // Disable if word count exceeds 500
+                                style={{ marginRight: '10px' }}
+                              >
+                                Use Selected Text For Context
+                              </Button>
+                              <Content
+                                component="small"
+                                style={{
+                                  fontWeight: 'bold',
+                                  color: selectedWordCount > 500 ? 'red' : 'green'
+                                }}
+                              >
+                                {selectedWordCount}/500 words selected
+                              </Content>
+                            </div>
+                          </ExpandableSection>
+                        )}
+                      </FlexItem>
+                    ))}
+                  </Flex>
                 </CardBody>
               </Card>
-            </StackItem>
-          </Stack>
-        )}
+            </FlexItem>
+          )}
+        </Flex>
       </ModalBody>
     </Modal>
   );

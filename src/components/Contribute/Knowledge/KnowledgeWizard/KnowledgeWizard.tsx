@@ -121,9 +121,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         component: (
           <DetailsPage
             isEditForm={knowledgeEditFormData?.isEditForm}
-            infoSectionTitle="Knowledge information"
-            infoSectionHelp="Contributing knowledge provides a model with additional data to more accurately answer questions. Knowledge is supported by documents, such as a textbook, technical manual, encyclopedia, journal, or magazine."
-            infoSectionDescription="Provide brief information about the knowledge."
+            infoSectionHelp="Knowledge contributions help a model answer questions more accurately. Knowledge data is supported by documents such as textbooks, technical manuals, journals, or magazines."
             isGithubMode={isGithubMode}
             email={knowledgeFormData.email}
             setEmail={(email) => setKnowledgeFormData((prev) => ({ ...prev, email }))}
@@ -147,13 +145,13 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
         ? [
             {
               id: STEP_IDS[1],
-              name: 'Resource documentation',
+              name: 'Data sources',
               isExpandable: true,
               subSteps: [
                 documentInformationStep,
                 {
                   id: STEP_IDS[3],
-                  name: 'Attribution details',
+                  name: 'Source attribution',
                   component: (
                     <AttributionInformation
                       isEditForm={knowledgeEditFormData?.isEditForm}
@@ -222,7 +220,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       },
       {
         id: STEP_IDS[5],
-        name: 'Review submission',
+        name: 'Review',
         component: (
           <ReviewSubmission
             isSkillContribution={false}
@@ -303,14 +301,13 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
   return (
     <>
       <ContributionWizard
-        title="Knowledge Contribution"
+        title={knowledgeEditFormData?.formData ? 'Edit knowledge contribution' : 'Submit knowledge contribution'}
         description={
           <>
-            Knowledge consists of data and facts and is backed by reference documents. When you contribute knowledge, you provide the documents and a
-            collection of questions and answers; this new data is used by the model to answer questions more accurately. The contribution form guides
-            you through the process, or you can{' '}
+            Knowledge contributions improve a model’s ability to answer questions accurately. They consist of questions and answers, and documents
+            which back up that data. To autofill this form from a document,{' '}
             <Button isInline variant="link" onClick={() => setIsYamlModalOpen(true)}>
-              upload an existing yaml file.
+              upload a YAML file.
             </Button>
           </>
         }

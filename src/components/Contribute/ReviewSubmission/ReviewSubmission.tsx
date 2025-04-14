@@ -15,17 +15,14 @@ interface ReviewSubmissionProps {
 export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ contributionFormData, seedExamples, isSkillContribution, isGithubMode }) => (
   <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
     <FlexItem>
-      <WizardPageHeader
-        title="Review submission"
-        description="Review the information below and click `Submit` to submit your skill contribution. Use the back button to make changes."
-      />
+      <WizardPageHeader title="Review" description={`Confirm the details of your ${isSkillContribution ? 'skill' : 'knowledge'} contribution.`} />
     </FlexItem>
     <FlexItem>
       <Flex direction={{ default: 'column' }} gap={{ default: 'gapXl' }}>
         {/* Author Information */}
         <FlexItem>
           <ReviewSection
-            title="Contributor Information"
+            title="Contributor details"
             descriptionText="Information required for a Github Developer Certificate of Origin (DCO) sign-off."
             descriptionItems={[
               <DescriptionListGroup key="contributors">
@@ -42,11 +39,11 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ contribution
         {/* Knowledge/Skill Information */}
         <FlexItem>
           <ReviewSection
-            title={`${isSkillContribution ? 'Skill' : 'Knowledge'} Information`}
-            descriptionText={`Brief information about the ${isSkillContribution ? 'skill' : 'knowledge'}`}
+            title="Contribution information"
+            descriptionText="Brief summary of your contribution, and the directory path for your reference documents."
             descriptionItems={[
               <DescriptionListGroup key="submission-summary">
-                <DescriptionListTerm>Submission summary</DescriptionListTerm>
+                <DescriptionListTerm>Contribution summary</DescriptionListTerm>
                 <DescriptionListDescription>
                   <div>{contributionFormData.submissionSummary}</div>
                 </DescriptionListDescription>
@@ -65,7 +62,7 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ contribution
         {isGithubMode ? (
           <FlexItem>
             <ReviewSection
-              title="Attribution information"
+              title="Source attribution"
               descriptionItems={[
                 <DescriptionListGroup key="title-work">
                   <DescriptionListTerm>Title</DescriptionListTerm>
@@ -100,7 +97,7 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ contribution
                   </DescriptionListDescription>
                 </DescriptionListGroup>,
                 <DescriptionListGroup key="creators">
-                  <DescriptionListTerm>Author(s)</DescriptionListTerm>
+                  <DescriptionListTerm>Authors</DescriptionListTerm>
                   <DescriptionListDescription>
                     <div>{contributionFormData.creators}</div>
                   </DescriptionListDescription>
@@ -113,7 +110,7 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({ contribution
         {/* Seed Examples */}
         <FlexItem>
           <ReviewSection
-            title="Seed examples"
+            title="Seed data"
             descriptionText="Data that will be used to start teaching your model."
             descriptionItems={[
               <DescriptionListGroup key="examples">

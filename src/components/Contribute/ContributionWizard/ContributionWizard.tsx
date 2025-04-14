@@ -171,7 +171,7 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
               <FlexItem>
                 {devModeEnabled && (
                   <Button variant="secondary" onClick={autoFillForm}>
-                    Auto-Fill
+                    Autofill
                   </Button>
                 )}
               </FlexItem>

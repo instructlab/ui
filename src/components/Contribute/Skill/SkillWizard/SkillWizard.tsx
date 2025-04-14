@@ -89,8 +89,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
         component: (
           <DetailsPage
             isEditForm={skillEditFormData?.isEditForm}
-            infoSectionTitle="Skill information"
-            infoSectionDescription="Provide brief information about the Skills."
+            infoSectionHelp="Skill contributions help a model perform tasks. Skill data is supported by documents such as textbooks, technical manuals, journals, or magazines."
             isGithubMode={isGithubMode}
             email={skillFormData.email}
             setEmail={(email) => setSkillFormData((prev) => ({ ...prev, email }))}
@@ -112,7 +111,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
       },
       {
         id: STEP_IDS[1],
-        name: 'Create seed data',
+        name: 'Seed data',
         component: (
           <SkillSeedExamples
             seedExamples={skillFormData.seedExamples}
@@ -125,7 +124,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
         ? [
             {
               id: STEP_IDS[2],
-              name: 'Attribution Information',
+              name: 'Source attribution',
               component: (
                 <AttributionInformation
                   isEditForm={skillEditFormData?.isEditForm}
@@ -144,7 +143,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
         : []),
       {
         id: STEP_IDS[3],
-        name: 'Review submission',
+        name: 'Review',
         component: (
           <ReviewSubmission
             contributionFormData={skillFormData}
@@ -215,10 +214,9 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
         title="Skill Contribution"
         description={
           <>
-            {`Skills are performative. When you create a skill for the model, you are teaching it how to do something: "write me a song",
-            "rearrange words in a sentence" or "summarize an email". The contribution form guides you through the process, or you can `}
+            {`Skill contributions improve a model’s ability to perform tasks. They consist of seed data which provide instructions for completing a task. To autofill this form from a document, `}
             <Button isInline variant="link" onClick={() => setIsYamlModalOpen(true)}>
-              upload an existing yaml file.
+              upload a YAML file.
             </Button>
           </>
         }

@@ -13,8 +13,7 @@ import {
   ModalHeader,
   Flex,
   FlexItem,
-  MultipleFileUploadContext,
-  Content
+  MultipleFileUploadContext
 } from '@patternfly/react-core';
 import { UploadIcon } from '@patternfly/react-icons';
 import React, { useState, useEffect } from 'react';
@@ -235,12 +234,7 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ existingF
             <MultiFileUploadArea
               titleIcon={<UploadIcon />}
               titleText="Drag and drop files here or upload"
-              infoText={
-                <>
-                  <Content>Accepted file types: PDF, DOCX, PPTX, XLSX, Images, HTML, AsciiDoc & Markdown.</Content>
-                  <Content>Non-Markdown files will be automatically converted to Markdown for context selection.</Content>
-                </>
-              }
+              infoText="Accepted file types include PDF, DOCX, PPTX, XLSX, HTML, AsciiDoc, Markdown, and images. All files will be converted to Markdown."
               uploadText="Upload from device"
               manualUploadText="Upload from git repository"
               onManualUpload={() => setShowUploadFromGitModal(true)}

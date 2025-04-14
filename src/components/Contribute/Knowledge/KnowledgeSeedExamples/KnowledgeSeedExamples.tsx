@@ -115,7 +115,7 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, filesToUpload, u
           title="Create seed data"
           description={
             <>
-              Add seed examples with context and minimum 3 question and answer pairs. A minimum of five seed examples are required.{' '}
+              Seed data consists of question-and-answer (Q and A) pairs which help the model answer questions. Provide at least 3 Q and A pairs.{' '}
               <Button
                 variant="link"
                 isInline
@@ -125,7 +125,7 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, filesToUpload, u
                 icon={<ExternalLinkAltIcon />}
                 iconPosition="end"
               >
-                Learn more about seed examples
+                Learn more about seed data
               </Button>
             </>
           }
@@ -175,7 +175,7 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, filesToUpload, u
         </Accordion>
         <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
           <Button icon={<PlusCircleIcon />} variant="link" type="button" onClick={addSeedExample}>
-            Add Seed Example
+            Add Q and A pair
           </Button>
         </div>
       </FlexItem>

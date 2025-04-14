@@ -73,8 +73,7 @@ export const EditContributorModal: React.FunctionComponent<Props> = ({ name = ''
         <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
           <FlexItem>
             <Content id="edit-contributor-description">
-              To ensure your contribution can be properly signed off and credited to you, use the name and email address associated with your GitHub
-              account.{' '}
+              To ensure that your contribution is credited to you, enter the name and email address associated with your GitHub account.{' '}
               <Button
                 isInline
                 variant="link"
@@ -96,14 +95,18 @@ export const EditContributorModal: React.FunctionComponent<Props> = ({ name = ''
                   isRequired
                   type="text"
                   aria-label="name"
-                  validated={validEmail}
+                  validated={validName}
                   value={updatedName}
                   onChange={(_event, value) => setUpdatedName(value)}
                   onBlur={() => setValidName(validateName(updatedName))}
                 />
                 <FormHelperText>
                   <HelperText>
-                    <HelperTextItem>Please provide the full name associated with your GitHub account</HelperTextItem>
+                    {validName === ValidatedOptions.error ? (
+                      <HelperTextItem variant={ValidatedOptions.error}>Required field</HelperTextItem>
+                    ) : (
+                      <HelperTextItem>Enter the name associated with your GitHub account.</HelperTextItem>
+                    )}
                   </HelperText>
                 </FormHelperText>
               </FormGroup>
@@ -127,7 +130,7 @@ export const EditContributorModal: React.FunctionComponent<Props> = ({ name = ''
                     {validEmail === ValidatedOptions.error && validEmailError ? (
                       <HelperTextItem variant={validEmail}>{validEmailError}</HelperTextItem>
                     ) : (
-                      <HelperTextItem>Please provide the email address associated with your GitHub account</HelperTextItem>
+                      <HelperTextItem>Enter the email address associated with your GitHub account.</HelperTextItem>
                     )}
                   </HelperText>
                 </FormHelperText>
@@ -145,8 +148,8 @@ export const EditContributorModal: React.FunctionComponent<Props> = ({ name = ''
         >
           Save
         </Button>
-        <Button key="close" variant="secondary" onClick={() => onClose()}>
-          Close
+        <Button key="cancel" variant="secondary" onClick={() => onClose()}>
+          Cancel
         </Button>
       </ModalFooter>
     </Modal>
