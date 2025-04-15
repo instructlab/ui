@@ -12,6 +12,7 @@ import {
   DropdownList,
   MenuToggle,
   MenuToggleElement,
+  Popover,
   Select,
   SelectList,
   SelectOption,
@@ -33,7 +34,7 @@ import { Model } from '@/types';
 import { modelFetcher } from '@/components/Chat/modelService';
 const botAvatar = '/bot-icon-chat-32x32.svg';
 
-import { EllipsisVIcon, TimesIcon } from '@patternfly/react-icons';
+import { EllipsisVIcon, QuestionCircleIcon, TimesIcon } from '@patternfly/react-icons';
 import styles from '@/components/Chat/chat.module.css';
 import { ModelsContext } from '@/components/Chat/ModelsContext';
 import { useSession } from 'next-auth/react';
@@ -184,14 +185,14 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isSelectOpen} style={{ width: '200px' }}>
-      {model ? model.name : 'Select a model'}
+      {model && model.enabled ? model.name : 'Select a model'}
     </MenuToggle>
   );
 
   const dropdownItems = React.useMemo(
     () =>
       availableModels.map((model, index) => (
-        <SelectOption key={index} value={model.name}>
+        <SelectOption isDisabled={!model.enabled ? true : false} key={index} value={model.name}>
           {model.name}
         </SelectOption>
       )),
@@ -227,6 +228,20 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
           >
             <SelectList>{dropdownItems}</SelectList>
           </Select>
+          <Popover
+            aria-label="Hoverable popover"
+            headerContent={<div>Can't select your model?</div>}
+            bodyContent={
+              <div>If you model is not selectable, that means you have disabled the custom model endpoint.
+
+              To change this please see the <a href="./endpoints">Custom Model Endpoints</a> page.
+              </div>
+            }
+          >
+            <Button variant="secondary" aria-label="More info">
+              <QuestionCircleIcon />
+            </Button>
+          </Popover>
         </ChatbotHeaderMain>
         <ChatbotHeaderActions>
           {showCompare ? (

@@ -3,7 +3,7 @@
 import React, {  ReactNode, useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AppLayout } from '@/components/AppLayout';
-import { Endpoint, EndpointRequiredFields } from '@/types';
+import { Endpoint, EndpointRequiredFields, ModelEndpointStatus } from '@/types';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -38,41 +38,14 @@ import {
 } from '@patternfly/react-core';
 import { BanIcon, CheckCircleIcon, EyeSlashIcon, EllipsisVIcon , EyeIcon, QuestionCircleIcon } from '@patternfly/react-icons';
 
+import './endpointPage.css';
 
-interface ModelEndpointStatus {
-  status: string;
-  icon: ReactNode;
-}
+const availableModelEndpointStatusIcon: ReactNode = <CheckCircleIcon style={{color: "var(--pf-t--global--border--color--status--success--default)" }}/>
 
-const availableModelEndpointStatus: ModelEndpointStatus = {
-  status: "available",
-  icon: <CheckCircleIcon style={{color: "var(--pf-t--global--border--color--status--success--default)" }}/>,
-};
+const unavailableModelEndpointStatusIcon: ReactNode = <BanIcon style={{ color: "var(--pf-t--global--icon--color--status--danger--default)" }} />
 
-const unavailableModelEndpointStatus: ModelEndpointStatus = {
-  status: "unavailable",
-  icon: <BanIcon style={{ color: "var(--pf-t--global--icon--color--status--danger--default)" }}/>,
-};
+const unknownModelEndpointStatusIcon: ReactNode = <QuestionCircleIcon style={{color: "var(--pf-t--global--icon--color--disabled)"}} />
 
-const unknownModelEndpointStatus: ModelEndpointStatus = {
-  status: "unknown",
-  icon: <QuestionCircleIcon style={{color: "var(--pf-t--global--icon--color--disabled)"}} />,
-};
-
-interface ModelDisabledStatus {
-  disabled: boolean;
-  color: string;
-}
-
-const modelEnabled: ModelDisabledStatus = {
-  disabled: false,
-  color: "#999999"
-}
-
-const modelDisabled: ModelDisabledStatus = {
-  disabled: true,
-  color: "transparent"
-}
 
 async function checkEndpointStatus(
   endpointURL: string,
@@ -96,19 +69,17 @@ async function checkEndpointStatus(
       headers: headers
     });
     if (response.ok) {
-      return availableModelEndpointStatus;
+      return ModelEndpointStatus.available;
     } else {
-      return unavailableModelEndpointStatus;
+      return ModelEndpointStatus.unavailable;
     }
   } catch (error) {
-    return unknownModelEndpointStatus;
+    return ModelEndpointStatus.unknown;
   }
 }
 
 interface ExtendedEndpoint extends Endpoint {
   isApiKeyVisible?: boolean;
-  status?: ModelEndpointStatus;
-  disabled?: ModelDisabledStatus;
 }
 
 const EndpointsPage: React.FC = () => {
@@ -121,18 +92,28 @@ const EndpointsPage: React.FC = () => {
   const [modelName, setModelName] = useState('');
   const [modelDescription, setModelDescription] = useState('');
   const [apiKey, setApiKey] = useState('');
-  const [endpointStatus, setEndpointStatus] = useState(unknownModelEndpointStatus);
+  const [endpointStatus, setEndpointStatus] = useState(ModelEndpointStatus.unknown);
+  const [endpointEnabled, setEndpointEnabled] = useState(true);
   const [endpointOptionsOpen, setEndpointOptionsOpen] = React.useState<boolean>(false);
   const [endpointOptionsID, setEndpointOptionsID] = React.useState<string>('');
   const [deleteEndpointModalOpen, setDeleteEndpointModalOpen] = React.useState<boolean>(false);
   const [deleteEndpointName, setDeleteEndpointName] = useState('');
 
-  const disableEndpoint = (endpoint: ExtendedEndpoint) => {
-    endpoint.disabled = modelDisabled
-  }
-
-  const enableEndpoint = (endpoint: ExtendedEndpoint) => {
-    endpoint.disabled = modelEnabled
+  const toggleEndpointEnabled = (endpointId: string, endpointEnabled: boolean) => {
+    var newEndpointEnabledStatus: boolean 
+    var updatedEndpoints: ExtendedEndpoint[]
+    endpointEnabled ? newEndpointEnabledStatus = false : newEndpointEnabledStatus = true
+    updatedEndpoints = endpoints.map(endpoint => {
+      if (endpoint.id === endpointId) {
+        return {
+          ...endpoint,
+          enabled: newEndpointEnabledStatus,
+        };
+      }
+      return endpoint;
+    });
+    setEndpoints(updatedEndpoints)
+    localStorage.setItem('endpoints', JSON.stringify(updatedEndpoints));
   }
 
   useEffect(() => {
@@ -159,8 +140,10 @@ const EndpointsPage: React.FC = () => {
   const validateEndpointData = (endpoint: ExtendedEndpoint): boolean => {
     let returnValue = true
     EndpointRequiredFields.forEach((requiredField) => {
-      if (endpoint[requiredField]?.trim().length == 0) {
-        returnValue = false
+      if (requiredField != "enabled" && requiredField != "status") {
+        if (endpoint[requiredField]?.trim().length == 0) {
+          returnValue = false
+        }
       }
     })
     return returnValue
@@ -180,6 +163,7 @@ const EndpointsPage: React.FC = () => {
         apiKey: apiKey,
         isApiKeyVisible: false,
         status: status,
+        enabled: true
       };
       if (validateEndpointData(updatedEndpoint) == true) {
         const updatedEndpoints = currentEndpoint.id
@@ -195,7 +179,8 @@ const EndpointsPage: React.FC = () => {
         setModelName('');
         setModelDescription('');
         setApiKey('');
-        setEndpointStatus(unknownModelEndpointStatus)
+        setEndpointStatus(ModelEndpointStatus.unknown)
+        setEndpointEnabled(true)
         handleModalToggle();
       } else {
         alert("error: please make sure all the required fields are set!")
@@ -225,19 +210,33 @@ const EndpointsPage: React.FC = () => {
     setModelName(endpoint.modelName);
     setModelDescription(endpoint.modelDescription || '');
     setApiKey(endpoint.apiKey);
-    setEndpointStatus(status)
+    setEndpointStatus(status) 
     handleModalToggle();
   };
 
   const handleAddEndpoint = () => {
-    setCurrentEndpoint({ id: '', name: '', description: '', url: '', modelName: '', modelDescription: '', apiKey: '', isApiKeyVisible: false, status: unknownModelEndpointStatus});
+    setCurrentEndpoint(
+      { 
+        id: '',
+        name: '',
+        description: '',
+        url: '',
+        modelName: '',
+        modelDescription: '',
+        apiKey: '',
+        isApiKeyVisible: false, 
+        status: ModelEndpointStatus.unknown,
+        enabled: true
+      }
+    );
     setEndpointName('');
     setEndpointDescription('');
     setUrl('');
     setModelName('');
     setModelDescription('');
     setApiKey('');
-    setEndpointStatus(unknownModelEndpointStatus)
+    setEndpointStatus(ModelEndpointStatus.unknown)
+    setEndpointEnabled(true)
     handleModalToggle();
   };
 
@@ -309,7 +308,7 @@ const EndpointsPage: React.FC = () => {
             </DataListItemRow>
           </DataListItem>
           {endpoints.map((endpoint) => (
-            <DataListItem key={endpoint.id} style={{ padding: "0 0 0 0", backgroundColor: endpoint.disabled?.color}}>
+            <DataListItem className={ !endpoint.enabled ? "disabled-endpoint" : "" } key={endpoint.id} style={{ padding: "0 0 0 0",}}>
               <DataListItemRow wrapModifier="breakWord" style={{ padding: "0 0 0 0"} }>
                 <DataListItemCells
                   dataListCells={[
@@ -318,7 +317,18 @@ const EndpointsPage: React.FC = () => {
                       <br />
                       <p style={{ fontSize: "0.85em", color: "#989799"}}>   {endpoint.description} </p>
                     </DataListCell>,
-                    <DataListCell style={{ paddingLeft: "12px" }} key="status"> {endpoint.status?.status} {endpoint.status?.icon} </DataListCell>,
+                    <DataListCell style={{ paddingLeft: "12px" }} key="status"> {ModelEndpointStatus[endpoint.status]} {(() => {
+                      switch (endpoint.status) {
+                        case ModelEndpointStatus.available:
+                          return availableModelEndpointStatusIcon;
+                        case ModelEndpointStatus.unavailable:
+                          return unavailableModelEndpointStatusIcon;
+                        case ModelEndpointStatus.unknown:
+                          return unknownModelEndpointStatusIcon;
+                        default:
+                          return unknownModelEndpointStatusIcon;
+                      }
+                    })()} </DataListCell>,
                     <DataListCell style={{ paddingLeft: "12px" }} key="url"> {endpoint.url} </DataListCell>,
                     <DataListCell style={{ paddingLeft: "12px" }} key="modelName">
                       <p>   {endpoint.modelName} </p>
@@ -334,15 +344,16 @@ const EndpointsPage: React.FC = () => {
                   ]}
                 />
                 <DataListAction aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
-                  {endpoint.disabled?.disabled == false ? (
-                    <Button variant="secondary" onClick={() => {
-                      disableEndpoint(endpoint)
+                  {endpoint.enabled == true ? (
+                    <Button variant="danger" onClick={() => {
+                      // console.log(endpoint.)
+                      toggleEndpointEnabled(endpoint.id, endpoint.enabled)
                     }}>
                       disable
                     </Button>
                   ): (
                     <Button variant="secondary" onClick={() => {
-                      enableEndpoint(endpoint)
+                      toggleEndpointEnabled(endpoint.id, endpoint.enabled)
                     }}>
                       enable
                     </Button>

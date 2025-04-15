@@ -1,0 +1,7 @@
+.disabled-endpoint {
+    opacity: 0.4;                     /* Faded look */
+    pointer-events: none;            /* Prevent clicks, hovers, etc. */
+    user-select: none;               /* Disables text selection */
+    background-color: #f5f5f5;       /* Light gray background (optional) */
+    color: #6a6e73;                  /* PatternFly disabled text color */
+  }
