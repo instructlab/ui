@@ -417,7 +417,24 @@ async function fetchFileContent(headers: HeadersInit, owner: string, repo: strin
     }
 
     const data = await response.json();
-    return Buffer.from(data.content, 'base64').toString('utf-8');
+    if (data.content) {
+      return Buffer.from(data.content, 'base64').toString('utf-8');
+    }
+    if (!data.sha) {
+      console.error(`Failed to fetch content of file ${filePath}, no file sha found.`);
+      throw new Error(`Failed to fetch content of file ${filePath}.`);
+    }
+
+    const blobResponse = await fetch(`${GITHUB_API_URL}/repos/${owner}/${repo}/git/blobs/${data.sha}`, { headers });
+
+    if (!blobResponse.ok) {
+      const errorText = await blobResponse.text();
+      console.error(`Failed to fetch blob content of file ${filePath} :`, blobResponse.status, errorText);
+      throw new Error(`Failed to fetch content of file ${filePath}.`);
+    }
+
+    const blobData = await blobResponse.json();
+    return Buffer.from(blobData.content, 'base64').toString('utf-8');
   } catch (error) {
     console.error(`Error fetching content for ${filePath}:`, error);
     return '';
