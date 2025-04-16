@@ -26,12 +26,22 @@ export const customModelFetcher = async (
 
   // Client-side fetch if the selected model is a custom endpoint
   try {
+    var headers: HeadersInit
+    if (selectedModel.apiKey && selectedModel.apiKey != "" ) {
+      headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream',
+        'Authorization': `Bearer: ${selectedModel.apiKey}`
+      }
+    } else {
+      headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream'
+      }
+    }
     const response = await fetch(`${selectedModel.apiURL}/v1/chat/completions`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'text/event-stream'
-      },
+      headers: headers,
       body: JSON.stringify(requestData),
       signal: newController.signal
     });

@@ -40,7 +40,8 @@ const ModelsContextProvider: React.FC<ModelsProviderProps> = ({ children }) => {
             name: endpoint.modelName,
             apiURL: `${endpoint.url}`,
             modelName: endpoint.modelName,
-            enabled: endpoint.enabled
+            enabled: endpoint.enabled,
+            apiKey: endpoint.apiKey
           }))
         : [];
 

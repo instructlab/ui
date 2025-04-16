@@ -28,6 +28,7 @@ export interface Model {
   apiURL: string;
   modelName: string;
   enabled: boolean;
+  apiKey?: string;
 }
 
 export interface Label {

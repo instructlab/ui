@@ -386,38 +386,31 @@ const EndpointsPage: React.FC = () => {
                       enable
                     </Button>
                   )}
-                  <Button variant="secondary" onClick={() => {
-                    setEndpointOptionsOpen(!endpointOptionsOpen)
-                    setEndpointOptionsID(endpoint.id)
-                  }}>
-                    <EllipsisVIcon/>
-                  </Button>
-                  {endpointOptionsOpen && endpointOptionsID == endpoint.id ? (
-                    <Dropdown
-                      onOpenChange={() => { setEndpointOptionsID(endpoint.id); setEndpointOptionsOpen(true)}}
-                      onSelect={() => {setEndpointOptionsID(endpoint.id); setEndpointOptionsOpen(false)}}
-                      toggle={(toggleRef) => (
-                        <MenuToggle
-                          aria-label="actions"
-                          variant="plain"
-                          ref={toggleRef}
-                          onClick={() => {
-                            setEndpointOptionsID(endpoint.id);
-                            setEndpointOptionsOpen(!endpointOptionsOpen)}
-                          }
-                          isExpanded={endpointOptionsOpen}
-                        >
-                        </MenuToggle>     
-                      )}
-                      isOpen={endpointOptionsOpen}
-                      ouiaId="ModelEndpointDropdown"
-                    >
-                      <DropdownList>
-                        <DropdownItem onClick={() => handleEditEndpoint(endpoint)}>Edit Endpoint</DropdownItem>
-                        <DropdownItem key="delete" style={{ color: "red"}} onClick={() => setDeleteEndpointModalOpen(true)}>Delete Endpoint</DropdownItem>
-                      </DropdownList>
-                    </Dropdown>
-                  ) : null }
+                  <Dropdown
+                    onSelect={() => setEndpointOptionsOpen(false)}
+                    toggle={(toggleRef) => (
+                      <MenuToggle
+                        aria-label="actions"
+                        variant="plain"
+                        ref={toggleRef}
+                        onClick={() => {
+                          setEndpointOptionsOpen(!endpointOptionsOpen);
+                          setEndpointOptionsID(endpoint.id);
+                        }}
+                        isExpanded={endpointOptionsOpen && endpointOptionsID === endpoint.id}
+                      >
+                        <EllipsisVIcon />
+                      </MenuToggle>
+                    )}
+                    isOpen={endpointOptionsOpen && endpointOptionsID === endpoint.id}
+                    popperProps={{ position: 'right' }}
+                    ouiaId="ModelEndpointDropdown"
+                  >
+                    <DropdownList>
+                      <DropdownItem onClick={() => handleEditEndpoint(endpoint)}>Edit Endpoint</DropdownItem>
+                      <DropdownItem key="delete" style={{ color: "red"}} onClick={() => setDeleteEndpointModalOpen(true)}>Delete Endpoint</DropdownItem>
+                    </DropdownList>
+                  </Dropdown>
                   {deleteEndpointModalOpen ? (
                     <Modal
                       variant={ModalVariant.medium}
