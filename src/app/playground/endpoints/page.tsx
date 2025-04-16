@@ -39,6 +39,7 @@ import {
 import { BanIcon, CheckCircleIcon, EyeSlashIcon, EllipsisVIcon , EyeIcon, QuestionCircleIcon } from '@patternfly/react-icons';
 
 import './endpointPage.css';
+import { status } from 'isomorphic-git';
 
 const availableModelEndpointStatusIcon: ReactNode = <CheckCircleIcon style={{color: "var(--pf-t--global--border--color--status--success--default)" }}/>
 
@@ -99,6 +100,41 @@ const EndpointsPage: React.FC = () => {
   const [deleteEndpointModalOpen, setDeleteEndpointModalOpen] = React.useState<boolean>(false);
   const [deleteEndpointName, setDeleteEndpointName] = useState('');
 
+  useEffect(() => {
+    const storedEndpoints = localStorage.getItem('endpoints');
+    if (storedEndpoints) {
+      setEndpoints(JSON.parse(storedEndpoints));
+    }
+  }, []);
+
+  useEffect(() => {
+    async function updateEndpointStatuses() {
+      const updatedEndpoints = await Promise.all(
+        endpoints.map(async (endpoint) => {
+          const status = await checkEndpointStatus(
+            endpoint.url,
+            endpoint.modelName,
+            endpoint.apiKey
+          );
+  
+          return {
+            ...endpoint,
+            status,
+          };
+        })
+      );
+  
+      setEndpoints(updatedEndpoints);
+    }
+  
+    const interval = setInterval(() => {
+      console.log("Running update endpoints")
+      updateEndpointStatuses();
+    }, 10 * 60 * 1000); // run every 10 minutes in miliseconds
+
+    return () => clearInterval(interval); // cleanup on unmount
+  }, [endpoints]);
+
   const toggleEndpointEnabled = (endpointId: string, endpointEnabled: boolean) => {
     var newEndpointEnabledStatus: boolean 
     var updatedEndpoints: ExtendedEndpoint[]
@@ -115,13 +151,6 @@ const EndpointsPage: React.FC = () => {
     setEndpoints(updatedEndpoints)
     localStorage.setItem('endpoints', JSON.stringify(updatedEndpoints));
   }
-
-  useEffect(() => {
-    const storedEndpoints = localStorage.getItem('endpoints');
-    if (storedEndpoints) {
-      setEndpoints(JSON.parse(storedEndpoints));
-    }
-  }, []);
 
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
@@ -346,7 +375,6 @@ const EndpointsPage: React.FC = () => {
                 <DataListAction aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
                   {endpoint.enabled == true ? (
                     <Button variant="danger" onClick={() => {
-                      // console.log(endpoint.)
                       toggleEndpointEnabled(endpoint.id, endpoint.enabled)
                     }}>
                       disable
@@ -364,6 +392,32 @@ const EndpointsPage: React.FC = () => {
                   }}>
                     <EllipsisVIcon/>
                   </Button>
+                  {endpointOptionsOpen && endpointOptionsID == endpoint.id ? (
+                    <Dropdown
+                      onOpenChange={() => { setEndpointOptionsID(endpoint.id); setEndpointOptionsOpen(true)}}
+                      onSelect={() => {setEndpointOptionsID(endpoint.id); setEndpointOptionsOpen(false)}}
+                      toggle={(toggleRef) => (
+                        <MenuToggle
+                          aria-label="actions"
+                          variant="plain"
+                          ref={toggleRef}
+                          onClick={() => {
+                            setEndpointOptionsID(endpoint.id);
+                            setEndpointOptionsOpen(!endpointOptionsOpen)}
+                          }
+                          isExpanded={endpointOptionsOpen}
+                        >
+                        </MenuToggle>     
+                      )}
+                      isOpen={endpointOptionsOpen}
+                      ouiaId="ModelEndpointDropdown"
+                    >
+                      <DropdownList>
+                        <DropdownItem onClick={() => handleEditEndpoint(endpoint)}>Edit Endpoint</DropdownItem>
+                        <DropdownItem key="delete" style={{ color: "red"}} onClick={() => setDeleteEndpointModalOpen(true)}>Delete Endpoint</DropdownItem>
+                      </DropdownList>
+                    </Dropdown>
+                  ) : null }
                   {deleteEndpointModalOpen ? (
                     <Modal
                       variant={ModalVariant.medium}
@@ -399,32 +453,6 @@ const EndpointsPage: React.FC = () => {
                       </ModalFooter>
                     </Modal>
                   ) : null}
-                  {endpointOptionsOpen && endpointOptionsID == endpoint.id ? (
-                    <Dropdown
-                      onOpenChange={() => { setEndpointOptionsID(endpoint.id); setEndpointOptionsOpen(true)}}
-                      onSelect={() => {setEndpointOptionsID(endpoint.id); setEndpointOptionsOpen(false)}}
-                      toggle={(toggleRef) => (
-                        <MenuToggle
-                          aria-label="actions"
-                          variant="plain"
-                          ref={toggleRef}
-                          onClick={() => {
-                            setEndpointOptionsID(endpoint.id);
-                            setEndpointOptionsOpen(!endpointOptionsOpen)}
-                          }
-                          isExpanded={endpointOptionsOpen}
-                        >
-                        </MenuToggle>     
-                      )}
-                      isOpen={endpointOptionsOpen}
-                      ouiaId="ModelEndpointDropdown"
-                    >
-                      <DropdownList>
-                        <DropdownItem onClick={() => handleEditEndpoint(endpoint)}>Edit Endpoint</DropdownItem>
-                        <DropdownItem key="delete" style={{ color: "red"}} onClick={() => setDeleteEndpointModalOpen(true)}>Delete Endpoint</DropdownItem>
-                      </DropdownList>
-                    </Dropdown>
-                  ) : null }
                 </DataListAction>
               </DataListItemRow>
             </DataListItem>
