@@ -163,7 +163,7 @@ urllib3==2.3.0
 uvicorn==0.34.0
 uvloop==0.21.0
 virtualenv==20.28.1
-vllm==0.8.2
+vllm==0.8.4
 watchfiles==1.0.3
 wcwidth==0.2.13
 webencodings==0.5.1
