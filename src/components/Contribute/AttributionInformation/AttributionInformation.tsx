@@ -35,7 +35,6 @@ const AttributionInformation: React.FC<Props> = ({
 }) => {
   const [validTitle, setValidTitle] = React.useState<ValidatedOptions>();
   const [validLink, setValidLink] = React.useState<ValidatedOptions>();
-  const [validRevision, setValidRevision] = React.useState<ValidatedOptions>();
   const [validLicense, setValidLicense] = React.useState<ValidatedOptions>();
   const [validCreators, setValidCreators] = React.useState<ValidatedOptions>();
 
@@ -45,7 +44,6 @@ const AttributionInformation: React.FC<Props> = ({
     }
     setValidTitle(ValidatedOptions.success);
     setValidLink(ValidatedOptions.success);
-    setValidRevision(ValidatedOptions.success);
     setValidLicense(ValidatedOptions.success);
     setValidCreators(ValidatedOptions.success);
   }, [isEditForm]);
@@ -74,11 +72,6 @@ const AttributionInformation: React.FC<Props> = ({
     }
   };
 
-  const validateRevision = (revisionStr: string) => {
-    const revision = revisionStr.trim();
-    setValidRevision(revision.length > 0 ? ValidatedOptions.success : ValidatedOptions.error);
-  };
-
   const validateLicense = (licenseStr: string) => {
     const license = licenseStr.trim();
     setValidLicense(license.length > 0 ? ValidatedOptions.success : ValidatedOptions.error);
@@ -92,7 +85,10 @@ const AttributionInformation: React.FC<Props> = ({
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <WizardPageHeader title="Attribution details" description="Provide attribution information." />
+        <WizardPageHeader
+          title="Source attribution"
+          description="Provide source details of the seed data to ensure its creators are properly credited."
+        />
       </FlexItem>
       <FlexItem>
         <Form>
@@ -100,7 +96,7 @@ const AttributionInformation: React.FC<Props> = ({
             isRequired
             key={'attribution-info-details-title_work'}
             label="Title"
-            labelHelp={<WizardFormGroupLabelHelp bodyContent="Description of work title" />}
+            labelHelp={<WizardFormGroupLabelHelp bodyContent="The resource title is the title of the source document. " />}
           >
             <TextInput
               isRequired
@@ -126,7 +122,7 @@ const AttributionInformation: React.FC<Props> = ({
               isRequired
               key={'attribution-info-details-work_link'}
               label="Link to work"
-              labelHelp={<WizardFormGroupLabelHelp bodyContent="Description of link to work" />}
+              labelHelp={<WizardFormGroupLabelHelp bodyContent="The resource link is a direct link to the source document." />}
             >
               <TextInput
                 isRequired
@@ -158,37 +154,17 @@ const AttributionInformation: React.FC<Props> = ({
             </FormGroup>
           ) : null}
           {setRevision ? (
-            <FormGroup
-              isRequired
-              key={'attribution-info-details-document_revision'}
-              label="Revision"
-              labelHelp={<WizardFormGroupLabelHelp bodyContent="Description of revision" />}
-            >
-              <TextInput
-                isRequired
-                type="text"
-                aria-label="revision"
-                validated={validRevision}
-                value={revision}
-                onChange={(_event, value) => setRevision(value)}
-                onBlur={() => validateRevision(revision)}
-              />
-              {validRevision === ValidatedOptions.error && (
-                <FormHelperText>
-                  <HelperText>
-                    <HelperTextItem icon={<ExclamationCircleIcon />} variant={validRevision}>
-                      Required field
-                    </HelperTextItem>
-                  </HelperText>
-                </FormHelperText>
-              )}
+            <FormGroup key={'attribution-info-details-document_revision'} label="Revision">
+              <TextInput type="text" aria-label="revision" value={revision} onChange={(_event, value) => setRevision(value)} />
             </FormGroup>
           ) : null}
           <FormGroup
             isRequired
             key={'attribution-info-details-license'}
             label="License of the work"
-            labelHelp={<WizardFormGroupLabelHelp bodyContent="Description of license of the work" />}
+            labelHelp={
+              <WizardFormGroupLabelHelp bodyContent="The resource license is the license type of the source document. This is usually a Creative Commons (CC) license, such as CC BY or CC BY-SA." />
+            }
           >
             <TextInput
               isRequired
@@ -209,7 +185,7 @@ const AttributionInformation: React.FC<Props> = ({
               </FormHelperText>
             )}
           </FormGroup>
-          <FormGroup isRequired key={'attribution-info-details-creators'} label="Author(s)">
+          <FormGroup isRequired key={'attribution-info-details-creators'} label="Authors">
             <TextInput
               isRequired
               type="text"
@@ -219,15 +195,17 @@ const AttributionInformation: React.FC<Props> = ({
               onChange={(_event, value) => setCreators(value)}
               onBlur={() => validateCreators(creators)}
             />
-            {validCreators === ValidatedOptions.error && (
-              <FormHelperText>
-                <HelperText>
+            <FormHelperText>
+              <HelperText>
+                {validCreators === ValidatedOptions.error ? (
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCreators}>
                     Required field
                   </HelperTextItem>
-                </HelperText>
-              </FormHelperText>
-            )}
+                ) : (
+                  <HelperTextItem>If listing more than 1 author, separate the names using commas.</HelperTextItem>
+                )}
+              </HelperText>
+            </FormHelperText>
           </FormGroup>
         </Form>
       </FlexItem>

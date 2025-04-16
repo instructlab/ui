@@ -1,26 +1,13 @@
 // src/components/Contribute/Knowledge/KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs.tsx
 import React from 'react';
 import { SkillSeedExample } from '@/types';
-import {
-  FormGroup,
-  Tooltip,
-  Button,
-  TextArea,
-  FormHelperText,
-  HelperText,
-  HelperTextItem,
-  ValidatedOptions,
-  Form,
-  Flex,
-  FlexItem
-} from '@patternfly/react-core';
-import { CatalogIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
+import { FormGroup, TextArea, FormHelperText, HelperText, HelperTextItem, ValidatedOptions, Form, Flex, FlexItem } from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { t_global_spacer_md as MdSpacerSize } from '@patternfly/react-tokens';
 
 interface Props {
   seedExample: SkillSeedExample;
   seedExampleIndex: number;
-  onSelectContext?: (seedExampleIndex: number) => void;
   handleContextInputChange: (seedExampleIndex: number, contextValue: string, validate?: boolean) => void;
   handleQuestionInputChange: (seedExampleIndex: number, questionValue: string) => void;
   handleQuestionBlur: (seedExampleIndex: number) => void;
@@ -31,7 +18,6 @@ interface Props {
 const SkillQuestionAnswerPairs: React.FC<Props> = ({
   seedExample,
   seedExampleIndex,
-  onSelectContext,
   handleContextInputChange,
   handleQuestionInputChange,
   handleQuestionBlur,
@@ -45,15 +31,6 @@ const SkillQuestionAnswerPairs: React.FC<Props> = ({
 
   return (
     <Flex style={{ padding: MdSpacerSize.var }} direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
-      {onSelectContext ? (
-        <FlexItem>
-          <Tooltip content={<div>Select context from your knowledge files</div>} position="top">
-            <Button variant="secondary" onClick={() => onSelectContext(seedExampleIndex)} style={{ marginBottom: '10px' }}>
-              <CatalogIcon /> Select Context from Files
-            </Button>
-          </Tooltip>
-        </FlexItem>
-      ) : null}
       <FlexItem>
         <Form>
           <FormGroup label="Question" fieldId="question" isRequired={seedExample.questionAndAnswer.immutable}>
@@ -74,7 +51,7 @@ const SkillQuestionAnswerPairs: React.FC<Props> = ({
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.questionAndAnswer.isQuestionValid}>
                     {seedExample.questionAndAnswer.questionValidationError ||
-                      'Required field. Total length of all Q&A pairs should be less than 250 words.'}
+                      'Required field. Total length of all Q and A pairs should be less than 250 words.'}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
@@ -98,7 +75,7 @@ const SkillQuestionAnswerPairs: React.FC<Props> = ({
                 <HelperText>
                   <HelperTextItem icon={<ExclamationCircleIcon />} variant={seedExample.questionAndAnswer.isAnswerValid}>
                     {seedExample.questionAndAnswer.answerValidationError ||
-                      'Required field. Total length of all Q&A pairs should be less than 250 words.'}
+                      'Required field. Total length of all Q and A pairs should be less than 250 words.'}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
@@ -109,11 +86,15 @@ const SkillQuestionAnswerPairs: React.FC<Props> = ({
               isRequired
               type="text"
               aria-label={`Context ${seedExampleIndex + 1}`}
-              placeholder="Enter the context from which the Q&A pair is derived. (optional)"
               value={seedExample.context}
               onChange={onContextChange}
               style={{ marginBottom: '20px' }}
             />
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem>Provide the source of the Q and A pair data.</HelperTextItem>
+              </HelperText>
+            </FormHelperText>
           </FormGroup>
         </Form>
       </FlexItem>

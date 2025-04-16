@@ -79,7 +79,6 @@ export const FileConversionModal: React.FunctionComponent<Props> = ({ filesToCon
 
       if (!res.ok) {
         // Check if it's a 503 => offline service
-        console.log(res);
         if (res.status === 503) {
           console.error('Conversion service offline, only .md files accepted');
           throw new Error('The file conversion service is offline. Only Markdown file type can be accepted until service is restored.');
@@ -158,17 +157,17 @@ export const FileConversionModal: React.FunctionComponent<Props> = ({ filesToCon
     return () => {
       canceled = true;
     };
-  }, [convertToMarkdownIfNeeded, filesToConvert, isUploading, onConverted, onError]);
+  }, [convertToMarkdownIfNeeded, currentFiles, filesToConvert, isUploading, onConverted, onError]);
 
   return (
-    <Modal isOpen title="Upload in progress" variant="small" aria-label="uploading" aria-labelledby="upload-modal-title" disableFocusTrap>
-      <ModalHeader title="Upload in progress" labelId="upload-modal-title" titleIconVariant="warning" />
+    <Modal isOpen variant="small" aria-label="uploading" aria-labelledby="upload-modal-title" disableFocusTrap>
+      <ModalHeader title={`Uploading file${filesToConvert.length > 1 ? 's' : ''}`} labelId="upload-modal-title" titleIconVariant="warning" />
       <ModalBody>
         <Flex alignItems={{ default: 'alignItemsCenter' }} justifyContent={{ default: 'justifyContentCenter' }} gap={{ default: 'gapMd' }}>
           <FlexItem>
             <Spinner size="lg" />
           </FlexItem>
-          <FlexItem>Uploading and converting files to Markdown file format…</FlexItem>
+          <FlexItem>{`The selected file${filesToConvert.length > 1 ? 's are' : ' is'} being uploaded and converted to Markdown.`}</FlexItem>
         </Flex>
       </ModalBody>
       <ModalFooter>

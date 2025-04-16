@@ -20,7 +20,7 @@ const hasDuplicateKnowledgeSeedExamples = (seedExamples: KnowledgeSeedExample[])
   return { duplicate: false, index: -1 };
 };
 
-// Check if the question in Q&A pairs in a each seed example are unique
+// Check if the question in Q and A pairs in a each seed example are unique
 const hasDuplicateQuestionAndAnswerPairs = (seedExample: KnowledgeSeedExample): { duplicate: boolean; index: number } => {
   const questions = new Set<string>();
   for (let index = 0; index < seedExample.questionAndAnswers.length; index++) {
@@ -147,7 +147,7 @@ export const validateKnowledgeFormFields = (
     if (!success) {
       const actionGroupAlertContent: ActionGroupAlertContent = {
         title: `Seed Example ${index + 1} has an issue!`,
-        message: `Total size of the Q&A pairs and context should not exceed 750 words (current size ${length}). Please provide shorter Q&A pairs or context.`,
+        message: `Total size of the Q and A pairs and context should not exceed 750 words (current size ${length}). Please provide shorter Q and A pairs or context.`,
         success: false
       };
       setActionGroupAlertContent(actionGroupAlertContent);

@@ -21,8 +21,8 @@ const DocumentInformation: React.FC<Props> = ({ existingFiles, setExistingFiles,
           title="Upload documents"
           description={
             <>
-              Resources such as, textbooks, technical manuals, encyclopedias, journals, or websites, are used as the knowledge source for training
-              your model.{' '}
+              Upload resource documents to serve as the knowledge source for training your model. Accepted sources include textbooks, technical
+              manuals, encyclopedias, journals, and websites.{' '}
               <Button
                 variant="link"
                 isInline

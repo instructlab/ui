@@ -17,11 +17,10 @@ import WizardPageHeader from '@/components/Common/WizardPageHeader';
 
 interface Props {
   seedExamples: SkillSeedExample[];
-  onSelectContext?: (seedExampleIndex: number) => void;
   onUpdateSeedExamples: (seedExamples: SkillSeedExample[]) => void;
 }
 
-const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onSelectContext, onUpdateSeedExamples }) => {
+const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onUpdateSeedExamples }) => {
   const handleContextInputChange = (seedExampleIndex: number, contextValue: string): void => {
     onUpdateSeedExamples(handleSkillSeedExamplesContextInputChange(seedExamples, seedExampleIndex, contextValue));
   };
@@ -62,7 +61,8 @@ const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onSelectContext, onU
           title="Create seed data"
           description={
             <>
-              Add seed examples with context and minimum 3 question and answer pairs. A minimum of five seed examples are required.{' '}
+              Seed data consists of question-and-answer (Q and A) pairs which provide instructions for completing tasks. Provide at least 5 Q and A
+              pairs.{' '}
               <Button
                 variant="link"
                 isInline
@@ -108,7 +108,6 @@ const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onSelectContext, onU
                 <SkillQuestionAnswerPairs
                   seedExample={seedExample}
                   seedExampleIndex={seedExampleIndex}
-                  onSelectContext={onSelectContext}
                   handleContextInputChange={handleContextInputChange}
                   handleQuestionInputChange={handleQuestionInputChange}
                   handleQuestionBlur={handleQuestionBlur}
@@ -121,7 +120,7 @@ const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onSelectContext, onU
         </Accordion>
         <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
           <Button icon={<PlusCircleIcon />} variant="link" type="button" onClick={addSeedExample}>
-            Add Seed Example
+            Add Q and A pair
           </Button>
         </div>
       </FlexItem>

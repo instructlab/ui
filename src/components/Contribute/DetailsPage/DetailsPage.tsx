@@ -1,5 +1,17 @@
 import React, { useEffect } from 'react';
-import { Button, Content, Flex, FlexItem, Form, FormGroup, HelperText, HelperTextItem, TextArea, ValidatedOptions } from '@patternfly/react-core';
+import {
+  Button,
+  Content,
+  Flex,
+  FlexItem,
+  Form,
+  FormGroup,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+  TextArea,
+  ValidatedOptions
+} from '@patternfly/react-core';
 import { ExclamationCircleIcon, PencilAltIcon } from '@patternfly/react-icons';
 import {
   t_global_spacer_sm as SmallSpacerSize,
@@ -14,9 +26,7 @@ import EditContributorModal from '@/components/Contribute/DetailsPage/EditContri
 
 interface Props {
   isGithubMode: boolean;
-  infoSectionTitle: string;
   infoSectionHelp?: React.ReactNode;
-  infoSectionDescription?: string;
   isEditForm?: boolean;
   email: string;
   setEmail: (val: string) => void;
@@ -30,9 +40,7 @@ interface Props {
 }
 const DetailsPage: React.FC<Props> = ({
   isGithubMode,
-  infoSectionTitle,
   infoSectionHelp,
-  infoSectionDescription,
   isEditForm,
   email,
   setEmail,
@@ -70,10 +78,8 @@ const DetailsPage: React.FC<Props> = ({
         <Flex gap={{ default: 'gapXl' }} direction={{ default: 'column' }}>
           <FlexItem>
             <WizardSectionHeader
-              title="Contributor information"
-              helpInfo="Use your GitHub account email address and full name. This will make sure that this contribution and the data with it is properly
-                    signed off and credited to you."
-              description="Information required for a GitHub Developer Certificate of Origin (DCO) sign-off."
+              title="Contributor details"
+              description="Provide the name and email associated with your GitHub account. This information required for a GitHub Developer Certificate of Origin (DCO) sign-off."
             />
             <Form>
               <FormGroup
@@ -86,9 +92,17 @@ const DetailsPage: React.FC<Props> = ({
                     </Button>
                   </>
                 }
+                isRequired
               >
                 <Content>{name}</Content>
                 <Content>{email}</Content>
+                {!name || !email ? (
+                  <FormHelperText>
+                    <HelperText>
+                      <HelperTextItem variant={ValidatedOptions.error}>Name and email are required</HelperTextItem>
+                    </HelperText>
+                  </FormHelperText>
+                ) : null}
               </FormGroup>
               {editContributorOpen ? (
                 <EditContributorModal
@@ -105,9 +119,13 @@ const DetailsPage: React.FC<Props> = ({
             </Form>
           </FlexItem>
           <FlexItem>
-            <WizardSectionHeader title={infoSectionTitle} helpInfo={infoSectionHelp} description={infoSectionDescription} />
+            <WizardSectionHeader
+              title="Contribution information"
+              helpInfo={infoSectionHelp}
+              description="Provide a brief summary of your contribution, and the directory path for your reference documents."
+            />
             <Form>
-              <FormGroup fieldId="submission_summary" label="Submission summary" isRequired>
+              <FormGroup fieldId="submission_summary" label="Contribution summary" isRequired>
                 <TextArea
                   id="submission_summary"
                   isRequired
@@ -144,7 +162,7 @@ const DetailsPage: React.FC<Props> = ({
                   rootPath={rootPath}
                   path={filePath}
                   handlePathChange={setFilePath}
-                  helperText={`Specify the file path for the QnA${isGithubMode ? ' and Attribution' : ''} files.`}
+                  helperText={`Specify the file path for the question-and-answer (Q and A)${isGithubMode ? ' and attribution' : ''} files. `}
                   isGithubMode={isGithubMode}
                 />
               </FormGroup>

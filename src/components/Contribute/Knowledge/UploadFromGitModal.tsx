@@ -127,14 +127,14 @@ export const UploadFromGitModal: React.FunctionComponent<Props> = ({ onAddFile, 
       isOpen
       aria-label="upload from git repository"
       onClose={() => onClose()}
-      aria-labelledby="unsupported-file-modal-title"
-      aria-describedby="unsupported-file-body-variant"
+      aria-labelledby="git-upload-label"
+      aria-describedby="git-upload-description"
     >
-      <ModalHeader title="Document details" />
+      <ModalHeader aria-label="git-upload-label" title="Upload from git repository" />
       <ModalBody>
         <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
           <FlexItem>
-            <Content>Enter the document details below.</Content>
+            <Content aria-label="git-upload-description">Enter the document details below.</Content>
           </FlexItem>
           <FlexItem>
             <Form>

@@ -76,7 +76,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
               isRequired
               type="text"
               aria-label={`Context ${seedExampleIndex + 1}`}
-              placeholder="Enter the context from which the Q&A pairs are derived. (500 words max)"
+              placeholder="Enter the context from which the Q and A pairs are derived. (500 words max)"
               value={seedExample.context}
               validated={seedExample.isContextValid}
               onChange={onContextChange}
@@ -104,7 +104,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
           {seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, questionAnswerIndex: number) => (
             <FormGroup
               key={seedExampleIndex * 100 + questionAnswerIndex * 10 + 0}
-              label={`Q&A Pair ${questionAnswerIndex + 1}`}
+              label={`Q and A Pair ${questionAnswerIndex + 1}`}
               isRequired={questionAndAnswerPair.immutable}
             >
               <Flex direction={{ default: 'column' }} gap={{ default: 'gapSm' }}>
@@ -125,7 +125,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
                       <HelperText>
                         <HelperTextItem icon={<ExclamationCircleIcon />} variant={questionAndAnswerPair.isQuestionValid}>
                           {questionAndAnswerPair.questionValidationError ||
-                            'Required field. Total length of all Q&A pairs should be less than 250 words.'}
+                            'Required field. Total length of all Q and A pairs should be less than 250 words.'}
                         </HelperTextItem>
                       </HelperText>
                     </FormHelperText>
@@ -150,7 +150,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
                       <HelperText>
                         <HelperTextItem icon={<ExclamationCircleIcon />} variant={questionAndAnswerPair.isAnswerValid}>
                           {questionAndAnswerPair.answerValidationError ||
-                            'Required field. Total length of all Q&A pairs should be less than 250 words.'}
+                            'Required field. Total length of all Q and A pairs should be less than 250 words.'}
                         </HelperTextItem>
                       </HelperText>
                     </FormHelperText>
