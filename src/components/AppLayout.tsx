@@ -32,6 +32,7 @@ import {
 import { BarsIcon } from '@patternfly/react-icons';
 import ThemePreference from '@/components/ThemePreference/ThemePreference';
 import '../styles/globals.scss';
+import { initAnalytics } from '@/components/analytics/initAnalytics';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -47,6 +48,8 @@ type Route = {
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className }) => {
   const { data: session, status } = useSession();
   const [isExperimentalEnabled, setExperimental] = useState(false);
+  const [analyticsInitialised, setAnalyticsInitialised] = useState(false);
+  const [identified, setIdentified] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -60,6 +63,35 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     };
     fetchExperimentalFeature();
   }, []);
+
+  React.useEffect(() => {
+    if (!window.analytics) {
+      initAnalytics();
+      setAnalyticsInitialised(true);
+    }
+  }, []);
+
+  React.useEffect(() => { // this gets fired twice in dev mode, prod seems ok.
+    if (window.analytics) {
+      const url = `${pathname}`
+      window.analytics.trackPageView(url); // TODO does not get fired directly after login.
+    }
+
+  }, [analyticsInitialised, pathname]);
+
+  React.useEffect(() => { // TODO this  gets fired much too often ( after each path change)
+    if (window.analytics ) {
+      // TODO we may potentially want to hash this. Also different code per target install?
+      // TODO pass other parameters as properties (?)
+      if (status !== "authenticated") {
+        return;
+      }
+      if (!identified) { // this is reset after each path change
+        window.analytics.identify(session?.user?.name ? session.user.name : '-unknown-user-name-', {});
+        setIdentified(true);
+      }
+    }
+  },[analyticsInitialised, status, identified, session?.user?.name]);
 
   React.useEffect(() => {
     if (status === 'loading') return; // Do nothing while loading

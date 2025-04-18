@@ -175,6 +175,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
   };
 
   const handleSubmit = async (githubUsername: string): Promise<boolean> => {
+    window.analytics.trackSingleItem("Skill Contribution Submitted", {}); // TODO better place, add data
     if (skillEditFormData) {
       const result = isGithubMode
         ? await updateGithubSkillData(session, skillFormData, skillEditFormData, updateActionGroupAlertContent)
@@ -199,6 +200,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
 
   const onYamlUploadSkillFillForm = (data: SkillYamlData): void => {
     setSkillFormData(addYamlUploadSkill(skillFormData, data));
+    window.analytics.trackSingleItem('Skill Yaml uploaded', {});
     updateActionGroupAlertContent({
       title: 'YAML Uploaded Successfully',
       message: 'Your skill form has been populated based on the uploaded YAML file.',

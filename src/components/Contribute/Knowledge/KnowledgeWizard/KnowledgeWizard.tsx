@@ -267,6 +267,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       return isDocUploaded;
     }
 
+    window.analytics.trackSingleItem("Knowledge Contribution Submitted", {}); // TODO add data
     if (knowledgeEditFormData) {
       const result = isGithubMode
         ? await updateGithubKnowledgeData(session, knowledgeFormData, knowledgeEditFormData, updateActionGroupAlertContent)
@@ -290,6 +291,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
 
   const onYamlUploadKnowledgeFillForm = (data: KnowledgeYamlData): void => {
     setKnowledgeFormData(addYamlUploadKnowledge(knowledgeFormData, data));
+    window.analytics.trackSingleItem('Knowledge Yaml uploaded', {});
     updateActionGroupAlertContent({
       title: 'YAML Uploaded Successfully',
       message: 'Your knowledge form has been populated based on the uploaded YAML file.',
