@@ -4,14 +4,14 @@
 import * as React from 'react';
 import '@patternfly/react-core/dist/styles/base.css';
 import { AppLayout } from '@/components/AppLayout';
-import ChatModelEval from '@/components/Experimental/ChatEval/ChatEval';
+import ChatEval from '@/components/Experimental/ChatEval/ChatEval';
 
-const ChatEval: React.FunctionComponent = () => {
+const ChatEvalPage: React.FunctionComponent = () => {
   return (
-    <AppLayout className="chat-eval-page">
-      <ChatModelEval />
+    <AppLayout className="chatBotPage">
+      <ChatEval />
     </AppLayout>
   );
 };
 
-export default ChatEval;
+export default ChatEvalPage;

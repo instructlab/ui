@@ -15,6 +15,15 @@ export interface Model {
   modelName: string;
 }
 
+export interface ServingModel extends Model {
+  endpoint: string;
+  vvlmName: string;
+}
+
+export interface CustomModel extends Model {
+  apiKey: string;
+}
+
 export interface Label {
   name: string;
 }
