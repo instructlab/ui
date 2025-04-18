@@ -57,33 +57,9 @@ export const isKnowledgeSeedExamplesValid = (knowledgeFormData: KnowledgeFormDat
 };
 
 export const isAttributionInformationValid = (contributionFormData: ContributionFormData): boolean => {
-  const title = contributionFormData.titleWork.trim();
-  if (!title.length) {
-    return false;
-  }
-
-  const license = contributionFormData.licenseWork.trim();
-  if (!license.length) {
-    return false;
-  }
-
-  const creators = contributionFormData.creators.trim();
-  if (!creators.length) {
-    return false;
-  }
-
-  return true;
+  const { titleWork, licenseWork, creators } = contributionFormData;
+  return titleWork.trim().length > 0 && licenseWork.trim().length > 0 && creators.trim().length > 0;
 };
 
-export const isKnowledgeAttributionInformationValid = (knowledgeFormData: KnowledgeFormData): boolean => {
-  const link = knowledgeFormData.linkWork.trim();
-  if (!link.length) {
-    return false;
-  }
-
-  const revision = knowledgeFormData.revision.trim();
-  if (!revision.length) {
-    return false;
-  }
-  return isAttributionInformationValid(knowledgeFormData);
-};
+export const isKnowledgeAttributionInformationValid = (knowledgeFormData: KnowledgeFormData): boolean =>
+  knowledgeFormData.linkWork.trim().length > 0 && isAttributionInformationValid(knowledgeFormData);

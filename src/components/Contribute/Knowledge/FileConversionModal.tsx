@@ -21,91 +21,90 @@ const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
   return window.btoa(binary);
 };
 
+const convertToMarkdownIfNeeded = async (file: File): Promise<File> => {
+  // If user picked a .md file, no need to call the conversion route
+  if (file.name.toLowerCase().endsWith('.md')) {
+    return file;
+  }
+
+  // 1) Read file as ArrayBuffer
+  const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (result instanceof ArrayBuffer) {
+        resolve(result);
+      } else {
+        reject(new Error('Unexpected result type when reading file as ArrayBuffer.'));
+      }
+    };
+    reader.onerror = () => {
+      reject(new Error('File reading failed.'));
+    };
+    reader.readAsArrayBuffer(file);
+  });
+
+  // Convert ArrayBuffer to Base64
+  const base64String = arrayBufferToBase64(arrayBuffer);
+
+  // 2) Attempt conversion call
+  try {
+    const res = await fetch('/api/convert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        options: {
+          from_formats: ['docx', 'pptx', 'html', 'image', 'pdf', 'asciidoc', 'md', 'xlsx'],
+          to_formats: ['md'],
+          image_export_mode: 'placeholder',
+          table_mode: 'fast',
+          abort_on_error: false,
+          return_as_file: false,
+          do_table_structure: true,
+          include_images: false
+        },
+        file_sources: [
+          {
+            base64_string: base64String,
+            filename: file.name
+          }
+        ]
+      })
+    });
+
+    if (!res.ok) {
+      // Check if it's a 503 => offline service
+      if (res.status === 503) {
+        console.error('Conversion service offline, only .md files accepted');
+        throw new Error('The file conversion service is offline. Only Markdown file type can be accepted until service is restored.');
+      }
+      console.error(`Conversion service responded with status ${res.status}`);
+      throw new Error(`Could not convert file: ${file.name}. Service error: ${res.statusText}`);
+    }
+
+    // 3) We expect JSON-wrapped markdown => { content: "..." }
+    const data = await res.json();
+    const mdContent = data.content.document.md_content;
+
+    // 4) Create a new `.md` File object
+    const newName = file.name.replace(/\.[^/.]+$/, '') + '.md';
+    const mdBlob = new Blob([mdContent], { type: 'text/markdown' });
+    const mdFile = new File([mdBlob], newName, { type: 'text/markdown' });
+    return mdFile;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Conversion error:', error);
+      // If conversion fails, we let the UI know
+      throw error;
+    }
+    console.error('Unknown conversion error:', error);
+    throw new Error('An unknown error occurred during file conversion.');
+  }
+};
+
 export const FileConversionModal: React.FunctionComponent<Props> = ({ filesToConvert, currentFiles, onConverted, onCancel, onError }) => {
   const [isUploading, setIsUploading] = React.useState(true);
   React.useContext(MultipleFileUploadContext);
-
-  // Convert any file => .md if needed
-  const convertToMarkdownIfNeeded = React.useCallback(async (file: File): Promise<File> => {
-    // If user picked a .md file, no need to call the conversion route
-    if (file.name.toLowerCase().endsWith('.md')) {
-      return file;
-    }
-
-    // 1) Read file as ArrayBuffer
-    const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result;
-        if (result instanceof ArrayBuffer) {
-          resolve(result);
-        } else {
-          reject(new Error('Unexpected result type when reading file as ArrayBuffer.'));
-        }
-      };
-      reader.onerror = () => {
-        reject(new Error('File reading failed.'));
-      };
-      reader.readAsArrayBuffer(file);
-    });
-
-    // Convert ArrayBuffer to Base64
-    const base64String = arrayBufferToBase64(arrayBuffer);
-
-    // 2) Attempt conversion call
-    try {
-      const res = await fetch('/api/convert', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          options: {
-            from_formats: ['docx', 'pptx', 'html', 'image', 'pdf', 'asciidoc', 'md', 'xlsx'],
-            to_formats: ['md'],
-            image_export_mode: 'placeholder',
-            table_mode: 'fast',
-            abort_on_error: false,
-            return_as_file: false,
-            do_table_structure: true,
-            include_images: false
-          },
-          file_sources: [
-            {
-              base64_string: base64String,
-              filename: file.name
-            }
-          ]
-        })
-      });
-
-      if (!res.ok) {
-        // Check if it's a 503 => offline service
-        if (res.status === 503) {
-          console.error('Conversion service offline, only .md files accepted');
-          throw new Error('The file conversion service is offline. Only Markdown file type can be accepted until service is restored.');
-        }
-        console.error(`Conversion service responded with status ${res.status}`);
-        throw new Error(`Could not convert file: ${file.name}. Service error: ${res.statusText}`);
-      }
-
-      // 3) We expect JSON-wrapped markdown => { content: "..." }
-      const data = await res.json();
-      const mdContent = data.content.document.md_content;
-
-      // 4) Create a new `.md` File object
-      const newName = file.name.replace(/\.[^/.]+$/, '') + '.md';
-      const mdBlob = new Blob([mdContent], { type: 'text/markdown' });
-      const mdFile = new File([mdBlob], newName, { type: 'text/markdown' });
-      return mdFile;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Conversion error:', error);
-        // If conversion fails, we let the UI know
-        throw error;
-      }
-      console.error('Unknown conversion error:', error);
-      throw new Error('An unknown error occurred during file conversion.');
-    }
-  }, []);
 
   React.useEffect(() => {
     let canceled = false;
@@ -157,7 +156,7 @@ export const FileConversionModal: React.FunctionComponent<Props> = ({ filesToCon
     return () => {
       canceled = true;
     };
-  }, [convertToMarkdownIfNeeded, currentFiles, filesToConvert, isUploading, onConverted, onError]);
+  }, [currentFiles, filesToConvert, isUploading, onConverted, onError]);
 
   return (
     <Modal isOpen variant="small" aria-label="uploading" aria-labelledby="upload-modal-title" disableFocusTrap>

@@ -1,6 +1,7 @@
 import { KnowledgeFormData, KnowledgeSeedExample, KnowledgeYamlData, SkillFormData, SkillSeedExample, SkillYamlData } from '@/types';
-import { validateAnswer, validateContext, validateQuestion } from '@/components/Contribute/Utils/seedExampleUtils';
+import { validateContext, validateSkillAnswer, validateSkillQuestion } from '@/components/Contribute/Utils/seedExampleUtils';
 import { devLog } from '@/utils/devlog';
+import { ValidatedOptions } from '@patternfly/react-core';
 
 export const yamlKnowledgeSeedExampleToFormSeedExample = (
   yamlSeedExamples: { context: string; questions_and_answers: { question: string; answer: string }[] }[]
@@ -13,19 +14,13 @@ export const yamlKnowledgeSeedExampleToFormSeedExample = (
       context: yamlSeedExample.context,
       isContextValid,
       validationError,
-      questionAndAnswers: yamlSeedExample.questions_and_answers.map((qa) => {
-        const { msg: questionValidationError, status: isQuestionValid } = validateQuestion(qa.question);
-        const { msg: answerValidationError, status: isAnswerValid } = validateAnswer(qa.answer);
-        return {
-          immutable: true,
-          question: qa.question,
-          answer: qa.answer,
-          isQuestionValid,
-          questionValidationError,
-          isAnswerValid,
-          answerValidationError
-        };
-      })
+      questionAndAnswers: yamlSeedExample.questions_and_answers.map((qa) => ({
+        immutable: true,
+        question: qa.question,
+        isQuestionValid: ValidatedOptions.default,
+        answer: qa.answer,
+        isAnswerValid: ValidatedOptions.default
+      }))
     };
   });
 
@@ -45,8 +40,8 @@ export const addYamlUploadKnowledge = (knowledgeFormData: KnowledgeFormData, dat
 const yamlSkillSeedExampleToFormSeedExample = (yamlSeedExamples: { question: string; context?: string | undefined; answer: string }[]) => {
   return yamlSeedExamples.map((yamlSeedExample) => {
     const { context, question, answer } = yamlSeedExample;
-    const { msg: questionValidationError, status: isQuestionValid } = validateQuestion(question);
-    const { msg: answerValidationError, status: isAnswerValid } = validateQuestion(question);
+    const { msg: questionValidationError, status: isQuestionValid } = validateSkillQuestion(question);
+    const { msg: answerValidationError, status: isAnswerValid } = validateSkillAnswer(question);
 
     return {
       immutable: true,
