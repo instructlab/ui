@@ -297,7 +297,7 @@ const PathService: React.FC<PathServiceProps> = ({ fieldId, rootPath, path, hand
   }, [isSelectOpen]);
 
   const handleNewDirectory = (newDirectory: string) => {
-    const fullPath = `${addDirectoryPath?.fullPath}/${newDirectory}`;
+    const fullPath = `${addDirectoryPath?.fullPath ?? ''}/${newDirectory}`;
 
     const newPathItem = {
       fullPath,

@@ -95,7 +95,7 @@ const AttributionInformation: React.FC<Props> = ({
           <FormGroup
             isRequired
             key={'attribution-info-details-title_work'}
-            label="Title"
+            label="Resource title"
             labelHelp={<WizardFormGroupLabelHelp bodyContent="The resource title is the title of the source document. " />}
           >
             <TextInput
@@ -121,7 +121,7 @@ const AttributionInformation: React.FC<Props> = ({
             <FormGroup
               isRequired
               key={'attribution-info-details-work_link'}
-              label="Link to work"
+              label="Resource link"
               labelHelp={<WizardFormGroupLabelHelp bodyContent="The resource link is a direct link to the source document." />}
             >
               <TextInput
@@ -161,7 +161,7 @@ const AttributionInformation: React.FC<Props> = ({
           <FormGroup
             isRequired
             key={'attribution-info-details-license'}
-            label="License of the work"
+            label="Resource license"
             labelHelp={
               <WizardFormGroupLabelHelp bodyContent="The resource license is the license type of the source document. This is usually a Creative Commons (CC) license, such as CC BY or CC BY-SA." />
             }

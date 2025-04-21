@@ -8,7 +8,7 @@ interface Props {
 
 const WizardPageHeader: React.FC<Props> = ({ title, description }) => (
   <div>
-    <Content component="h4">{title}</Content>
+    <Content component="h3">{title}</Content>
     <Content component="p">{description}</Content>
   </div>
 );

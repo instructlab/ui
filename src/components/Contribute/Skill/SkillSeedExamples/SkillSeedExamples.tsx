@@ -65,6 +65,7 @@ const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onUpdateSeedExamples
               pairs.{' '}
               <Button
                 variant="link"
+                component="a"
                 isInline
                 href="https://docs.instructlab.ai/taxonomy/knowledge/#knowledge-yaml-examples"
                 target="_blank"
@@ -85,7 +86,7 @@ const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onUpdateSeedExamples
               <AccordionToggle onClick={() => toggleSeedExampleExpansion(seedExampleIndex)} id={`seed-example-toggle-${seedExampleIndex}`}>
                 <Flex gap={{ default: 'gapMd' }} justifyContent={{ default: 'justifyContentSpaceBetween' }} style={{ width: '100%' }}>
                   <FlexItem>
-                    Seed Example {seedExampleIndex + 1}{' '}
+                    Seed example {seedExampleIndex + 1}{' '}
                     {seedExample.immutable ? <span style={{ color: 'var(--pf-t--global--color--status--danger--default)' }}>*</span> : null}
                   </FlexItem>
                   {!seedExample.immutable ? (

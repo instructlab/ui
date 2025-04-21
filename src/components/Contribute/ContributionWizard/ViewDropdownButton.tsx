@@ -104,7 +104,7 @@ export const ViewDropdownButton: React.FunctionComponent<Props> = ({ formData, c
           toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
             <Button variant="secondary" ref={toggleRef} onClick={onToggleClick}>
               <Flex gap={{ default: 'gapMd' }}>
-                <FlexItem>YAML/Attribution files</FlexItem>
+                <FlexItem>Views contribution details</FlexItem>
                 <FlexItem>
                   <CaretDownIcon />
                 </FlexItem>
