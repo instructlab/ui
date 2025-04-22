@@ -425,6 +425,15 @@ const DashboardNative: React.FunctionComponent = () => {
                             <DropdownItem key="publish-contribution" onClick={() => handlePublishContribution(branch.name)}>
                               Publish Contribution
                             </DropdownItem>
+                            <DropdownItem
+                              key="download-taxonomy"
+                              onClick={() => {
+                                // this will trigger the browser download
+                                window.location.href = '/api/download';
+                              }}
+                            >
+                              Download Taxonomy
+                            </DropdownItem>
                             <DropdownItem key="delete-contribution" onClick={() => handleDeleteContribution(branch.name)}>
                               Delete Contribution
                             </DropdownItem>
