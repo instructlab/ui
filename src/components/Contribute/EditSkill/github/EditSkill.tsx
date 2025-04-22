@@ -12,12 +12,14 @@ import axios from 'axios';
 import { SkillYamlData, AttributionData, PullRequestFile, SkillFormData, SkillEditFormData, SkillSeedExample } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
+import { devLog } from '@/utils/devlog';
 
 interface EditSkillClientComponentProps {
-  prNumber: number;
+  prNumber: string;
+  isDraft: boolean;
 }
 
-const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
+const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber, isDraft }) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingMsg, setLoadingMsg] = useState<string>('');
@@ -25,11 +27,37 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
   const router = useRouter();
 
   useEffect(() => {
+    if (isDraft) {
+      const fetchDraftChanges = () => {
+        devLog('Fetching draft data from the local storage for skill contribution:', prNumber);
+        setLoadingMsg(`Fetching draft skill data for ${prNumber}`);
+        const contributionData = localStorage.getItem(prNumber);
+        if (contributionData != null) {
+          const skillExistingFormData: SkillFormData = JSON.parse(contributionData);
+          devLog('Draft skill data retrieved from local storage :', skillExistingFormData);
+          const skillEditFormData: SkillEditFormData = {
+            isEditForm: true,
+            version: SkillSchemaVersion,
+            pullRequestNumber: 0,
+            formData: skillExistingFormData,
+            oldFilesPath: ''
+          };
+          setSkillEditFormData(skillEditFormData);
+          setIsLoading(false);
+        } else {
+          console.warn('Contribution draft data is not present in the local storage.');
+        }
+      };
+      fetchDraftChanges();
+      return;
+    }
+
     const fetchPRData = async () => {
       setLoadingMsg('Fetching skill data from PR: ' + prNumber);
       if (session?.accessToken) {
         try {
-          const prData = await fetchPullRequest(session.accessToken, prNumber);
+          const prNum = parseInt(prNumber, 10);
+          const prData = await fetchPullRequest(session.accessToken, prNum);
 
           const skillExistingFormData: SkillFormData = {
             branchName: '',
@@ -47,13 +75,13 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
             isEditForm: true,
             version: SkillSchemaVersion,
             formData: skillExistingFormData,
-            pullRequestNumber: prNumber,
+            pullRequestNumber: prNum,
             oldFilesPath: ''
           };
 
           skillExistingFormData.branchName = prData.head.ref; // Store the branch name from the pull request
 
-          const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, prNumber);
+          const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, prNum);
 
           const foundYamlFile = prFiles.find((file: PullRequestFile) => file.filename.endsWith('.yaml'));
           if (!foundYamlFile) {

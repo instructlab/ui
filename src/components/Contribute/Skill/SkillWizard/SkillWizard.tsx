@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ValidatedOptions, Button } from '@patternfly/react-core';
-import { devLog } from '@/utils/devlog';
 import { SkillSchemaVersion } from '@/types/const';
 import { ContributionFormData, SkillEditFormData, SkillFormData, SkillSeedExample, SkillYamlData } from '@/types';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
@@ -27,6 +26,7 @@ import SkillSeedExamplesReviewSection from '@/components/Contribute/Skill/SkillS
 
 import './skills.css';
 import DetailsPage from '@/components/Contribute/DetailsPage/DetailsPage';
+import { addDraft, deleteDraft, doSaveDraft, isDraftExist } from '@/components/Contribute/Utils/autoSaveUtils';
 
 export interface Props {
   skillEditFormData?: SkillEditFormData;
@@ -77,9 +77,19 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
     }
   };
 
+  async function saveSkillDraft() {
+    // If no change in the form data and there is no existing draft present, skill storing the draft.
+    if (!doSaveDraft(skillFormData) && !isDraftExist(skillFormData.branchName)) return;
+
+    addDraft(skillFormData.branchName, JSON.stringify(skillFormData));
+  }
+
   useEffect(() => {
-    devLog('Seed Examples Updated:', skillFormData.seedExamples);
-  }, [skillFormData.seedExamples]);
+    const storeDraft = async () => {
+      await saveSkillDraft();
+    };
+    storeDraft();
+  }, [skillFormData]);
 
   const steps: StepType[] = React.useMemo(
     () => [
@@ -176,11 +186,15 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
   };
 
   const handleSubmit = async (githubUsername: string): Promise<boolean> => {
-    if (skillEditFormData) {
+    //SkillEditFormData will be generated for local storage as well.
+    // If the PR number is present it means the draft is for the submitted PR.
+    if (skillEditFormData && skillEditFormData.pullRequestNumber != 0) {
       const result = isGithubMode
         ? await updateGithubSkillData(session, skillFormData, skillEditFormData, updateActionGroupAlertContent)
         : await updateNativeSkillData(skillFormData, skillEditFormData, updateActionGroupAlertContent);
       if (result) {
+        //Remove draft if present in the local storage
+        deleteDraft(skillEditFormData.formData.branchName);
         router.push('/dashboard');
       }
       return false;
@@ -192,6 +206,9 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
       const newFormData = { ...getDefaultSkillFormData() };
       newFormData.name = skillFormData.name;
       newFormData.email = skillFormData.email;
+
+      //Remove draft if present in the local storage
+      deleteDraft(skillFormData.branchName);
 
       setSkillFormData(newFormData);
     }

@@ -7,6 +7,14 @@ export enum ModelEndpointStatus {
   unknown
 }
 
+export interface DraftInfo {
+  branchName: string;
+  title?: string;
+  author?: string;
+  lastUpdated: string;
+  isKnowledgeDraft: boolean;
+}
+
 export interface Endpoint {
   id: string;
   name: string;
@@ -43,6 +51,9 @@ export interface PullRequest {
   created_at: string;
   updated_at: string;
   labels: Label[];
+  head: {
+    ref: string;
+  };
 }
 
 export interface SkillYamlData {

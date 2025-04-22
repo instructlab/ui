@@ -4,16 +4,15 @@ import { AppLayout } from '@/components/AppLayout';
 import EditKnowledge from '@/components/Contribute/EditKnowledge/github/EditKnowledge';
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string[] }>;
 };
 
 const EditKnowledgePage = async ({ params }: PageProps) => {
   const resolvedParams = await params;
-  const prNumber = parseInt(resolvedParams.id, 10);
 
   return (
     <AppLayout className="contribute-page">
-      <EditKnowledge prNumber={prNumber} />
+      <EditKnowledge prNumber={resolvedParams.slug[0]} isDraft={resolvedParams.slug[1] != null ? true : false} />
     </AppLayout>
   );
 };

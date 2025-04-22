@@ -10,6 +10,7 @@ import { SkillSchemaVersion } from '@/types/const';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 import SkillFormNative from '../../Skill/Native';
 import { useSession } from 'next-auth/react';
+import { devLog } from '@/utils/devlog';
 
 interface ChangeData {
   file: string;
@@ -20,9 +21,10 @@ interface ChangeData {
 
 interface EditSkillClientComponentProps {
   branchName: string;
+  isDraft: boolean;
 }
 
-const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }) => {
+const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName, isDraft }) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingMsg, setLoadingMsg] = useState<string>('');
@@ -30,6 +32,31 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
   const router = useRouter();
 
   useEffect(() => {
+    if (isDraft) {
+      const fetchDraftChanges = () => {
+        devLog('Fetching draft data from the local storage for skill contribution:', branchName);
+        setLoadingMsg(`Fetching draft skill data for ${branchName}`);
+        const contributionData = localStorage.getItem(branchName);
+        if (contributionData != null) {
+          const skillExistingFormData: SkillFormData = JSON.parse(contributionData);
+          devLog('Draft skill data retrieved from local storage :', skillExistingFormData);
+          const skillEditFormData: SkillEditFormData = {
+            isEditForm: true,
+            version: SkillSchemaVersion,
+            pullRequestNumber: 0,
+            formData: skillExistingFormData,
+            oldFilesPath: ''
+          };
+          setSkillEditFormData(skillEditFormData);
+          setIsLoading(false);
+        } else {
+          console.warn('Contribution draft data is not present in the local storage.');
+        }
+      };
+      fetchDraftChanges();
+      return;
+    }
+
     const fetchBranchChanges = async () => {
       setLoadingMsg('Fetching skill data from branch: ' + branchName);
       try {

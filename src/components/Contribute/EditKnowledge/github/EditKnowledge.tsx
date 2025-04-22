@@ -14,12 +14,16 @@ import { useRouter } from 'next/navigation';
 import KnowledgeFormGithub from '../../Knowledge/Github';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 import { fetchExistingKnowledgeDocuments } from '@/components/Contribute/Utils/documentUtils';
+import path from 'path';
+import { retrieveDraftKnowledgeFile } from '@/components/Contribute/Utils/autoSaveUtils';
+import { devLog } from '@/utils/devlog';
 
 interface EditKnowledgeClientComponentProps {
-  prNumber: number;
+  prNumber: string;
+  isDraft: boolean;
 }
 
-const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }) => {
+const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber, isDraft }) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingMsg, setLoadingMsg] = useState<string>('');
@@ -27,11 +31,57 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
   const router = useRouter();
 
   useEffect(() => {
+    if (isDraft) {
+      const fetchDraftChanges = () => {
+        devLog('Fetching draft data from the local storage for knowledge contribution:', prNumber);
+        setLoadingMsg(`Fetching draft knowledge data for ${prNumber}`);
+        const contributionData = localStorage.getItem(prNumber);
+        if (contributionData != null) {
+          const knowledgeExistingFormData: KnowledgeFormData = JSON.parse(contributionData, (key, value) => {
+            if (key === 'filesToUpload' && Array.isArray(value)) {
+              return value.map((meta: File) => {
+                return new File([''], meta.name, {
+                  type: 'text/markdown',
+                  lastModified: Date.now()
+                });
+              });
+            }
+            return value;
+          });
+          devLog('Draft data retrieved from local storage :', knowledgeExistingFormData);
+          const storedDraftFiles: File[] = [];
+          knowledgeExistingFormData.filesToUpload.forEach((file) => {
+            const readFile = retrieveDraftKnowledgeFile(knowledgeExistingFormData.branchName, file.name);
+            if (readFile) {
+              storedDraftFiles.push(readFile);
+            } else {
+              console.error('Not able to retrieve file :', path.join(knowledgeExistingFormData.branchName, file.name));
+            }
+          });
+          knowledgeExistingFormData.filesToUpload = storedDraftFiles;
+          const knowledgeEditFormData: KnowledgeEditFormData = {
+            isEditForm: true,
+            version: KnowledgeSchemaVersion,
+            formData: knowledgeExistingFormData,
+            pullRequestNumber: 0,
+            oldFilesPath: ''
+          };
+          setKnowledgeEditFormData(knowledgeEditFormData);
+          setIsLoading(false);
+        } else {
+          console.warn('Contribution draft data is not present in the local storage.');
+        }
+      };
+      fetchDraftChanges();
+      return;
+    }
+
     setLoadingMsg('Fetching knowledge data from PR : ' + prNumber);
     const fetchPRData = async () => {
       if (session?.accessToken) {
         try {
-          const prData = await fetchPullRequest(session.accessToken, prNumber);
+          const prNum = parseInt(prNumber, 10);
+          const prData = await fetchPullRequest(session.accessToken, prNum);
 
           // Create KnowledgeFormData from existing form.
           const knowledgeExistingFormData: KnowledgeFormData = {
@@ -57,14 +107,14 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
             isEditForm: true,
             version: KnowledgeSchemaVersion,
             formData: knowledgeExistingFormData,
-            pullRequestNumber: prNumber,
+            pullRequestNumber: prNum,
             oldFilesPath: ''
           };
 
           knowledgeExistingFormData.submissionSummary = prData.title;
           knowledgeExistingFormData.branchName = prData.head.ref; // Store the branch name from the pull request
 
-          const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, prNumber);
+          const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, prNum);
 
           const foundYamlFile = prFiles.find((file: PullRequestFile) => file.filename.endsWith('.yaml'));
           if (!foundYamlFile) {

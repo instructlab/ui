@@ -12,6 +12,9 @@ import { useRouter } from 'next/navigation';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 import KnowledgeFormNative from '../../Knowledge/Native';
 import { fetchExistingKnowledgeDocuments } from '@/components/Contribute/Utils/documentUtils';
+import path from 'path';
+import { retrieveDraftKnowledgeFile } from '@/components/Contribute/Utils/autoSaveUtils';
+import { devLog } from '@/utils/devlog';
 
 interface ChangeData {
   file: string;
@@ -22,9 +25,10 @@ interface ChangeData {
 
 interface EditKnowledgeClientComponentProps {
   branchName: string;
+  isDraft: boolean;
 }
 
-const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ branchName }) => {
+const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ branchName, isDraft }) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingMsg, setLoadingMsg] = useState<string>('');
@@ -32,6 +36,51 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
   const router = useRouter();
 
   useEffect(() => {
+    if (isDraft) {
+      const fetchDraftChanges = () => {
+        devLog('Fetching draft data from the local storage for knowledge contribution:', branchName);
+        setLoadingMsg(`Fetching draft knowledge data for ${branchName}`);
+        const contributionData = localStorage.getItem(branchName);
+        if (contributionData != null) {
+          const knowledgeExistingFormData: KnowledgeFormData = JSON.parse(contributionData, (key, value) => {
+            if (key === 'filesToUpload' && Array.isArray(value)) {
+              return value.map((meta: File) => {
+                return new File([''], meta.name, {
+                  type: 'text/markdown',
+                  lastModified: Date.now()
+                });
+              });
+            }
+            return value;
+          });
+          devLog('Draft data retrieved from local storage :', knowledgeExistingFormData);
+          const storedDraftFiles: File[] = [];
+          knowledgeExistingFormData.filesToUpload.forEach((file) => {
+            const readFile = retrieveDraftKnowledgeFile(knowledgeExistingFormData.branchName, file.name);
+            if (readFile) {
+              storedDraftFiles.push(readFile);
+            } else {
+              console.error('Not able to retrieve file :', path.join(knowledgeExistingFormData.branchName, file.name));
+            }
+          });
+          knowledgeExistingFormData.filesToUpload = storedDraftFiles;
+          const knowledgeEditFormData: KnowledgeEditFormData = {
+            isEditForm: true,
+            version: KnowledgeSchemaVersion,
+            formData: knowledgeExistingFormData,
+            pullRequestNumber: 0,
+            oldFilesPath: ''
+          };
+          setKnowledgeEditFormData(knowledgeEditFormData);
+          setIsLoading(false);
+        } else {
+          console.warn('Contribution draft data is not present in the local storage.');
+        }
+      };
+      fetchDraftChanges();
+      return;
+    }
+
     setLoadingMsg('Fetching knowledge data from branch : ' + branchName);
     const fetchBranchChanges = async () => {
       try {

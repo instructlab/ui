@@ -39,11 +39,14 @@ import {
   CardHeader,
   CardTitle,
   Gallery,
-  GalleryItem
+  GalleryItem,
+  Label
 } from '@patternfly/react-core';
-import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, EllipsisVIcon } from '@patternfly/react-icons';
+import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, EllipsisVIcon, PficonTemplateIcon } from '@patternfly/react-icons';
 import { ExpandableSection } from '@patternfly/react-core/dist/esm/components/ExpandableSection/ExpandableSection';
 import { v4 as uuidv4 } from 'uuid';
+import { DraftInfo } from '@/types';
+import { deleteDraft, fetchDraftContribution } from '@/components/Contribute/Utils/autoSaveUtils';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
@@ -62,6 +65,7 @@ interface AlertItem {
 
 const DashboardNative: React.FunctionComponent = () => {
   const [branches, setBranches] = React.useState<{ name: string; creationDate: number; message: string; author: string }[]>([]);
+  const [draftContributions, setDraftContributions] = React.useState<DraftInfo[]>([]);
   const [taxonomyRepoDir, setTaxonomyRepoDir] = React.useState<string>('');
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [mergeStatus] = React.useState<{ branch: string; message: string; success: boolean } | null>(null);
@@ -72,6 +76,7 @@ const DashboardNative: React.FunctionComponent = () => {
   const [isPublishModalOpen, setIsPublishModalOpen] = React.useState(false);
   const [alerts, setAlerts] = React.useState<AlertItem[]>([]);
   const [selectedBranch, setSelectedBranch] = React.useState<string | null>(null);
+  const [selectedDraftContribution, setSelectedDraftContribution] = React.useState<string | null>(null);
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [expandedFiles, setExpandedFiles] = React.useState<Record<string, boolean>>({});
 
@@ -147,6 +152,9 @@ const DashboardNative: React.FunctionComponent = () => {
     };
     getEnvVariables();
 
+    // Fetch all the draft contributions
+    setDraftContributions(fetchDraftContribution());
+
     cloneNativeTaxonomyRepo().then((success) => {
       if (success) {
         fetchBranches();
@@ -156,7 +164,7 @@ const DashboardNative: React.FunctionComponent = () => {
 
   const formatDateTime = (timestamp: number) => {
     const date = new Date(timestamp);
-    return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    return date.toLocaleString();
   };
 
   const handleShowChanges = async (branchName: string) => {
@@ -184,9 +192,26 @@ const DashboardNative: React.FunctionComponent = () => {
     setIsDeleteModalOpen(true);
   };
 
+  const handleDeleteDraftContribution = async (branchName: string) => {
+    setSelectedDraftContribution(branchName);
+    setIsDeleteModalOpen(true);
+  };
+
   const handleDeleteContributionConfirm = async () => {
     if (selectedBranch) {
+      // If draft exist in the local storage, delete it.
+      if (draftContributions.find((draft) => draft.branchName == selectedBranch)) {
+        deleteDraft(selectedBranch);
+      }
       await deleteContribution(selectedBranch);
+      setIsDeleteModalOpen(false);
+    }
+    if (selectedDraftContribution) {
+      //Remove draft from local storage and update the draftContributions list.
+      deleteDraft(selectedDraftContribution);
+
+      const drafts = draftContributions.filter((item) => item.branchName != selectedDraftContribution);
+      setDraftContributions(drafts);
       setIsDeleteModalOpen(false);
     }
   };
@@ -225,14 +250,33 @@ const DashboardNative: React.FunctionComponent = () => {
     }
   };
 
+  const handleEditDraftContribution = (branchName: string) => {
+    setSelectedDraftContribution(branchName);
+    // Check if branchName contains string "knowledge"
+    if (branchName.includes('knowledge')) {
+      router.push(`/edit-submission/knowledge/native/${branchName}/isDraft`);
+    } else {
+      router.push(`/edit-submission/skill/native/${branchName}/isDraft`);
+    }
+  };
+
   const handleEditContribution = (branchName: string) => {
     setSelectedBranch(branchName);
 
-    // Check if branchName contains string "knowledge"
-    if (branchName.includes('knowledge')) {
-      router.push(`/edit-submission/knowledge/native/${branchName}`);
+    if (draftContributions.find((draft) => draft.branchName == branchName)) {
+      // If user is editing the submitted contribution, use the latest data from draft.
+      if (branchName.includes('knowledge')) {
+        router.push(`/edit-submission/knowledge/native/${branchName}/isDraft`);
+      } else {
+        router.push(`/edit-submission/skill/native/${branchName}/isDraft`);
+      }
     } else {
-      router.push(`/edit-submission/skill/native/${branchName}`);
+      // Check if branchName contains string "knowledge"
+      if (branchName.includes('knowledge')) {
+        router.push(`/edit-submission/knowledge/native/${branchName}`);
+      } else {
+        router.push(`/edit-submission/skill/native/${branchName}`);
+      }
     }
   };
 
@@ -346,7 +390,7 @@ const DashboardNative: React.FunctionComponent = () => {
 
         {isLoading ? (
           <Spinner size="lg" />
-        ) : branches.length === 0 ? (
+        ) : branches.length === 0 && draftContributions.length === 0 ? (
           <EmptyState headingLevel="h4" titleText="Welcome to InstructLab" icon={InstructLabLogo}>
             <EmptyStateBody>
               <div style={{ maxWidth: '60ch' }}>
@@ -393,6 +437,75 @@ const DashboardNative: React.FunctionComponent = () => {
               '2xl': '600px'
             }}
           >
+            {draftContributions.map(
+              (draft, index) =>
+                // Only display the drafts that's not submitted yet.
+                !branches.find((branch) => branch.name == draft.branchName) && (
+                  <GalleryItem key={draft.branchName}>
+                    <Card key={draft.branchName}>
+                      <CardHeader
+                        actions={{
+                          actions: (
+                            <Dropdown
+                              onSelect={() => onActionMenuSelect(draft.branchName)}
+                              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                                <MenuToggle
+                                  ref={toggleRef}
+                                  isExpanded={isActionMenuOpen[draft.branchName] || false}
+                                  onClick={() => onActionMenuToggle(draft.branchName, !isActionMenuOpen[draft.branchName])}
+                                  variant="plain"
+                                  aria-label="contribution action menu"
+                                  icon={<EllipsisVIcon aria-hidden="true" />}
+                                />
+                              )}
+                              isOpen={isActionMenuOpen[draft.branchName] || false}
+                              onOpenChange={(isOpen: boolean) => onActionMenuToggle(draft.branchName, isOpen)}
+                              popperProps={{ position: 'end' }}
+                            >
+                              <DropdownList>
+                                <DropdownItem key="edit-contribution" onClick={() => handleEditDraftContribution(draft.branchName)}>
+                                  Edit contribution
+                                </DropdownItem>
+                                <DropdownItem key="delete-contribution" onClick={() => handleDeleteDraftContribution(draft.branchName)}>
+                                  Delete contribution
+                                </DropdownItem>
+                              </DropdownList>
+                            </Dropdown>
+                          )
+                        }}
+                      >
+                        <CardTitle>
+                          <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                            <Label icon={<PficonTemplateIcon />} color="green">
+                              Draft
+                            </Label>
+                            {draft.title ? draft.title : `Untitled ${index + 1}`}
+                          </Flex>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardBody>
+                        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                          <FlexItem>Branch name: {draft.branchName}</FlexItem>
+                          <FlexItem>State: Draft</FlexItem>
+                          <FlexItem>Last updated: {draft.lastUpdated}</FlexItem>
+                          <FlexItem>
+                            {draft.isKnowledgeDraft ? (
+                              <Label key="knowledge" color="blue" style={{ marginRight: '5px' }}>
+                                Knowledge
+                              </Label>
+                            ) : (
+                              <Label key="skill" color="blue" style={{ marginRight: '5px' }}>
+                                Skill
+                              </Label>
+                            )}
+                          </FlexItem>
+                        </Flex>
+                      </CardBody>
+                    </Card>
+                  </GalleryItem>
+                )
+            )}
+
             {branches.map((branch) => (
               <GalleryItem key={branch.name}>
                 <Card key={branch.name}>
@@ -417,13 +530,13 @@ const DashboardNative: React.FunctionComponent = () => {
                         >
                           <DropdownList>
                             <DropdownItem key="show-changes" onClick={() => handleShowChanges(branch.name)}>
-                              Show Changes
+                              Show changes
                             </DropdownItem>
                             <DropdownItem key="edit-contribution" onClick={() => handleEditContribution(branch.name)}>
-                              Edit Contribution
+                              Edit contribution
                             </DropdownItem>
                             <DropdownItem key="publish-contribution" onClick={() => handlePublishContribution(branch.name)}>
-                              Publish Contribution
+                              Publish contribution
                             </DropdownItem>
                             <DropdownItem
                               key="download-taxonomy"
@@ -432,10 +545,10 @@ const DashboardNative: React.FunctionComponent = () => {
                                 window.location.href = '/api/download';
                               }}
                             >
-                              Download Taxonomy
+                              Download taxonomy
                             </DropdownItem>
                             <DropdownItem key="delete-contribution" onClick={() => handleDeleteContribution(branch.name)}>
-                              Delete Contribution
+                              Delete contribution
                             </DropdownItem>
                           </DropdownList>
                         </Dropdown>
@@ -443,17 +556,31 @@ const DashboardNative: React.FunctionComponent = () => {
                     }}
                   >
                     <CardTitle>
-                      <b>{branch.message}</b>
+                      <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                        {draftContributions.find((draft) => draft.branchName == branch.name) && (
+                          <Label icon={<PficonTemplateIcon />} color="green">
+                            Draft
+                          </Label>
+                        )}
+                        {` ${branch.message}`}
+                      </Flex>
                     </CardTitle>
                   </CardHeader>
                   <CardBody>
                     <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                      <FlexItem>Branch name: {branch.name}</FlexItem>
+                      <FlexItem>Status: {draftContributions.find((draft) => draft.branchName == branch.name) ? 'Draft' : 'Open'}</FlexItem>
+                      <FlexItem>Last updated: {formatDateTime(branch.creationDate)}</FlexItem>
                       <FlexItem>
-                        Branch Name: {branch.name}
-                        <br />
-                        Author: {branch.author} {'    '}
-                        <br />
-                        Created on: {formatDateTime(branch.creationDate)}
+                        {branch.name.includes('knowledge-contribution') ? (
+                          <Label key="knowledge" color="blue" style={{ marginRight: '5px' }}>
+                            Knowledge
+                          </Label>
+                        ) : (
+                          <Label key="skill" color="blue" style={{ marginRight: '5px' }}>
+                            Skill
+                          </Label>
+                        )}
                       </FlexItem>
                     </Flex>
                   </CardBody>

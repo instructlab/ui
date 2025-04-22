@@ -44,7 +44,6 @@ export const UploadKnowledgeDocuments = async (
     // Trigger the upload only if all the newly uploaded files were read successfully and there are existing uploaded files.
     if (newFiles.length === knowledgeFormData.filesToUpload.length && (newFiles.length !== 0 || updatedExistingFiles.length !== 0)) {
       try {
-        console.log('knowledge-files api called.');
         const response = await fetch(isGithubMode ? GITHUB_KNOWLEDGE_FILES_URL : NATIVE_GIT_KNOWLEDGE_FILES_URL, {
           method: 'POST',
           headers: {
@@ -104,7 +103,7 @@ export const UploadKnowledgeDocuments = async (
 
 export const fetchExistingKnowledgeDocuments = async (isGithubMode: boolean, knowledgeDocumentCommit: string): Promise<KnowledgeFile[]> => {
   try {
-    const url = isGithubMode ? GITHUB_KNOWLEDGE_FILES_URL : `${NATIVE_GIT_KNOWLEDGE_FILES_URL}`;
+    const url = isGithubMode ? GITHUB_KNOWLEDGE_FILES_URL : NATIVE_GIT_KNOWLEDGE_FILES_URL;
 
     const response = await fetch(`${url}?commitSHA=${knowledgeDocumentCommit}`, {
       method: 'GET',
