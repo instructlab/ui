@@ -14,6 +14,7 @@ import {
 } from '@patternfly/react-core';
 import type { KnowledgeSeedExample } from '@/types';
 import { t_global_spacer_sm as SmSpacerSize } from '@patternfly/react-tokens/dist/esm/t_global_spacer_sm';
+import { getSeedExampleTitle } from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/utils';
 
 interface Props {
   seedExamples: KnowledgeSeedExample[];
@@ -36,7 +37,7 @@ const KnowledgeSeedExamplesReviewSection: React.FC<Props> = ({ seedExamples }) =
           <Accordion asDefinitionList={false}>
             <AccordionItem isExpanded={expanded[index]} key={`accordion-item-${index}`}>
               <AccordionToggle onClick={() => onToggle(index)} id={`seed-example-toggle-${index}`}>
-                Sample {index + 1}
+                {getSeedExampleTitle(seedExample, index)}
               </AccordionToggle>
               <AccordionContent id={`seed-example-content-${index}`} style={{ padding: SmSpacerSize.var }}>
                 <DescriptionList isCompact>
