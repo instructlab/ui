@@ -1,5 +1,7 @@
 import { ValidatedOptions } from '@patternfly/react-core';
 import { ContributionFormData, KnowledgeFormData, SkillFormData } from '@/types';
+import { getWordCount } from '@/components/Contribute/Utils/contributionUtils';
+import { MAX_CONTRIBUTION_Q_AND_A_WORDS } from '@/components/Contribute/Utils/seedExampleUtils';
 
 export const MAX_SUMMARY_CHARS = 256;
 
@@ -37,8 +39,10 @@ export const isSkillSeedExamplesValid = (skillFormData: SkillFormData): boolean 
   }
   return skillFormData.seedExamples.every(
     (seedExample) =>
-      seedExample.questionAndAnswer.isQuestionValid === ValidatedOptions.success &&
-      seedExample.questionAndAnswer.isAnswerValid === ValidatedOptions.success
+      seedExample.questionAndAnswer.question.trim().length > 0 &&
+      seedExample.questionAndAnswer.isQuestionValid !== ValidatedOptions.error &&
+      seedExample.questionAndAnswer.answer.trim().length > 0 &&
+      seedExample.questionAndAnswer.isAnswerValid !== ValidatedOptions.error
   );
 };
 
@@ -46,14 +50,23 @@ export const isKnowledgeSeedExamplesValid = (knowledgeFormData: KnowledgeFormDat
   if (knowledgeFormData.seedExamples.length < 5) {
     return false;
   }
-  return knowledgeFormData.seedExamples.every(
-    (seedExample) =>
-      seedExample.isContextValid === ValidatedOptions.success &&
+
+  return knowledgeFormData.seedExamples.every((seedExample) => {
+    const wordCount = seedExample.questionAndAnswers.reduce<number>((acc, next) => acc + getWordCount(next.question) + getWordCount(next.answer), 0);
+
+    return (
+      seedExample.context.trim().length > 0 &&
+      seedExample.isContextValid !== ValidatedOptions.error &&
+      wordCount <= MAX_CONTRIBUTION_Q_AND_A_WORDS &&
       seedExample.questionAndAnswers.every(
         (questionAndAnswerPair) =>
-          questionAndAnswerPair.isQuestionValid === ValidatedOptions.success && questionAndAnswerPair.isAnswerValid === ValidatedOptions.success
+          questionAndAnswerPair.question.trim().length > 0 &&
+          questionAndAnswerPair.isQuestionValid !== ValidatedOptions.error &&
+          questionAndAnswerPair.answer.trim().length > 0 &&
+          questionAndAnswerPair.isAnswerValid !== ValidatedOptions.error
       )
-  );
+    );
+  });
 };
 
 export const isAttributionInformationValid = (contributionFormData: ContributionFormData): boolean => {

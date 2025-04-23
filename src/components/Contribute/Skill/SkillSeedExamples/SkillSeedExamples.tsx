@@ -121,7 +121,7 @@ const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onUpdateSeedExamples
         </Accordion>
         <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
           <Button icon={<PlusCircleIcon />} variant="link" type="button" onClick={addSeedExample}>
-            Add question-and-answer pair
+            Add seed example
           </Button>
         </div>
       </FlexItem>
