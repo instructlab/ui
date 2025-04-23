@@ -13,7 +13,8 @@ import {
   ModalHeader,
   Flex,
   FlexItem,
-  MultipleFileUploadContext
+  MultipleFileUploadContext,
+  Content
 } from '@patternfly/react-core';
 import { UploadIcon } from '@patternfly/react-icons';
 import React, { useState, useEffect } from 'react';
@@ -219,6 +220,33 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ existingF
 
   const successfullyReadFileCount = readFileData.filter((fileData) => fileData.loadResult === 'success').length;
 
+  const getOverwriteWarningText = () => {
+    if (filesToOverwrite.length > 1) {
+      return (
+        <>
+          <Content component="p">The following files have already been uploaded in this contribution:</Content>
+          <Content component="p">
+            <Content component="ul">
+              {filesToOverwrite.map((file) => (
+                <Content component="li" key={file.name}>
+                  {file.name}
+                </Content>
+              ))}
+            </Content>
+          </Content>
+          <Content component="p">Uploading the new files will overwrite the existing files.</Content>
+        </>
+      );
+    }
+
+    return (
+      <Content component="p">
+        A file with the name <b>{filesToOverwrite[0].name}</b> has already been uploaded in this contribution. Uploading the new file will overwrite
+        the existing one.
+      </Content>
+    );
+  };
+
   return (
     <div>
       <MultipleFileUpload
@@ -310,20 +338,13 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ existingF
           {showOverwriteModal && (
             <Modal
               isOpen
-              title="Overwrite file"
               variant="small"
               aria-label="file overwrite warning"
               aria-labelledby="file-overwrite-warning-title"
               aria-describedby="file-overwrite-warning-variant"
             >
-              <ModalHeader title="File Overwrite" labelId="file-overwrite-warning-title" titleIconVariant="warning" />
-              <ModalBody id="file-overwrite-warning-variant">
-                <p>
-                  Files [<strong>{filesToOverwrite.map((file) => file.name).join(', ')}</strong>] are already uploaded. Are you sure you want to
-                  overwrite the existing files?
-                  <br />
-                </p>
-              </ModalBody>
+              <ModalHeader title="Overwrite file?" labelId="file-overwrite-warning-title" titleIconVariant="warning" />
+              <ModalBody id="file-overwrite-warning-variant">{getOverwriteWarningText()}</ModalBody>
               <ModalFooter>
                 <Button key="overwrite" variant="primary" onClick={overwriteFiles}>
                   Overwrite

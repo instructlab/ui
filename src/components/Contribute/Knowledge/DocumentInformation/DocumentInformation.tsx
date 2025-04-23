@@ -25,6 +25,7 @@ const DocumentInformation: React.FC<Props> = ({ existingFiles, setExistingFiles,
               manuals, encyclopedias, journals, and websites.{' '}
               <Button
                 variant="link"
+                component="a"
                 isInline
                 href="https://docs.instructlab.ai/taxonomy/knowledge/#knowledge-yaml-examples"
                 target="_blank"

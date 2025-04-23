@@ -89,6 +89,7 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, filesToUpload, u
               <Button
                 variant="link"
                 isInline
+                component="a"
                 href="https://docs.instructlab.ai/taxonomy/knowledge/#knowledge-yaml-examples"
                 target="_blank"
                 rel="noopener noreferrer"

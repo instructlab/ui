@@ -146,8 +146,8 @@ export const validateKnowledgeFormFields = (
     const { success, currLength: length } = validateQuestionAndAnswerPairs(knowledgeFormData.seedExamples[index]);
     if (!success) {
       const actionGroupAlertContent: ActionGroupAlertContent = {
-        title: `Seed Example ${index + 1} has an issue!`,
-        message: `Total size of the Q and A pairs and context should not exceed 750 words (current size ${length}). Please provide shorter Q and A pairs or context.`,
+        title: `Seed example ${index + 1} has an issue!`,
+        message: `Total size of the question-and-answer pairs and context should not exceed 750 words (current size ${length}). Please provide shorter question-and-answer pairs or context.`,
         success: false
       };
       setActionGroupAlertContent(actionGroupAlertContent);

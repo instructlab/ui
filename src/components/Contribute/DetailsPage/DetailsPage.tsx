@@ -144,7 +144,7 @@ const DetailsPage: React.FC<Props> = ({
                     icon={isSummaryInvalid ? <ExclamationCircleIcon /> : undefined}
                     variant={isSummaryInvalid ? ValidatedOptions.error : ValidatedOptions.default}
                   >
-                    {submissionSummary.trim().length ? (
+                    {!isSummaryInvalid || submissionSummary.trim().length ? (
                       <>
                         Must be {MAX_SUMMARY_CHARS} characters or less.
                         {validSummary === ValidatedOptions.error && isSummaryInvalid
