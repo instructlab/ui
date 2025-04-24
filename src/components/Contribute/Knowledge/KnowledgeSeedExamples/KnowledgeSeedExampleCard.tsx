@@ -395,8 +395,8 @@ const KnowledgeSeedExampleCard: React.FC<Props> = ({
                   {wordCount > MAX_CONTRIBUTION_Q_AND_A_WORDS ? (
                     <FormHelperText>
                       <HelperText className="q-and-a-field__text-help">
-                        <HelperTextItem icon={<ExclamationCircleIcon />} variant={ValidatedOptions.error}>
-                          {`${wordCount}/${MAX_CONTRIBUTION_Q_AND_A_WORDS} words total (${wordCount - MAX_CONTRIBUTION_Q_AND_A_WORDS} over limit)`}
+                        <HelperTextItem icon={<ExclamationCircleIcon />} variant={ValidatedOptions.warning}>
+                          {`${wordCount}/${MAX_CONTRIBUTION_Q_AND_A_WORDS} words total (${wordCount - MAX_CONTRIBUTION_Q_AND_A_WORDS} over the recommended limit)`}
                         </HelperTextItem>
                       </HelperText>
                     </FormHelperText>
@@ -418,14 +418,14 @@ const KnowledgeSeedExampleCard: React.FC<Props> = ({
               {areAllQuestionAnswerPairsValid ? (
                 wordCount > 0 ? (
                   <Alert
-                    title={`${wordCount}/${MAX_CONTRIBUTION_Q_AND_A_WORDS} words total${wordCount > MAX_CONTRIBUTION_Q_AND_A_WORDS ? `(${wordCount - MAX_CONTRIBUTION_Q_AND_A_WORDS} over limit)` : ''}`}
+                    title={`${wordCount}/${MAX_CONTRIBUTION_Q_AND_A_WORDS} words total${wordCount > MAX_CONTRIBUTION_Q_AND_A_WORDS ? ` (${wordCount - MAX_CONTRIBUTION_Q_AND_A_WORDS} over the recommended limit)` : ''}`}
                     isPlain
                     isInline
-                    variant={wordCount > MAX_CONTRIBUTION_Q_AND_A_WORDS ? 'danger' : 'info'}
+                    variant={wordCount > MAX_CONTRIBUTION_Q_AND_A_WORDS ? 'warning' : 'info'}
                   />
                 ) : (
                   <Alert
-                    title={`The combined word count of the three question-and-answer pairs in each seed example must not exceed ${MAX_CONTRIBUTION_Q_AND_A_WORDS} words.`}
+                    title={`The recommended combined word count of each seed example's question-and-answer pairs is ${MAX_CONTRIBUTION_Q_AND_A_WORDS} words or less.`}
                     isPlain
                     isInline
                     variant="info"

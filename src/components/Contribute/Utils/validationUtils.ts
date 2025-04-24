@@ -1,7 +1,5 @@
 import { ValidatedOptions } from '@patternfly/react-core';
 import { ContributionFormData, KnowledgeFormData, SkillFormData } from '@/types';
-import { getWordCount } from '@/components/Contribute/Utils/contributionUtils';
-import { MAX_CONTRIBUTION_Q_AND_A_WORDS } from '@/components/Contribute/Utils/seedExampleUtils';
 
 export const MAX_SUMMARY_CHARS = 256;
 
@@ -52,12 +50,9 @@ export const isKnowledgeSeedExamplesValid = (knowledgeFormData: KnowledgeFormDat
   }
 
   return knowledgeFormData.seedExamples.every((seedExample) => {
-    const wordCount = seedExample.questionAndAnswers.reduce<number>((acc, next) => acc + getWordCount(next.question) + getWordCount(next.answer), 0);
-
     return (
       seedExample.context.trim().length > 0 &&
       seedExample.isContextValid !== ValidatedOptions.error &&
-      wordCount <= MAX_CONTRIBUTION_Q_AND_A_WORDS &&
       seedExample.questionAndAnswers.every(
         (questionAndAnswerPair) =>
           questionAndAnswerPair.question.trim().length > 0 &&
@@ -68,6 +63,39 @@ export const isKnowledgeSeedExamplesValid = (knowledgeFormData: KnowledgeFormDat
     );
   });
 };
+
+export const getValidatedSkillSeedExamples = (formData: SkillFormData) =>
+  formData.seedExamples.map((seedExample) => {
+    const isQuestionValid = seedExample.questionAndAnswer.question.trim().length > 0;
+    const isAnswerValid = seedExample.questionAndAnswer.answer.trim().length > 0;
+    return {
+      ...seedExample,
+      questionAndAnswer: {
+        ...seedExample.questionAndAnswer,
+        isQuestionValid: isQuestionValid ? ValidatedOptions.default : ValidatedOptions.error,
+        questionValidationError: isQuestionValid ? undefined : 'Required',
+        isAnswerValid: isAnswerValid ? ValidatedOptions.default : ValidatedOptions.error,
+        answerValidationError: isAnswerValid ? undefined : 'Required'
+      }
+    };
+  });
+
+export const getValidatedKnowledgeSeedExamples = (formData: KnowledgeFormData) =>
+  formData.seedExamples.map((seedExample) => ({
+    ...seedExample,
+    questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswer) => {
+      const isQuestionValid = questionAndAnswer.question.trim().length > 0;
+      const isAnswerValid = questionAndAnswer.answer.trim().length > 0;
+
+      return {
+        ...questionAndAnswer,
+        isQuestionValid: isQuestionValid ? ValidatedOptions.default : ValidatedOptions.error,
+        questionValidationError: isQuestionValid ? undefined : 'Required',
+        isAnswerValid: isAnswerValid ? ValidatedOptions.default : ValidatedOptions.error,
+        answerValidationError: isAnswerValid ? undefined : 'Required'
+      };
+    })
+  }));
 
 export const isAttributionInformationValid = (contributionFormData: ContributionFormData): boolean => {
   const { titleWork, licenseWork, creators } = contributionFormData;

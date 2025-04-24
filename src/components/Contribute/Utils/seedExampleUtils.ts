@@ -29,17 +29,11 @@ export const validateSkillAnswer = (answer: string) => {
 };
 
 export const validateContext = (context?: string) => {
-  // Split the context into words based on spaces
   const contextStr = context?.trim() ?? '';
   if (contextStr.length === 0) {
     return { msg: 'Context is required', status: ValidatedOptions.error };
   }
-  const tokens = contextStr.split(/\s+/);
-  if (tokens.length > 0 && tokens.length <= MAX_CONTEXT_WORDS) {
-    return { msg: 'Valid Input', status: ValidatedOptions.success };
-  }
-  const errorMsg = `Context must be less than ${MAX_CONTEXT_WORDS} words. Current word count: ` + tokens.length;
-  return { msg: errorMsg, status: ValidatedOptions.error };
+  return { msg: 'Valid Input', status: ValidatedOptions.success };
 };
 
 export const handleSkillSeedExamplesContextInputChange = (

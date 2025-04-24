@@ -5,7 +5,7 @@ import './knowledge.css';
 import { useSession } from 'next-auth/react';
 import DocumentInformation from '@/components/Contribute/Knowledge/DocumentInformation/DocumentInformation';
 import KnowledgeSeedExamples from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamples';
-import { ContributionFormData, KnowledgeEditFormData, KnowledgeFormData, KnowledgeYamlData } from '@/types';
+import { ContributionFormData, KnowledgeEditFormData, KnowledgeFormData, KnowledgeSeedExample, KnowledgeYamlData } from '@/types';
 import { useRouter } from 'next/navigation';
 import { Button, ValidatedOptions } from '@patternfly/react-core';
 import { devLog } from '@/utils/devlog';
@@ -228,6 +228,12 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
             contributionFormData={knowledgeFormData}
             isGithubMode={isGithubMode}
             seedExamples={<KnowledgeSeedExamplesReviewSection seedExamples={knowledgeFormData.seedExamples} />}
+            onUpdateSeedExamples={(seedExamples) =>
+              setKnowledgeFormData((prev) => ({
+                ...prev,
+                seedExamples: seedExamples as KnowledgeSeedExample[]
+              }))
+            }
           />
         ),
         status: StepStatus.Default
