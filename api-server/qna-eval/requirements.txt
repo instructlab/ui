@@ -39,7 +39,7 @@ google-api-core==2.24.0
 google-auth==2.37.0
 googleapis-common-protos==1.66.0
 grpcio==1.69.0
-h11==0.14.0
+h11==0.16.0
 httpcore==1.0.7
 httptools==0.6.4
 httpx==0.28.1
@@ -150,7 +150,7 @@ textual==1.0.0
 tiktoken==0.7.0
 tinycss2==1.4.0
 tokenizers==0.21.0
-torch==2.6.0
+torch==2.7.0
 torchvision==0.20.1
 tornado==6.4.2
 tqdm==4.67.1
