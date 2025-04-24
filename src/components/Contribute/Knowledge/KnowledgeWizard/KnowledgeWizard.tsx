@@ -32,7 +32,7 @@ import ReviewSubmission from '@/components/Contribute/ReviewSubmission/ReviewSub
 import KnowledgeSeedExamplesReviewSection from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamplesReviewSection';
 import DetailsPage from '@/components/Contribute/DetailsPage/DetailsPage';
 import { getDefaultKnowledgeFormData } from '@/components/Contribute/Utils/contributionUtils';
-import { addDraft, deleteDraft, doSaveDraft, isDraftExist, storeDraftKnowledgeFile } from '@/components/Contribute/Utils/autoSaveUtils';
+import { storeDraftData, deleteDraftData, doSaveDraft, isDraftDataExist, storeDraftKnowledgeFile } from '@/components/Contribute/Utils/autoSaveUtils';
 
 export interface KnowledgeFormProps {
   knowledgeEditFormData?: KnowledgeEditFormData;
@@ -88,7 +88,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
 
   async function saveKnowledgeDraft() {
     // If no change in the form data and there is no existing draft present, skip storing the draft.
-    if (!doSaveDraft(knowledgeFormData) && !isDraftExist(knowledgeFormData.branchName)) return;
+    if (!doSaveDraft(knowledgeFormData) && !isDraftDataExist(knowledgeFormData.branchName)) return;
 
     await Promise.all(
       knowledgeFormData.filesToUpload.map(async (file) => {
@@ -105,7 +105,12 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       }
       return value;
     });
-    addDraft(knowledgeFormData.branchName, draftContributionStr);
+    storeDraftData(
+      knowledgeFormData.branchName,
+      draftContributionStr,
+      !!knowledgeEditFormData?.isSubmitted,
+      knowledgeEditFormData?.oldFilesPath || ''
+    );
   }
 
   useEffect(() => {
@@ -299,13 +304,13 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       return isDocUploaded;
     }
 
-    if (knowledgeEditFormData && knowledgeEditFormData.pullRequestNumber !== 0) {
+    if (knowledgeEditFormData && knowledgeEditFormData.isSubmitted) {
       const result = isGithubMode
         ? await updateGithubKnowledgeData(session, knowledgeFormData, knowledgeEditFormData, updateActionGroupAlertContent)
         : await updateNativeKnowledgeData(knowledgeFormData, knowledgeEditFormData, updateActionGroupAlertContent);
       if (result) {
         //Remove draft if present in the local storage
-        deleteDraft(knowledgeEditFormData.formData.branchName);
+        deleteDraftData(knowledgeEditFormData.formData.branchName);
 
         router.push('/dashboard');
       }
@@ -316,7 +321,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       : await submitNativeKnowledgeData(knowledgeFormData, updateActionGroupAlertContent);
     if (result) {
       //Remove draft if present in the local storage
-      deleteDraft(knowledgeFormData.branchName);
+      deleteDraftData(knowledgeFormData.branchName);
       router.push('/dashboard');
     }
     return result;

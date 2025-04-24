@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { fetchPullRequests, getGitHubUsername } from '../../../utils/github';
-import { DraftInfo, PullRequest } from '@/types';
+import { DraftEditFormInfo, PullRequest } from '@/types';
 import { useState } from 'react';
 import {
   PageBreadcrumb,
@@ -39,14 +39,14 @@ import {
   GalleryItem
 } from '@patternfly/react-core';
 import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, EllipsisVIcon, PficonTemplateIcon } from '@patternfly/react-icons';
-import { deleteDraft, fetchDraftContribution } from '@/components/Contribute/Utils/autoSaveUtils';
+import { deleteDraftData, fetchDraftContributions } from '@/components/Contribute/Utils/autoSaveUtils';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
 const DashboardGithub: React.FunctionComponent = () => {
   const { data: session } = useSession();
   const [pullRequests, setPullRequests] = React.useState<PullRequest[]>([]);
-  const [draftContributions, setDraftContributions] = React.useState<DraftInfo[]>([]);
+  const [draftContributions, setDraftContributions] = React.useState<DraftEditFormInfo[]>([]);
   const [isFirstPullDone, setIsFirstPullDone] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   //const [error, setError] = React.useState<string | null>(null);
@@ -70,7 +70,7 @@ const DashboardGithub: React.FunctionComponent = () => {
         const sortedPRs = filteredPRs.sort((a: PullRequest, b: PullRequest) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         setPullRequests(sortedPRs);
       } catch (error) {
-        console.log('Failed to fetch pull requests.' + error);
+        console.error('Failed to fetch pull requests.' + error);
       }
       setIsFirstPullDone(true);
       setIsLoading(false);
@@ -82,15 +82,20 @@ const DashboardGithub: React.FunctionComponent = () => {
   React.useEffect(() => {
     fetchAndSetPullRequests();
 
-    // Fetch all the draft contributions
-    setDraftContributions(fetchDraftContribution());
+    // Fetch all the draft contributions and mark them submitted if present in the pull requests
+    const drafts = fetchDraftContributions().map((draft: DraftEditFormInfo) => ({
+      ...draft,
+      isSubmitted: pullRequests.some((pr) => pr.head.ref === draft.branchName)
+    }));
+
+    setDraftContributions(drafts);
 
     const intervalId = setInterval(fetchAndSetPullRequests, 60000);
     return () => clearInterval(intervalId);
   }, [session, fetchAndSetPullRequests]);
 
   const handleDeleteDraftContribution = async (branchName: string) => {
-    deleteDraft(branchName);
+    deleteDraftData(branchName);
     const drafts = draftContributions.filter((item) => item.branchName != branchName);
     setDraftContributions(drafts);
   };

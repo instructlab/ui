@@ -21,7 +21,7 @@ import {
 } from '@patternfly/react-core';
 import { getGitHubUserInfo } from '@/utils/github';
 import ContributionWizardFooter from '@/components/Contribute/ContributionWizard/ContributionWizardFooter';
-import { deleteDraft } from '@/components/Contribute/Utils/autoSaveUtils';
+import { deleteDraftData } from '@/components/Contribute/Utils/autoSaveUtils';
 
 import './contribute-page.scss';
 
@@ -146,7 +146,7 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
 
   const handleCancel = () => {
     //If there is any draft saved, delete it.
-    deleteDraft(formData.branchName);
+    deleteDraftData(formData.branchName);
     router.push('/dashboard');
   };
 

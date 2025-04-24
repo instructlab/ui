@@ -12,7 +12,7 @@ import axios from 'axios';
 import { SkillYamlData, AttributionData, PullRequestFile, SkillFormData, SkillEditFormData, SkillSeedExample } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
-import { devLog } from '@/utils/devlog';
+import { fetchDraftSkillChanges } from '@/components/Contribute/Utils/autoSaveUtils';
 
 interface EditSkillClientComponentProps {
   prNumber: string;
@@ -28,27 +28,7 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber, isDraft 
 
   useEffect(() => {
     if (isDraft) {
-      const fetchDraftChanges = () => {
-        devLog('Fetching draft data from the local storage for skill contribution:', prNumber);
-        setLoadingMsg(`Fetching draft skill data for ${prNumber}`);
-        const contributionData = localStorage.getItem(prNumber);
-        if (contributionData != null) {
-          const skillExistingFormData: SkillFormData = JSON.parse(contributionData);
-          devLog('Draft skill data retrieved from local storage :', skillExistingFormData);
-          const skillEditFormData: SkillEditFormData = {
-            isEditForm: true,
-            version: SkillSchemaVersion,
-            pullRequestNumber: 0,
-            formData: skillExistingFormData,
-            oldFilesPath: ''
-          };
-          setSkillEditFormData(skillEditFormData);
-          setIsLoading(false);
-        } else {
-          console.warn('Contribution draft data is not present in the local storage.');
-        }
-      };
-      fetchDraftChanges();
+      fetchDraftSkillChanges({ branchName: prNumber, setIsLoading, setLoadingMsg, setSkillEditFormData });
       return;
     }
 
@@ -73,6 +53,7 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber, isDraft 
 
           const skillEditFormData: SkillEditFormData = {
             isEditForm: true,
+            isSubmitted: true,
             version: SkillSchemaVersion,
             formData: skillExistingFormData,
             pullRequestNumber: prNum,

@@ -10,7 +10,7 @@ import { SkillSchemaVersion } from '@/types/const';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 import SkillFormNative from '../../Skill/Native';
 import { useSession } from 'next-auth/react';
-import { devLog } from '@/utils/devlog';
+import { fetchDraftSkillChanges } from '@/components/Contribute/Utils/autoSaveUtils';
 
 interface ChangeData {
   file: string;
@@ -33,27 +33,7 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName, 
 
   useEffect(() => {
     if (isDraft) {
-      const fetchDraftChanges = () => {
-        devLog('Fetching draft data from the local storage for skill contribution:', branchName);
-        setLoadingMsg(`Fetching draft skill data for ${branchName}`);
-        const contributionData = localStorage.getItem(branchName);
-        if (contributionData != null) {
-          const skillExistingFormData: SkillFormData = JSON.parse(contributionData);
-          devLog('Draft skill data retrieved from local storage :', skillExistingFormData);
-          const skillEditFormData: SkillEditFormData = {
-            isEditForm: true,
-            version: SkillSchemaVersion,
-            pullRequestNumber: 0,
-            formData: skillExistingFormData,
-            oldFilesPath: ''
-          };
-          setSkillEditFormData(skillEditFormData);
-          setIsLoading(false);
-        } else {
-          console.warn('Contribution draft data is not present in the local storage.');
-        }
-      };
-      fetchDraftChanges();
+      fetchDraftSkillChanges({ branchName, setIsLoading, setLoadingMsg, setSkillEditFormData });
       return;
     }
 
@@ -82,6 +62,7 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName, 
 
           const skillEditFormData: SkillEditFormData = {
             isEditForm: true,
+            isSubmitted: true,
             version: SkillSchemaVersion,
             pullRequestNumber: 0,
             formData: skillExistingFormData,

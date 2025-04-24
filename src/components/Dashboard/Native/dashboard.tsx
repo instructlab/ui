@@ -45,8 +45,8 @@ import {
 import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, EllipsisVIcon, PficonTemplateIcon } from '@patternfly/react-icons';
 import { ExpandableSection } from '@patternfly/react-core/dist/esm/components/ExpandableSection/ExpandableSection';
 import { v4 as uuidv4 } from 'uuid';
-import { DraftInfo } from '@/types';
-import { deleteDraft, fetchDraftContribution } from '@/components/Contribute/Utils/autoSaveUtils';
+import { DraftEditFormInfo } from '@/types';
+import { deleteDraftData, fetchDraftContributions } from '@/components/Contribute/Utils/autoSaveUtils';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
@@ -65,7 +65,7 @@ interface AlertItem {
 
 const DashboardNative: React.FunctionComponent = () => {
   const [branches, setBranches] = React.useState<{ name: string; creationDate: number; message: string; author: string }[]>([]);
-  const [draftContributions, setDraftContributions] = React.useState<DraftInfo[]>([]);
+  const [draftContributions, setDraftContributions] = React.useState<DraftEditFormInfo[]>([]);
   const [taxonomyRepoDir, setTaxonomyRepoDir] = React.useState<string>('');
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [mergeStatus] = React.useState<{ branch: string; message: string; success: boolean } | null>(null);
@@ -152,14 +152,19 @@ const DashboardNative: React.FunctionComponent = () => {
     };
     getEnvVariables();
 
-    // Fetch all the draft contributions
-    setDraftContributions(fetchDraftContribution());
-
     cloneNativeTaxonomyRepo().then((success) => {
       if (success) {
         fetchBranches();
       }
     });
+
+    // Fetch all the draft contributions and mark them submitted if present in the branches
+    const drafts = fetchDraftContributions().map((draft: DraftEditFormInfo) => ({
+      ...draft,
+      isSubmitted: branches.some((branch) => branch.name === draft.branchName)
+    }));
+
+    setDraftContributions(drafts);
   }, [fetchBranches]);
 
   const formatDateTime = (timestamp: number) => {
@@ -201,14 +206,14 @@ const DashboardNative: React.FunctionComponent = () => {
     if (selectedBranch) {
       // If draft exist in the local storage, delete it.
       if (draftContributions.find((draft) => draft.branchName == selectedBranch)) {
-        deleteDraft(selectedBranch);
+        deleteDraftData(selectedBranch);
       }
       await deleteContribution(selectedBranch);
       setIsDeleteModalOpen(false);
     }
     if (selectedDraftContribution) {
       //Remove draft from local storage and update the draftContributions list.
-      deleteDraft(selectedDraftContribution);
+      deleteDraftData(selectedDraftContribution);
 
       const drafts = draftContributions.filter((item) => item.branchName != selectedDraftContribution);
       setDraftContributions(drafts);
