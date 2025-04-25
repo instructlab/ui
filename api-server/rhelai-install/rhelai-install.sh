@@ -22,11 +22,11 @@ if [ -d "/tmp/api-server" ]; then
 fi
 
 mkdir -p /tmp/api-server
-cd /tmp/ui/api-server
-wget https://instructlab-ui.s3.us-east-1.amazonaws.com/apiserver/apiserver-linux-amd64.tar.gz
-tar -xzf apiserver-linux-amd64.tar.gz 
-mv apiserver-linux-amd64/ilab-apiserver /usr/local/sbin
-rm -rf apiserver-linux-amd64 apiserver-linux-amd64.tar.gz 
+cd /tmp/api-server
+curl -sLO https://instructlab-ui.s3.us-east-1.amazonaws.com/apiserver/apiserver-linux-amd64.tar.gz
+tar -xzf apiserver-linux-amd64.tar.gz
+mv apiserver-linux-amd64/ilab-apiserver "{$HOME}/.local/bin"
+rm -rf apiserver-linux-amd64 apiserver-linux-amd64.tar.gz /tmp/api-server
 
 CUDA_FLAG=""
 

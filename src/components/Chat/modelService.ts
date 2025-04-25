@@ -1,8 +1,35 @@
-import { Model } from '@/types';
+import { Endpoint, Model, ModelEndpointStatus } from '@/types';
 
 const systemRole =
   'You are a cautious assistant. You carefully follow instructions.' +
   ' You are helpful and harmless and you follow ethical guidelines and promote positive behavior.';
+
+const getCustomModelHeaders = (apiKey?: string): HeadersInit =>
+  apiKey
+    ? {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
+        Authorization: `Bearer: ${apiKey}`
+      }
+    : {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream'
+      };
+
+const getCustomModelRequestData = (modelName: string, input: string): string => {
+  const messagesPayload = [
+    { role: 'system', content: systemRole },
+    { role: 'user', content: input }
+  ];
+
+  const requestData = {
+    model: modelName,
+    messages: messagesPayload,
+    stream: true
+  };
+
+  return JSON.stringify(requestData);
+};
 
 export const customModelFetcher = async (
   selectedModel: Model,
@@ -10,17 +37,6 @@ export const customModelFetcher = async (
   onMessageReceived: (message: string) => void,
   setController: (controller: AbortController) => void
 ) => {
-  const messagesPayload = [
-    { role: 'system', content: systemRole },
-    { role: 'user', content: input }
-  ];
-
-  const requestData = {
-    model: selectedModel.modelName,
-    messages: messagesPayload,
-    stream: true
-  };
-
   const newController = new AbortController();
   setController(newController);
 
@@ -28,11 +44,8 @@ export const customModelFetcher = async (
   try {
     const response = await fetch(`${selectedModel.apiURL}/v1/chat/completions`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'text/event-stream'
-      },
-      body: JSON.stringify(requestData),
+      headers: getCustomModelHeaders(selectedModel.apiKey),
+      body: getCustomModelRequestData(selectedModel.modelName, input),
       signal: newController.signal
     });
 
@@ -149,3 +162,25 @@ export const modelFetcher = async (
   selectedModel.isDefault
     ? defaultModelFetcher(selectedModel, input, onMessageReceived, setController)
     : customModelFetcher(selectedModel, input, onMessageReceived, setController);
+
+export const fetchEndpointStatus = async (endpoint: Endpoint): Promise<ModelEndpointStatus> => {
+  if (!endpoint.enabled) {
+    return ModelEndpointStatus.disabled;
+  }
+  // Attempt a fetch for the custom endpoint
+  try {
+    const response = await fetch(`${endpoint.url}/v1/chat/completions`, {
+      method: 'POST',
+      headers: getCustomModelHeaders(endpoint.apiKey),
+      body: getCustomModelRequestData(endpoint.modelName, 'test')
+    });
+
+    if (!response.ok) {
+      console.error(`Failed to serve model from endpoint ${endpoint.url}`);
+      return ModelEndpointStatus.unavailable;
+    }
+    return ModelEndpointStatus.available;
+  } catch (error) {
+    return ModelEndpointStatus.unknown;
+  }
+};

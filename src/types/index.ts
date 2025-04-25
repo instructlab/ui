@@ -1,10 +1,22 @@
 import { ValidatedOptions } from '@patternfly/react-core';
 
+export enum ModelEndpointStatus {
+  available,
+  unavailable,
+  disabled,
+  unknown
+}
+
 export interface Endpoint {
   id: string;
+  name: string;
+  description?: string;
   url: string;
-  apiKey: string;
   modelName: string;
+  modelDescription?: string;
+  apiKey: string;
+  status: ModelEndpointStatus;
+  enabled: boolean;
 }
 
 export interface Model {
@@ -12,6 +24,8 @@ export interface Model {
   name: string;
   apiURL: string;
   modelName: string;
+  enabled: boolean;
+  apiKey?: string;
 }
 
 export interface Label {

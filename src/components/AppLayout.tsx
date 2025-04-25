@@ -103,15 +103,15 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
       label: 'Playground',
       children: [
         { path: '/playground/chat', label: 'Chat' },
-        { path: '/playground/endpoints', label: 'Custom Model Endpoints' }
+        { path: '/playground/endpoints', label: 'Custom model endpoints' }
       ]
     },
     isExperimentalEnabled && {
       path: '/experimental',
-      label: 'Experimental Features',
+      label: 'Experimental fFeatures',
       children: [
         { path: '/experimental/fine-tune/', label: 'Fine-tuning' },
-        { path: '/experimental/chat-eval/', label: 'Model Chat Eval' }
+        { path: '/experimental/chat-eval/', label: 'Model chat eval' }
       ]
     }
   ].filter(Boolean) as Route[];

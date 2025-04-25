@@ -2,6 +2,7 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Alert,
   AlertActionCloseButton,
@@ -12,6 +13,7 @@ import {
   DropdownList,
   MenuToggle,
   MenuToggleElement,
+  Popover,
   Select,
   SelectList,
   SelectOption,
@@ -33,7 +35,7 @@ import { Model } from '@/types';
 import { modelFetcher } from '@/components/Chat/modelService';
 const botAvatar = '/bot-icon-chat-32x32.svg';
 
-import { EllipsisVIcon, TimesIcon } from '@patternfly/react-icons';
+import { EllipsisVIcon, OutlinedQuestionCircleIcon, TimesIcon } from '@patternfly/react-icons';
 import styles from '@/components/Chat/chat.module.css';
 import { ModelsContext } from '@/components/Chat/ModelsContext';
 import { useSession } from 'next-auth/react';
@@ -71,6 +73,7 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
   setStopCallback,
   setController
 }) => {
+  const router = useRouter();
   const { data: session } = useSession();
   const { availableModels } = React.useContext(ModelsContext);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -188,14 +191,14 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isSelectOpen} style={{ width: '200px' }}>
-      {model ? model.name : 'Select a model'}
+      {model && model.enabled ? model.name : 'Select a model'}
     </MenuToggle>
   );
 
   const dropdownItems = React.useMemo(
     () =>
       availableModels.map((model, index) => (
-        <SelectOption key={index} value={model.name}>
+        <SelectOption isDisabled={!model.enabled ? true : false} key={index} value={model.name}>
           {model.name}
         </SelectOption>
       )),
@@ -231,6 +234,23 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
           >
             <SelectList>{dropdownItems}</SelectList>
           </Select>
+          <Popover
+            aria-label="select model help"
+            headerContent={`Can't select your model?`}
+            bodyContent={
+              <div>
+                If your model is not selectable, that means you have disabled the custom model endpoint. To change this please see the{' '}
+                <Button isInline variant="link" onClick={() => router.push('./endpoints')}>
+                  Custom Model Endpoints
+                </Button>{' '}
+                page.
+              </div>
+            }
+          >
+            <Button variant="plain" isInline aria-label="More info">
+              <OutlinedQuestionCircleIcon />
+            </Button>
+          </Popover>
         </ChatbotHeaderMain>
         <ChatbotHeaderActions>
           {showCompare ? (
