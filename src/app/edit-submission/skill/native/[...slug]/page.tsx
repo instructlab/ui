@@ -4,15 +4,15 @@ import { AppLayout } from '@/components/AppLayout';
 import EditSkillNative from '@/components/Contribute/EditSkill/native/EditSkill';
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string[] }>;
 };
 
 const EditSkillPage = async ({ params }: PageProps) => {
-  const branchName = await params;
+  const contribution = await params;
 
   return (
     <AppLayout className="contribute-page">
-      <EditSkillNative branchName={branchName.id} />
+      <EditSkillNative branchName={contribution.slug[0]} isDraft={contribution.slug[1] != null ? true : false} />
     </AppLayout>
   );
 };

@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 import KnowledgeFormNative from '../../Knowledge/Native';
 import { fetchExistingKnowledgeDocuments } from '@/components/Contribute/Utils/documentUtils';
+import { fetchDraftKnowledgeChanges } from '@/components/Contribute/Utils/autoSaveUtils';
 
 interface ChangeData {
   file: string;
@@ -22,9 +23,10 @@ interface ChangeData {
 
 interface EditKnowledgeClientComponentProps {
   branchName: string;
+  isDraft: boolean;
 }
 
-const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ branchName }) => {
+const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ branchName, isDraft }) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingMsg, setLoadingMsg] = useState<string>('');
@@ -32,6 +34,11 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
   const router = useRouter();
 
   useEffect(() => {
+    if (isDraft) {
+      fetchDraftKnowledgeChanges({ branchName, setIsLoading, setLoadingMsg, setKnowledgeEditFormData });
+      return;
+    }
+
     setLoadingMsg('Fetching knowledge data from branch : ' + branchName);
     const fetchBranchChanges = async () => {
       try {
@@ -65,6 +72,7 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
             isEditForm: true,
+            isSubmitted: true,
             version: KnowledgeSchemaVersion,
             formData: knowledgeExistingFormData,
             pullRequestNumber: 0,

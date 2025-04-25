@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { fetchPullRequests, getGitHubUsername } from '../../../utils/github';
-import { PullRequest } from '../../../types';
+import { DraftEditFormInfo, PullRequest } from '@/types';
 import { useState } from 'react';
 import {
   PageBreadcrumb,
@@ -38,17 +38,19 @@ import {
   Gallery,
   GalleryItem
 } from '@patternfly/react-core';
-import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, EllipsisVIcon } from '@patternfly/react-icons';
+import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, EllipsisVIcon, PficonTemplateIcon } from '@patternfly/react-icons';
+import { deleteDraftData, fetchDraftContributions } from '@/components/Contribute/Utils/autoSaveUtils';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
 const DashboardGithub: React.FunctionComponent = () => {
   const { data: session } = useSession();
   const [pullRequests, setPullRequests] = React.useState<PullRequest[]>([]);
+  const [draftContributions, setDraftContributions] = React.useState<DraftEditFormInfo[]>([]);
   const [isFirstPullDone, setIsFirstPullDone] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   //const [error, setError] = React.useState<string | null>(null);
-  const [isActionMenuOpen, setIsActionMenuOpen] = React.useState<{ [key: number]: boolean }>({});
+  const [isActionMenuOpen, setIsActionMenuOpen] = React.useState<{ [key: number | string]: boolean }>({});
   const router = useRouter();
 
   const fetchAndSetPullRequests = React.useCallback(async () => {
@@ -66,10 +68,9 @@ const DashboardGithub: React.FunctionComponent = () => {
 
         // Sort by date (newest first)
         const sortedPRs = filteredPRs.sort((a: PullRequest, b: PullRequest) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
         setPullRequests(sortedPRs);
       } catch (error) {
-        console.log('Failed to fetch pull requests.' + error);
+        console.error('Failed to fetch pull requests.' + error);
       }
       setIsFirstPullDone(true);
       setIsLoading(false);
@@ -80,18 +81,52 @@ const DashboardGithub: React.FunctionComponent = () => {
 
   React.useEffect(() => {
     fetchAndSetPullRequests();
+
+    // Fetch all the draft contributions and mark them submitted if present in the pull requests
+    const drafts = fetchDraftContributions().map((draft: DraftEditFormInfo) => ({
+      ...draft,
+      isSubmitted: pullRequests.some((pr) => pr.head.ref === draft.branchName)
+    }));
+
+    setDraftContributions(drafts);
+
     const intervalId = setInterval(fetchAndSetPullRequests, 60000);
     return () => clearInterval(intervalId);
   }, [session, fetchAndSetPullRequests]);
+
+  const handleDeleteDraftContribution = async (branchName: string) => {
+    deleteDraftData(branchName);
+    const drafts = draftContributions.filter((item) => item.branchName != branchName);
+    setDraftContributions(drafts);
+  };
+
+  const handleEditDraftContribution = (branchName: string) => {
+    // Check if branchName contains string "knowledge"
+    if (branchName.includes('knowledge')) {
+      router.push(`/edit-submission/knowledge/github/${branchName}/isDraft`);
+    } else {
+      router.push(`/edit-submission/skill/github/${branchName}/isDraft`);
+    }
+  };
 
   const handleEditClick = (pr: PullRequest) => {
     const hasKnowledgeLabel = pr.labels.some((label) => label.name === 'knowledge');
     const hasSkillLabel = pr.labels.some((label) => label.name === 'skill');
 
-    if (hasKnowledgeLabel) {
-      router.push(`/edit-submission/knowledge/github/${pr.number}`);
-    } else if (hasSkillLabel) {
-      router.push(`/edit-submission/skill/github/${pr.number}`);
+    if (draftContributions.find((draft) => draft.branchName == pr.head.ref)) {
+      // If user is editing the submitted contribution, use the latest data from draft, if available.
+      // Pass the pr number as well, it's required to pull the data from PR.
+      if (hasKnowledgeLabel) {
+        router.push(`/edit-submission/knowledge/github/${pr.head.ref}/isDraft`);
+      } else {
+        router.push(`/edit-submission/skill/github/${pr.head.ref}/isDraft`);
+      }
+    } else {
+      if (hasKnowledgeLabel) {
+        router.push(`/edit-submission/knowledge/github/${pr.number}`);
+      } else if (hasSkillLabel) {
+        router.push(`/edit-submission/skill/github/${pr.number}`);
+      }
     }
   };
 
@@ -103,14 +138,14 @@ const DashboardGithub: React.FunctionComponent = () => {
     return <div>Loading...</div>;
   }
 
-  const onActionMenuToggle = (id: number, isOpen: boolean) => {
+  const onActionMenuToggle = (id: number | string, isOpen: boolean) => {
     setIsActionMenuOpen((prevState) => ({
       ...prevState,
       [id]: isOpen
     }));
   };
 
-  const onActionMenuSelect = (id: number) => {
+  const onActionMenuSelect = (id: number | string) => {
     setIsActionMenuOpen((prevState) => ({
       ...prevState,
       [id]: false
@@ -160,7 +195,7 @@ const DashboardGithub: React.FunctionComponent = () => {
             </ModalBody>
           </Modal>
         )}
-        {isFirstPullDone && pullRequests.length === 0 ? (
+        {isFirstPullDone && pullRequests.length === 0 && draftContributions.length === 0 ? (
           <EmptyState titleText="Welcome to InstructLab" headingLevel="h4" icon={InstructLabLogo}>
             <EmptyStateBody>
               <div style={{ maxWidth: '60ch' }}>
@@ -207,6 +242,74 @@ const DashboardGithub: React.FunctionComponent = () => {
               '2xl': '600px'
             }}
           >
+            {draftContributions.map(
+              (draft, index) =>
+                !pullRequests.find((pr) => pr.head.ref == draft.branchName) && (
+                  <GalleryItem key={draft.branchName}>
+                    <Card>
+                      <CardHeader
+                        actions={{
+                          actions: (
+                            <Dropdown
+                              onSelect={() => onActionMenuSelect(draft.branchName)}
+                              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                                <MenuToggle
+                                  ref={toggleRef}
+                                  isExpanded={isActionMenuOpen[draft.branchName] || false}
+                                  onClick={() => onActionMenuToggle(draft.branchName, !isActionMenuOpen[draft.branchName])}
+                                  variant="plain"
+                                  aria-label="contribution action menu"
+                                  icon={<EllipsisVIcon aria-hidden="true" />}
+                                />
+                              )}
+                              isOpen={isActionMenuOpen[draft.branchName] || false}
+                              onOpenChange={(isOpen: boolean) => onActionMenuToggle(draft.branchName, isOpen)}
+                              popperProps={{ position: 'end' }}
+                            >
+                              <DropdownList>
+                                <DropdownItem key="edit-contribution" onClick={() => handleEditDraftContribution(draft.branchName)}>
+                                  Edit contribution
+                                </DropdownItem>
+                                <DropdownItem key="delete-contribution" onClick={() => handleDeleteDraftContribution(draft.branchName)}>
+                                  Delete contribution
+                                </DropdownItem>
+                              </DropdownList>
+                            </Dropdown>
+                          )
+                        }}
+                      >
+                        <CardTitle>
+                          <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                            <Label icon={<PficonTemplateIcon />} color="green">
+                              Draft
+                            </Label>
+                            {draft.title ? draft.title : `Untitled ${index + 1}`}
+                          </Flex>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardBody>
+                        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                          <FlexItem>Branch name: {draft.branchName}</FlexItem>
+                          <FlexItem>State: Draft</FlexItem>
+                          <FlexItem>Last updated: {draft.lastUpdated}</FlexItem>
+                          <FlexItem>
+                            {draft.isKnowledgeDraft ? (
+                              <Label key="knowledge" color="blue" style={{ marginRight: '5px' }}>
+                                Knowledge
+                              </Label>
+                            ) : (
+                              <Label key="skill" color="blue" style={{ marginRight: '5px' }}>
+                                Skill
+                              </Label>
+                            )}
+                          </FlexItem>
+                        </Flex>
+                      </CardBody>
+                    </Card>
+                  </GalleryItem>
+                )
+            )}
+
             {pullRequests.map((pr) => (
               <GalleryItem key={pr.number}>
                 <Card>
@@ -235,12 +338,12 @@ const DashboardGithub: React.FunctionComponent = () => {
                             </DropdownItem>
                             {pr.state === 'open' && (
                               <DropdownItem key="edit-contribution" onClick={() => handleEditClick(pr)}>
-                                Edit Contribution
+                                Edit contribution
                               </DropdownItem>
                             )}
                             {pr.state === 'closed' && (
                               <DropdownItem key="edit-contribution" isDisabled>
-                                Edit Contribution
+                                Edit contribution
                               </DropdownItem>
                             )}
                           </DropdownList>
@@ -248,13 +351,22 @@ const DashboardGithub: React.FunctionComponent = () => {
                       )
                     }}
                   >
-                    <CardTitle>{pr.title}</CardTitle>
+                    <CardTitle>
+                      <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                        {draftContributions.find((draft) => draft.branchName == pr.head.ref) && (
+                          <Label icon={<PficonTemplateIcon />} color="green">
+                            Draft
+                          </Label>
+                        )}
+                        {pr.title}
+                      </Flex>
+                    </CardTitle>
                   </CardHeader>
                   <CardBody>
                     <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                      <FlexItem>Branch name: {pr.head.ref}</FlexItem>
                       <FlexItem>State: {pr.state}</FlexItem>
-                      <FlexItem>Created At: {new Date(pr.created_at).toLocaleString()}</FlexItem>
-                      <FlexItem>Updated At: {new Date(pr.updated_at).toLocaleString()}</FlexItem>
+                      <FlexItem>Last updated: {new Date(pr.updated_at).toUTCString()}</FlexItem>
                       <FlexItem>
                         {pr.labels.map((label) => (
                           <Label key={label.name} color="blue" style={{ marginRight: '5px' }}>

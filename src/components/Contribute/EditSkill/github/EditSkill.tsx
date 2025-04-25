@@ -12,12 +12,14 @@ import axios from 'axios';
 import { SkillYamlData, AttributionData, PullRequestFile, SkillFormData, SkillEditFormData, SkillSeedExample } from '@/types';
 import { SkillSchemaVersion } from '@/types/const';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
+import { fetchDraftSkillChanges } from '@/components/Contribute/Utils/autoSaveUtils';
 
 interface EditSkillClientComponentProps {
-  prNumber: number;
+  prNumber: string;
+  isDraft: boolean;
 }
 
-const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
+const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber, isDraft }) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingMsg, setLoadingMsg] = useState<string>('');
@@ -25,11 +27,17 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
   const router = useRouter();
 
   useEffect(() => {
+    if (isDraft) {
+      fetchDraftSkillChanges({ branchName: prNumber, setIsLoading, setLoadingMsg, setSkillEditFormData });
+      return;
+    }
+
     const fetchPRData = async () => {
       setLoadingMsg('Fetching skill data from PR: ' + prNumber);
       if (session?.accessToken) {
         try {
-          const prData = await fetchPullRequest(session.accessToken, prNumber);
+          const prNum = parseInt(prNumber, 10);
+          const prData = await fetchPullRequest(session.accessToken, prNum);
 
           const skillExistingFormData: SkillFormData = {
             branchName: '',
@@ -45,15 +53,16 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber }) => {
 
           const skillEditFormData: SkillEditFormData = {
             isEditForm: true,
+            isSubmitted: true,
             version: SkillSchemaVersion,
             formData: skillExistingFormData,
-            pullRequestNumber: prNumber,
+            pullRequestNumber: prNum,
             oldFilesPath: ''
           };
 
           skillExistingFormData.branchName = prData.head.ref; // Store the branch name from the pull request
 
-          const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, prNumber);
+          const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, prNum);
 
           const foundYamlFile = prFiles.find((file: PullRequestFile) => file.filename.endsWith('.yaml'));
           if (!foundYamlFile) {

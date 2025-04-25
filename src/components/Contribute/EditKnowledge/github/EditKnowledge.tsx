@@ -14,12 +14,14 @@ import { useRouter } from 'next/navigation';
 import KnowledgeFormGithub from '../../Knowledge/Github';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 import { fetchExistingKnowledgeDocuments } from '@/components/Contribute/Utils/documentUtils';
+import { fetchDraftKnowledgeChanges } from '@/components/Contribute/Utils/autoSaveUtils';
 
 interface EditKnowledgeClientComponentProps {
-  prNumber: number;
+  prNumber: string;
+  isDraft: boolean;
 }
 
-const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }) => {
+const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber, isDraft }) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingMsg, setLoadingMsg] = useState<string>('');
@@ -27,11 +29,17 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
   const router = useRouter();
 
   useEffect(() => {
+    if (isDraft) {
+      fetchDraftKnowledgeChanges({ branchName: prNumber, setIsLoading, setLoadingMsg, setKnowledgeEditFormData });
+      return;
+    }
+
     setLoadingMsg('Fetching knowledge data from PR : ' + prNumber);
     const fetchPRData = async () => {
       if (session?.accessToken) {
         try {
-          const prData = await fetchPullRequest(session.accessToken, prNumber);
+          const prNum = parseInt(prNumber, 10);
+          const prData = await fetchPullRequest(session.accessToken, prNum);
 
           // Create KnowledgeFormData from existing form.
           const knowledgeExistingFormData: KnowledgeFormData = {
@@ -55,16 +63,17 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber }
 
           const knowledgeEditFormData: KnowledgeEditFormData = {
             isEditForm: true,
+            isSubmitted: true,
             version: KnowledgeSchemaVersion,
             formData: knowledgeExistingFormData,
-            pullRequestNumber: prNumber,
+            pullRequestNumber: prNum,
             oldFilesPath: ''
           };
 
           knowledgeExistingFormData.submissionSummary = prData.title;
           knowledgeExistingFormData.branchName = prData.head.ref; // Store the branch name from the pull request
 
-          const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, prNumber);
+          const prFiles: PullRequestFile[] = await fetchPullRequestFiles(session.accessToken, prNum);
 
           const foundYamlFile = prFiles.find((file: PullRequestFile) => file.filename.endsWith('.yaml'));
           if (!foundYamlFile) {

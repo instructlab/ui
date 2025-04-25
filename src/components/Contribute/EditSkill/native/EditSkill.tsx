@@ -10,6 +10,7 @@ import { SkillSchemaVersion } from '@/types/const';
 import { ValidatedOptions, Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 import SkillFormNative from '../../Skill/Native';
 import { useSession } from 'next-auth/react';
+import { fetchDraftSkillChanges } from '@/components/Contribute/Utils/autoSaveUtils';
 
 interface ChangeData {
   file: string;
@@ -20,9 +21,10 @@ interface ChangeData {
 
 interface EditSkillClientComponentProps {
   branchName: string;
+  isDraft: boolean;
 }
 
-const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }) => {
+const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName, isDraft }) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingMsg, setLoadingMsg] = useState<string>('');
@@ -30,6 +32,11 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
   const router = useRouter();
 
   useEffect(() => {
+    if (isDraft) {
+      fetchDraftSkillChanges({ branchName, setIsLoading, setLoadingMsg, setSkillEditFormData });
+      return;
+    }
+
     const fetchBranchChanges = async () => {
       setLoadingMsg('Fetching skill data from branch: ' + branchName);
       try {
@@ -55,6 +62,7 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
 
           const skillEditFormData: SkillEditFormData = {
             isEditForm: true,
+            isSubmitted: true,
             version: SkillSchemaVersion,
             pullRequestNumber: 0,
             formData: skillExistingFormData,

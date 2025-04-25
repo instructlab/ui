@@ -8,7 +8,6 @@ import KnowledgeSeedExamples from '@/components/Contribute/Knowledge/KnowledgeSe
 import { ContributionFormData, KnowledgeEditFormData, KnowledgeFormData, KnowledgeSeedExample, KnowledgeYamlData } from '@/types';
 import { useRouter } from 'next/navigation';
 import { Button, ValidatedOptions } from '@patternfly/react-core';
-import { devLog } from '@/utils/devlog';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { UploadKnowledgeDocuments } from '@/components/Contribute/Utils/documentUtils';
 import {
@@ -33,6 +32,7 @@ import ReviewSubmission from '@/components/Contribute/ReviewSubmission/ReviewSub
 import KnowledgeSeedExamplesReviewSection from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamplesReviewSection';
 import DetailsPage from '@/components/Contribute/DetailsPage/DetailsPage';
 import { getDefaultKnowledgeFormData } from '@/components/Contribute/Utils/contributionUtils';
+import { storeDraftData, deleteDraftData, doSaveDraft, isDraftDataExist, storeDraftKnowledgeFile } from '@/components/Contribute/Utils/autoSaveUtils';
 
 export interface KnowledgeFormProps {
   knowledgeEditFormData?: KnowledgeEditFormData;
@@ -62,7 +62,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
               answerValidationError: qa.answerValidationError || ''
             }))
           })),
-          filesToUpload: [],
+          filesToUpload: knowledgeEditFormData.formData.filesToUpload,
           uploadedFiles: knowledgeEditFormData.formData.uploadedFiles
         }
       : getDefaultKnowledgeFormData()
@@ -86,9 +86,39 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
 
   const setFilePath = React.useCallback((filePath: string) => setKnowledgeFormData((prev) => ({ ...prev, filePath })), []);
 
+  async function saveKnowledgeDraft() {
+    // If no change in the form data and there is no existing draft present, skip storing the draft.
+    if (!doSaveDraft(knowledgeFormData) && !isDraftDataExist(knowledgeFormData.branchName)) return;
+
+    await Promise.all(
+      knowledgeFormData.filesToUpload.map(async (file) => {
+        await storeDraftKnowledgeFile(knowledgeFormData.branchName, file);
+      })
+    );
+
+    const draftContributionStr = JSON.stringify(knowledgeFormData, (key, value) => {
+      if (key === 'filesToUpload' && Array.isArray(value)) {
+        const files = value as File[];
+        return files.map((v: File) => {
+          return { name: v.name };
+        });
+      }
+      return value;
+    });
+    storeDraftData(
+      knowledgeFormData.branchName,
+      draftContributionStr,
+      !!knowledgeEditFormData?.isSubmitted,
+      knowledgeEditFormData?.oldFilesPath || ''
+    );
+  }
+
   useEffect(() => {
-    devLog('Seed Examples Updated:', knowledgeFormData.seedExamples);
-  }, [knowledgeFormData.seedExamples]);
+    const storeDraft = async () => {
+      await saveKnowledgeDraft();
+    };
+    storeDraft();
+  }, [knowledgeFormData]);
 
   const steps: StepType[] = React.useMemo(() => {
     const documentInformationStep = {
@@ -274,11 +304,14 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       return isDocUploaded;
     }
 
-    if (knowledgeEditFormData) {
+    if (knowledgeEditFormData && knowledgeEditFormData.isSubmitted) {
       const result = isGithubMode
         ? await updateGithubKnowledgeData(session, knowledgeFormData, knowledgeEditFormData, updateActionGroupAlertContent)
         : await updateNativeKnowledgeData(knowledgeFormData, knowledgeEditFormData, updateActionGroupAlertContent);
       if (result) {
+        //Remove draft if present in the local storage
+        deleteDraftData(knowledgeEditFormData.formData.branchName);
+
         router.push('/dashboard');
       }
       return false;
@@ -287,10 +320,9 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       ? await submitGithubKnowledgeData(knowledgeFormData, githubUsername, updateActionGroupAlertContent)
       : await submitNativeKnowledgeData(knowledgeFormData, updateActionGroupAlertContent);
     if (result) {
-      const newFormData = { ...getDefaultKnowledgeFormData() };
-      newFormData.name = knowledgeFormData.name;
-      newFormData.email = knowledgeFormData.email;
-      setKnowledgeFormData(newFormData);
+      //Remove draft if present in the local storage
+      deleteDraftData(knowledgeFormData.branchName);
+      router.push('/dashboard');
     }
     return result;
   };

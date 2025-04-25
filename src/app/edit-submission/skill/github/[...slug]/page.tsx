@@ -4,16 +4,15 @@ import { AppLayout } from '@/components/AppLayout';
 import EditSkill from '@/components/Contribute/EditSkill/github/EditSkill';
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string[] }>;
 };
 
 const EditSkillPage = async ({ params }: PageProps) => {
   const resolvedParams = await params;
-  const prNumber = parseInt(resolvedParams.id, 10);
 
   return (
     <AppLayout className="contribute-page">
-      <EditSkill prNumber={prNumber} />
+      <EditSkill prNumber={resolvedParams.slug[0]} isDraft={resolvedParams.slug[1] != null ? true : false} />
     </AppLayout>
   );
 };

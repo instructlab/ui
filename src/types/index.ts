@@ -7,6 +7,16 @@ export enum ModelEndpointStatus {
   unknown
 }
 
+export interface DraftEditFormInfo {
+  branchName: string;
+  title?: string;
+  author?: string;
+  lastUpdated: string;
+  isKnowledgeDraft: boolean;
+  isSubmitted: boolean;
+  oldFilesPath: string;
+}
+
 export interface Endpoint {
   id: string;
   name: string;
@@ -43,6 +53,9 @@ export interface PullRequest {
   created_at: string;
   updated_at: string;
   labels: Label[];
+  head: {
+    ref: string;
+  };
 }
 
 export interface SkillYamlData {
@@ -154,6 +167,7 @@ export interface KnowledgeFormData extends ContributionFormData {
 
 export interface EditFormData<T extends ContributionFormData = SkillFormData> {
   isEditForm: boolean;
+  isSubmitted: boolean;
   version: number;
   pullRequestNumber: number;
   oldFilesPath: string;
