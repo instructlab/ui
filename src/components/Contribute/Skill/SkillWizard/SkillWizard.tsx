@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ValidatedOptions, Button } from '@patternfly/react-core';
 import { devLog } from '@/utils/devlog';
 import { SkillSchemaVersion } from '@/types/const';
-import { ContributionFormData, SkillEditFormData, SkillFormData, SkillYamlData } from '@/types';
+import { ContributionFormData, SkillEditFormData, SkillFormData, SkillSeedExample, SkillYamlData } from '@/types';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { isAttributionInformationValid, isSkillSeedExamplesValid, isDetailsValid } from '@/components/Contribute/Utils/validationUtils';
 import {
@@ -150,6 +150,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
             isSkillContribution
             isGithubMode={isGithubMode}
             seedExamples={<SkillSeedExamplesReviewSection seedExamples={skillFormData.seedExamples} />}
+            onUpdateSeedExamples={(seedExamples) => setSkillFormData((prev) => ({ ...prev, seedExamples: seedExamples as SkillSeedExample[] }))}
           />
         ),
         status: StepStatus.Default

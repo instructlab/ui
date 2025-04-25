@@ -21,6 +21,7 @@ import {
 import { KnowledgeFile } from '@/types';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { getWordCount } from '@/components/Contribute/Utils/contributionUtils';
+import { MAX_CONTEXT_WORDS } from '@/components/Contribute/Utils/seedExampleUtils';
 
 interface Props {
   knowledgeFile: KnowledgeFile;
@@ -110,7 +111,7 @@ const KnowledgeFileSelectModal: React.FC<Props> = ({ knowledgeFile, initialSelec
       <ModalHeader
         labelId="select-context-title"
         title="Select Context"
-        description="To create a context, highlight 500 words or less. Selecting a combination of simple and complex contexts you can help prepare your model to handle various needs."
+        description={`To create a context, highlight up to ${MAX_CONTEXT_WORDS} words (recommended). Selecting a combination of simple and complex contexts you can help prepare your model to handle various needs.`}
       />
       <ModalBody id="select-context-body" style={{ paddingTop: 0, marginTop: MdSpacer.var }}>
         <Content
@@ -130,14 +131,14 @@ const KnowledgeFileSelectModal: React.FC<Props> = ({ knowledgeFile, initialSelec
       </ModalBody>
       <HelperText style={{ paddingLeft: LgSpacer.var, paddingTop: XsSpacer.var }}>
         <HelperTextItem
-          icon={selectedWordCount > 500 ? <ExclamationCircleIcon /> : undefined}
-          variant={selectedWordCount > 500 ? ValidatedOptions.error : ValidatedOptions.default}
+          icon={selectedWordCount > MAX_CONTEXT_WORDS ? <ExclamationCircleIcon /> : undefined}
+          variant={selectedWordCount > MAX_CONTEXT_WORDS ? ValidatedOptions.warning : ValidatedOptions.default}
         >
-          {selectedWordCount} / 500 words
+          {`${selectedWordCount} / ${MAX_CONTEXT_WORDS} words${selectedWordCount > MAX_CONTEXT_WORDS ? ` (${selectedWordCount - MAX_CONTEXT_WORDS} over the recommended limit)` : ''}`}
         </HelperTextItem>
       </HelperText>
       <ModalFooter>
-        <Button variant="primary" onClick={() => handleUseSelectedText()} isDisabled={selectedWordCount === 0 || selectedWordCount > 500}>
+        <Button variant="primary" onClick={() => handleUseSelectedText()} isDisabled={selectedWordCount === 0}>
           Create context
         </Button>
         <Button variant="link" onClick={handleCloseModal}>
