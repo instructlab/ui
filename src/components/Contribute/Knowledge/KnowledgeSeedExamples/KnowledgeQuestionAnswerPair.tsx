@@ -46,6 +46,7 @@ const KnowledgeQuestionAnswerPair: React.FC<Props> = ({
       <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
         <FlexItem className="q-and-a-field">
           <TextArea
+            className="q-and-a-field__text-area"
             autoResize
             rows={1}
             resizeOrientation="vertical"
@@ -55,7 +56,6 @@ const KnowledgeQuestionAnswerPair: React.FC<Props> = ({
             validated={questionAndAnswerPair.isQuestionValid === ValidatedOptions.error ? ValidatedOptions.error : ValidatedOptions.default}
             onChange={(_event, questionValue) => handleQuestionInputChange(index, questionValue)}
             onBlur={() => handleQuestionBlur(index)}
-            style={{ paddingBottom: '1rem' }}
           />
           {questionWordCount > 0 ? (
             <HelperText className="q-and-a-field__text-help">
@@ -75,6 +75,7 @@ const KnowledgeQuestionAnswerPair: React.FC<Props> = ({
         </FlexItem>
         <FlexItem className="q-and-a-field">
           <TextArea
+            className="q-and-a-field__text-area"
             autoResize
             rows={1}
             resizeOrientation="vertical"
@@ -84,7 +85,6 @@ const KnowledgeQuestionAnswerPair: React.FC<Props> = ({
             validated={questionAndAnswerPair.isAnswerValid === ValidatedOptions.error ? ValidatedOptions.error : ValidatedOptions.default}
             onChange={(_event, answerValue) => handleAnswerInputChange(index, answerValue)}
             onBlur={() => handleAnswerBlur(index)}
-            style={{ paddingBottom: '1rem' }}
           />
           {answerWordCount > 0 ? (
             <HelperText className="q-and-a-field__text-help">

@@ -27,10 +27,20 @@
     }
     .q-and-a-field {
       position: relative;
+      &__text-area {
+        textarea {
+          padding-bottom: 1rem;
+          &:not(:focus-visible) {
+            outline: var(--pf-t--global--background--color--primary--default) auto 1px;
+          }
+        }
+      }
       &__text-help {
         position: absolute;
-        bottom: var(--pf-t--global--spacer--sm);
+        bottom: calc(var(--pf-t--global--spacer--xs) + 3px);
         left: var(--pf-t--global--spacer--md);
+        background-color: var(--pf-t--global--background--color--primary--default);
+        width: calc(100% - 2 * var(--pf-t--global--spacer--lg));
       }
     }
   }

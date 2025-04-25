@@ -108,7 +108,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     },
     isExperimentalEnabled && {
       path: '/experimental',
-      label: 'Experimental fFeatures',
+      label: 'Experimental features',
       children: [
         { path: '/experimental/fine-tune/', label: 'Fine-tuning' },
         { path: '/experimental/chat-eval/', label: 'Model chat eval' }
