@@ -17,13 +17,13 @@ check-python3:
 #################### DEPLOYMENT FUNCTIONS ####################
 
 .PHONY: start-dev-local
-start-dev-local:  ## Start the npm and pathservice local instances
+start-dev-local:  ## Start the npm local instances
 	$(CMD_PREFIX) echo "Starting ui ..."
 	$(CMD_PREFIX) npm run dev &
 	$(CMD_PREFIX) echo "Development environment started."
 
 .PHONY: stop-dev-local
-stop-dev-local:  ## Stop the npm and pathservice local instances
+stop-dev-local:  ## Stop the npm local instances
 	$(CMD_PREFIX) echo "Stopping ui ..."
 	$(CMD_PREFIX) pkill npm
 	$(CMD_PREFIX) echo "Development environment stopped."

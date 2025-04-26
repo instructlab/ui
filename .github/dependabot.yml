@@ -54,15 +54,6 @@ updates:
       actions-deps:
         patterns:
           - "*"
-  - package-ecosystem: "gomod"
-    directory: "/pathservice"
-    schedule:
-      interval: "weekly"
-    reviewers:
-      - "instructlab/ui-maintainers"
-    target-branch: "main"
-    labels:
-      - "go dependencies"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
@@ -127,15 +118,6 @@ updates:
       actions-deps:
         patterns:
           - "*"
-  - package-ecosystem: "gomod"
-    directory: "/pathservice"
-    schedule:
-      interval: "weekly"
-    reviewers:
-      - "instructlab/ui-maintainers"
-    target-branch: "release-1.0"
-    labels:
-      - "go dependencies"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:

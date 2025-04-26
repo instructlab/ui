@@ -31,7 +31,7 @@ podman machine init
 podman machine start
 ```
 
-For Instructlab installation and initalization run:
+For Instructlab installation and initialization run:
 
 ```bash
 python3.11 -m venv venv
@@ -67,7 +67,7 @@ UI Installer does the following:
 
 Once the installation is successfully completed, you can log in to the UI at `http://localhost:3000` with the username and password provided to the installer.
 
-A taxonomy is needed to start the UI. Without providing `--taxonomy-dir` to the script the default taxonomy used is the upstream taxonony in `~/.local/share/instructlab/taxonomy`.
+A taxonomy is needed to start the UI. Without providing `--taxonomy-dir` to the script the default taxonomy used is the upstream taxonomy in `~/.local/share/instructlab/taxonomy`.
 
 The custom empty taxonomy can be used. The taxonomy must be an initialized git repository.
 
@@ -79,7 +79,7 @@ git config --global init.defaultBranch main
 
 ```bash
 ./ilab-ui-native-installer.sh install --username admin --password passw0rd! --taxonomy-dir /home/user/taxonomy
-Cheking if ilab (InstructLab CLI) is installed natively...
+Checking if ilab (InstructLab CLI) is installed natively...
 
 ilab is natively installed on the host.
 
@@ -120,7 +120,7 @@ Are you sure you want to uninstall the InstructLab UI stack? (yes/no): yes
 If pod startup times out with:
 
 ```text
-Error: playing YAML file: encountered while bringing up pod pathservice-pod: initializing source docker://quay.io/instructlab-ui/pathservice:latest: pinging container registry quay.io: Get "https://quay.io/v2/": dial tcp: lookup quay.io: no such host
+Error: playing YAML file: encountered while bringing up pod ui-pod: initializing source docker://quay.io/instructlab-ui/ui:latest: pinging container registry quay.io: Get "https://quay.io/v2/": dial tcp: lookup quay.io: no such host
 ```
 
 If Docker compatibility mode is enabled, try disabling it.

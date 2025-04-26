@@ -16,5 +16,4 @@ docs/
 certificates/
 server/
 .github/
-./pathservice/taxonomy/
 node_modules/

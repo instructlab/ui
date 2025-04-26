@@ -1,4 +1,4 @@
-// src/app/edit-submission/knowledge/[id]/page.tsx
+// src/app/edit-submission/knowledge/github/[...slug]/page.tsx
 import * as React from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import EditKnowledge from '@/components/Contribute/EditKnowledge/github/EditKnowledge';

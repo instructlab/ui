@@ -43,7 +43,6 @@ deploy-prod-openshift: ## Deploy production stack of the InstructLab UI on OpenS
 .PHONY: redeploy-prod-openshift
 redeploy-prod-openshift: ## Redeploy production stack of the InstructLab UI on OpenShift
 	$(CMD_PREFIX) $(OC) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
-	$(CMD_PREFIX) $(OC) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
 
 .PHONY: undeploy-prod-openshift
 undeploy-prod-openshift: ## Undeploy production stack of the InstructLab UI on OpenShift

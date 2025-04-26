@@ -31,7 +31,7 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/envFrom/0/secretRef/name
         value: prod.env
-    #     - op: add 
+    #     - op: add
     #       path: /spec/template/spec/containers/0/readinessProbe
     #       value:
     #         exec:
@@ -54,8 +54,6 @@ patches:
     #               name: prod.env
 images:
   - name: quay.io/instructlab-ui/ui
-    newTag: v1.1.1
-  - name: quay.io/instructlab-ui/pathservice
     newTag: v1.1.1
 # - name: quay.io/instructlab-ui/healthcheck-sidecar
 #   newTag: main # not currently available in our quay org

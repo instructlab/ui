@@ -33,10 +33,6 @@ load-images: validate-container-engine ## Load images onto Kind cluster
 		$(CONTAINER_ENGINE) save -o $(REPO_ROOT)/healthcheck-sidecar-image.tar quay.io/instructlab-ui/healthcheck-sidecar:main ; \
 		kind load --name $(ILAB_KUBE_CLUSTER_NAME) image-archive $(REPO_ROOT)/healthcheck-sidecar-image.tar ; \
 		rm -f $(REPO_ROOT)/healthcheck-sidecar-image.tar ; \
-		echo "Loading image: quay.io/instructlab-ui/pathservice:main ..." ; \
-		$(CONTAINER_ENGINE) save -o $(REPO_ROOT)/pathservice.tar quay.io/instructlab-ui/pathservice:main ; \
-		kind load --name $(ILAB_KUBE_CLUSTER_NAME) image-archive $(REPO_ROOT)/pathservice.tar ; \
-		rm -f $(REPO_ROOT)/pathservice.tar ; \
 		echo "Loading image: postgres:15-alpine ..." ; \
 		$(CONTAINER_ENGINE) save -o $(REPO_ROOT)/postgresql-15-alpine.tar postgres:15-alpine ; \
 		kind load --name $(ILAB_KUBE_CLUSTER_NAME) image-archive $(REPO_ROOT)/postgresql-15-alpine.tar ; \
@@ -44,7 +40,6 @@ load-images: validate-container-engine ## Load images onto Kind cluster
 	elif [ "$(CONTAINER_ENGINE)" == "docker" ]; then \
 		kind load --name $(ILAB_KUBE_CLUSTER_NAME) docker-image quay.io/instructlab-ui/ui:main ; \
 		kind load --name $(ILAB_KUBE_CLUSTER_NAME) docker-image quay.io/instructlab-ui/healthcheck-sidecar:main ; \
-		kind load --name $(ILAB_KUBE_CLUSTER_NAME) docker-image quay.io/instructlab-ui/pathservice:main ; \
 		kind load --name $(ILAB_KUBE_CLUSTER_NAME) docker-image postgres:15-alpine ; \
 	fi;
 
@@ -83,7 +78,6 @@ deploy: wait-for-readiness ## Deploy a InstructLab UI development stack onto a k
 .PHONY: redeploy
 redeploy: ui-image load-images ## Redeploy the InstructLab UI stack onto a kubernetes cluster
 	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
-	$(CMD_PREFIX) kubectl --context=$(ILAB_KUBE_CONTEXT) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
 
 .PHONY: undeploy
 undeploy: ## Undeploy the InstructLab UI stack from a kubernetes cluster
