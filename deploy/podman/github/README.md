@@ -32,6 +32,7 @@ kubectl create secret generic ui-env \
   --from-literal=IL_MERLINITE_API="" \
   --from-literal=IL_MERLINITE_MODEL_NAME="" \
   --from-literal=IL_ENABLE_DEV_MODE=false \
+  --from-literal=IL_ENABLE_DOC_CONVERSION=false \
   --dry-run=client -o yaml > secret.yaml
 ```
 

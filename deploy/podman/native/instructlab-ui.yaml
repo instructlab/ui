@@ -83,6 +83,11 @@ spec:
             secretKeyRef:
               name: ui-env
               key: IL_ENABLE_DEV_MODE
+        - name: IL_ENABLE_DOC_CONVERSION
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_ENABLE_DOC_CONVERSION
         - name: NEXT_PUBLIC_API_SERVER
           valueFrom:
             secretKeyRef:
