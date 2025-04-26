@@ -12,8 +12,7 @@
           "deploy/k8s/overlays/openshift/prod/kustomization.yaml"
         ],
         "matchStrings": [
-          "value: quay.io/instructlab-ui/ui:(?<currentValue>.*)",
-          "value: quay.io/instructlab-ui/pathservice:(?<currentValue>.*)"
+          "value: quay.io/instructlab-ui/ui:(?<currentValue>.*)"
         ],
         "datasourceTemplate": "github-releases",
         "depNameTemplate": "instructlab/ui",

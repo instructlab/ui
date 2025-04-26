@@ -17,10 +17,7 @@ cp .env.native.example .env
 make start-dev-local
 ```
 
-This will start the UI and the dependent pathservice locally on the machine.
-
-> [!NOTE]
-> It might ask for permission to allow to listen on port 4000.
+This will start the UI on the machine listening on default port 3000
 
 To stop the local dev environment run the following:
 
@@ -260,16 +257,16 @@ If you'd like to run a specific single test, use the following command with the 
 
 ** NOTE: requires the `devcontainer` binary
 
-A devcontainer is provided in case you don't want to or can't install these dependencies and tools into you local enviroment.
+A devcontainer is provided in case you don't want to or can't install these dependencies and tools into you local environment.
 Additionally, make commands have been provided to make it very easy to spin the environment up or down. To get setup,
 simple use the `make cycle-dev-container` target, which will check for existing versions of the devcontainer image,
 delete their pods and the image to ensure you have a clean start, build it from scratch and start the container.
-Alternatively you can use the `make build-dev-container`, `make start-dev-container` to buildand run the container respectively.
+Alternatively you can use the `make build-dev-container`, `make start-dev-container` to build and run the container respectively.
 After simply `make enter-dev-container` to exec into it.
 
 It is compatible with both `docker` and `podman` which you can set with the `CONTAINER_ENGINE` environment variable.
 The dev container will mount your local `.env` file into the workspace as well, so you can develop without having to
-reconstruct your settings. Currently the `devcontainer` does not support intelligent port reassigment, it is pinned
+reconstruct your settings. Currently the `devcontainer` does not support intelligent port reassignment, it is pinned
 to port `3000`.
 
 ## Updating the Sealed Secrets for the ArgoCD Application
@@ -291,7 +288,7 @@ BE CERTAIN to delete the un-encrypted secret file, we do not want to leak these 
 to its correct location within this repo.
 
 The goal, however, is to keep these secrets updated with the contents of the `.env` file.
-You can do this using the command below from the root of the repo, however be sure to subsitute your environment (`prod` or `qa`)
+You can do this using the command below from the root of the repo, however be sure to substitute your environment (`prod` or `qa`)
 where it asks you to:
 
 ```bash

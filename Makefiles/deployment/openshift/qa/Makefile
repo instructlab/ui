@@ -19,7 +19,6 @@ deploy-qa-openshift: ## Deploy QA stack of the InstructLab UI on OpenShift
 .PHONY: redeploy-qa-openshift
 redeploy-qa-openshift: ## Redeploy QA stack of the InstructLab UI on OpenShift
 	$(CMD_PREFIX) $(OC) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/ui
-	$(CMD_PREFIX) $(OC) -n $(ILAB_KUBE_NAMESPACE) rollout restart deploy/pathservice
 
 .PHONY: undeploy-qa-openshift
 undeploy-qa-openshift: ## Undeploy QA stack of the InstructLab UI on OpenShift
