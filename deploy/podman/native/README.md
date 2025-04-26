@@ -25,6 +25,7 @@ kubectl create secret generic ui-env \
   --from-literal=NEXT_PUBLIC_TAXONOMY_ROOT_DIR="<TAXONOMY_ROOT_DIR>" \
   --from-literal=NEXT_PUBLIC_EXPERIMENTAL_FEATURES="false" \
   --from-literal=IL_ENABLE_DEV_MODE=false \
+  --from-literal=IL_ENABLE_DOC_CONVERSION=false \
   --dry-run=client -o yaml > secret.yaml
 ```
 

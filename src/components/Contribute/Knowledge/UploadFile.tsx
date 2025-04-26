@@ -45,12 +45,22 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ existingF
   const [showExistingFilesStatus, setExistingFilesStatus] = useState(false);
   const [showOverwriteModal, setShowOverwriteModal] = useState(false);
   const [showFileDeleteModal, setShowFileDeleteModal] = useState(false);
+  const [enableDocConversion, setEnableDocConversion] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<string[]>([]);
   const [filesToOverwrite, setFilesToOverwrite] = useState<File[]>([]);
   const [droppedFiles, setDroppedFiles] = React.useState<File[] | undefined>();
   const [statusIcon, setStatusIcon] = useState<'inProgress' | 'success' | 'danger'>('inProgress');
   const [modalText, setModalText] = useState('');
   React.useContext(MultipleFileUploadContext);
+
+  useEffect(() => {
+    const getEnvVariables = async () => {
+      const res = await fetch('/api/envConfig');
+      const envConfig = await res.json();
+      setEnableDocConversion(envConfig.ENABLE_DOC_CONVERSION === 'true');
+    };
+    getEnvVariables();
+  }, []);
 
   useEffect(() => {
     if (filesToUpload.length > 0) {
@@ -111,17 +121,19 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ existingF
     setShowFileDeleteModal(false);
   };
 
-  // Define allowed file types
-  const allowedFileTypes: { [mime: string]: string[] } = {
-    'application/pdf': ['.pdf'],
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-    'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.svg'],
-    'text/html': ['.html'],
-    'text/asciidoc': ['.adoc'],
-    'text/markdown': ['.md']
-  };
+  // Define allowed file types. If doc conversion is not enabled, only allow markdown files.
+  const allowedFileTypes: { [mime: string]: string[] } = enableDocConversion
+    ? {
+        'application/pdf': ['.pdf'],
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+        'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.svg'],
+        'text/html': ['.html'],
+        'text/asciidoc': ['.adoc'],
+        'text/markdown': ['.md']
+      }
+    : { 'text/markdown': ['.md'] };
 
   // Handle drop (and re-drop) of files
   const handleFileDrop = (_event: DropEvent, files: File[]) => {
@@ -262,7 +274,11 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ existingF
             <MultiFileUploadArea
               titleIcon={<UploadIcon />}
               titleText="Drag and drop files here or upload"
-              infoText="Accepted file types include PDF, DOCX, PPTX, XLSX, HTML, AsciiDoc, Markdown, and images. All files will be converted to Markdown."
+              infoText={
+                enableDocConversion
+                  ? 'Accepted file types include PDF, DOCX, PPTX, XLSX, HTML, AsciiDoc, Markdown, and images. All files will be converted to Markdown.'
+                  : 'Accepted file type: Markdown'
+              }
               uploadText="Upload from device"
               manualUploadText="Upload from git repository"
               onManualUpload={() => setShowUploadFromGitModal(true)}

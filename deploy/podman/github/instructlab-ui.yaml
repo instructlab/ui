@@ -118,6 +118,11 @@ spec:
             secretKeyRef:
               name: ui-env
               key: IL_ENABLE_DEV_MODE
+        - name: IL_ENABLE_DOC_CONVERSION
+          valueFrom:
+            secretKeyRef:
+              name: ui-env
+              key: IL_ENABLE_DOC_CONVERSION
         ports:
         - containerPort: 3000
           hostPort: 3000
