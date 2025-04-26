@@ -47,6 +47,7 @@ import { ExpandableSection } from '@patternfly/react-core/dist/esm/components/Ex
 import { v4 as uuidv4 } from 'uuid';
 import { DraftEditFormInfo } from '@/types';
 import { deleteDraftData, fetchDraftContributions } from '@/components/Contribute/Utils/autoSaveUtils';
+import { handleTaxonomyDownload } from '@/utils/taxonomy';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
@@ -79,6 +80,7 @@ const DashboardNative: React.FunctionComponent = () => {
   const [selectedDraftContribution, setSelectedDraftContribution] = React.useState<string | null>(null);
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [expandedFiles, setExpandedFiles] = React.useState<Record<string, boolean>>({});
+  const [isDownloadDone, setIsDownloadDone] = React.useState<boolean>(true);
 
   const router = useRouter();
 
@@ -393,6 +395,17 @@ const DashboardNative: React.FunctionComponent = () => {
           ))}
         </AlertGroup>
 
+        {!isDownloadDone && (
+          <Modal variant={ModalVariant.small} title="Retrieving taxonomy tar file" isOpen onClose={() => setIsDownloadDone(true)}>
+            <ModalBody>
+              <div>
+                <Spinner size="md" />
+                Retrieving the taxonomy compressed file with the contributed data.
+              </div>
+            </ModalBody>
+          </Modal>
+        )}
+
         {isLoading ? (
           <Spinner size="lg" />
         ) : branches.length === 0 && draftContributions.length === 0 ? (
@@ -546,8 +559,8 @@ const DashboardNative: React.FunctionComponent = () => {
                             <DropdownItem
                               key="download-taxonomy"
                               onClick={() => {
-                                // this will trigger the browser download
-                                window.location.href = '/api/download';
+                                setIsDownloadDone(false);
+                                handleTaxonomyDownload({ branchName: branch.name, isGithubMode: false, setIsDownloadDone });
                               }}
                             >
                               Download taxonomy

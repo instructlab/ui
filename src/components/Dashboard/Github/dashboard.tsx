@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { fetchPullRequests, getGitHubUsername } from '../../../utils/github';
 import { DraftEditFormInfo, PullRequest } from '@/types';
 import { useState } from 'react';
 import {
@@ -40,6 +39,8 @@ import {
 } from '@patternfly/react-core';
 import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, EllipsisVIcon, PficonTemplateIcon } from '@patternfly/react-icons';
 import { deleteDraftData, fetchDraftContributions } from '@/components/Contribute/Utils/autoSaveUtils';
+import { handleTaxonomyDownload } from '@/utils/taxonomy';
+import { fetchPullRequests, getGitHubUsername } from '@/utils/github';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
@@ -48,6 +49,7 @@ const DashboardGithub: React.FunctionComponent = () => {
   const [pullRequests, setPullRequests] = React.useState<PullRequest[]>([]);
   const [draftContributions, setDraftContributions] = React.useState<DraftEditFormInfo[]>([]);
   const [isFirstPullDone, setIsFirstPullDone] = React.useState<boolean>(false);
+  const [isDownloadDone, setIsDownloadDone] = React.useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   //const [error, setError] = React.useState<string | null>(null);
   const [isActionMenuOpen, setIsActionMenuOpen] = React.useState<{ [key: number | string]: boolean }>({});
@@ -191,6 +193,16 @@ const DashboardGithub: React.FunctionComponent = () => {
               <div>
                 <Spinner size="md" />
                 Retrieving all your skills and knowledge submissions from taxonomy repository.
+              </div>
+            </ModalBody>
+          </Modal>
+        )}
+        {!isDownloadDone && (
+          <Modal variant={ModalVariant.small} title="Retrieving taxonomy tar file" isOpen onClose={() => setIsDownloadDone(true)}>
+            <ModalBody>
+              <div>
+                <Spinner size="md" />
+                Retrieving the taxonomy compressed file with the contributed data.
               </div>
             </ModalBody>
           </Modal>
@@ -347,6 +359,15 @@ const DashboardGithub: React.FunctionComponent = () => {
                               </DropdownItem>
                             )}
                           </DropdownList>
+                          <DropdownItem
+                            key="download-taxonomy"
+                            onClick={() => {
+                              setIsDownloadDone(false);
+                              handleTaxonomyDownload({ branchName: pr.head.ref, isGithubMode: true, setIsDownloadDone });
+                            }}
+                          >
+                            Download taxonomy
+                          </DropdownItem>
                         </Dropdown>
                       )
                     }}
