@@ -1,23 +1,29 @@
-// src/app/api/download/route.ts
+// src/app/api/native/download/route.ts
 'use server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import * as git from 'isomorphic-git';
 
-// GET handler now takes the Request so we can watch for aborts
-export async function GET(request: Request) {
-  const rootDir = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR;
+const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || `${process.env.HOME}/.instructlab-ui`;
+
+export async function POST(req: NextRequest) {
+  const rootDir = LOCAL_TAXONOMY_ROOT_DIR;
   if (!rootDir) {
-    return NextResponse.json({ error: 'NEXT_PUBLIC_TAXONOMY_ROOT_DIR is not configured' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to find the local taxonomy that contains the contribution.' }, { status: 500 });
   }
+  const { branchName } = await req.json();
 
   const taxonomyDir = path.join(rootDir, 'taxonomy');
   try {
     await fs.promises.access(taxonomyDir, fs.constants.R_OK);
   } catch {
-    return NextResponse.json({ error: 'Taxonomy directory not found or not readable' }, { status: 404 });
+    return NextResponse.json({ error: 'Taxonomy directory not found or not readable' }, { status: 500 });
   }
+
+  // Checkout the new branch
+  await git.checkout({ fs, dir: taxonomyDir, ref: branchName });
 
   // Spawn tar to write gzipped archive to stdout
   const tar = spawn('tar', ['-czf', '-', '-C', rootDir, 'taxonomy'], {
@@ -25,7 +31,7 @@ export async function GET(request: Request) {
   });
 
   // If the client aborts, make sure to kill the tar process
-  request.signal.addEventListener('abort', () => {
+  req.signal.addEventListener('abort', () => {
     tar.kill('SIGTERM');
   });
 
@@ -51,7 +57,7 @@ export async function GET(request: Request) {
     status: 200,
     headers: {
       'Content-Type': 'application/gzip',
-      'Content-Disposition': 'attachment; filename="taxonomy.tar.gz"',
+      'Content-Disposition': `attachment`,
       'Cache-Control': 'no-store'
     }
   });
