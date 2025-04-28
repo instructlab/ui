@@ -244,7 +244,7 @@ async function handlePublish(branchName: string, localTaxonomyDir: string, remot
       return NextResponse.json({ error: 'Invalid contribution name for publish' }, { status: 400 });
     }
 
-    console.log(`Publishing contribution from ${branchName} to remote taxonomy repo at ${REMOTE_TAXONOMY_ROOT_DIR}/taxonomy`);
+    console.log(`Publishing contribution from ${branchName} to remote taxonomy repo at ${remoteTaxonomyDir}`);
     const changes = await findDiff(branchName, localTaxonomyDir);
 
     // Check if there are any changes to publish, create a new branch at remoteTaxonomyDir and

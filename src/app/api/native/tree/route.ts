@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
     const taxonomyRootPath = findTaxonomyRepoPath();
     let dirPath = '';
     if (root_path === 'skills') {
-      dirPath = path.join(taxonomyRootPath, 'taxonomy', SKILLS, dir_name);
+      dirPath = path.join(taxonomyRootPath, SKILLS, dir_name);
     } else {
-      dirPath = path.join(taxonomyRootPath, 'taxonomy', KNOWLEDGE, dir_name);
+      dirPath = path.join(taxonomyRootPath, KNOWLEDGE, dir_name);
     }
     const dirs = getFirstLevelDirectories(dirPath);
     return NextResponse.json({ data: dirs }, { status: 201 });
