@@ -90,5 +90,5 @@ export const findTaxonomyRepoPath = (): string => {
   if (remoteTaxonomyRepoDirFinal === '') {
     return '';
   }
-  return remoteTaxonomyRepoDirFinal;
+  return path.join(remoteTaxonomyRepoDirFinal, '/taxonomy');
 };
