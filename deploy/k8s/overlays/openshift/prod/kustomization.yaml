@@ -54,6 +54,6 @@ patches:
     #               name: prod.env
 images:
   - name: quay.io/instructlab-ui/ui
-    newTag: v1.1.1
+    newTag: v1.2.0
 # - name: quay.io/instructlab-ui/healthcheck-sidecar
 #   newTag: main # not currently available in our quay org
