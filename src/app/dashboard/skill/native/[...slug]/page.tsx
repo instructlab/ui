@@ -1,4 +1,4 @@
-// src/app/edit-submission/skill/[id]/page.tsx
+// src/app/dashboard/skill/[id]/page.tsx
 import * as React from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import EditSkillNative from '@/components/Contribute/EditSkill/native/EditSkill';

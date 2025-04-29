@@ -48,7 +48,8 @@ type Route = {
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className }) => {
   const { data: session, status } = useSession();
   const {
-    featureFlags: { experimentalFeaturesEnabled }
+    loaded,
+    featureFlags: { skillFeaturesEnabled, playgroundFeaturesEnabled, experimentalFeaturesEnabled }
   } = useFeatureFlags();
 
   const router = useRouter();
@@ -61,7 +62,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     }
   }, [session, status, pathname, router]);
 
-  if (status === 'loading') {
+  if (!loaded || status === 'loading') {
     return (
       <Bullseye>
         <Spinner />
@@ -73,34 +74,34 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     return null; // Return nothing if not authenticated to avoid flicker
   }
 
-  //const isExperimentalEnabled = process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES === 'true';
-
   const routes = [
     { path: '/dashboard', label: 'Dashboard' },
-    {
-      path: '/contribute',
-      label: 'Contribute',
-      children: [
-        { path: '/contribute/skill', label: 'Skill' },
-        { path: '/contribute/knowledge', label: 'Knowledge' }
-      ]
-    },
-    {
-      path: '/playground',
-      label: 'Playground',
-      children: [
-        { path: '/playground/chat', label: 'Chat' },
-        { path: '/playground/endpoints', label: 'Custom model endpoints' }
-      ]
-    },
-    experimentalFeaturesEnabled && {
-      path: '/experimental',
-      label: 'Experimental features',
-      children: [
-        { path: '/experimental/fine-tune/', label: 'Fine-tuning' },
-        { path: '/experimental/chat-eval/', label: 'Model chat eval' }
-      ]
-    }
+    { path: '/contribute/knowledge', label: 'Contribute knowledge' },
+    ...(skillFeaturesEnabled ? [{ path: '/contribute/skill', label: 'Contribute skills' }] : []),
+    ...(playgroundFeaturesEnabled
+      ? [
+          {
+            path: '/playground',
+            label: 'Playground',
+            children: [
+              { path: '/playground/chat', label: 'Chat with a model' },
+              { path: '/playground/endpoints', label: 'Custom model endpoints' }
+            ]
+          }
+        ]
+      : []),
+    ...(experimentalFeaturesEnabled
+      ? [
+          {
+            path: '/experimental',
+            label: 'Experimental features',
+            children: [
+              { path: '/experimental/fine-tune/', label: 'Fine-tuning' },
+              { path: '/experimental/chat-eval/', label: 'Model chat eval' }
+            ]
+          }
+        ]
+      : [])
   ].filter(Boolean) as Route[];
 
   const Header = (
@@ -138,7 +139,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
   );
 
   const renderNavItem = (route: Route, index: number) => (
-    <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={route.path === pathname}>
+    <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={pathname.startsWith(route.path)}>
       <Link href={route.path}>{route.label}</Link>
     </NavItem>
   );
@@ -147,7 +148,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     <NavExpandable
       key={`${route.label}-${index}`}
       title={route.label}
-      isActive={route.path === pathname || route.children?.some((child) => child.path === pathname)}
+      isActive={route.path.startsWith(pathname) || route.children?.some((child) => pathname.startsWith(child.path))}
       isExpanded
     >
       {route.children?.map((child, idx) => renderNavItem(child, idx))}

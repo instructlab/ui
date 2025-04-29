@@ -6,9 +6,6 @@ import { useRouter } from 'next/navigation';
 import { DraftEditFormInfo, PullRequest } from '@/types';
 import { useState } from 'react';
 import {
-  PageBreadcrumb,
-  Breadcrumb,
-  BreadcrumbItem,
   PageSection,
   Title,
   Content,
@@ -105,9 +102,9 @@ const DashboardGithub: React.FunctionComponent = () => {
   const handleEditDraftContribution = (branchName: string) => {
     // Check if branchName contains string "knowledge"
     if (branchName.includes('knowledge')) {
-      router.push(`/edit-submission/knowledge/github/${branchName}/isDraft`);
+      router.push(`/contribute/knowledge/github/${branchName}/isDraft`);
     } else {
-      router.push(`/edit-submission/skill/github/${branchName}/isDraft`);
+      router.push(`/contribute/skill/github/${branchName}/isDraft`);
     }
   };
 
@@ -119,15 +116,15 @@ const DashboardGithub: React.FunctionComponent = () => {
       // If user is editing the submitted contribution, use the latest data from draft, if available.
       // Pass the pr number as well, it's required to pull the data from PR.
       if (hasKnowledgeLabel) {
-        router.push(`/edit-submission/knowledge/github/${pr.head.ref}/isDraft`);
+        router.push(`/contribute/knowledge/github/${pr.head.ref}/isDraft`);
       } else {
-        router.push(`/edit-submission/skill/github/${pr.head.ref}/isDraft`);
+        router.push(`/contribute/skill/github/${pr.head.ref}/isDraft`);
       }
     } else {
       if (hasKnowledgeLabel) {
-        router.push(`/edit-submission/knowledge/github/${pr.number}`);
+        router.push(`/contribute/knowledge/github/${pr.number}`);
       } else if (hasSkillLabel) {
-        router.push(`/edit-submission/skill/github/${pr.number}`);
+        router.push(`/contribute/skill/github/${pr.number}`);
       }
     }
   };
@@ -155,12 +152,7 @@ const DashboardGithub: React.FunctionComponent = () => {
   };
 
   return (
-    <div>
-      <PageBreadcrumb hasBodyWrapper={false}>
-        <Breadcrumb>
-          <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
-        </Breadcrumb>
-      </PageBreadcrumb>
+    <>
       <PageSection hasBodyWrapper={false}>
         <Title headingLevel="h1" size="lg">
           My Submissions
@@ -403,7 +395,7 @@ const DashboardGithub: React.FunctionComponent = () => {
           </Gallery>
         )}
       </PageSection>
-    </div>
+    </>
   );
 };
 

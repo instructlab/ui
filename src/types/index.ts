@@ -168,6 +168,7 @@ export interface KnowledgeFormData extends ContributionFormData {
 export interface EditFormData<T extends ContributionFormData = SkillFormData> {
   isEditForm: boolean;
   isSubmitted: boolean;
+  isDraft?: boolean;
   version: number;
   pullRequestNumber: number;
   oldFilesPath: string;

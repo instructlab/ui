@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Breadcrumb, BreadcrumbItem, Button, PageBreadcrumb, PageSection, Content } from '@patternfly/react-core/';
+import { Button, PageSection, Content } from '@patternfly/react-core/';
 import { t_global_spacer_sm as SmSpacerSize } from '@patternfly/react-tokens';
 import { AppLayout } from '@/components/AppLayout';
 import ModelsContextProvider from '../../../components/Chat/ModelsContext';
@@ -16,14 +16,8 @@ const ChatPage: React.FC = () => {
 
   return (
     <AppLayout className="chatBotPage">
-      <PageBreadcrumb>
-        <Breadcrumb>
-          <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
-          <BreadcrumbItem isActive>Chat</BreadcrumbItem>
-        </Breadcrumb>
-      </PageBreadcrumb>
       <PageSection>
-        <Content component="h1">Chat with a Model</Content>
+        <Content component="h1">Chat with a model</Content>
         <Content style={{ marginBottom: SmSpacerSize.var }}>
           {`Before you start adding new skills and knowledge to your model, you can check its baseline
           performance by chatting with a language model that's hosted on your cloud. Choose a supported model

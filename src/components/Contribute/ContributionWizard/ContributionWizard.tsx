@@ -2,23 +2,10 @@
 'use client';
 import React from 'react';
 import { useSession } from 'next-auth/react';
+import { Button, Content, Flex, FlexItem, PageGroup, PageSection, Title, Wizard, WizardStep } from '@patternfly/react-core';
 import { ContributionFormData, EditFormData } from '@/types';
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields, autoFillSkillsFields } from '@/components/Contribute/AutoFill';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  Button,
-  Content,
-  Flex,
-  FlexItem,
-  PageBreadcrumb,
-  PageGroup,
-  PageSection,
-  Title,
-  Wizard,
-  WizardStep
-} from '@patternfly/react-core';
 import { getGitHubUserInfo } from '@/utils/github';
 import ContributionWizardFooter from '@/components/Contribute/ContributionWizard/ContributionWizardFooter';
 import { deleteDraftData } from '@/components/Contribute/Utils/autoSaveUtils';
@@ -48,6 +35,7 @@ export interface StepType {
 export interface Props {
   title: React.ReactNode;
   description: React.ReactNode;
+  breadcrumbs?: React.ReactNode;
   editFormData?: EditFormData;
   formData: ContributionFormData;
   setFormData: React.Dispatch<React.SetStateAction<ContributionFormData>>;
@@ -61,6 +49,7 @@ export interface Props {
 export const ContributionWizard: React.FunctionComponent<Props> = ({
   title,
   description,
+  breadcrumbs = null,
   editFormData,
   formData,
   setFormData,
@@ -150,12 +139,7 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
 
   return (
     <PageGroup isFilled style={{ overflowY: 'hidden', flex: 1 }}>
-      <PageBreadcrumb stickyOnBreakpoint={{ default: 'top' }}>
-        <Breadcrumb>
-          <BreadcrumbItem to="/">Contribute</BreadcrumbItem>
-          <BreadcrumbItem isActive>{title}</BreadcrumbItem>
-        </Breadcrumb>
-      </PageBreadcrumb>
+      {breadcrumbs}
       <PageSection className="knowledge-form" style={{ overflowY: 'hidden' }}>
         <Flex direction={{ default: 'column' }}>
           <FlexItem>

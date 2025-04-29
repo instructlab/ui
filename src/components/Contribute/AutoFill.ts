@@ -353,7 +353,7 @@ const skillsSeedExamples: SkillSeedExample[] = [
 ];
 
 export const autoFillSkillsFields: SkillFormData = {
-  branchName: `knowledge-contribution-${Date.now()}`,
+  branchName: `skill-contribution-${Date.now()}`,
   email: 'helloworld@instructlab.com',
   name: 'juliadenham',
   submissionSummary: 'Teaching a model to rhyme.',

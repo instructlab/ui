@@ -7,7 +7,7 @@ import DocumentInformation from '@/components/Contribute/Knowledge/DocumentInfor
 import KnowledgeSeedExamples from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamples';
 import { ContributionFormData, KnowledgeEditFormData, KnowledgeFormData, KnowledgeSeedExample, KnowledgeYamlData } from '@/types';
 import { useRouter } from 'next/navigation';
-import { Button, ValidatedOptions } from '@patternfly/react-core';
+import { Breadcrumb, BreadcrumbItem, Button, PageBreadcrumb, ValidatedOptions } from '@patternfly/react-core';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { UploadKnowledgeDocuments } from '@/components/Contribute/Utils/documentUtils';
 import {
@@ -336,7 +336,27 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
   return (
     <>
       <ContributionWizard
-        title={knowledgeEditFormData?.formData ? 'Edit knowledge contribution' : 'Submit knowledge contribution'}
+        breadcrumbs={
+          knowledgeEditFormData ? (
+            <PageBreadcrumb stickyOnBreakpoint={{ default: 'top' }}>
+              <Breadcrumb>
+                <BreadcrumbItem
+                  to="/"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    router.push('/contribute/knowledge');
+                  }}
+                >
+                  Contribute knowledge
+                </BreadcrumbItem>
+                <BreadcrumbItem isActive>{`Edit${knowledgeEditFormData?.isDraft ? ' draft' : ''} knowledge contribution`}</BreadcrumbItem>
+              </Breadcrumb>
+            </PageBreadcrumb>
+          ) : null
+        }
+        title={
+          knowledgeEditFormData?.formData ? `Edit${knowledgeEditFormData?.isDraft ? ' draft' : ''} knowledge contribution` : 'Knowledge contribution'
+        }
         description={
           <>
             Knowledge contributions improve a model’s ability to answer questions accurately. They consist of questions and answers, and documents

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { ValidatedOptions, Button } from '@patternfly/react-core';
+import { ValidatedOptions, Button, PageBreadcrumb, Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 import { SkillSchemaVersion } from '@/types/const';
 import { ContributionFormData, SkillEditFormData, SkillFormData, SkillSeedExample, SkillYamlData } from '@/types';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
@@ -23,10 +23,10 @@ import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
 import ReviewSubmission from '@/components/Contribute/ReviewSubmission/ReviewSubmission';
 import SkillSeedExamples from '@/components/Contribute/Skill/SkillSeedExamples/SkillSeedExamples';
 import SkillSeedExamplesReviewSection from '@/components/Contribute/Skill/SkillSeedExamples/SkillSeedExamplesReviewSection';
-
-import './skills.css';
 import DetailsPage from '@/components/Contribute/DetailsPage/DetailsPage';
 import { storeDraftData, deleteDraftData, doSaveDraft, isDraftDataExist } from '@/components/Contribute/Utils/autoSaveUtils';
+
+import './skills.css';
 
 export interface Props {
   skillEditFormData?: SkillEditFormData;
@@ -223,7 +223,25 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
   return (
     <>
       <ContributionWizard
-        title="Skill Contribution"
+        breadcrumbs={
+          skillEditFormData ? (
+            <PageBreadcrumb stickyOnBreakpoint={{ default: 'top' }}>
+              <Breadcrumb>
+                <BreadcrumbItem
+                  to="/"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    router.push('/contribute/skill');
+                  }}
+                >
+                  Contribute skills
+                </BreadcrumbItem>
+                <BreadcrumbItem isActive>{`Edit${skillEditFormData?.isDraft ? ' draft' : ''} skills contribution`}</BreadcrumbItem>
+              </Breadcrumb>
+            </PageBreadcrumb>
+          ) : null
+        }
+        title={skillEditFormData?.formData ? `Edit${skillEditFormData?.isDraft ? ' draft' : ''} skills contribution` : 'Skills contribution'}
         description={
           <>
             {`Skill contributions improve a model’s ability to perform tasks. They consist of seed data which provide instructions for completing a task. To autofill this form from a document, `}

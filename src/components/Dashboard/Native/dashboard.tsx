@@ -4,9 +4,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   AlertProps,
-  PageBreadcrumb,
-  Breadcrumb,
-  BreadcrumbItem,
   PageSection,
   Title,
   Content,
@@ -268,9 +265,9 @@ const DashboardNative: React.FunctionComponent = () => {
     setSelectedDraftContribution(branchName);
     // Check if branchName contains string "knowledge"
     if (branchName.includes('knowledge')) {
-      router.push(`/edit-submission/knowledge/native/${branchName}/isDraft`);
+      router.push(`/contribute/knowledge/native/${branchName}/isDraft`);
     } else {
-      router.push(`/edit-submission/skill/native/${branchName}/isDraft`);
+      router.push(`/contribute/skill/native/${branchName}/isDraft`);
     }
   };
 
@@ -280,16 +277,16 @@ const DashboardNative: React.FunctionComponent = () => {
     if (draftContributions.find((draft) => draft.branchName == branchName)) {
       // If user is editing the submitted contribution, use the latest data from draft.
       if (branchName.includes('knowledge')) {
-        router.push(`/edit-submission/knowledge/native/${branchName}/isDraft`);
+        router.push(`/contribute/knowledge/native/${branchName}/isDraft`);
       } else {
-        router.push(`/edit-submission/skill/native/${branchName}/isDraft`);
+        router.push(`/contribute/skill/native/${branchName}/isDraft`);
       }
     } else {
       // Check if branchName contains string "knowledge"
       if (branchName.includes('knowledge')) {
-        router.push(`/edit-submission/knowledge/native/${branchName}`);
+        router.push(`/contribute/knowledge/native/${branchName}`);
       } else {
-        router.push(`/edit-submission/skill/native/${branchName}`);
+        router.push(`/contribute/skill/native/${branchName}`);
       }
     }
   };
@@ -358,12 +355,7 @@ const DashboardNative: React.FunctionComponent = () => {
   };
 
   return (
-    <div>
-      <PageBreadcrumb hasBodyWrapper={false}>
-        <Breadcrumb>
-          <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
-        </Breadcrumb>
-      </PageBreadcrumb>
+    <>
       <PageSection hasBodyWrapper={false}>
         <Title headingLevel="h1" size="lg">
           My Submissions
@@ -713,7 +705,7 @@ const DashboardNative: React.FunctionComponent = () => {
           </ModalFooter>
         </Modal>
       </PageSection>
-    </div>
+    </>
   );
 };
 

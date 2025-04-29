@@ -439,6 +439,10 @@ export const submitNativeSkillData = async (
     }))
   };
 
+  console.log(`========== Submitting Skill ==============`);
+  console.log(`YamlData: `, skillYamlData);
+  console.log(`FormData: `, skillFormData);
+
   const yamlString = dumpYaml(skillYamlData);
 
   const waitForSubmissionAlert: ActionGroupAlertContent = {
