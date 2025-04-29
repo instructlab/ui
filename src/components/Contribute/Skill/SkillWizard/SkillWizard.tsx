@@ -77,19 +77,13 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
     }
   };
 
-  async function saveSkillDraft() {
-    // If no change in the form data and there is no existing draft present, skill storing the draft.
-    if (!doSaveDraft(skillFormData) && !isDraftDataExist(skillFormData.branchName)) return;
+  useEffect(() => {
+    if (!doSaveDraft(skillFormData) && !isDraftDataExist(skillFormData.branchName)) {
+      return;
+    }
 
     storeDraftData(skillFormData.branchName, JSON.stringify(skillFormData), !!skillEditFormData?.isSubmitted, skillEditFormData?.oldFilesPath || '');
-  }
-
-  useEffect(() => {
-    const storeDraft = async () => {
-      await saveSkillDraft();
-    };
-    storeDraft();
-  }, [skillFormData]);
+  }, [skillEditFormData?.isSubmitted, skillEditFormData?.oldFilesPath, skillFormData]);
 
   const steps: StepType[] = React.useMemo(
     () => [

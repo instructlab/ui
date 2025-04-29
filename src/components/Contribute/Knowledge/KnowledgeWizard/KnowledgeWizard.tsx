@@ -86,39 +86,35 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
 
   const setFilePath = React.useCallback((filePath: string) => setKnowledgeFormData((prev) => ({ ...prev, filePath })), []);
 
-  async function saveKnowledgeDraft() {
-    // If no change in the form data and there is no existing draft present, skip storing the draft.
-    if (!doSaveDraft(knowledgeFormData) && !isDraftDataExist(knowledgeFormData.branchName)) return;
-
-    await Promise.all(
-      knowledgeFormData.filesToUpload.map(async (file) => {
-        await storeDraftKnowledgeFile(knowledgeFormData.branchName, file);
-      })
-    );
-
-    const draftContributionStr = JSON.stringify(knowledgeFormData, (key, value) => {
-      if (key === 'filesToUpload' && Array.isArray(value)) {
-        const files = value as File[];
-        return files.map((v: File) => {
-          return { name: v.name };
-        });
-      }
-      return value;
-    });
-    storeDraftData(
-      knowledgeFormData.branchName,
-      draftContributionStr,
-      !!knowledgeEditFormData?.isSubmitted,
-      knowledgeEditFormData?.oldFilesPath || ''
-    );
-  }
-
   useEffect(() => {
     const storeDraft = async () => {
-      await saveKnowledgeDraft();
+      // If no change in the form data and there is no existing draft present, skip storing the draft.
+      if (!doSaveDraft(knowledgeFormData) && !isDraftDataExist(knowledgeFormData.branchName)) return;
+
+      await Promise.all(
+        knowledgeFormData.filesToUpload.map(async (file) => {
+          await storeDraftKnowledgeFile(knowledgeFormData.branchName, file);
+        })
+      );
+
+      const draftContributionStr = JSON.stringify(knowledgeFormData, (key, value) => {
+        if (key === 'filesToUpload' && Array.isArray(value)) {
+          const files = value as File[];
+          return files.map((v: File) => {
+            return { name: v.name };
+          });
+        }
+        return value;
+      });
+      storeDraftData(
+        knowledgeFormData.branchName,
+        draftContributionStr,
+        !!knowledgeEditFormData?.isSubmitted,
+        knowledgeEditFormData?.oldFilesPath || ''
+      );
     };
     storeDraft();
-  }, [knowledgeFormData]);
+  }, [knowledgeEditFormData?.isSubmitted, knowledgeEditFormData?.oldFilesPath, knowledgeFormData]);
 
   const steps: StepType[] = React.useMemo(() => {
     const documentInformationStep = {

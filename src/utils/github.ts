@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { PullRequestUpdateData } from '@/types';
 import { BASE_BRANCH, FORK_CLONE_CHECK_RETRY_COUNT, FORK_CLONE_CHECK_RETRY_TIMEOUT, GITHUB_API_URL } from '@/types/const';
+import { fetchEnvConfig } from '@/utils/envConfigService';
 
 type GithubUserInfo = {
   login: string;
@@ -11,19 +12,14 @@ type GithubUserInfo = {
 
 export async function fetchPullRequests(token: string) {
   try {
-    console.log('Refreshing PR Listing');
-    const res = await fetch('/api/envConfig');
-    const envConfig = await res.json();
+    const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
 
-    const response = await axios.get(
-      `https://api.github.com/repos/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/pulls?state=all`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/vnd.github+json'
-        }
+    const response = await axios.get(`https://api.github.com/repos/${upstreamRepoOwner}/${upstreamRepoName}/pulls?state=all`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json'
       }
-    );
+    });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -37,17 +33,13 @@ export async function fetchPullRequests(token: string) {
 
 export const fetchPullRequest = async (token: string, prNumber: number) => {
   try {
-    const res = await fetch('/api/envConfig');
-    const envConfig = await res.json();
-    const response = await axios.get(
-      `https://api.github.com/repos/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/pulls/${prNumber}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/vnd.github+json'
-        }
+    const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
+    const response = await axios.get(`https://api.github.com/repos/${upstreamRepoOwner}/${upstreamRepoName}/pulls/${prNumber}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json'
       }
-    );
+    });
     if (response.status === 404) {
       throw new Error(`Pull request with number ${prNumber} not found.`);
     }
@@ -65,17 +57,13 @@ export const fetchPullRequest = async (token: string, prNumber: number) => {
 
 export const fetchPullRequestFiles = async (token: string, prNumber: number) => {
   try {
-    const res = await fetch('/api/envConfig');
-    const envConfig = await res.json();
-    const response = await axios.get(
-      `https://api.github.com/repos/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/pulls/${prNumber}/files`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/vnd.github+json'
-        }
+    const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
+    const response = await axios.get(`https://api.github.com/repos/${upstreamRepoOwner}/${upstreamRepoName}/pulls/${prNumber}/files`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json'
       }
-    );
+    });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -89,17 +77,13 @@ export const fetchPullRequestFiles = async (token: string, prNumber: number) => 
 
 export const fetchFileContent = async (token: string, filePath: string, ref: string) => {
   try {
-    const res = await fetch('/api/envConfig');
-    const envConfig = await res.json();
-    const response = await axios.get(
-      `https://api.github.com/repos/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/contents/${filePath}?ref=${ref}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/vnd.github.v3.raw'
-        }
+    const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
+    const response = await axios.get(`https://api.github.com/repos/${upstreamRepoOwner}/${upstreamRepoName}/contents/${filePath}?ref=${ref}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3.raw'
       }
-    );
+    });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -114,18 +98,13 @@ export const fetchFileContent = async (token: string, filePath: string, ref: str
 export const updatePullRequest = async (token: string, prNumber: number, data: PullRequestUpdateData) => {
   try {
     console.log(`Updating PR Number: ${prNumber} with data:`, data);
-    const res = await fetch('/api/envConfig');
-    const envConfig = await res.json();
-    const response = await axios.patch(
-      `https://api.github.com/repos/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/pulls/${prNumber}`,
-      data,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/vnd.github+json'
-        }
+    const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
+    const response = await axios.patch(`https://api.github.com/repos/${upstreamRepoOwner}/${upstreamRepoName}/pulls/${prNumber}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json'
       }
-    );
+    });
     console.log(`Updated PR ${prNumber}:`, response.data);
     return response.data;
   } catch (error) {

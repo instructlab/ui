@@ -2,7 +2,6 @@
 import * as React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import path from 'path';
 import {
   AlertProps,
   PageBreadcrumb,
@@ -48,6 +47,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DraftEditFormInfo } from '@/types';
 import { deleteDraftData, fetchDraftContributions } from '@/components/Contribute/Utils/autoSaveUtils';
 import { handleTaxonomyDownload } from '@/utils/taxonomy';
+import { useEnvConfig } from '@/context/EnvConfigContext';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
@@ -64,10 +64,34 @@ interface AlertItem {
   key: React.Key;
 }
 
+const cloneNativeTaxonomyRepo = async (): Promise<boolean> => {
+  try {
+    const response = await fetch('/api/native/clone-repo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      console.log(result.message);
+      return true;
+    } else {
+      console.error(result.message);
+      return false;
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Error cloning repo:', errorMessage);
+    return false;
+  }
+};
+
 const DashboardNative: React.FunctionComponent = () => {
+  const {
+    envConfig: { taxonomyRootDir }
+  } = useEnvConfig();
   const [branches, setBranches] = React.useState<{ name: string; creationDate: number; message: string; author: string }[]>([]);
   const [draftContributions, setDraftContributions] = React.useState<DraftEditFormInfo[]>([]);
-  const [taxonomyRepoDir, setTaxonomyRepoDir] = React.useState<string>('');
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [mergeStatus] = React.useState<{ branch: string; message: string; success: boolean } | null>(null);
   const [diffData, setDiffData] = React.useState<{ branch: string; changes: ChangeData[] } | null>(null);
@@ -102,64 +126,47 @@ const DashboardNative: React.FunctionComponent = () => {
     addAlert(message, 'danger');
   }, []);
 
-  const fetchBranches = React.useCallback(async () => {
-    try {
-      const response = await fetch('/api/native/git/branches');
-      const result = await response.json();
-      if (response.ok) {
-        // Filter out 'main' branch
-        const filteredBranches = result.branches.filter((branch: { name: string }) => branch.name !== 'main');
-        setBranches(filteredBranches);
-      } else {
-        console.error('Failed to fetch branches:', result.error);
-        addDangerAlert(result.error || 'Failed to fetch branches.');
-      }
-    } catch (error) {
-      console.error('Error fetching branches:', error);
-      addDangerAlert('Error fetching branches.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [addDangerAlert]);
-
-  async function cloneNativeTaxonomyRepo(): Promise<boolean> {
-    try {
-      const response = await fetch('/api/native/clone-repo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        console.log(result.message);
-        return true;
-      } else {
-        console.error(result.message);
-        return false;
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error cloning repo:', errorMessage);
-      return false;
-    }
-  }
-
   // Fetch branches from the API route
   React.useEffect(() => {
-    const getEnvVariables = async () => {
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
-      const taxonomyRepoDir = path.join(envConfig.TAXONOMY_ROOT_DIR + '/taxonomy');
-      setTaxonomyRepoDir(taxonomyRepoDir);
+    let refreshIntervalId: NodeJS.Timeout;
+
+    const fetchBranches = async () => {
+      const success = await cloneNativeTaxonomyRepo();
+      if (success) {
+        try {
+          const response = await fetch('/api/native/git/branches');
+          const result = await response.json();
+          if (response.ok) {
+            // Filter out 'main' branch
+            const filteredBranches = result.branches.filter((branch: { name: string }) => branch.name !== 'main');
+            setBranches(filteredBranches);
+          } else {
+            console.error('Failed to fetch branches:', result.error);
+            addDangerAlert(result.error || 'Failed to fetch branches.');
+          }
+        } catch (error) {
+          console.error('Error fetching branches:', error);
+          addDangerAlert('Error fetching branches.');
+        }
+      }
     };
-    getEnvVariables();
 
     cloneNativeTaxonomyRepo().then((success) => {
       if (success) {
-        fetchBranches();
+        fetchBranches().then(() => {
+          setIsLoading(false);
+        });
+        refreshIntervalId = setInterval(fetchBranches, 60000);
+      } else {
+        addDangerAlert('Failed to fetch branches.');
+        setIsLoading(false);
       }
     });
 
+    return () => clearInterval(refreshIntervalId);
+  }, [addDangerAlert]);
+
+  React.useEffect(() => {
     // Fetch all the draft contributions and mark them submitted if present in the branches
     const drafts = fetchDraftContributions().map((draft: DraftEditFormInfo) => ({
       ...draft,
@@ -167,7 +174,7 @@ const DashboardNative: React.FunctionComponent = () => {
     }));
 
     setDraftContributions(drafts);
-  }, [fetchBranches]);
+  }, [branches]);
 
   const formatDateTime = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -671,7 +678,7 @@ const DashboardNative: React.FunctionComponent = () => {
         >
           <ModalHeader title="Deleting Contribution" labelId="delete-contribution-modal-title" titleIconVariant="warning" />
           <ModalBody id="delete-contribution-body-variant">
-            <p>are you sure you want to delete this contribution?</p>
+            <p>Are you sure you want to delete this contribution?</p>
           </ModalBody>
           <ModalFooter>
             <Button key="confirm" variant="primary" onClick={() => handleDeleteContributionConfirm()}>
@@ -693,7 +700,7 @@ const DashboardNative: React.FunctionComponent = () => {
         >
           <ModalHeader title="Publishing Contribution" labelId="publish-contribution-modal-title" titleIconVariant="warning" />
           <ModalBody id="publish-contribution-body-variant">
-            <p>are you sure you want to publish contribution to remote taxonomy repository present at : {taxonomyRepoDir}?</p>
+            <p>Are you sure you want to publish contribution to remote taxonomy repository present at : {taxonomyRootDir}?</p>
           </ModalBody>
           <ModalFooter>
             <Button key="confirm" variant="primary" onClick={() => handlePublishContributionConfirm()}>

@@ -22,6 +22,7 @@ import {
 import { getGitHubUserInfo } from '@/utils/github';
 import ContributionWizardFooter from '@/components/Contribute/ContributionWizard/ContributionWizardFooter';
 import { deleteDraftData } from '@/components/Contribute/Utils/autoSaveUtils';
+import { useEnvConfig } from '@/context/EnvConfigContext';
 
 import './contribute-page.scss';
 
@@ -69,7 +70,9 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
   convertToYaml,
   onSubmit
 }) => {
-  const [devModeEnabled, setDevModeEnabled] = React.useState<boolean | undefined>();
+  const {
+    envConfig: { isDevMode }
+  } = useEnvConfig();
   const { data: session } = useSession();
   const [githubUsername, setGithubUsername] = React.useState<string>('');
   const [submitEnabled, setSubmitEnabled] = React.useState<boolean>(false); // **New State Added**
@@ -89,15 +92,6 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
     [steps]
   );
   const getStepIndex = (stepId: string) => stepIds.indexOf(stepId);
-
-  React.useEffect(() => {
-    const getEnvVariables = async () => {
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
-      setDevModeEnabled(envConfig.ENABLE_DEV_MODE === 'true');
-    };
-    getEnvVariables();
-  }, []);
 
   React.useEffect(() => {
     let canceled = false;
@@ -172,7 +166,7 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
                 </Title>
               </FlexItem>
               <FlexItem>
-                {devModeEnabled && (
+                {isDevMode && (
                   <Button variant="secondary" onClick={autoFillForm}>
                     Autofill
                   </Button>

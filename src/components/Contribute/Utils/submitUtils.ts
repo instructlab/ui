@@ -11,6 +11,7 @@ import { KnowledgeSchemaVersion, SkillSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { amendCommit, getGitHubUsername, updatePullRequest } from '@/utils/github';
+import { fetchEnvConfig } from '@/utils/envConfigService';
 import { Session } from 'next-auth';
 import { validateKnowledgeFormFields, validateSkillFormFields } from '@/components/Contribute/Utils/validation';
 
@@ -374,13 +375,12 @@ Creator names: ${attributionData.creator_names}
       };
       setActionGroupAlertContent(waitForSubmissionAlert);
 
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
+      const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
 
       const amendedCommitResponse = await amendCommit(
         session.accessToken,
         githubUsername,
-        envConfig.UPSTREAM_REPO_NAME,
+        upstreamRepoName,
         oldFilePath,
         newFilePath,
         yamlString,
@@ -390,7 +390,7 @@ Creator names: ${attributionData.creator_names}
       );
       console.log('Amended commit response:', amendedCommitResponse);
 
-      const prLink = `https://github.com/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/pull/${knowledgeEditFormData.pullRequestNumber}`;
+      const prLink = `https://github.com/${upstreamRepoOwner}/${upstreamRepoName}/pull/${knowledgeEditFormData.pullRequestNumber}`;
       const actionGroupAlertContent: ActionGroupAlertContent = {
         title: 'Knowledge contribution updated successfully!',
         message: `Thank you for your contribution!`,
@@ -717,8 +717,7 @@ Creator names: ${attributionData.creator_names}
         attribution: finalAttributionPath
       };
 
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
+      const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
 
       const waitForSubmissionAlert: ActionGroupAlertContent = {
         title: 'Skill contribution update is in progress.!',
@@ -732,7 +731,7 @@ Creator names: ${attributionData.creator_names}
       const amendedCommitResponse = await amendCommit(
         session.accessToken,
         githubUsername,
-        envConfig.UPSTREAM_REPO_NAME,
+        upstreamRepoName,
         oldFilePath,
         newFilePath,
         yamlString,
@@ -742,7 +741,7 @@ Creator names: ${attributionData.creator_names}
       );
       console.log('Amended commit response:', amendedCommitResponse);
 
-      const prLink = `https://github.com/${envConfig.UPSTREAM_REPO_OWNER}/${envConfig.UPSTREAM_REPO_NAME}/pull/${pullRequestNumber}`;
+      const prLink = `https://github.com/${upstreamRepoOwner}/${upstreamRepoName}/pull/${pullRequestNumber}`;
       const actionGroupAlertContent: ActionGroupAlertContent = {
         title: 'Skill contribution updated successfully!',
         message: `Thank you for your contribution!`,

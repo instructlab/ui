@@ -4,37 +4,41 @@
 import * as React from 'react';
 import { signOut } from 'next-auth/react';
 import { Modal, ModalVariant, Button, ModalBody, ModalFooter, ModalHeader } from '@patternfly/react-core';
+import { useEnvConfig } from '@/context/EnvConfigContext';
 
 interface Props {
   onAccept: () => void;
 }
 const GithubAccessPopup: React.FunctionComponent<Props> = ({ onAccept }) => {
+  const {
+    envConfig: { isGithubMode, isDevMode },
+    loaded
+  } = useEnvConfig();
   const [isOpen, setIsOpen] = React.useState(false);
 
   React.useEffect(() => {
-    const showPopupWarning = async () => {
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
-      if (envConfig.DEPLOYMENT_TYPE === 'native' || envConfig.ENABLE_DEV_MODE === 'true') {
-        setIsOpen(false);
-        onAccept();
-      } else {
-        setIsOpen(true);
-      }
-    };
-    showPopupWarning();
-  }, [onAccept]);
+    if (loaded && (!isGithubMode || isDevMode)) {
+      setIsOpen(false);
+      onAccept();
+    } else {
+      setIsOpen(true);
+    }
+  }, [isDevMode, isGithubMode, loaded, onAccept]);
 
   const setDecisionAndClose = () => {
     setIsOpen(false);
     onAccept();
   };
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <Modal
       variant={ModalVariant.medium}
       title="GitHub Access Permissions"
-      isOpen={isOpen}
+      isOpen
       onClose={() => setIsOpen(false)}
       aria-labelledby="github-access-warn-modal-title"
       aria-describedby="github-access-warn-body-variant"

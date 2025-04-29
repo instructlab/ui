@@ -3,11 +3,8 @@
 
 import * as React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import HelpDropdown from './HelpDropdown/HelpDropdown';
 import Link from 'next/link';
-import UserMenu from './UserMenu/UserMenu';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
 import {
   Bullseye,
   Spinner,
@@ -31,7 +28,11 @@ import {
 } from '@patternfly/react-core';
 import { BarsIcon } from '@patternfly/react-icons';
 import ThemePreference from '@/components/ThemePreference/ThemePreference';
+import HelpDropdown from './HelpDropdown/HelpDropdown';
+import UserMenu from './UserMenu/UserMenu';
+
 import '../styles/globals.scss';
+import { useFeatureFlags } from '@/context/FeatureFlagsContext';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -46,20 +47,12 @@ type Route = {
 
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className }) => {
   const { data: session, status } = useSession();
-  const [isExperimentalEnabled, setExperimental] = useState(false);
+  const {
+    featureFlags: { experimentalFeaturesEnabled }
+  } = useFeatureFlags();
 
   const router = useRouter();
   const pathname = usePathname();
-
-  React.useEffect(() => {
-    // Fetch the experimental feature flag
-    const fetchExperimentalFeature = async () => {
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
-      setExperimental(envConfig.EXPERIMENTAL_FEATURES === 'true');
-    };
-    fetchExperimentalFeature();
-  }, []);
 
   React.useEffect(() => {
     if (status === 'loading') return; // Do nothing while loading
@@ -82,12 +75,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
 
   //const isExperimentalEnabled = process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES === 'true';
 
-  // Only log if experimental features are enabled
-  if (isExperimentalEnabled) {
-    console.log('Is Experimental Enabled:', isExperimentalEnabled);
-    console.log('Environment Variable:', process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES);
-  }
-
   const routes = [
     { path: '/dashboard', label: 'Dashboard' },
     {
@@ -106,7 +93,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
         { path: '/playground/endpoints', label: 'Custom model endpoints' }
       ]
     },
-    isExperimentalEnabled && {
+    experimentalFeaturesEnabled && {
       path: '/experimental',
       label: 'Experimental features',
       children: [

@@ -130,7 +130,7 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ prNumber, isDraft 
       }
     };
     fetchPRData();
-  }, [session?.accessToken, prNumber]);
+  }, [session?.accessToken, prNumber, isDraft]);
 
   const parseAttributionContent = (content: string): AttributionData => {
     const lines = content.split('\n');

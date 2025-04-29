@@ -3,7 +3,9 @@
 
 import { ReactNode } from 'react';
 import { SessionProvider } from 'next-auth/react';
-import { ThemeProvider } from '../context/ThemeContext';
+import { ThemeProvider } from '@/context/ThemeContext';
+import { EnvConfigProvider } from '@/context/EnvConfigContext';
+import { FeatureFlagsProvider } from '@/context/FeatureFlagsContext';
 
 interface ClientProviderProps {
   children: ReactNode;
@@ -12,7 +14,11 @@ interface ClientProviderProps {
 const ClientProvider = ({ children }: ClientProviderProps) => {
   return (
     <SessionProvider>
-      <ThemeProvider>{children}</ThemeProvider>
+      <EnvConfigProvider>
+        <FeatureFlagsProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </FeatureFlagsProvider>
+      </EnvConfigProvider>
     </SessionProvider>
   );
 };
