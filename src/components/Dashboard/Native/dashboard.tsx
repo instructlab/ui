@@ -41,13 +41,14 @@ import {
   Gallery,
   GalleryItem,
   Label,
-  Divider
+  Divider,
+  Tooltip
 } from '@patternfly/react-core';
 import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, EllipsisVIcon, PficonTemplateIcon } from '@patternfly/react-icons';
 import { ExpandableSection } from '@patternfly/react-core/dist/esm/components/ExpandableSection/ExpandableSection';
 import { v4 as uuidv4 } from 'uuid';
 import { DraftEditFormInfo } from '@/types';
-import { deleteDraftData, fetchDraftContributions } from '@/components/Contribute/Utils/autoSaveUtils';
+import { deleteDraftData, fetchDraftContributions, TOOLTIP_FOR_DISABLE_COMPONENT } from '@/components/Contribute/Utils/autoSaveUtils';
 import { handleTaxonomyDownload } from '@/utils/taxonomy';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
@@ -443,11 +444,9 @@ const DashboardNative: React.FunctionComponent = () => {
                       >
                         <CardTitle>
                           <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                            <Label color="purple">NEW</Label>
                             <Label icon={<PficonTemplateIcon />} color="green">
                               Draft
-                            </Label>
-                            <Label icon={<PficonTemplateIcon />} color="green">
-                              New submission
                             </Label>
                             {draft.title ? draft.title : `Untitled ${index + 1}`}
                           </Flex>
@@ -499,11 +498,11 @@ const DashboardNative: React.FunctionComponent = () => {
                           popperProps={{ position: 'end' }}
                         >
                           <DropdownList>
-                            {!draftContributions.find((draft) => draft.branchName === branch.name) && (
+                            <DropdownItem key="show-changes" onClick={() => handleShowChanges(branch.name)}>
+                              Show changes
+                            </DropdownItem>
+                            {!draftContributions.find((draft) => draft.branchName === branch.name) ? (
                               <>
-                                <DropdownItem key="show-changes" onClick={() => handleShowChanges(branch.name)}>
-                                  Show changes
-                                </DropdownItem>
                                 <DropdownItem key="edit-contribution" onClick={() => handleEditContribution(branch.name)}>
                                   Edit contribution
                                 </DropdownItem>
@@ -524,26 +523,32 @@ const DashboardNative: React.FunctionComponent = () => {
                                   Delete contribution
                                 </DropdownItem>
                               </>
-                            )}
-                            {draftContributions.find((draft) => draft.branchName === branch.name) && (
+                            ) : (
                               <>
-                                <DropdownItem key="show-changes" onClick={() => handleShowChanges(branch.name)}>
-                                  Show changes
+                                <DropdownItem key="edit-draft-contribution" onClick={() => handleEditContribution(branch.name)}>
+                                  Edit draft
                                 </DropdownItem>
-                                <DropdownItem key="edit-contribution" onClick={() => handleEditContribution(branch.name)}>
-                                  Edit contribution
-                                </DropdownItem>
-                                <DropdownItem key="publish-contribution" isDisabled>
-                                  Publish contribution
-                                </DropdownItem>
-                                <DropdownItem key="download-taxonomy" isDisabled>
-                                  Download taxonomy
-                                </DropdownItem>
+                                <Tooltip content={TOOLTIP_FOR_DISABLE_COMPONENT}>
+                                  <DropdownItem key="edit-contribution" aria-disabled>
+                                    Edit contribution
+                                  </DropdownItem>
+                                </Tooltip>
+                                <Tooltip content={TOOLTIP_FOR_DISABLE_COMPONENT}>
+                                  <DropdownItem key="publish-contribution" aria-disabled>
+                                    Publish contribution
+                                  </DropdownItem>
+                                </Tooltip>
+                                <Tooltip content={TOOLTIP_FOR_DISABLE_COMPONENT}>
+                                  <DropdownItem key="download-taxonomy" aria-disabled>
+                                    Download taxonomy
+                                  </DropdownItem>
+                                </Tooltip>
                                 <Divider component="li" />
-                                <DropdownItem key="delete-contribution" isDisabled>
-                                  Delete contribution
-                                </DropdownItem>
-
+                                <Tooltip content={TOOLTIP_FOR_DISABLE_COMPONENT}>
+                                  <DropdownItem key="delete-contribution" aria-disabled>
+                                    Delete contribution
+                                  </DropdownItem>
+                                </Tooltip>
                                 <DropdownItem key="delete-draft" isDanger onClick={() => setDeleteDraftContribution(branch.name)}>
                                   Delete draft
                                 </DropdownItem>
@@ -557,14 +562,9 @@ const DashboardNative: React.FunctionComponent = () => {
                     <CardTitle>
                       <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
                         {draftContributions.find((draft) => draft.branchName == branch.name) && (
-                          <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                            <Label icon={<PficonTemplateIcon />} color="green">
-                              Draft
-                            </Label>
-                            <Label icon={<PficonTemplateIcon />} color="green">
-                              Existing submission
-                            </Label>
-                          </Flex>
+                          <Label icon={<PficonTemplateIcon />} color="green">
+                            Draft
+                          </Label>
                         )}
                         {` ${branch.message}`}
                       </Flex>
@@ -659,13 +659,16 @@ const DashboardNative: React.FunctionComponent = () => {
         {deleteDraftContribution != undefined && (
           <Modal
             isOpen
-            title="Delete contribution"
             variant="small"
             aria-label="contribution deletion warning"
             aria-labelledby="contribution-deletion-warning-title"
             aria-describedby="contribution-deletion-warning-variant"
           >
-            <ModalHeader title="Deleting draft contribution" labelId="contribution-deletion-warning-title" titleIconVariant="warning" />
+            <ModalHeader
+              title="Permanently delete this draft contribution"
+              labelId="contribution-deletion-warning-title"
+              titleIconVariant="warning"
+            />
             <ModalBody id="contribution-deletion-warning-variant">
               <p>
                 Are you sure you want to delete the draft changes you made to contribution <strong>{deleteDraftContribution}</strong>?
@@ -673,11 +676,11 @@ const DashboardNative: React.FunctionComponent = () => {
               </p>
             </ModalBody>
             <ModalFooter>
-              <Button key="delete" variant="primary" onClick={() => handleDeleteDraftContribution(deleteDraftContribution)}>
+              <Button key="delete" variant="danger" onClick={() => handleDeleteDraftContribution(deleteDraftContribution)}>
                 Delete
               </Button>
-              <Button key="keepit" variant="secondary" onClick={() => setDeleteDraftContribution(undefined)}>
-                Keep It
+              <Button key="cancel" variant="secondary" onClick={() => setDeleteDraftContribution(undefined)}>
+                Cancel
               </Button>
             </ModalFooter>
           </Modal>
@@ -687,23 +690,22 @@ const DashboardNative: React.FunctionComponent = () => {
           <Modal
             isOpen
             variant={ModalVariant.small}
-            title="Deleting Contribution"
             onClose={() => setDeleteContribution(undefined)}
             aria-labelledby="delete-contribution-modal-title"
             aria-describedby="delete-contribution-body-variant"
           >
-            <ModalHeader title="Deleting Contribution" labelId="delete-contribution-modal-title" titleIconVariant="warning" />
+            <ModalHeader title="Permanently delete this Contribution" labelId="delete-contribution-modal-title" titleIconVariant="warning" />
             <ModalBody id="delete-contribution-body-variant">
               <p>
-                Are you sure you want to delete the contribution <strong>{deleteContribution}</strong>?
+                Are you sure you want to delete <strong>{deleteContribution}</strong>?
               </p>
             </ModalBody>
             <ModalFooter>
-              <Button key="confirm" variant="primary" onClick={() => handleDeleteContribution(deleteContribution)}>
+              <Button key="delete" variant="danger" onClick={() => handleDeleteContribution(deleteContribution)}>
                 Delete
               </Button>
-              <Button key="keep-it" variant="secondary" onClick={() => setDeleteContribution(undefined)}>
-                Keep It
+              <Button key="cancel" variant="secondary" onClick={() => setDeleteContribution(undefined)}>
+                Cancel
               </Button>
             </ModalFooter>
           </Modal>
@@ -713,7 +715,6 @@ const DashboardNative: React.FunctionComponent = () => {
           <Modal
             isOpen
             variant={ModalVariant.small}
-            title="Publishing Contribution"
             onClose={() => setPublishContribution(undefined)}
             aria-labelledby="publish-contribution-modal-title"
             aria-describedby="publish-contribution-body-variant"

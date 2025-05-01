@@ -3,6 +3,8 @@ import { KnowledgeSchemaVersion, SkillSchemaVersion } from '@/types/const';
 import { devLog } from '@/utils/devlog';
 import path from 'path';
 
+export const TOOLTIP_FOR_DISABLE_COMPONENT = 'This action can be performed once draft changes are either submitted or discarded.';
+
 export const storeDraftData = (branchName: string, data: string, isSubmitted: boolean, oldFilesPath: string) => {
   localStorage.setItem(branchName, data);
   addToDraftList(branchName, isSubmitted, oldFilesPath);

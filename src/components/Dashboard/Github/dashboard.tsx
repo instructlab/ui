@@ -38,10 +38,11 @@ import {
   GalleryItem,
   Divider,
   ModalHeader,
-  ModalFooter
+  ModalFooter,
+  Tooltip
 } from '@patternfly/react-core';
 import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, EllipsisVIcon, PficonTemplateIcon } from '@patternfly/react-icons';
-import { deleteDraftData, fetchDraftContributions } from '@/components/Contribute/Utils/autoSaveUtils';
+import { deleteDraftData, fetchDraftContributions, TOOLTIP_FOR_DISABLE_COMPONENT } from '@/components/Contribute/Utils/autoSaveUtils';
 import { handleTaxonomyDownload } from '@/utils/taxonomy';
 import { fetchPullRequests, getGitHubUsername } from '@/utils/github';
 
@@ -215,13 +216,16 @@ const DashboardGithub: React.FunctionComponent = () => {
         {deleteDraftContribution != undefined && (
           <Modal
             isOpen
-            title="Delete contribution"
             variant="small"
             aria-label="contribution deletion warning"
             aria-labelledby="contribution-deletion-warning-title"
             aria-describedby="contribution-deletion-warning-variant"
           >
-            <ModalHeader title="Deleting draft contribution" labelId="contribution-deletion-warning-title" titleIconVariant="warning" />
+            <ModalHeader
+              title="Permanently delete this draft contribution"
+              labelId="contribution-deletion-warning-title"
+              titleIconVariant="warning"
+            />
             <ModalBody id="contribution-deletion-warning-variant">
               <p>
                 Are you sure you want to delete the draft changes you made to contribution <strong>{deleteDraftContribution}</strong>?
@@ -229,11 +233,11 @@ const DashboardGithub: React.FunctionComponent = () => {
               </p>
             </ModalBody>
             <ModalFooter>
-              <Button key="delete" variant="primary" onClick={() => handleDeleteDraftContribution(deleteDraftContribution)}>
+              <Button key="delete" variant="danger" onClick={() => handleDeleteDraftContribution(deleteDraftContribution)}>
                 Delete
               </Button>
-              <Button key="keepit" variant="secondary" onClick={() => setDeleteDraftContribution(undefined)}>
-                Keep It
+              <Button key="cancel" variant="secondary" onClick={() => setDeleteDraftContribution(undefined)}>
+                Cancel
               </Button>
             </ModalFooter>
           </Modal>
@@ -324,11 +328,9 @@ const DashboardGithub: React.FunctionComponent = () => {
                       >
                         <CardTitle>
                           <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                            <Label color="purple">NEW</Label>
                             <Label icon={<PficonTemplateIcon />} color="green">
                               Draft
-                            </Label>
-                            <Label icon={<PficonTemplateIcon />} color="green">
-                              New submission
                             </Label>
                             {draft.title ? draft.title : `Untitled ${index + 1}`}
                           </Flex>
@@ -379,21 +381,14 @@ const DashboardGithub: React.FunctionComponent = () => {
                           popperProps={{ position: 'end' }}
                         >
                           <DropdownList>
-                            {!draftContributions.find((draft) => draft.branchName == pr.head.ref) && (
+                            <DropdownItem key="view-pr" to={pr.html_url} target="_blank" rel="noopener noreferrer">
+                              View PR
+                            </DropdownItem>
+                            {!draftContributions.find((draft) => draft.branchName == pr.head.ref) ? (
                               <>
-                                <DropdownItem key="view-pr" to={pr.html_url} target="_blank" rel="noopener noreferrer">
-                                  View PR
+                                <DropdownItem key="edit-contribution" isDisabled={pr.state === 'closed'} onClick={() => handleEditClick(pr)}>
+                                  Edit contribution
                                 </DropdownItem>
-                                {pr.state === 'open' && (
-                                  <DropdownItem key="edit-contribution" onClick={() => handleEditClick(pr)}>
-                                    Edit contribution
-                                  </DropdownItem>
-                                )}
-                                {pr.state === 'closed' && (
-                                  <DropdownItem key="edit-contribution" isDisabled>
-                                    Edit contribution
-                                  </DropdownItem>
-                                )}
                                 <DropdownItem
                                   key="download-taxonomy"
                                   onClick={() => {
@@ -404,25 +399,21 @@ const DashboardGithub: React.FunctionComponent = () => {
                                   Download taxonomy
                                 </DropdownItem>
                               </>
-                            )}
-                            {draftContributions.find((draft) => draft.branchName == pr.head.ref) && (
+                            ) : (
                               <>
-                                <DropdownItem key="view-pr" to={pr.html_url} target="_blank" rel="noopener noreferrer">
-                                  View PR
+                                <DropdownItem key="edit-draft-contribution" onClick={() => handleEditClick(pr)}>
+                                  Edit draft
                                 </DropdownItem>
-                                {pr.state === 'open' && (
-                                  <DropdownItem key="edit-contribution" onClick={() => handleEditClick(pr)}>
+                                <Tooltip content={TOOLTIP_FOR_DISABLE_COMPONENT}>
+                                  <DropdownItem key="edit-contribution" aria-disabled>
                                     Edit contribution
                                   </DropdownItem>
-                                )}
-                                {pr.state === 'closed' && (
-                                  <DropdownItem key="edit-contribution" isDisabled>
-                                    Edit contribution
+                                </Tooltip>
+                                <Tooltip content={TOOLTIP_FOR_DISABLE_COMPONENT}>
+                                  <DropdownItem key="download-taxonomy" aria-disabled>
+                                    Download taxonomy
                                   </DropdownItem>
-                                )}
-                                <DropdownItem key="download-taxonomy" isDisabled>
-                                  Download taxonomy
-                                </DropdownItem>
+                                </Tooltip>
                                 <Divider component="li" />
                                 <DropdownItem key="delete-draft" isDanger onClick={() => setDeleteDraftContribution(pr.head.ref)}>
                                   Delete draft
@@ -437,14 +428,9 @@ const DashboardGithub: React.FunctionComponent = () => {
                     <CardTitle>
                       <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
                         {draftContributions.find((draft) => draft.branchName == pr.head.ref) && (
-                          <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                            <Label icon={<PficonTemplateIcon />} color="green">
-                              Draft
-                            </Label>
-                            <Label icon={<PficonTemplateIcon />} color="green">
-                              Existing submission
-                            </Label>
-                          </Flex>
+                          <Label icon={<PficonTemplateIcon />} color="green">
+                            Draft
+                          </Label>
                         )}
                         {pr.title}
                       </Flex>
