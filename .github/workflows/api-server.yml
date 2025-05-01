@@ -4,14 +4,14 @@ on:
   push:
     branches:
       - main
-      - release-1.0
+      - 'release-**'
     paths:
       - 'api-server/**'
 
   pull_request:
     branches:
       - main
-      - release-1.0
+      - 'release-**'
     paths:
       - 'api-server/**'
 
