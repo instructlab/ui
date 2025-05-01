@@ -40,7 +40,8 @@ import {
   CardTitle,
   Gallery,
   GalleryItem,
-  Label
+  Label,
+  Divider
 } from '@patternfly/react-core';
 import { ExternalLinkAltIcon, OutlinedQuestionCircleIcon, GithubIcon, EllipsisVIcon, PficonTemplateIcon } from '@patternfly/react-icons';
 import { ExpandableSection } from '@patternfly/react-core/dist/esm/components/ExpandableSection/ExpandableSection';
@@ -73,11 +74,10 @@ const DashboardNative: React.FunctionComponent = () => {
   const [diffData, setDiffData] = React.useState<{ branch: string; changes: ChangeData[] } | null>(null);
   const [isActionMenuOpen, setIsActionMenuOpen] = React.useState<{ [key: string]: boolean }>({});
   const [isChangeModalOpen, setIsChangeModalOpen] = React.useState<boolean>(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
-  const [isPublishModalOpen, setIsPublishModalOpen] = React.useState(false);
   const [alerts, setAlerts] = React.useState<AlertItem[]>([]);
-  const [selectedBranch, setSelectedBranch] = React.useState<string | null>(null);
-  const [selectedDraftContribution, setSelectedDraftContribution] = React.useState<string | null>(null);
+  const [deleteContribution, setDeleteContribution] = React.useState<string | undefined>();
+  const [deleteDraftContribution, setDeleteDraftContribution] = React.useState<string | undefined>();
+  const [publishContribution, setPublishContribution] = React.useState<string | undefined>();
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [expandedFiles, setExpandedFiles] = React.useState<Record<string, boolean>>({});
   const [isDownloadDone, setIsDownloadDone] = React.useState<boolean>(true);
@@ -131,7 +131,6 @@ const DashboardNative: React.FunctionComponent = () => {
 
       const result = await response.json();
       if (response.ok) {
-        console.log(result.message);
         return true;
       } else {
         console.error(result.message);
@@ -195,40 +194,23 @@ const DashboardNative: React.FunctionComponent = () => {
   };
 
   const handleDeleteContribution = async (branchName: string) => {
-    setSelectedBranch(branchName);
-    setIsDeleteModalOpen(true);
+    if (draftContributions.find((draft) => draft.branchName == branchName)) {
+      deleteDraftData(branchName);
+    }
+    await deleteContributionFromLocalTaxonomy(branchName);
+    setDeleteContribution(undefined);
   };
 
   const handleDeleteDraftContribution = async (branchName: string) => {
-    setSelectedDraftContribution(branchName);
-    setIsDeleteModalOpen(true);
+    //Remove draft from local storage and update the draftContributions list.
+    deleteDraftData(branchName);
+
+    const drafts = draftContributions.filter((item) => item.branchName != branchName);
+    setDraftContributions(drafts);
+    setDeleteDraftContribution(undefined);
   };
 
-  const handleDeleteContributionConfirm = async () => {
-    if (selectedBranch) {
-      // If draft exist in the local storage, delete it.
-      if (draftContributions.find((draft) => draft.branchName == selectedBranch)) {
-        deleteDraftData(selectedBranch);
-      }
-      await deleteContribution(selectedBranch);
-      setIsDeleteModalOpen(false);
-    }
-    if (selectedDraftContribution) {
-      //Remove draft from local storage and update the draftContributions list.
-      deleteDraftData(selectedDraftContribution);
-
-      const drafts = draftContributions.filter((item) => item.branchName != selectedDraftContribution);
-      setDraftContributions(drafts);
-      setIsDeleteModalOpen(false);
-    }
-  };
-
-  const handleDeleteContributionCancel = () => {
-    setSelectedBranch(null);
-    setIsDeleteModalOpen(false);
-  };
-
-  const deleteContribution = async (branchName: string) => {
+  const deleteContributionFromLocalTaxonomy = async (branchName: string) => {
     try {
       const response = await fetch('/api/native/git/branches', {
         method: 'POST',
@@ -258,7 +240,6 @@ const DashboardNative: React.FunctionComponent = () => {
   };
 
   const handleEditDraftContribution = (branchName: string) => {
-    setSelectedDraftContribution(branchName);
     // Check if branchName contains string "knowledge"
     if (branchName.includes('knowledge')) {
       router.push(`/edit-submission/knowledge/native/${branchName}/isDraft`);
@@ -268,8 +249,6 @@ const DashboardNative: React.FunctionComponent = () => {
   };
 
   const handleEditContribution = (branchName: string) => {
-    setSelectedBranch(branchName);
-
     if (draftContributions.find((draft) => draft.branchName == branchName)) {
       // If user is editing the submitted contribution, use the latest data from draft.
       if (branchName.includes('knowledge')) {
@@ -288,45 +267,25 @@ const DashboardNative: React.FunctionComponent = () => {
   };
 
   const handlePublishContribution = async (branchName: string) => {
-    setSelectedBranch(branchName);
-    setIsPublishModalOpen(true);
-  };
-
-  const handlePublishContributionConfirm = async () => {
     setIsPublishing(true);
-    if (selectedBranch) {
-      try {
-        const response = await fetch('/api/native/git/branches', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ branchName: selectedBranch, action: 'publish' })
-        });
+    try {
+      const response = await fetch('/api/native/git/branches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ branchName: branchName, action: 'publish' })
+      });
 
-        const result = await response.json();
-        if (response.ok) {
-          setIsPublishing(false);
-          addSuccessAlert(result.message || 'Successfully published contribution.');
-          setSelectedBranch(null);
-          setIsPublishModalOpen(false);
-        } else {
-          console.error('Failed to publish the contribution:', result.error);
-          addDangerAlert(result.error || 'Failed to publish the contribution.');
-        }
-      } catch (error) {
-        console.error('Error while publishing the contribution:', error);
-        addDangerAlert(`Error while publishing the contribution: ${error}`);
+      const result = await response.json();
+      if (response.ok) {
+        addSuccessAlert(result.message || 'Successfully published contribution.');
+      } else {
+        addDangerAlert(result.error || 'Failed to publish the contribution.');
       }
-    } else {
-      addDangerAlert('No branch selected to publish');
+    } catch (error) {
+      addDangerAlert(`Error while publishing the contribution: ${error}`);
     }
     setIsPublishing(false);
-    setSelectedBranch(null);
-    setIsPublishModalOpen(false);
-  };
-
-  const handlePublishContributionCancel = () => {
-    setSelectedBranch(null);
-    setIsPublishModalOpen(false);
+    setPublishContribution(undefined);
   };
 
   const toggleFileContent = (filename: string) => {
@@ -394,17 +353,6 @@ const DashboardNative: React.FunctionComponent = () => {
             />
           ))}
         </AlertGroup>
-
-        {!isDownloadDone && (
-          <Modal variant={ModalVariant.small} title="Retrieving taxonomy tar file" isOpen onClose={() => setIsDownloadDone(true)}>
-            <ModalBody>
-              <div>
-                <Spinner size="md" />
-                Retrieving the taxonomy compressed file with the contributed data.
-              </div>
-            </ModalBody>
-          </Modal>
-        )}
 
         {isLoading ? (
           <Spinner size="lg" />
@@ -482,10 +430,11 @@ const DashboardNative: React.FunctionComponent = () => {
                             >
                               <DropdownList>
                                 <DropdownItem key="edit-contribution" onClick={() => handleEditDraftContribution(draft.branchName)}>
-                                  Edit contribution
+                                  Edit draft
                                 </DropdownItem>
-                                <DropdownItem key="delete-contribution" onClick={() => handleDeleteDraftContribution(draft.branchName)}>
-                                  Delete contribution
+                                <Divider component="li" />
+                                <DropdownItem key="delete-contribution" isDanger onClick={() => setDeleteDraftContribution(draft.branchName)}>
+                                  Delete draft
                                 </DropdownItem>
                               </DropdownList>
                             </Dropdown>
@@ -496,6 +445,9 @@ const DashboardNative: React.FunctionComponent = () => {
                           <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
                             <Label icon={<PficonTemplateIcon />} color="green">
                               Draft
+                            </Label>
+                            <Label icon={<PficonTemplateIcon />} color="green">
+                              New submission
                             </Label>
                             {draft.title ? draft.title : `Untitled ${index + 1}`}
                           </Flex>
@@ -547,27 +499,56 @@ const DashboardNative: React.FunctionComponent = () => {
                           popperProps={{ position: 'end' }}
                         >
                           <DropdownList>
-                            <DropdownItem key="show-changes" onClick={() => handleShowChanges(branch.name)}>
-                              Show changes
-                            </DropdownItem>
-                            <DropdownItem key="edit-contribution" onClick={() => handleEditContribution(branch.name)}>
-                              Edit contribution
-                            </DropdownItem>
-                            <DropdownItem key="publish-contribution" onClick={() => handlePublishContribution(branch.name)}>
-                              Publish contribution
-                            </DropdownItem>
-                            <DropdownItem
-                              key="download-taxonomy"
-                              onClick={() => {
-                                setIsDownloadDone(false);
-                                handleTaxonomyDownload({ branchName: branch.name, isGithubMode: false, setIsDownloadDone });
-                              }}
-                            >
-                              Download taxonomy
-                            </DropdownItem>
-                            <DropdownItem key="delete-contribution" onClick={() => handleDeleteContribution(branch.name)}>
-                              Delete contribution
-                            </DropdownItem>
+                            {!draftContributions.find((draft) => draft.branchName === branch.name) && (
+                              <>
+                                <DropdownItem key="show-changes" onClick={() => handleShowChanges(branch.name)}>
+                                  Show changes
+                                </DropdownItem>
+                                <DropdownItem key="edit-contribution" onClick={() => handleEditContribution(branch.name)}>
+                                  Edit contribution
+                                </DropdownItem>
+                                <DropdownItem key="publish-contribution" onClick={() => setPublishContribution(branch.name)}>
+                                  Publish contribution
+                                </DropdownItem>
+                                <DropdownItem
+                                  key="download-taxonomy"
+                                  onClick={() => {
+                                    setIsDownloadDone(false);
+                                    handleTaxonomyDownload({ branchName: branch.name, isGithubMode: false, setIsDownloadDone });
+                                  }}
+                                >
+                                  Download taxonomy
+                                </DropdownItem>
+                                <Divider component="li" />
+                                <DropdownItem key="delete-contribution" isDanger onClick={() => setDeleteContribution(branch.name)}>
+                                  Delete contribution
+                                </DropdownItem>
+                              </>
+                            )}
+                            {draftContributions.find((draft) => draft.branchName === branch.name) && (
+                              <>
+                                <DropdownItem key="show-changes" onClick={() => handleShowChanges(branch.name)}>
+                                  Show changes
+                                </DropdownItem>
+                                <DropdownItem key="edit-contribution" onClick={() => handleEditContribution(branch.name)}>
+                                  Edit contribution
+                                </DropdownItem>
+                                <DropdownItem key="publish-contribution" isDisabled>
+                                  Publish contribution
+                                </DropdownItem>
+                                <DropdownItem key="download-taxonomy" isDisabled>
+                                  Download taxonomy
+                                </DropdownItem>
+                                <Divider component="li" />
+                                <DropdownItem key="delete-contribution" isDisabled>
+                                  Delete contribution
+                                </DropdownItem>
+
+                                <DropdownItem key="delete-draft" isDanger onClick={() => setDeleteDraftContribution(branch.name)}>
+                                  Delete draft
+                                </DropdownItem>
+                              </>
+                            )}
                           </DropdownList>
                         </Dropdown>
                       )
@@ -576,9 +557,14 @@ const DashboardNative: React.FunctionComponent = () => {
                     <CardTitle>
                       <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
                         {draftContributions.find((draft) => draft.branchName == branch.name) && (
-                          <Label icon={<PficonTemplateIcon />} color="green">
-                            Draft
-                          </Label>
+                          <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                            <Label icon={<PficonTemplateIcon />} color="green">
+                              Draft
+                            </Label>
+                            <Label icon={<PficonTemplateIcon />} color="green">
+                              Existing submission
+                            </Label>
+                          </Flex>
                         )}
                         {` ${branch.message}`}
                       </Flex>
@@ -660,51 +646,93 @@ const DashboardNative: React.FunctionComponent = () => {
             )}
           </ModalBody>
         </Modal>
+        {!isDownloadDone && (
+          <Modal variant={ModalVariant.small} title="Retrieving taxonomy tar file" isOpen onClose={() => setIsDownloadDone(true)}>
+            <ModalBody>
+              <div>
+                <Spinner size="md" />
+                Retrieving the taxonomy compressed file with the contributed data.
+              </div>
+            </ModalBody>
+          </Modal>
+        )}
+        {deleteDraftContribution != undefined && (
+          <Modal
+            isOpen
+            title="Delete contribution"
+            variant="small"
+            aria-label="contribution deletion warning"
+            aria-labelledby="contribution-deletion-warning-title"
+            aria-describedby="contribution-deletion-warning-variant"
+          >
+            <ModalHeader title="Deleting draft contribution" labelId="contribution-deletion-warning-title" titleIconVariant="warning" />
+            <ModalBody id="contribution-deletion-warning-variant">
+              <p>
+                Are you sure you want to delete the draft changes you made to contribution <strong>{deleteDraftContribution}</strong>?
+                <br />
+              </p>
+            </ModalBody>
+            <ModalFooter>
+              <Button key="delete" variant="primary" onClick={() => handleDeleteDraftContribution(deleteDraftContribution)}>
+                Delete
+              </Button>
+              <Button key="keepit" variant="secondary" onClick={() => setDeleteDraftContribution(undefined)}>
+                Keep It
+              </Button>
+            </ModalFooter>
+          </Modal>
+        )}
 
-        <Modal
-          variant={ModalVariant.small}
-          title="Deleting Contribution"
-          isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
-          aria-labelledby="delete-contribution-modal-title"
-          aria-describedby="delete-contribution-body-variant"
-        >
-          <ModalHeader title="Deleting Contribution" labelId="delete-contribution-modal-title" titleIconVariant="warning" />
-          <ModalBody id="delete-contribution-body-variant">
-            <p>are you sure you want to delete this contribution?</p>
-          </ModalBody>
-          <ModalFooter>
-            <Button key="confirm" variant="primary" onClick={() => handleDeleteContributionConfirm()}>
-              Delete
-            </Button>
-            <Button key="cancel" variant="secondary" onClick={() => handleDeleteContributionCancel()}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </Modal>
+        {deleteContribution && (
+          <Modal
+            isOpen
+            variant={ModalVariant.small}
+            title="Deleting Contribution"
+            onClose={() => setDeleteContribution(undefined)}
+            aria-labelledby="delete-contribution-modal-title"
+            aria-describedby="delete-contribution-body-variant"
+          >
+            <ModalHeader title="Deleting Contribution" labelId="delete-contribution-modal-title" titleIconVariant="warning" />
+            <ModalBody id="delete-contribution-body-variant">
+              <p>
+                Are you sure you want to delete the contribution <strong>{deleteContribution}</strong>?
+              </p>
+            </ModalBody>
+            <ModalFooter>
+              <Button key="confirm" variant="primary" onClick={() => handleDeleteContribution(deleteContribution)}>
+                Delete
+              </Button>
+              <Button key="keep-it" variant="secondary" onClick={() => setDeleteContribution(undefined)}>
+                Keep It
+              </Button>
+            </ModalFooter>
+          </Modal>
+        )}
 
-        <Modal
-          variant={ModalVariant.small}
-          title="Publishing Contribution"
-          isOpen={isPublishModalOpen}
-          onClose={() => setIsPublishModalOpen(false)}
-          aria-labelledby="publish-contribution-modal-title"
-          aria-describedby="publish-contribution-body-variant"
-        >
-          <ModalHeader title="Publishing Contribution" labelId="publish-contribution-modal-title" titleIconVariant="warning" />
-          <ModalBody id="publish-contribution-body-variant">
-            <p>are you sure you want to publish contribution to remote taxonomy repository present at : {taxonomyRepoDir}?</p>
-          </ModalBody>
-          <ModalFooter>
-            <Button key="confirm" variant="primary" onClick={() => handlePublishContributionConfirm()}>
-              Publish {'  '}
-              {isPublishing && <Spinner isInline aria-label="Publishing contribution" />}
-            </Button>
-            <Button key="cancel" variant="secondary" onClick={() => handlePublishContributionCancel()}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </Modal>
+        {publishContribution && (
+          <Modal
+            isOpen
+            variant={ModalVariant.small}
+            title="Publishing Contribution"
+            onClose={() => setPublishContribution(undefined)}
+            aria-labelledby="publish-contribution-modal-title"
+            aria-describedby="publish-contribution-body-variant"
+          >
+            <ModalHeader title="Publishing Contribution" labelId="publish-contribution-modal-title" titleIconVariant="warning" />
+            <ModalBody id="publish-contribution-body-variant">
+              <p>are you sure you want to publish contribution to the remote taxonomy repository present at : {taxonomyRepoDir}?</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button key="confirm" variant="primary" onClick={() => handlePublishContribution(publishContribution)}>
+                Publish {'  '}
+                {isPublishing && <Spinner isInline aria-label="Publishing contribution" />}
+              </Button>
+              <Button key="cancel" variant="secondary" onClick={() => setPublishContribution(undefined)}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </Modal>
+        )}
       </PageSection>
     </div>
   );
