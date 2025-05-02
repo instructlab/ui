@@ -2,26 +2,14 @@
 'use client';
 import React from 'react';
 import { useSession } from 'next-auth/react';
+import { Button, Content, Flex, FlexItem, PageGroup, PageSection, Title, Wizard, WizardStep } from '@patternfly/react-core';
 import { ContributionFormData, EditFormData } from '@/types';
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields, autoFillSkillsFields } from '@/components/Contribute/AutoFill';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  Button,
-  Content,
-  Flex,
-  FlexItem,
-  PageBreadcrumb,
-  PageGroup,
-  PageSection,
-  Title,
-  Wizard,
-  WizardStep
-} from '@patternfly/react-core';
 import { getGitHubUserInfo } from '@/utils/github';
 import ContributionWizardFooter from '@/components/Contribute/ContributionWizard/ContributionWizardFooter';
 import { deleteDraftData } from '@/components/Contribute/Utils/autoSaveUtils';
+import { useEnvConfig } from '@/context/EnvConfigContext';
 
 import './contribute-page.scss';
 
@@ -47,6 +35,7 @@ export interface StepType {
 export interface Props {
   title: React.ReactNode;
   description: React.ReactNode;
+  breadcrumbs?: React.ReactNode;
   editFormData?: EditFormData;
   formData: ContributionFormData;
   setFormData: React.Dispatch<React.SetStateAction<ContributionFormData>>;
@@ -60,6 +49,7 @@ export interface Props {
 export const ContributionWizard: React.FunctionComponent<Props> = ({
   title,
   description,
+  breadcrumbs = null,
   editFormData,
   formData,
   setFormData,
@@ -69,7 +59,9 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
   convertToYaml,
   onSubmit
 }) => {
-  const [devModeEnabled, setDevModeEnabled] = React.useState<boolean | undefined>();
+  const {
+    envConfig: { isDevMode }
+  } = useEnvConfig();
   const { data: session } = useSession();
   const [githubUsername, setGithubUsername] = React.useState<string>('');
   const [submitEnabled, setSubmitEnabled] = React.useState<boolean>(false); // **New State Added**
@@ -89,15 +81,6 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
     [steps]
   );
   const getStepIndex = (stepId: string) => stepIds.indexOf(stepId);
-
-  React.useEffect(() => {
-    const getEnvVariables = async () => {
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
-      setDevModeEnabled(envConfig.ENABLE_DEV_MODE === 'true');
-    };
-    getEnvVariables();
-  }, []);
 
   React.useEffect(() => {
     let canceled = false;
@@ -156,12 +139,7 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
 
   return (
     <PageGroup isFilled style={{ overflowY: 'hidden', flex: 1 }}>
-      <PageBreadcrumb stickyOnBreakpoint={{ default: 'top' }}>
-        <Breadcrumb>
-          <BreadcrumbItem to="/">Contribute</BreadcrumbItem>
-          <BreadcrumbItem isActive>{title}</BreadcrumbItem>
-        </Breadcrumb>
-      </PageBreadcrumb>
+      {breadcrumbs}
       <PageSection className="knowledge-form" style={{ overflowY: 'hidden' }}>
         <Flex direction={{ default: 'column' }}>
           <FlexItem>
@@ -172,7 +150,7 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
                 </Title>
               </FlexItem>
               <FlexItem>
-                {devModeEnabled && (
+                {isDevMode && (
                   <Button variant="secondary" onClick={autoFillForm}>
                     Autofill
                   </Button>

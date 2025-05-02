@@ -168,6 +168,7 @@ export interface KnowledgeFormData extends ContributionFormData {
 export interface EditFormData<T extends ContributionFormData = SkillFormData> {
   isEditForm: boolean;
   isSubmitted: boolean;
+  isDraft?: boolean;
   version: number;
   pullRequestNumber: number;
   oldFilesPath: string;
@@ -177,3 +178,24 @@ export interface EditFormData<T extends ContributionFormData = SkillFormData> {
 export type SkillEditFormData = EditFormData;
 
 export type KnowledgeEditFormData = EditFormData<KnowledgeFormData>;
+
+export interface EnvConfigType {
+  graniteApi: string;
+  graniteModelName: string;
+  merliniteApi: string;
+  merliniteModelName: string;
+  upstreamRepoOwner: string;
+  upstreamRepoName: string;
+  taxonomyRootDir: string;
+  taxonomyKnowledgeDocumentRepo: string;
+  apiServer: string;
+  isGithubMode: boolean;
+  isDevMode: boolean;
+}
+
+export interface FeatureFlagsType {
+  docConversionEnabled: boolean;
+  skillFeaturesEnabled: boolean;
+  playgroundFeaturesEnabled: boolean;
+  experimentalFeaturesEnabled: boolean;
+}

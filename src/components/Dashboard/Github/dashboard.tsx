@@ -6,9 +6,6 @@ import { useRouter } from 'next/navigation';
 import { DraftEditFormInfo, PullRequest } from '@/types';
 import { useState } from 'react';
 import {
-  PageBreadcrumb,
-  Breadcrumb,
-  BreadcrumbItem,
   PageSection,
   Title,
   Content,
@@ -48,42 +45,45 @@ const DashboardGithub: React.FunctionComponent = () => {
   const { data: session } = useSession();
   const [pullRequests, setPullRequests] = React.useState<PullRequest[]>([]);
   const [draftContributions, setDraftContributions] = React.useState<DraftEditFormInfo[]>([]);
-  const [isFirstPullDone, setIsFirstPullDone] = React.useState<boolean>(false);
   const [isDownloadDone, setIsDownloadDone] = React.useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   //const [error, setError] = React.useState<string | null>(null);
   const [isActionMenuOpen, setIsActionMenuOpen] = React.useState<{ [key: number | string]: boolean }>({});
   const router = useRouter();
 
-  const fetchAndSetPullRequests = React.useCallback(async () => {
-    if (session?.accessToken) {
-      try {
-        const header = {
-          Authorization: `Bearer ${session.accessToken}`,
-          Accept: 'application/vnd.github.v3+json'
-        };
-        const fetchedUsername = await getGitHubUsername(header);
-        const data = await fetchPullRequests(session.accessToken);
-        const filteredPRs = data.filter(
-          (pr: PullRequest) => pr.user.login === fetchedUsername && pr.labels.some((label) => label.name === 'skill' || label.name === 'knowledge')
-        );
+  React.useEffect(() => {
+    const fetchAndSetPullRequests = async () => {
+      if (session?.accessToken) {
+        try {
+          const header = {
+            Authorization: `Bearer ${session.accessToken}`,
+            Accept: 'application/vnd.github.v3+json'
+          };
+          const fetchedUsername = await getGitHubUsername(header);
+          const data = await fetchPullRequests(session.accessToken);
+          const filteredPRs = data.filter(
+            (pr: PullRequest) => pr.user.login === fetchedUsername && pr.labels.some((label) => label.name === 'skill' || label.name === 'knowledge')
+          );
 
-        // Sort by date (newest first)
-        const sortedPRs = filteredPRs.sort((a: PullRequest, b: PullRequest) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        setPullRequests(sortedPRs);
-      } catch (error) {
-        console.error('Failed to fetch pull requests.' + error);
+          // Sort by date (newest first)
+          const sortedPRs = filteredPRs.sort((a: PullRequest, b: PullRequest) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          setPullRequests(sortedPRs);
+        } catch (error) {
+          console.error('Failed to fetch pull requests.' + error);
+        }
       }
-      setIsFirstPullDone(true);
+    };
+
+    fetchAndSetPullRequests().then(() => {
       setIsLoading(false);
-    } else {
-      setIsLoading(false);
-    }
+    });
+
+    const intervalId = setInterval(fetchAndSetPullRequests, 60000);
+
+    return () => clearInterval(intervalId);
   }, [session?.accessToken]);
 
   React.useEffect(() => {
-    fetchAndSetPullRequests();
-
     // Fetch all the draft contributions and mark them submitted if present in the pull requests
     const drafts = fetchDraftContributions().map((draft: DraftEditFormInfo) => ({
       ...draft,
@@ -91,10 +91,7 @@ const DashboardGithub: React.FunctionComponent = () => {
     }));
 
     setDraftContributions(drafts);
-
-    const intervalId = setInterval(fetchAndSetPullRequests, 60000);
-    return () => clearInterval(intervalId);
-  }, [session, fetchAndSetPullRequests]);
+  }, [pullRequests]);
 
   const handleDeleteDraftContribution = async (branchName: string) => {
     deleteDraftData(branchName);
@@ -105,9 +102,9 @@ const DashboardGithub: React.FunctionComponent = () => {
   const handleEditDraftContribution = (branchName: string) => {
     // Check if branchName contains string "knowledge"
     if (branchName.includes('knowledge')) {
-      router.push(`/edit-submission/knowledge/github/${branchName}/isDraft`);
+      router.push(`/contribute/knowledge/github/${branchName}/isDraft`);
     } else {
-      router.push(`/edit-submission/skill/github/${branchName}/isDraft`);
+      router.push(`/contribute/skill/github/${branchName}/isDraft`);
     }
   };
 
@@ -119,15 +116,15 @@ const DashboardGithub: React.FunctionComponent = () => {
       // If user is editing the submitted contribution, use the latest data from draft, if available.
       // Pass the pr number as well, it's required to pull the data from PR.
       if (hasKnowledgeLabel) {
-        router.push(`/edit-submission/knowledge/github/${pr.head.ref}/isDraft`);
+        router.push(`/contribute/knowledge/github/${pr.head.ref}/isDraft`);
       } else {
-        router.push(`/edit-submission/skill/github/${pr.head.ref}/isDraft`);
+        router.push(`/contribute/skill/github/${pr.head.ref}/isDraft`);
       }
     } else {
       if (hasKnowledgeLabel) {
-        router.push(`/edit-submission/knowledge/github/${pr.number}`);
+        router.push(`/contribute/knowledge/github/${pr.number}`);
       } else if (hasSkillLabel) {
-        router.push(`/edit-submission/skill/github/${pr.number}`);
+        router.push(`/contribute/skill/github/${pr.number}`);
       }
     }
   };
@@ -155,12 +152,7 @@ const DashboardGithub: React.FunctionComponent = () => {
   };
 
   return (
-    <div>
-      <PageBreadcrumb hasBodyWrapper={false}>
-        <Breadcrumb>
-          <BreadcrumbItem to="/"> Dashboard </BreadcrumbItem>
-        </Breadcrumb>
-      </PageBreadcrumb>
+    <>
       <PageSection hasBodyWrapper={false}>
         <Title headingLevel="h1" size="lg">
           My Submissions
@@ -187,8 +179,8 @@ const DashboardGithub: React.FunctionComponent = () => {
       </PageSection>
       <PageSection hasBodyWrapper={false}>
         <div style={{ marginBottom: '20px' }} />
-        {!isFirstPullDone && (
-          <Modal variant={ModalVariant.small} title="Retrieving your submissions" isOpen={isLoading} onClose={() => handleOnClose()}>
+        {isLoading && (
+          <Modal variant={ModalVariant.small} title="Retrieving your submissions" isOpen onClose={() => handleOnClose()}>
             <ModalBody>
               <div>
                 <Spinner size="md" />
@@ -207,7 +199,7 @@ const DashboardGithub: React.FunctionComponent = () => {
             </ModalBody>
           </Modal>
         )}
-        {isFirstPullDone && pullRequests.length === 0 && draftContributions.length === 0 ? (
+        {!isLoading && pullRequests.length === 0 && draftContributions.length === 0 ? (
           <EmptyState titleText="Welcome to InstructLab" headingLevel="h4" icon={InstructLabLogo}>
             <EmptyStateBody>
               <div style={{ maxWidth: '60ch' }}>
@@ -403,7 +395,7 @@ const DashboardGithub: React.FunctionComponent = () => {
           </Gallery>
         )}
       </PageSection>
-    </div>
+    </>
   );
 };
 

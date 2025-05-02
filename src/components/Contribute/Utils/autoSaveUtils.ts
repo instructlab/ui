@@ -221,6 +221,7 @@ export function fetchDraftKnowledgeChanges({ branchName, setIsLoading, setLoadin
     const knowledgeEditFormData: KnowledgeEditFormData = {
       isEditForm: true,
       isSubmitted: !!draftInfo?.isSubmitted,
+      isDraft: true,
       version: KnowledgeSchemaVersion,
       formData: knowledgeExistingFormData,
       pullRequestNumber: 0,
@@ -246,6 +247,7 @@ export function fetchDraftSkillChanges({ branchName, setIsLoading, setLoadingMsg
     const skillEditFormData: SkillEditFormData = {
       isEditForm: true,
       isSubmitted: draftInfo ? draftInfo.isSubmitted : false,
+      isDraft: true,
       version: SkillSchemaVersion,
       pullRequestNumber: 0,
       formData: skillExistingFormData,

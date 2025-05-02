@@ -7,7 +7,7 @@ import DocumentInformation from '@/components/Contribute/Knowledge/DocumentInfor
 import KnowledgeSeedExamples from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamples';
 import { ContributionFormData, KnowledgeEditFormData, KnowledgeFormData, KnowledgeSeedExample, KnowledgeYamlData } from '@/types';
 import { useRouter } from 'next/navigation';
-import { Button, ValidatedOptions } from '@patternfly/react-core';
+import { Breadcrumb, BreadcrumbItem, Button, PageBreadcrumb, ValidatedOptions } from '@patternfly/react-core';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { UploadKnowledgeDocuments } from '@/components/Contribute/Utils/documentUtils';
 import {
@@ -86,39 +86,35 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
 
   const setFilePath = React.useCallback((filePath: string) => setKnowledgeFormData((prev) => ({ ...prev, filePath })), []);
 
-  async function saveKnowledgeDraft() {
-    // If no change in the form data and there is no existing draft present, skip storing the draft.
-    if (!doSaveDraft(knowledgeFormData) && !isDraftDataExist(knowledgeFormData.branchName)) return;
-
-    await Promise.all(
-      knowledgeFormData.filesToUpload.map(async (file) => {
-        await storeDraftKnowledgeFile(knowledgeFormData.branchName, file);
-      })
-    );
-
-    const draftContributionStr = JSON.stringify(knowledgeFormData, (key, value) => {
-      if (key === 'filesToUpload' && Array.isArray(value)) {
-        const files = value as File[];
-        return files.map((v: File) => {
-          return { name: v.name };
-        });
-      }
-      return value;
-    });
-    storeDraftData(
-      knowledgeFormData.branchName,
-      draftContributionStr,
-      !!knowledgeEditFormData?.isSubmitted,
-      knowledgeEditFormData?.oldFilesPath || ''
-    );
-  }
-
   useEffect(() => {
     const storeDraft = async () => {
-      await saveKnowledgeDraft();
+      // If no change in the form data and there is no existing draft present, skip storing the draft.
+      if (!doSaveDraft(knowledgeFormData) && !isDraftDataExist(knowledgeFormData.branchName)) return;
+
+      await Promise.all(
+        knowledgeFormData.filesToUpload.map(async (file) => {
+          await storeDraftKnowledgeFile(knowledgeFormData.branchName, file);
+        })
+      );
+
+      const draftContributionStr = JSON.stringify(knowledgeFormData, (key, value) => {
+        if (key === 'filesToUpload' && Array.isArray(value)) {
+          const files = value as File[];
+          return files.map((v: File) => {
+            return { name: v.name };
+          });
+        }
+        return value;
+      });
+      storeDraftData(
+        knowledgeFormData.branchName,
+        draftContributionStr,
+        !!knowledgeEditFormData?.isSubmitted,
+        knowledgeEditFormData?.oldFilesPath || ''
+      );
     };
     storeDraft();
-  }, [knowledgeFormData]);
+  }, [knowledgeEditFormData?.isSubmitted, knowledgeEditFormData?.oldFilesPath, knowledgeFormData]);
 
   const steps: StepType[] = React.useMemo(() => {
     const documentInformationStep = {
@@ -340,7 +336,27 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
   return (
     <>
       <ContributionWizard
-        title={knowledgeEditFormData?.formData ? 'Edit knowledge contribution' : 'Submit knowledge contribution'}
+        breadcrumbs={
+          knowledgeEditFormData ? (
+            <PageBreadcrumb stickyOnBreakpoint={{ default: 'top' }}>
+              <Breadcrumb>
+                <BreadcrumbItem
+                  to="/"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    router.push('/contribute/knowledge');
+                  }}
+                >
+                  Contribute knowledge
+                </BreadcrumbItem>
+                <BreadcrumbItem isActive>{`Edit${knowledgeEditFormData?.isDraft ? ' draft' : ''} knowledge contribution`}</BreadcrumbItem>
+              </Breadcrumb>
+            </PageBreadcrumb>
+          ) : null
+        }
+        title={
+          knowledgeEditFormData?.formData ? `Edit${knowledgeEditFormData?.isDraft ? ' draft' : ''} knowledge contribution` : 'Knowledge contribution'
+        }
         description={
           <>
             Knowledge contributions improve a model’s ability to answer questions accurately. They consist of questions and answers, and documents

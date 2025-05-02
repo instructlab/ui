@@ -156,7 +156,7 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ prNumber, 
       }
     };
     fetchPRData();
-  }, [session?.accessToken, prNumber]);
+  }, [session?.accessToken, prNumber, isDraft]);
 
   const parseAttributionContent = (content: string): AttributionData => {
     const lines = content.split('\n');

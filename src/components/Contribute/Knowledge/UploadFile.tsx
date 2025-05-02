@@ -23,6 +23,7 @@ import { KnowledgeFile } from '@/types';
 import UploadFromGitModal from '@/components/Contribute/Knowledge/UploadFromGitModal';
 import MultiFileUploadArea from '@/components/Contribute/Knowledge/MultFileUploadArea';
 import FileConversionModal from '@/components/Contribute/Knowledge/FileConversionModal';
+import { useFeatureFlags } from '@/context/FeatureFlagsContext';
 
 interface ReadFile {
   fileName: string;
@@ -39,28 +40,21 @@ interface UploadFileProps {
 }
 
 export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ existingFiles, setExistingFiles, filesToUpload, setFilesToUpload }) => {
+  const {
+    featureFlags: { docConversionEnabled }
+  } = useFeatureFlags();
   const [showUploadFromGitModal, setShowUploadFromGitModal] = React.useState<boolean>();
   const [readFileData, setReadFileData] = useState<ReadFile[]>([]);
   const [showNewFilesStatus, setShowNewFilesStatus] = useState(false);
   const [showExistingFilesStatus, setExistingFilesStatus] = useState(false);
   const [showOverwriteModal, setShowOverwriteModal] = useState(false);
   const [showFileDeleteModal, setShowFileDeleteModal] = useState(false);
-  const [enableDocConversion, setEnableDocConversion] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<string[]>([]);
   const [filesToOverwrite, setFilesToOverwrite] = useState<File[]>([]);
   const [droppedFiles, setDroppedFiles] = React.useState<File[] | undefined>();
   const [statusIcon, setStatusIcon] = useState<'inProgress' | 'success' | 'danger'>('inProgress');
   const [modalText, setModalText] = useState('');
   React.useContext(MultipleFileUploadContext);
-
-  useEffect(() => {
-    const getEnvVariables = async () => {
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
-      setEnableDocConversion(envConfig.ENABLE_DOC_CONVERSION === 'true');
-    };
-    getEnvVariables();
-  }, []);
 
   useEffect(() => {
     if (filesToUpload.length > 0) {
@@ -122,7 +116,7 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ existingF
   };
 
   // Define allowed file types. If doc conversion is not enabled, only allow markdown files.
-  const allowedFileTypes: { [mime: string]: string[] } = enableDocConversion
+  const allowedFileTypes: { [mime: string]: string[] } = docConversionEnabled
     ? {
         'application/pdf': ['.pdf'],
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
@@ -275,7 +269,7 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ existingF
               titleIcon={<UploadIcon />}
               titleText="Drag and drop files here or upload"
               infoText={
-                enableDocConversion
+                docConversionEnabled
                   ? 'Accepted file types include PDF, DOCX, PPTX, XLSX, HTML, AsciiDoc, Markdown, and images. All files will be converted to Markdown.'
                   : 'Accepted file type: Markdown'
               }

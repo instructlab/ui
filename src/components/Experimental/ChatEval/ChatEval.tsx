@@ -42,10 +42,14 @@ import {
 import logo from '../../../../public/bot-icon-chat-32x32.svg';
 import userLogo from '../../../../public/default-avatar.svg';
 import ModelStatusIndicator from '@/components/Experimental/ModelServeStatus/ModelServeStatus';
+import { useEnvConfig } from '@/context/EnvConfigContext';
 
 import './ChatEval.css';
 
 const ChatModelEval: React.FC = () => {
+  const {
+    envConfig: { apiServer }
+  } = useEnvConfig();
   const [isUnifiedInput, setIsUnifiedInput] = useState(false);
   const [modelServerURL, setModelServerURL] = useState<string>('');
 
@@ -118,10 +122,7 @@ const ChatModelEval: React.FC = () => {
   // Fetch models on component mount
   useEffect(() => {
     const fetchDefaultModels = async () => {
-      const response = await fetch('/api/envConfig');
-      const envConfig = await response.json();
-
-      const modelServerURL = envConfig.API_SERVER.replace(/:\d+/, '');
+      const modelServerURL = apiServer.replace(/:\d+/, '');
       console.log('Model server url is set to :', modelServerURL);
       setModelServerURL(modelServerURL);
 
@@ -139,7 +140,7 @@ const ChatModelEval: React.FC = () => {
     };
 
     fetchDefaultModels();
-  }, []);
+  }, [apiServer]);
 
   /**
    * Helper function to map internal model identifiers to chat model names.

@@ -3,6 +3,7 @@
 
 import * as React from 'react';
 import { Endpoint, Model } from '@/types';
+import { useEnvConfig } from '@/context/EnvConfigContext';
 
 const isValidModel = (model: Model) => model.name && model.apiURL && model.modelName;
 
@@ -20,17 +21,25 @@ type ModelsProviderProps = {
 
 const ModelsContextProvider: React.FC<ModelsProviderProps> = ({ children }) => {
   const [models, setModels] = React.useState<Model[]>([]);
+  const { loaded, envConfig } = useEnvConfig();
 
   React.useEffect(() => {
-    let canceled = false;
-
-    const fetchModels = async (): Promise<Model[]> => {
-      const response = await fetch('/api/envConfig');
-      const envConfig = await response.json();
-
+    if (loaded) {
       const defaultModels: Model[] = [
-        { isDefault: true, name: 'Granite-7b', apiURL: envConfig.GRANITE_API, modelName: envConfig.GRANITE_MODEL_NAME, enabled: true },
-        { isDefault: true, name: 'Merlinite-7b', apiURL: envConfig.MERLINITE_API, modelName: envConfig.MERLINITE_MODEL_NAME, enabled: true }
+        {
+          isDefault: true,
+          name: 'Granite-7b',
+          apiURL: envConfig.graniteApi,
+          modelName: envConfig.graniteModelName,
+          enabled: true
+        },
+        {
+          isDefault: true,
+          name: 'Merlinite-7b',
+          apiURL: envConfig.merliniteApi,
+          modelName: envConfig.merliniteModelName,
+          enabled: true
+        }
       ];
 
       const storedEndpoints = localStorage.getItem('endpoints');
@@ -45,19 +54,9 @@ const ModelsContextProvider: React.FC<ModelsProviderProps> = ({ children }) => {
           }))
         : [];
 
-      return [...defaultModels.filter(isValidModel), ...customModels.filter(isValidModel)];
-    };
-
-    fetchModels().then((models) => {
-      if (!canceled) {
-        setModels(models);
-      }
-    });
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+      setModels([...defaultModels.filter(isValidModel), ...customModels.filter(isValidModel)]);
+    }
+  }, [loaded, envConfig]);
 
   const contextValue = React.useMemo(
     () => ({

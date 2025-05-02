@@ -1,4 +1,4 @@
-// src/app/edit-submission/knowledge/native/[...slug]/page.tsx
+// src/app/dashboard/knowledge/native/[...slug]/page.tsx
 import { AppLayout } from '@/components/AppLayout';
 import EditKnowledgeNative from '@/components/Contribute/EditKnowledge/native/EditKnowledge';
 import * as React from 'react';

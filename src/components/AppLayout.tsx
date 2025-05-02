@@ -3,11 +3,8 @@
 
 import * as React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import HelpDropdown from './HelpDropdown/HelpDropdown';
 import Link from 'next/link';
-import UserMenu from './UserMenu/UserMenu';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
 import {
   Bullseye,
   Spinner,
@@ -31,7 +28,11 @@ import {
 } from '@patternfly/react-core';
 import { BarsIcon } from '@patternfly/react-icons';
 import ThemePreference from '@/components/ThemePreference/ThemePreference';
+import HelpDropdown from './HelpDropdown/HelpDropdown';
+import UserMenu from './UserMenu/UserMenu';
+
 import '../styles/globals.scss';
+import { useFeatureFlags } from '@/context/FeatureFlagsContext';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -46,20 +47,13 @@ type Route = {
 
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className }) => {
   const { data: session, status } = useSession();
-  const [isExperimentalEnabled, setExperimental] = useState(false);
+  const {
+    loaded,
+    featureFlags: { skillFeaturesEnabled, playgroundFeaturesEnabled, experimentalFeaturesEnabled }
+  } = useFeatureFlags();
 
   const router = useRouter();
   const pathname = usePathname();
-
-  React.useEffect(() => {
-    // Fetch the experimental feature flag
-    const fetchExperimentalFeature = async () => {
-      const res = await fetch('/api/envConfig');
-      const envConfig = await res.json();
-      setExperimental(envConfig.EXPERIMENTAL_FEATURES === 'true');
-    };
-    fetchExperimentalFeature();
-  }, []);
 
   React.useEffect(() => {
     if (status === 'loading') return; // Do nothing while loading
@@ -68,7 +62,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     }
   }, [session, status, pathname, router]);
 
-  if (status === 'loading') {
+  if (!loaded || status === 'loading') {
     return (
       <Bullseye>
         <Spinner />
@@ -80,40 +74,34 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     return null; // Return nothing if not authenticated to avoid flicker
   }
 
-  //const isExperimentalEnabled = process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES === 'true';
-
-  // Only log if experimental features are enabled
-  if (isExperimentalEnabled) {
-    console.log('Is Experimental Enabled:', isExperimentalEnabled);
-    console.log('Environment Variable:', process.env.NEXT_PUBLIC_EXPERIMENTAL_FEATURES);
-  }
-
   const routes = [
     { path: '/dashboard', label: 'Dashboard' },
-    {
-      path: '/contribute',
-      label: 'Contribute',
-      children: [
-        { path: '/contribute/skill', label: 'Skill' },
-        { path: '/contribute/knowledge', label: 'Knowledge' }
-      ]
-    },
-    {
-      path: '/playground',
-      label: 'Playground',
-      children: [
-        { path: '/playground/chat', label: 'Chat' },
-        { path: '/playground/endpoints', label: 'Custom model endpoints' }
-      ]
-    },
-    isExperimentalEnabled && {
-      path: '/experimental',
-      label: 'Experimental features',
-      children: [
-        { path: '/experimental/fine-tune/', label: 'Fine-tuning' },
-        { path: '/experimental/chat-eval/', label: 'Model chat eval' }
-      ]
-    }
+    { path: '/contribute/knowledge', label: 'Contribute knowledge' },
+    ...(skillFeaturesEnabled ? [{ path: '/contribute/skill', label: 'Contribute skills' }] : []),
+    ...(playgroundFeaturesEnabled
+      ? [
+          {
+            path: '/playground',
+            label: 'Playground',
+            children: [
+              { path: '/playground/chat', label: 'Chat with a model' },
+              { path: '/playground/endpoints', label: 'Custom model endpoints' }
+            ]
+          }
+        ]
+      : []),
+    ...(experimentalFeaturesEnabled
+      ? [
+          {
+            path: '/experimental',
+            label: 'Experimental features',
+            children: [
+              { path: '/experimental/fine-tune/', label: 'Fine-tuning' },
+              { path: '/experimental/chat-eval/', label: 'Model chat eval' }
+            ]
+          }
+        ]
+      : [])
   ].filter(Boolean) as Route[];
 
   const Header = (
@@ -151,7 +139,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
   );
 
   const renderNavItem = (route: Route, index: number) => (
-    <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={route.path === pathname}>
+    <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={pathname.startsWith(route.path)}>
       <Link href={route.path}>{route.label}</Link>
     </NavItem>
   );
@@ -160,7 +148,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     <NavExpandable
       key={`${route.label}-${index}`}
       title={route.label}
-      isActive={route.path === pathname || route.children?.some((child) => child.path === pathname)}
+      isActive={route.path.startsWith(pathname) || route.children?.some((child) => pathname.startsWith(child.path))}
       isExpanded
     >
       {route.children?.map((child, idx) => renderNavItem(child, idx))}
