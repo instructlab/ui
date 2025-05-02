@@ -15,6 +15,7 @@ declare USER_TAXONOMY_DIR
 declare AUTH_URL="http://localhost:3000"
 declare AUTH_SECRET="your_super_secret_random_string"
 declare DEV_MODE="false"
+declare DOC_CONVERSION="true"
 declare EXPERIMENTAL_FEATURES=""
 declare PYENV_DIR=""
 declare API_SERVER_URL=""
@@ -434,6 +435,7 @@ if [[ "$COMMAND" == "install" ]]; then
 	AUTH_URL_B64=$(echo -n "$AUTH_URL" | base64)
 	AUTH_SECRET_B64=$(echo -n "$AUTH_SECRET" | base64)
 	DEV_MODE_B64=$(echo -n "$DEV_MODE" | base64)
+	DOC_CONVERSION_B64=$(echo -n "$DOC_CONVERSION" | base64)
 
 	if [[ "$EXPERIMENTAL_FEATURES" == "" ]]; then
 		if [[ "$IS_ILAB_INSTALLED" == "true" ]]; then
@@ -478,6 +480,7 @@ if [[ "$COMMAND" == "install" ]]; then
 		sed -i "" "s|<AUTH_URL>|$AUTH_URL_B64|g" secret.yaml
 		sed -i "" "s|<AUTH_SECRET>|$AUTH_SECRET_B64|g" secret.yaml
 		sed -i "" "s|<DEV_MODE>|$DEV_MODE_B64|g" secret.yaml
+		sed -i "" "s|<DOC_CONVERSION>|$DOC_CONVERSION_B64|g" secret.yaml
 		sed -i "" "s|<EXPERIMENTAL_FEATURES>|$EXPERIMENTAL_FEATURES_B64|g" secret.yaml
 		sed -i "" "s|<API_SERVER_URL>|$API_SERVER_URL_B64|g" secret.yaml
 	else
@@ -488,6 +491,7 @@ if [[ "$COMMAND" == "install" ]]; then
 		sed -i "s|<AUTH_URL>|$AUTH_URL_B64|g" secret.yaml
 		sed -i "s|<AUTH_SECRET>|$AUTH_SECRET_B64|g" secret.yaml
 		sed -i "s|<DEV_MODE>|$DEV_MODE_B64|g" secret.yaml
+		sed -i "s|<DOC_CONVERSION>|$DOC_CONVERSION_B64|g" secret.yaml
 		sed -i "s|<EXPERIMENTAL_FEATURES>|$EXPERIMENTAL_FEATURES_B64|g" secret.yaml
 		sed -i "s|<API_SERVER_URL>|$API_SERVER_URL_B64|g" secret.yaml
 	fi
