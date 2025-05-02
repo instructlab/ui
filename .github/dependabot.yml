@@ -63,9 +63,19 @@ updates:
     target-branch: "main"
     labels:
       - "docker dependencies"
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "instructlab/ui-maintainers"
+    groups:
+      python-packages:
+        patterns:
+          - "*"
 
   # Enable version updates for the following package ecosystems for release-1.0 branch
-    - package-ecosystem: "npm"
+  - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
@@ -129,7 +139,7 @@ updates:
       - "docker dependencies"
 
   # Enable version updates for the following package ecosystems for release-1.2 branch
-    - package-ecosystem: "npm"
+  - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
@@ -191,3 +201,13 @@ updates:
     target-branch: "release-1.2"
     labels:
       - "docker dependencies"
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "instructlab/ui-maintainers"
+    groups:
+      python-packages:
+        patterns:
+          - "*"
