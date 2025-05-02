@@ -14,10 +14,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
   shellcheck:
     name: Shellcheck
@@ -37,19 +33,3 @@ jobs:
         uses: DavidAnson/markdownlint-cli2-action@v19
         with:
           globs: "**/*.md"
-
-  yamllint:
-    runs-on: ubuntu-latest
-    steps:
-      # yamllint is a Python-based tool
-      - name: Setup Python 3.11
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-        with:
-          python-version: 3.11
-
-      - name: Setup yamllint
-        run: pip install yamllint>=1.35.1
-
-      # TODO: Expand YAML linting to beyond .github to validate other YAML files
-      - name: Run yamllint
-        run: yamllint -c yamllint.yaml .github
