@@ -1,20 +1,20 @@
-// src/app/contribute/knowledge/github/[...slug]/page.tsx
+// src/app/contribute/skill/native/[...slug]/page.tsx
 import * as React from 'react';
 import { AppLayout } from '@/components/AppLayout';
-import EditSkill from '@/components/Contribute/EditSkill/native/EditSkill';
+import ViewSkillPage from '@/components/Contribute/Skill/View/native/ViewSkillPage';
 
 type PageProps = {
   params: Promise<{ slug: string[] }>;
 };
 
-const EditKnowledgePage = async ({ params }: PageProps) => {
+const ViewSkillNativePage = async ({ params }: PageProps) => {
   const resolvedParams = await params;
 
   return (
     <AppLayout className="contribute-page">
-      <EditSkill branchName={resolvedParams.slug[0]} isDraft={resolvedParams.slug[1] != null ? true : false} />
+      <ViewSkillPage branchName={resolvedParams.slug[0]} isDraft={resolvedParams.slug[1] === 'isDraft'} />
     </AppLayout>
   );
 };
 
-export default EditKnowledgePage;
+export default ViewSkillNativePage;

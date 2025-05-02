@@ -250,7 +250,7 @@ const knowledgeSeedExamples: KnowledgeSeedExample[] = [
   }
 ];
 
-export const autoFillKnowledgeFields: KnowledgeFormData = {
+export const getAutoFillKnowledgeFields = (): KnowledgeFormData => ({
   branchName: `knowledge-contribution-${Date.now()}`,
   email: 'helloworld@instructlab.com',
   name: 'juliadenham',
@@ -267,7 +267,7 @@ export const autoFillKnowledgeFields: KnowledgeFormData = {
   creators: 'Wikipedia Authors',
   filesToUpload: [],
   uploadedFiles: []
-};
+});
 
 const skillsSeedExamples: SkillSeedExample[] = [
   {
@@ -352,7 +352,7 @@ const skillsSeedExamples: SkillSeedExample[] = [
   }
 ];
 
-export const autoFillSkillsFields: SkillFormData = {
+export const getAutoFillSkillsFields = (): SkillFormData => ({
   branchName: `skill-contribution-${Date.now()}`,
   email: 'helloworld@instructlab.com',
   name: 'juliadenham',
@@ -362,4 +362,4 @@ export const autoFillSkillsFields: SkillFormData = {
   titleWork: 'Teaching a model to rhyme.',
   licenseWork: 'CC-BY-SA-4.0',
   creators: 'juliadenham'
-};
+});

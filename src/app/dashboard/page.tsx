@@ -6,8 +6,8 @@ import { Flex, Spinner } from '@patternfly/react-core';
 import { t_global_spacer_xl as XlSpacerSize } from '@patternfly/react-tokens/dist/esm/t_global_spacer_xl';
 import '@patternfly/react-core/dist/styles/base.css';
 import { AppLayout } from '@/components/AppLayout';
-import { DashboardGithub } from '@/components/Dashboard/Github/dashboard';
-import { DashboardNative } from '@/components/Dashboard/Native/dashboard';
+import { DashboardGithub } from '@/components/Dashboard/Github/DashboardPage';
+import { DashboardNative } from '@/components/Dashboard/Native/DashboardPage';
 import { useEnvConfig } from '@/context/EnvConfigContext';
 
 const Home: React.FunctionComponent = () => {
@@ -17,7 +17,7 @@ const Home: React.FunctionComponent = () => {
   } = useEnvConfig();
 
   return (
-    <AppLayout>
+    <AppLayout className="dashboard-page">
       {loaded ? (
         !isGithubMode ? (
           <DashboardNative />

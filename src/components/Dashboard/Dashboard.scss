@@ -1,0 +1,35 @@
+.dashboard-page {
+  .pf-v6-c-page__main {
+    overflow-y: hidden;
+  }
+  .pf-v6-c-page__main-section.pf-m-fill {
+    flex: 1;
+    overflow-y: hidden;
+    .pf-v6-c-page__main-body {
+      height: 100%;
+      overflow-y: hidden;
+    }
+  }
+  .contributions-table {
+    .pf-v6-c-table__th {
+      padding-block-start: 0;
+    }
+  }
+  .contribution-card {
+    height: 100%;
+
+    &__body {
+      height: 100%;
+    }
+
+    .pf-v6-c-card__title {
+      padding-block-start: 0 !important;
+      padding-block-end: 0 !important;
+    }
+  }
+}
+.destructive-action-item {
+  .pf-v6-c-menu__item-text {
+    color: var(--pf-t--global--color--status--danger--100);
+  }
+}

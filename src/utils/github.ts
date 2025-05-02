@@ -1,8 +1,7 @@
 // src/utils/github.ts
 import axios from 'axios';
-import { PullRequestUpdateData } from '@/types';
+import { EnvConfigType, PullRequestUpdateData } from '@/types';
 import { BASE_BRANCH, FORK_CLONE_CHECK_RETRY_COUNT, FORK_CLONE_CHECK_RETRY_TIMEOUT, GITHUB_API_URL } from '@/types/const';
-import { fetchEnvConfig } from '@/utils/envConfigService';
 
 type GithubUserInfo = {
   login: string;
@@ -10,9 +9,9 @@ type GithubUserInfo = {
   email: string;
 };
 
-export async function fetchPullRequests(token: string) {
+export async function fetchPullRequests(token: string, envConfig: EnvConfigType) {
   try {
-    const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
+    const { upstreamRepoName, upstreamRepoOwner } = envConfig;
 
     const response = await axios.get(`https://api.github.com/repos/${upstreamRepoOwner}/${upstreamRepoName}/pulls?state=all`, {
       headers: {
@@ -31,9 +30,9 @@ export async function fetchPullRequests(token: string) {
   }
 }
 
-export const fetchPullRequest = async (token: string, prNumber: number) => {
+export const fetchPullRequest = async (token: string, envConfig: EnvConfigType, prNumber: number) => {
   try {
-    const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
+    const { upstreamRepoName, upstreamRepoOwner } = envConfig;
     const response = await axios.get(`https://api.github.com/repos/${upstreamRepoOwner}/${upstreamRepoName}/pulls/${prNumber}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -55,9 +54,9 @@ export const fetchPullRequest = async (token: string, prNumber: number) => {
   }
 };
 
-export const fetchPullRequestFiles = async (token: string, prNumber: number) => {
+export const fetchPullRequestFiles = async (token: string, envConfig: EnvConfigType, prNumber: number) => {
   try {
-    const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
+    const { upstreamRepoName, upstreamRepoOwner } = envConfig;
     const response = await axios.get(`https://api.github.com/repos/${upstreamRepoOwner}/${upstreamRepoName}/pulls/${prNumber}/files`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -75,9 +74,9 @@ export const fetchPullRequestFiles = async (token: string, prNumber: number) => 
   }
 };
 
-export const fetchFileContent = async (token: string, filePath: string, ref: string) => {
+export const fetchFileContent = async (token: string, envConfig: EnvConfigType, filePath: string, ref: string) => {
   try {
-    const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
+    const { upstreamRepoName, upstreamRepoOwner } = envConfig;
     const response = await axios.get(`https://api.github.com/repos/${upstreamRepoOwner}/${upstreamRepoName}/contents/${filePath}?ref=${ref}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -95,10 +94,10 @@ export const fetchFileContent = async (token: string, filePath: string, ref: str
   }
 };
 
-export const updatePullRequest = async (token: string, prNumber: number, data: PullRequestUpdateData) => {
+export const updatePullRequest = async (token: string, envConfig: EnvConfigType, prNumber: number, data: PullRequestUpdateData) => {
   try {
     console.log(`Updating PR Number: ${prNumber} with data:`, data);
-    const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
+    const { upstreamRepoName, upstreamRepoOwner } = envConfig;
     const response = await axios.patch(`https://api.github.com/repos/${upstreamRepoOwner}/${upstreamRepoName}/pulls/${prNumber}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
