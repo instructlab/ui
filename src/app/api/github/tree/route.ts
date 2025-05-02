@@ -6,6 +6,7 @@ import path from 'path';
 import fs from 'fs';
 
 const LOCAL_TAXONOMY_ROOT_DIR = process.env.NEXT_PUBLIC_LOCAL_TAXONOMY_ROOT_DIR || `${process.env.HOME}/.instructlab-ui`;
+const LOCAL_TAXONOMY_DIR = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
 const TAXONOMY_REPO_URL = process.env.NEXT_PUBLIC_TAXONOMY_REPO_URL || 'https://github.com/instructlab/taxonomy.git';
 const SKILLS = 'compositional_skills';
 const KNOWLEDGE = 'knowledge';
@@ -13,23 +14,17 @@ const CHECK_INTERVAL = 300000; // 5 minute
 let lastChecked = 0;
 
 async function cloneTaxonomyRepo(): Promise<boolean> {
-  const taxonomyDirectoryPath = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
-
-  if (fs.existsSync(taxonomyDirectoryPath)) {
-    fs.rmdirSync(taxonomyDirectoryPath, { recursive: true });
-  }
-
   try {
     await git.clone({
       fs,
       http,
-      dir: taxonomyDirectoryPath,
+      dir: LOCAL_TAXONOMY_DIR,
       url: TAXONOMY_REPO_URL,
       singleBranch: true
     });
 
     // Include the full path in the response for client display
-    console.log(`Local Taxonomy repository cloned successfully to ${taxonomyDirectoryPath}.`);
+    console.log(`Local Taxonomy repository cloned successfully to ${LOCAL_TAXONOMY_DIR}.`);
     return true;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -38,11 +33,9 @@ async function cloneTaxonomyRepo(): Promise<boolean> {
   }
 }
 
-async function deleteTaxonomyRepo(): Promise<void> {
-  const taxonomyDirectoryPath = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
-
-  if (fs.existsSync(taxonomyDirectoryPath)) {
-    fs.rmdirSync(taxonomyDirectoryPath, { recursive: true });
+function deleteTaxonomyRepo() {
+  if (fs.existsSync(LOCAL_TAXONOMY_DIR)) {
+    fs.rmdirSync(LOCAL_TAXONOMY_DIR, { recursive: true });
   }
 }
 
@@ -59,9 +52,7 @@ async function getRemoteHeadHash(): Promise<string | null> {
 
 async function getLocalHeadHash(): Promise<string | null> {
   try {
-    const taxonomyDirectoryPath = path.join(LOCAL_TAXONOMY_ROOT_DIR, '/taxonomy');
-
-    const head = await git.resolveRef({ fs, dir: taxonomyDirectoryPath, ref: 'HEAD' });
+    const head = await git.resolveRef({ fs, dir: LOCAL_TAXONOMY_DIR, ref: 'HEAD' });
     return head || null;
   } catch (error) {
     console.error('Failed to get local head hash:', error);
@@ -70,6 +61,11 @@ async function getLocalHeadHash(): Promise<string | null> {
 }
 
 async function checkForUpdates(): Promise<void> {
+  if (!fs.existsSync(LOCAL_TAXONOMY_DIR)) {
+    await cloneTaxonomyRepo();
+    return;
+  }
+
   const currentTime = Date.now();
   if (currentTime - lastChecked < CHECK_INTERVAL) {
     return;
@@ -82,16 +78,16 @@ async function checkForUpdates(): Promise<void> {
 
   if (remoteHash && localHash && remoteHash !== localHash) {
     console.log(`${timestamp}: New changes detected, updating repository...`);
-    await deleteTaxonomyRepo();
+    deleteTaxonomyRepo();
     await cloneTaxonomyRepo();
   } else {
     console.log(`${timestamp}: No new changes detected in taxonomy repo.`);
   }
 }
 
-function getFirstLevelDirectories(directoryPath: string): string[] {
+async function getFirstLevelDirectories(directoryPath: string): Promise<string[]> {
   try {
-    checkForUpdates();
+    await checkForUpdates();
     return fs
       .readdirSync(directoryPath)
       .map((name) => path.join(directoryPath, name))
@@ -110,11 +106,11 @@ export async function POST(req: NextRequest) {
   try {
     let dirPath = '';
     if (root_path === 'skills') {
-      dirPath = path.join(LOCAL_TAXONOMY_ROOT_DIR, 'taxonomy', SKILLS, dir_name);
+      dirPath = path.join(LOCAL_TAXONOMY_DIR, SKILLS, dir_name);
     } else {
-      dirPath = path.join(LOCAL_TAXONOMY_ROOT_DIR, 'taxonomy', KNOWLEDGE, dir_name);
+      dirPath = path.join(LOCAL_TAXONOMY_DIR, KNOWLEDGE, dir_name);
     }
-    const dirs = getFirstLevelDirectories(dirPath);
+    const dirs = await getFirstLevelDirectories(dirPath);
     return NextResponse.json({ data: dirs }, { status: 201 });
   } catch (error) {
     console.error('Failed to get the tree for path:', root_path, error);
