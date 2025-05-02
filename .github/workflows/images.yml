@@ -82,7 +82,7 @@ jobs:
           file: Containerfile
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME}}
           subject-digest: ${{ steps.push-ui-ghcr.outputs.digest }}
@@ -166,7 +166,7 @@ jobs:
           file: Containerfile.ps
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_PATHSERVICE_IMAGE_NAME}}
           subject-digest: ${{ steps.push-ps-ghcr.outputs.digest }}
