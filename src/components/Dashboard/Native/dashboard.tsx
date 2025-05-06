@@ -103,6 +103,18 @@ const DashboardNative: React.FunctionComponent = () => {
   const [expandedFiles, setExpandedFiles] = React.useState<Record<string, boolean>>({});
   const [isDownloadDone, setIsDownloadDone] = React.useState<boolean>(true);
 
+  // State Variables for Evaluate Checkpoint
+  const [isEvalModalOpen, setIsEvalModalOpen] = React.useState<boolean>(false);
+  const [checkpoints, setCheckpoints] = React.useState<string[]>([]);
+  const [isCheckpointsLoading, setIsCheckpointsLoading] = React.useState<boolean>(false);
+  const [checkpointsError, setCheckpointsError] = React.useState<string | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>(false);
+  const [selectedCheckpoint, setSelectedCheckpoint] = React.useState<string | null>(null);
+
+  // QnA eval result
+  const [qnaEvalResult, setQnaEvalResult] = React.useState<string>('');
+  const [isQnaLoading, setIsQnaLoading] = React.useState<boolean>(false);
+
   const router = useRouter();
 
   const addAlert = (title: string, variant: AlertProps['variant']) => {
@@ -352,6 +364,100 @@ const DashboardNative: React.FunctionComponent = () => {
       ...prevState,
       [id]: false
     }));
+  };
+
+  const handleOpenEvalModal = () => {
+    setIsEvalModalOpen(true);
+    fetchCheckpoints();
+  };
+
+  const handleCloseEvalModal = () => {
+    setIsEvalModalOpen(false);
+    setCheckpoints([]);
+    setCheckpointsError(null);
+    setSelectedCheckpoint(null);
+    setQnaEvalResult('');
+    setIsQnaLoading(false);
+  };
+
+  // **New Function to Fetch Checkpoints from API Route**
+  const fetchCheckpoints = async () => {
+    setIsCheckpointsLoading(true);
+    setCheckpointsError(null);
+    try {
+      const response = await fetch('/api/native/eval/checkpoints');
+      console.log('Response status:', response.status);
+      const data = await response.json();
+      console.log('Checkpoints data:', data);
+
+      if (response.ok) {
+        // Assuming the API returns an array of checkpoints
+        if (Array.isArray(data) && data.length > 0) {
+          setCheckpoints(data);
+          console.log('Checkpoints set successfully:', data);
+        } else {
+          setCheckpoints([]);
+          console.log('No checkpoints returned from API.');
+        }
+      } else {
+        setCheckpointsError(data.error || 'Failed to fetch checkpoints.');
+        console.error('Error fetching checkpoints:', data.error || 'Failed to fetch checkpoints.');
+      }
+    } catch (error) {
+      console.error('Error fetching checkpoints:', error);
+      setCheckpointsError('Unable to reach the checkpoints endpoint.');
+    } finally {
+      setIsCheckpointsLoading(false);
+    }
+  };
+
+  // Checkpoint select dropdown
+  const onDropdownToggle = (isOpen: boolean) => setIsDropdownOpen(isOpen);
+  const onSelectCheckpoint = (event: React.MouseEvent<Element, MouseEvent>, selection: string) => {
+    setSelectedCheckpoint(selection);
+    setIsDropdownOpen(false);
+  };
+
+  const handleEvaluateQnA = async () => {
+    if (!selectedCheckpoint) {
+      addDangerAlert('Please select a checkpoint to evaluate.');
+      return;
+    }
+
+    setIsQnaLoading(true);
+    setQnaEvalResult('');
+
+    // TODO: dynamically prepend the checkpoint path
+    const selectedModelDir = '/var/home/cloud-user/.local/share/instructlab/checkpoints/hf_format/' + selectedCheckpoint;
+
+    console.log('[CLIENT] Sending to /api/native/eval/qna:', selectedModelDir);
+
+    try {
+      const res = await fetch('/api/native/eval/qna', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selectedModelDir })
+      });
+
+      const data = await res.json();
+      console.log('[CLIENT] Response from /api/native/eval/qna:', data);
+
+      if (!res.ok) {
+        addDangerAlert(data.error || 'Failed to evaluate QnA.');
+      } else {
+        if (data.result) {
+          setQnaEvalResult(data.result);
+          addSuccessAlert('QnA Evaluation succeeded!');
+        } else {
+          setQnaEvalResult('Evaluation completed (no result field).');
+        }
+      }
+    } catch (error) {
+      console.error('Error evaluating QnA:', error);
+      addDangerAlert('Error evaluating QnA.');
+    } finally {
+      setIsQnaLoading(false);
+    }
   };
 
   return (
@@ -612,6 +718,84 @@ const DashboardNative: React.FunctionComponent = () => {
             <p style={{ color: mergeStatus.success ? 'green' : 'red' }}>{mergeStatus.message}</p>
           </PageSection>
         )}
+
+        {/* Evaluate Checkpoint Modal */}
+        <Modal
+          variant={ModalVariant.medium}
+          title="Evaluate Checkpoint"
+          isOpen={isEvalModalOpen}
+          onClose={handleCloseEvalModal}
+          aria-labelledby="evaluate-checkpoint-modal-title"
+          aria-describedby="evaluate-checkpoint-modal-body"
+        >
+          <ModalHeader title="Evaluate Checkpoint" />
+          <ModalBody id="evaluate-checkpoint-modal-body">
+            {isCheckpointsLoading ? (
+              <Spinner size="lg" aria-label="Loading checkpoints" />
+            ) : checkpointsError ? (
+              <Alert variant="danger" title={checkpointsError} isInline />
+            ) : (
+              <>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.4rem' }}>Select a Checkpoint:</label>
+                  <Dropdown
+                    isOpen={isDropdownOpen}
+                    onSelect={onSelectCheckpoint}
+                    onOpenChange={onDropdownToggle}
+                    toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                      <MenuToggle ref={toggleRef} onClick={() => onDropdownToggle(!isDropdownOpen)} isExpanded={isDropdownOpen}>
+                        {selectedCheckpoint || 'Select a Checkpoint'}
+                      </MenuToggle>
+                    )}
+                    ouiaId="EvaluateCheckpointDropdown"
+                    shouldFocusToggleOnSelect
+                  >
+                    <DropdownList>
+                      {checkpoints.length > 0 ? (
+                        checkpoints.map((checkpoint) => (
+                          <DropdownItem key={checkpoint} value={checkpoint}>
+                            {checkpoint}
+                          </DropdownItem>
+                        ))
+                      ) : (
+                        <DropdownItem key="no-checkpoints" isDisabled>
+                          No checkpoints available
+                        </DropdownItem>
+                      )}
+                    </DropdownList>
+                  </Dropdown>
+                </div>
+
+                {/* Display the evaluation result */}
+                {qnaEvalResult && (
+                  <div style={{ marginTop: '1rem' }}>
+                    <b>Evaluation Output:</b>
+                    <pre
+                      style={{
+                        marginTop: '0.5rem',
+                        backgroundColor: '#f5f5f5',
+                        padding: '1rem',
+                        borderRadius: '4px',
+                        maxHeight: '300px',
+                        overflowY: 'auto'
+                      }}
+                    >
+                      {qnaEvalResult}
+                    </pre>
+                  </div>
+                )}
+              </>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button key="evaluateQnA" variant="primary" onClick={handleEvaluateQnA} isDisabled={!selectedCheckpoint || isQnaLoading}>
+              {isQnaLoading ? 'Evaluating...' : 'Evaluate'}
+            </Button>
+            <Button key="cancel" variant="secondary" onClick={handleCloseEvalModal}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
 
         <Modal
           variant={ModalVariant.medium}
