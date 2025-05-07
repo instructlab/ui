@@ -20,19 +20,15 @@ import {
   DescriptionListDescription
 } from '@patternfly/react-core';
 import { CatalogIcon, PficonTemplateIcon } from '@patternfly/react-icons';
-import { useEnvConfig } from '@/context/EnvConfigContext';
 import ViewContributionSection from '@/components/Common/ViewContributionSection';
 import ViewSkillSeedExample from '@/components/Contribute/Skill/View/ViewSkillSeedExample';
 
-interface ViewKnowledgeProps {
+interface ViewSkillProps {
   skillEditFormData: SkillEditFormData;
 }
 
-const ViewKnowledgeNative: React.FC<ViewKnowledgeProps> = ({ skillEditFormData }) => {
+const ViewSkill: React.FC<ViewSkillProps> = ({ skillEditFormData }) => {
   const router = useRouter();
-  const {
-    envConfig: { isGithubMode }
-  } = useEnvConfig();
 
   return (
     <PageGroup isFilled style={{ overflowY: 'hidden', flex: 1 }}>
@@ -121,35 +117,6 @@ const ViewKnowledgeNative: React.FC<ViewKnowledgeProps> = ({ skillEditFormData }
             />
           </FlexItem>
 
-          {/* Attribution Information */}
-          {isGithubMode ? (
-            <FlexItem>
-              <ViewContributionSection
-                title="Source attribution"
-                descriptionItems={[
-                  <DescriptionListGroup key="title-work">
-                    <DescriptionListTerm>Title</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div>{skillEditFormData.formData.titleWork}</div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>,
-                  <DescriptionListGroup key="license">
-                    <DescriptionListTerm>License of the work</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div>{skillEditFormData.formData.licenseWork}</div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>,
-                  <DescriptionListGroup key="creators">
-                    <DescriptionListTerm>Authors</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div>{skillEditFormData.formData.creators}</div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                ]}
-              />
-            </FlexItem>
-          ) : null}
-
           {/* Seed Examples */}
           <FlexItem>
             <ViewContributionSection
@@ -177,4 +144,4 @@ const ViewKnowledgeNative: React.FC<ViewKnowledgeProps> = ({ skillEditFormData }
   );
 };
 
-export default ViewKnowledgeNative;
+export default ViewSkill;

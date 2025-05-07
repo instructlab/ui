@@ -15,7 +15,6 @@ export const fetchEnvConfig = async (): Promise<EnvConfigType> => {
       taxonomyRootDir: envConfig.TAXONOMY_ROOT_DIR,
       taxonomyKnowledgeDocumentRepo: envConfig.TAXONOMY_KNOWLEDGE_DOCUMENT_REPO,
       apiServer: envConfig.API_SERVER,
-      isGithubMode: envConfig.DEPLOYMENT_TYPE !== 'native',
       isDevMode: envConfig.ENABLE_DEV_MODE === 'true'
     };
   } catch (error) {
@@ -30,7 +29,6 @@ export const fetchEnvConfig = async (): Promise<EnvConfigType> => {
       taxonomyRootDir: '',
       taxonomyKnowledgeDocumentRepo: '',
       apiServer: '',
-      isGithubMode: false,
       isDevMode: false
     };
   }

@@ -1,4 +1,4 @@
-// src/app/api/native/fine-tune/git/branches/route.ts
+// src/app/api/fine-tune/git/branches/route.ts
 import { NextResponse } from 'next/server';
 import * as git from 'isomorphic-git';
 import fs from 'fs';
@@ -56,7 +56,7 @@ export async function GET() {
     // Sort by creation date, newest first
     branchDetails.sort((a, b) => b.creationDate - a.creationDate);
 
-    console.log('Total branches present in native taxonomy (fine-tune):', branchDetails.length);
+    console.log('Total branches present in taxonomy (fine-tune):', branchDetails.length);
 
     return NextResponse.json({ branches: branchDetails }, { status: 200 });
   } catch (error) {

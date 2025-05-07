@@ -1,4 +1,4 @@
-// src/components/Contribute/Knowledge/KnowledgeSeedExampleNative/KnowledgeQuestionAnswerPairsNative.tsx
+// src/components/Contribute/Knowledge/KnowledgeWizard/KnowledgeSeedExamples/KnowledgeSeedExamples.tsx
 import React, { useState } from 'react';
 import { Alert, Bullseye, Button, Flex, FlexItem, Spinner } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
@@ -13,14 +13,13 @@ import {
 import KnowledgeSeedExampleCard from '@/components/Contribute/Knowledge/KnowledgeWizard/KnowledgeSeedExamples/KnowledgeSeedExampleCard';
 
 interface Props {
-  isGithubMode: boolean;
   filesToUpload: File[];
   uploadedFiles: KnowledgeFile[];
   seedExamples: KnowledgeSeedExample[];
   onUpdateSeedExamples: (seedExamples: KnowledgeSeedExample[]) => void;
 }
 
-const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, filesToUpload, uploadedFiles, seedExamples, onUpdateSeedExamples }) => {
+const KnowledgeSeedExamples: React.FC<Props> = ({ filesToUpload, uploadedFiles, seedExamples, onUpdateSeedExamples }) => {
   const [knowledgeFiles, setKnowledgeFiles] = useState<KnowledgeFile[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [bodyRef, setBodyRef] = React.useState<HTMLElement | null>();
@@ -125,7 +124,6 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ isGithubMode, filesToUpload, u
               <KnowledgeSeedExampleCard
                 bodyRef={bodyRef}
                 key={seedExampleIndex}
-                isGithubMode={isGithubMode}
                 knowledgeFiles={knowledgeFiles}
                 seedExampleIndex={seedExampleIndex}
                 seedExample={seedExample}

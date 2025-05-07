@@ -14,7 +14,6 @@ export async function GET() {
     MERLINITE_MODEL_NAME: process.env.IL_MERLINITE_MODEL_NAME || '',
     UPSTREAM_REPO_OWNER: process.env.NEXT_PUBLIC_TAXONOMY_REPO_OWNER || '',
     UPSTREAM_REPO_NAME: process.env.NEXT_PUBLIC_TAXONOMY_REPO || '',
-    DEPLOYMENT_TYPE: process.env.IL_UI_DEPLOYMENT || '',
     ENABLE_DEV_MODE: process.env.IL_ENABLE_DEV_MODE || 'false',
     ENABLE_DOC_CONVERSION: process.env.IL_ENABLE_DOC_CONVERSION || 'false',
     ENABLE_SKILLS_FEATURES: process.env.IL_ENABLE_SKILLS_FEATURES || '',

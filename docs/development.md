@@ -6,14 +6,9 @@ This is a [NextJS](https://nextjs.org) framework with [Patternfly](https://www.p
 
 Podman is a requirement for using the Makefile. Install and init instructions [here](https://podman.io/docs/installation).
 
-Set the .env in the ui directory by copying the example env files in the root directory. The`IL_ENABLE_DEV_MODE` flag enables assistive features that help you automate the time consuming and repetitive tasks, such as filling skill and knowledge forms for testing. Once .env file is setup, run the following:
+Set the .env in the ui directory by copying the `example.env` file in the root directory. The`IL_ENABLE_DEV_MODE` flag enables assistive features that help you automate the time consuming and repetitive tasks, such as filling skill and knowledge forms for testing. Once .env file is setup, run the following:
 
 ```bash
-# Github mode development .env
-cp .env.github.example .env
-# or native mode .env
-cp .env.native.example .env
-
 make start-dev-local
 ```
 
@@ -49,10 +44,7 @@ Choose the .env file to use and start the Next.js service with the following:
 
 ```bash
 cd ui/
-# Github mode development .env
-cp .env.github.example .env
-# or native mode .env
-cp .env.native.example .env
+cp .env.xample .env
 # start a development instance with hot module replacement on port 3000
 npm install
 npm run dev
@@ -83,27 +75,9 @@ npm run pretty
 npm run type-check
 ```
 
-UI stack supports two mode of deployments:
+## Running the UI
 
-- github - This is the default mode and it allows users to push their knowledge and skill contribution to the github taxonomy repository.
-- native - This mode allow users to keep the skill and knowledge contribution in their local machine.
-
-## Running the UI in Native Deployment Mode
-
-To enable the native mode, set the `IL_UI_DEPLOYMENT=native` in the .env file. Once the flag is set, the UI will not push the knowledge and skill contribution to the github repository. Instead, it will keep the contribution in the local machine. In the `native` mode, the UI login page will show username and password input box to authenticate the user. You can setup the username and password in the .env file through the `IL_UI_ADMIN_USERNAME` and `IL_UI_ADMIN_PASSWORD` flags.
-
-## Running the UI in Github Deployment Mode
-
-To enable the github mode, set the `IL_UI_DEPLOYMENT=github` in the .env file. Once the flag is set, the UI will push the knowledge and skill contribution to the github taxonomy repository. In the `github` mode, the UI login page will show the github login button to authenticate the user.
-
-### OAuth Configuration for Github Deployment Mode
-
-You can either set up the Oauth app in your
-[GitHub](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app)
-account or use the user/pass defined in `.env`. To change those defaults, create
-the `/ui/.env` file and fill in the account user/pass with the following.
-
-Example [.env](../.env.example) file.
+Contributions will be kept on the local machine. The UI login page will show username and password input box to authenticate the user. You can setup the username and password in the .env file through the `IL_UI_ADMIN_USERNAME` and `IL_UI_ADMIN_PASSWORD` flags.
 
 ## Local Dev Chat Environment
 

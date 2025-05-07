@@ -52,17 +52,16 @@ const validateQuestionAndAnswerPairs = (seedExample: KnowledgeSeedExample): { su
   return { success: true, currLength: totalLength };
 };
 
-const nativeKnowledgeOptionalKeys = ['titleWork', 'linkWork', 'revision', 'licenseWork', 'creators'];
+const knowledgeOptionalKeys = ['titleWork', 'linkWork', 'revision', 'licenseWork', 'creators'];
 
 export const validateKnowledgeFormFields = (
   knowledgeFormData: KnowledgeFormData,
-  setActionGroupAlertContent: (content: ActionGroupAlertContent) => void,
-  isNativeMode: boolean
+  setActionGroupAlertContent: (content: ActionGroupAlertContent) => void
 ): boolean => {
   // validate that data has been entered into all fields
   for (const [key, value] of Object.entries(knowledgeFormData)) {
     if (!value) {
-      if (isNativeMode && nativeKnowledgeOptionalKeys.includes(key)) {
+      if (knowledgeOptionalKeys.includes(key)) {
         continue;
       } else {
         const actionGroupAlertContent: ActionGroupAlertContent = {
@@ -158,7 +157,7 @@ export const validateKnowledgeFormFields = (
   return true;
 };
 
-const nativeSkillOptionalKeys = ['titleWork', 'licenseWork', 'creators'];
+const skillOptionalKeys = ['titleWork', 'licenseWork', 'creators'];
 
 const hasDuplicateSkillSeedExamples = (seedExamples: SkillSeedExample[]): { duplicate: boolean; index: number } => {
   const question = new Set<string>();
@@ -175,13 +174,12 @@ const hasDuplicateSkillSeedExamples = (seedExamples: SkillSeedExample[]): { dupl
 
 export const validateSkillFormFields = (
   skillFormData: SkillFormData,
-  setActionGroupAlertContent: (content: ActionGroupAlertContent) => void,
-  isNativeMode: boolean
+  setActionGroupAlertContent: (content: ActionGroupAlertContent) => void
 ): boolean => {
   // validate that data has been entered into all fields
   for (const [key, value] of Object.entries(skillFormData)) {
     if (!value) {
-      if (isNativeMode && nativeSkillOptionalKeys.includes(key)) {
+      if (skillOptionalKeys.includes(key)) {
         continue;
       } else {
         const actionGroupAlertContent: ActionGroupAlertContent = {

@@ -1,4 +1,4 @@
-// src/components/Contribute/Knowledge/Native/DocumentInformation/DocumentInformation.tsx
+// src/components/Contribute/Knowledge/KnowledgeWizard/DocumentInformation/DocumentInformation.tsx
 import React from 'react';
 import { Button, Flex, FlexItem } from '@patternfly/react-core';
 import { KnowledgeFile } from '@/types';

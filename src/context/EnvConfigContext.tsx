@@ -31,7 +31,6 @@ export const EnvConfigProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   React.useEffect(() => {
     fetchEnvConfig().then((newConfig) => {
       devLog(`======== Env Config ============`);
-      devLog(`  isGithubMode: `, newConfig.isGithubMode);
       devLog(`  isDevMode: `, newConfig.isDevMode);
 
       setCurrentState({ loaded: true, envConfig: newConfig });

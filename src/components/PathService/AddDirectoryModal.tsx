@@ -2,7 +2,6 @@
 'use client';
 import React, { FormEvent } from 'react';
 import {
-  Alert,
   Button,
   Content,
   Flex,
@@ -19,12 +18,11 @@ import {
 } from '@patternfly/react-core';
 
 interface Props {
-  isGithubMode: boolean;
   parentPath: string;
   onClose: (newDirectory?: string) => void;
 }
 
-export const AddDirectoryModal: React.FunctionComponent<Props> = ({ isGithubMode, parentPath, onClose }) => {
+export const AddDirectoryModal: React.FunctionComponent<Props> = ({ parentPath, onClose }) => {
   const [directoryPath, setDirectoryPath] = React.useState<string>('');
   const [validDirectoryPath, setValidDirectoryPath] = React.useState<ValidatedOptions>(ValidatedOptions.default);
   const [touched, setTouched] = React.useState<boolean>();
@@ -68,17 +66,6 @@ export const AddDirectoryModal: React.FunctionComponent<Props> = ({ isGithubMode
           <FlexItem>
             <Content aria-label="add-directory-modal-description">This will create a new folder in the taxonomy.</Content>
           </FlexItem>
-          {isGithubMode ? (
-            <FlexItem>
-              <Alert
-                variant="info"
-                isInline
-                isPlain
-                title="All new directories must be approved by the taxonomy administrator. If accepted, your new contribution will appear in this directory."
-                ouiaId="new-directory-alert"
-              />
-            </FlexItem>
-          ) : null}
           <FlexItem>
             <Form>
               <FormGroup isRequired fieldId="dir-name" label="Directory name">

@@ -1,4 +1,4 @@
-// src/components/Contribute/Knowledge/KnowledgeSeedExampleNative/KnowledgeQuestionAnswerPairsNative.tsx
+// src/components/Contribute/Knowledge/KnowledgeWizard/KnowledgeSeedExamples/KnowledgeSeedExampleCard.tsx
 import React from 'react';
 import {
   Alert,
@@ -62,7 +62,6 @@ const getScrollParent = (node: HTMLElement | null): HTMLElement | null => {
 };
 
 interface Props {
-  isGithubMode: boolean;
   knowledgeFiles: KnowledgeFile[];
   seedExampleIndex: number;
   seedExample: KnowledgeSeedExample;

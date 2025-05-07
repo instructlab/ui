@@ -4,7 +4,6 @@ import { Button, Flex, FlexItem } from '@patternfly/react-core';
 import { Tr, Td } from '@patternfly/react-table';
 import { t_global_color_disabled_100 as DisabledColor } from '@patternfly/react-tokens/dist/esm/t_global_color_disabled_100';
 import { ContributionInfo } from '@/types';
-import { useEnvConfig } from '@/context/EnvConfigContext';
 import TruncatedText from '@/components/Common/TruncatedText';
 import TableRowTitleDescription from '@/components/Table/TableRowTitleDescription';
 import { getTaxonomyDir, getFormattedLastUpdatedDate } from '@/components/Dashboard/const';
@@ -20,9 +19,6 @@ interface Props {
 
 const ContributionTableRow: React.FC<Props> = ({ contribution, onUpdateContributions, addAlert }) => {
   const router = useRouter();
-  const {
-    envConfig: { isGithubMode }
-  } = useEnvConfig();
 
   return (
     <Tr>
@@ -36,7 +32,7 @@ const ContributionTableRow: React.FC<Props> = ({ contribution, onUpdateContribut
                   isInline
                   onClick={() =>
                     router.push(
-                      `/contribute/${contribution.isKnowledge ? 'knowledge' : 'skill'}/${isGithubMode ? 'github' : 'native'}/${contribution.branchName}${contribution.isDraft ? '/isDraft' : ''}`
+                      `/contribute/${contribution.isKnowledge ? 'knowledge' : 'skill'}/${contribution.branchName}${contribution.isDraft ? '/isDraft' : ''}`
                     )
                   }
                 >

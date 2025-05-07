@@ -203,7 +203,6 @@ export interface EnvConfigType {
   taxonomyRootDir: string;
   taxonomyKnowledgeDocumentRepo: string;
   apiServer: string;
-  isGithubMode: boolean;
   isDevMode: boolean;
 }
 

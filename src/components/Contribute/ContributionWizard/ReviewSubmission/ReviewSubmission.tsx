@@ -10,7 +10,6 @@ interface ReviewSubmissionProps {
   contributionFormData: ContributionFormData;
   seedExamples: React.ReactNode;
   isSkillContribution: boolean;
-  isGithubMode: boolean;
   onUpdateSeedExamples: (seedExamples: KnowledgeSeedExample[] | SkillSeedExample[]) => void;
 }
 
@@ -18,7 +17,6 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({
   contributionFormData,
   seedExamples,
   isSkillContribution,
-  isGithubMode,
   onUpdateSeedExamples
 }) => {
   React.useEffect(() => {
@@ -76,55 +74,6 @@ export const ReviewSubmission: React.FC<ReviewSubmissionProps> = ({
               ]}
             />
           </FlexItem>
-
-          {/* Attribution Information */}
-          {isGithubMode ? (
-            <FlexItem>
-              <ReviewSection
-                title="Source attribution"
-                descriptionItems={[
-                  <DescriptionListGroup key="title-work">
-                    <DescriptionListTerm>Title</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div>{contributionFormData.titleWork}</div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>,
-                  ...(!isSkillContribution
-                    ? [
-                        <DescriptionListGroup key="work-link">
-                          <DescriptionListTerm>Link to work</DescriptionListTerm>
-                          <DescriptionListDescription>
-                            <div>{(contributionFormData as KnowledgeFormData).linkWork}</div>
-                          </DescriptionListDescription>
-                        </DescriptionListGroup>
-                      ]
-                    : []),
-                  ...(!isSkillContribution
-                    ? [
-                        <DescriptionListGroup key="revision">
-                          <DescriptionListTerm>Revision</DescriptionListTerm>
-                          <DescriptionListDescription>
-                            <div>{(contributionFormData as KnowledgeFormData).revision}</div>
-                          </DescriptionListDescription>
-                        </DescriptionListGroup>
-                      ]
-                    : []),
-                  <DescriptionListGroup key="license">
-                    <DescriptionListTerm>License of the work</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div>{contributionFormData.licenseWork}</div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>,
-                  <DescriptionListGroup key="creators">
-                    <DescriptionListTerm>Authors</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div>{contributionFormData.creators}</div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                ]}
-              />
-            </FlexItem>
-          ) : null}
 
           {/* Seed Examples */}
           <FlexItem>

@@ -1,14 +1,10 @@
 // src/utils/taxonomy.ts
-const GITHUB_TAXONOMY_DOWNLOAD_URL = '/api/github/download';
-const NATIVE_TAXONOMY_DOWNLOAD_URL = '/api/native/download';
-
 interface TaxonomyDownloadProp {
   branchName: string;
-  isGithubMode: boolean;
   setIsDownloadDone: (isDownloadDone: boolean) => void;
 }
-export async function handleTaxonomyDownload({ branchName, isGithubMode, setIsDownloadDone }: TaxonomyDownloadProp) {
-  const res = await fetch(isGithubMode ? GITHUB_TAXONOMY_DOWNLOAD_URL : NATIVE_TAXONOMY_DOWNLOAD_URL, {
+export async function handleTaxonomyDownload({ branchName, setIsDownloadDone }: TaxonomyDownloadProp) {
+  const res = await fetch('/api/download', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
