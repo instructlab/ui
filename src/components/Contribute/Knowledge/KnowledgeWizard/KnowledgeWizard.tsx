@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import './knowledge.css';
 import { useSession } from 'next-auth/react';
-import DocumentInformation from '@/components/Contribute/Knowledge/DocumentInformation/DocumentInformation';
-import KnowledgeSeedExamples from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamples';
+import DocumentInformation from '@/components/Contribute/Knowledge/KnowledgeWizard/DocumentInformation/DocumentInformation';
+import KnowledgeSeedExamples from '@/components/Contribute/Knowledge/KnowledgeWizard/KnowledgeSeedExamples/KnowledgeSeedExamples';
 import { ContributionFormData, KnowledgeEditFormData, KnowledgeFormData, KnowledgeSeedExample, KnowledgeYamlData } from '@/types';
 import { useRouter } from 'next/navigation';
 import { Breadcrumb, BreadcrumbItem, Button, PageBreadcrumb, ValidatedOptions } from '@patternfly/react-core';
@@ -22,15 +22,16 @@ import {
   updateGithubKnowledgeData,
   updateNativeKnowledgeData
 } from '@/components/Contribute/Utils/submitUtils';
-import AttributionInformation from '@/components/Contribute/AttributionInformation/AttributionInformation';
+import AttributionInformation from '@/components/Contribute/ContributionWizard/AttributionInformation/AttributionInformation';
 import { ContributionWizard, StepStatus, StepType } from '@/components/Contribute/ContributionWizard/ContributionWizard';
 import { KnowledgeSchemaVersion } from '@/types/const';
+import { useEnvConfig } from '@/context/EnvConfigContext';
 import { YamlFileUploadModal } from '@/components/Contribute/YamlFileUploadModal';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
 import { addYamlUploadKnowledge } from '@/components/Contribute/Utils/uploadUtils';
-import ReviewSubmission from '@/components/Contribute/ReviewSubmission/ReviewSubmission';
-import KnowledgeSeedExamplesReviewSection from '@/components/Contribute/Knowledge/KnowledgeSeedExamples/KnowledgeSeedExamplesReviewSection';
-import DetailsPage from '@/components/Contribute/DetailsPage/DetailsPage';
+import ReviewSubmission from '@/components/Contribute/ContributionWizard/ReviewSubmission/ReviewSubmission';
+import KnowledgeSeedExamplesReviewSection from '@/components/Contribute/Knowledge/KnowledgeWizard/KnowledgeSeedExamples/KnowledgeSeedExamplesReviewSection';
+import DetailsPage from '@/components/Contribute/ContributionWizard/DetailsPage/DetailsPage';
 import { getDefaultKnowledgeFormData } from '@/components/Contribute/Utils/contributionUtils';
 import { storeDraftData, deleteDraftData, doSaveDraft, isDraftDataExist, storeDraftKnowledgeFile } from '@/components/Contribute/Utils/autoSaveUtils';
 
@@ -43,6 +44,8 @@ const STEP_IDS = ['details', 'resource-documentation', 'uploaded-documents', 'at
 
 export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData, isGithubMode }) => {
   const { data: session } = useSession();
+  const { envConfig } = useEnvConfig();
+
   const [knowledgeFormData, setKnowledgeFormData] = React.useState<KnowledgeFormData>(
     knowledgeEditFormData?.formData
       ? {
@@ -108,6 +111,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
       });
       storeDraftData(
         knowledgeFormData.branchName,
+        knowledgeFormData.filePath,
         draftContributionStr,
         !!knowledgeEditFormData?.isSubmitted,
         knowledgeEditFormData?.oldFilesPath || ''
@@ -302,7 +306,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
 
     if (knowledgeEditFormData && knowledgeEditFormData.isSubmitted) {
       const result = isGithubMode
-        ? await updateGithubKnowledgeData(session, knowledgeFormData, knowledgeEditFormData, updateActionGroupAlertContent)
+        ? await updateGithubKnowledgeData(session, envConfig, knowledgeFormData, knowledgeEditFormData, updateActionGroupAlertContent)
         : await updateNativeKnowledgeData(knowledgeFormData, knowledgeEditFormData, updateActionGroupAlertContent);
       if (result) {
         //Remove draft if present in the local storage
@@ -344,10 +348,10 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
                   to="/"
                   onClick={(e) => {
                     e.preventDefault();
-                    router.push('/contribute/knowledge');
+                    router.push('/dashboard');
                   }}
                 >
-                  Contribute knowledge
+                  My contributions
                 </BreadcrumbItem>
                 <BreadcrumbItem isActive>{`Edit${knowledgeEditFormData?.isDraft ? ' draft' : ''} knowledge contribution`}</BreadcrumbItem>
               </Breadcrumb>

@@ -3,9 +3,25 @@ import { KnowledgeSchemaVersion, SkillSchemaVersion } from '@/types/const';
 import { devLog } from '@/utils/devlog';
 import path from 'path';
 
-export const storeDraftData = (branchName: string, data: string, isSubmitted: boolean, oldFilesPath: string) => {
+export const TOOLTIP_FOR_DISABLE_COMPONENT = 'This action can be performed once the draft changes are either submitted or discarded.';
+export const TOOLTIP_FOR_DISABLE_NEW_COMPONENT = 'This action can be performed once the draft changes are submitted.';
+
+export const clearAllDraftData = () => {
+  const existingDrafts = localStorage.getItem('draftContributions');
+  if (existingDrafts !== null && existingDrafts.length !== 0) {
+    const existingDraftsArr: DraftEditFormInfo[] = JSON.parse(existingDrafts);
+    existingDraftsArr.forEach((item) => {
+      if (localStorage.getItem(item.branchName)) {
+        localStorage.removeItem(item.branchName);
+      }
+    });
+    localStorage.removeItem('draftContributions');
+  }
+};
+
+export const storeDraftData = (branchName: string, taxonomy: string, data: string, isSubmitted: boolean, oldFilesPath: string) => {
   localStorage.setItem(branchName, data);
-  addToDraftList(branchName, isSubmitted, oldFilesPath);
+  addToDraftList(branchName, isSubmitted, oldFilesPath, taxonomy);
 };
 
 export const isDraftDataExist = (branchName: string): boolean => {
@@ -23,22 +39,23 @@ export const deleteDraftData = (branchName: string) => {
 
 const getDraftInfo = (branchName: string): DraftEditFormInfo | undefined => {
   const existingDrafts = localStorage.getItem('draftContributions');
-  if (existingDrafts != null && existingDrafts.length != 0) {
+  if (existingDrafts !== null && existingDrafts.length !== 0) {
     const existingDraftsArr: DraftEditFormInfo[] = JSON.parse(existingDrafts);
     return existingDraftsArr.find((draft) => draft.branchName === branchName);
   }
   return undefined;
 };
 
-const addToDraftList = (branchName: string, isSubmitted: boolean, oldFilesPath: string) => {
+const addToDraftList = (branchName: string, isSubmitted: boolean, oldFilesPath: string, taxonomy: string) => {
   const existingDrafts = localStorage.getItem('draftContributions');
   let draftContributions: DraftEditFormInfo[] = [];
   const draft: DraftEditFormInfo = {
-    branchName: branchName,
+    branchName,
     lastUpdated: new Date(Date.now()).toUTCString(),
     isKnowledgeDraft: branchName.includes('knowledge-contribution'),
-    isSubmitted: isSubmitted,
-    oldFilesPath: oldFilesPath
+    isSubmitted,
+    oldFilesPath,
+    taxonomy
   };
   if (existingDrafts == null || existingDrafts.length === 0) {
     draftContributions.push(draft);
@@ -85,6 +102,7 @@ export const fetchDraftContributions = (): DraftEditFormInfo[] => {
       const draftObj: ContributionFormData = JSON.parse(draft);
       item.author = draftObj.email;
       item.title = draftObj.submissionSummary;
+      item.taxonomy = draftObj.filePath;
       drafts.push(item);
     }
   });

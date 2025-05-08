@@ -41,15 +41,20 @@ interface IAppLayout {
 
 type Route = {
   path: string;
+  altPaths?: string[];
   label: string;
   children?: Route[];
+};
+
+const isRouteActive = (pathname: string, route: Route) => {
+  return pathname.startsWith(route.path) || route.altPaths?.some((altPath) => pathname.startsWith(altPath));
 };
 
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className }) => {
   const { data: session, status } = useSession();
   const {
     loaded,
-    featureFlags: { skillFeaturesEnabled, playgroundFeaturesEnabled, experimentalFeaturesEnabled }
+    featureFlags: { playgroundFeaturesEnabled, experimentalFeaturesEnabled }
   } = useFeatureFlags();
 
   const router = useRouter();
@@ -75,9 +80,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
   }
 
   const routes = [
-    { path: '/dashboard', label: 'Dashboard' },
-    { path: '/contribute/knowledge', label: 'Contribute knowledge' },
-    ...(skillFeaturesEnabled ? [{ path: '/contribute/skill', label: 'Contribute skills' }] : []),
+    { path: '/dashboard', altPaths: ['/contribute'], label: 'My contributions' },
     ...(playgroundFeaturesEnabled
       ? [
           {
@@ -139,7 +142,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
   );
 
   const renderNavItem = (route: Route, index: number) => (
-    <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={pathname.startsWith(route.path)}>
+    <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={isRouteActive(pathname, route)}>
       <Link href={route.path}>{route.label}</Link>
     </NavItem>
   );
@@ -148,7 +151,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     <NavExpandable
       key={`${route.label}-${index}`}
       title={route.label}
-      isActive={route.path.startsWith(pathname) || route.children?.some((child) => pathname.startsWith(child.path))}
+      isActive={isRouteActive(pathname, route) || route.children?.some((child) => isRouteActive(pathname, child))}
       isExpanded
     >
       {route.children?.map((child, idx) => renderNavItem(child, idx))}

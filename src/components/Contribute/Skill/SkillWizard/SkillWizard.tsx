@@ -1,4 +1,4 @@
-// src/components/Contribute/Sill/SkillWizard.tsx
+// src/components/Contribute/Skill/SkillWizard/SkillWizard.tsx
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ValidatedOptions, Button, PageBreadcrumb, Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 import { SkillSchemaVersion } from '@/types/const';
 import { ContributionFormData, SkillEditFormData, SkillFormData, SkillSeedExample, SkillYamlData } from '@/types';
+import { useEnvConfig } from '@/context/EnvConfigContext';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { isAttributionInformationValid, isSkillSeedExamplesValid, isDetailsValid } from '@/components/Contribute/Utils/validationUtils';
 import {
@@ -16,14 +17,14 @@ import {
 } from '@/components/Contribute/Utils/submitUtils';
 import { addYamlUploadSkill } from '@/components/Contribute/Utils/uploadUtils';
 import { getDefaultSkillFormData } from '@/components/Contribute/Utils/contributionUtils';
-import AttributionInformation from '@/components/Contribute/AttributionInformation/AttributionInformation';
+import AttributionInformation from '@/components/Contribute/ContributionWizard/AttributionInformation/AttributionInformation';
 import { ContributionWizard, StepStatus, StepType } from '@/components/Contribute/ContributionWizard/ContributionWizard';
 import { YamlFileUploadModal } from '@/components/Contribute/YamlFileUploadModal';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
-import ReviewSubmission from '@/components/Contribute/ReviewSubmission/ReviewSubmission';
-import SkillSeedExamples from '@/components/Contribute/Skill/SkillSeedExamples/SkillSeedExamples';
-import SkillSeedExamplesReviewSection from '@/components/Contribute/Skill/SkillSeedExamples/SkillSeedExamplesReviewSection';
-import DetailsPage from '@/components/Contribute/DetailsPage/DetailsPage';
+import ReviewSubmission from '@/components/Contribute/ContributionWizard/ReviewSubmission/ReviewSubmission';
+import SkillSeedExamples from '@/components/Contribute/Skill/SkillWizard/SkillSeedExamples/SkillSeedExamples';
+import SkillSeedExamplesReviewSection from '@/components/Contribute/Skill/SkillWizard/SkillSeedExamples/SkillSeedExamplesReviewSection';
+import DetailsPage from '@/components/Contribute/ContributionWizard/DetailsPage/DetailsPage';
 import { storeDraftData, deleteDraftData, doSaveDraft, isDraftDataExist } from '@/components/Contribute/Utils/autoSaveUtils';
 
 import './skills.css';
@@ -37,6 +38,7 @@ const STEP_IDS = ['details', 'seed-examples', 'attribution-info', 'review-submis
 
 export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData, isGithubMode }) => {
   const { data: session } = useSession();
+  const { envConfig } = useEnvConfig();
   const [skillFormData, setSkillFormData] = React.useState<SkillFormData>(
     skillEditFormData?.formData
       ? {
@@ -82,7 +84,13 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
       return;
     }
 
-    storeDraftData(skillFormData.branchName, JSON.stringify(skillFormData), !!skillEditFormData?.isSubmitted, skillEditFormData?.oldFilesPath || '');
+    storeDraftData(
+      skillFormData.branchName,
+      skillFormData.filePath,
+      JSON.stringify(skillFormData),
+      !!skillEditFormData?.isSubmitted,
+      skillEditFormData?.oldFilesPath || ''
+    );
   }, [skillEditFormData?.isSubmitted, skillEditFormData?.oldFilesPath, skillFormData]);
 
   const steps: StepType[] = React.useMemo(
@@ -184,7 +192,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
     // If the PR number is present it means the draft is for the submitted PR.
     if (skillEditFormData && skillEditFormData.isSubmitted) {
       const result = isGithubMode
-        ? await updateGithubSkillData(session, skillFormData, skillEditFormData, updateActionGroupAlertContent)
+        ? await updateGithubSkillData(session, envConfig, skillFormData, skillEditFormData, updateActionGroupAlertContent)
         : await updateNativeSkillData(skillFormData, skillEditFormData, updateActionGroupAlertContent);
       if (result) {
         //Remove draft if present in the local storage
@@ -231,10 +239,10 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
                   to="/"
                   onClick={(e) => {
                     e.preventDefault();
-                    router.push('/contribute/skill');
+                    router.push('/dashboard');
                   }}
                 >
-                  Contribute skills
+                  My contributions
                 </BreadcrumbItem>
                 <BreadcrumbItem isActive>{`Edit${skillEditFormData?.isDraft ? ' draft' : ''} skills contribution`}</BreadcrumbItem>
               </Breadcrumb>

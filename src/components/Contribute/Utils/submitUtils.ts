@@ -1,5 +1,6 @@
 import {
   AttributionData,
+  EnvConfigType,
   KnowledgeEditFormData,
   KnowledgeFormData,
   KnowledgeYamlData,
@@ -11,7 +12,6 @@ import { KnowledgeSchemaVersion, SkillSchemaVersion } from '@/types/const';
 import { dumpYaml } from '@/utils/yamlConfig';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { amendCommit, getGitHubUsername, updatePullRequest } from '@/utils/github';
-import { fetchEnvConfig } from '@/utils/envConfigService';
 import { Session } from 'next-auth';
 import { validateKnowledgeFormFields, validateSkillFormFields } from '@/components/Contribute/Utils/validation';
 
@@ -284,6 +284,7 @@ export const updateNativeKnowledgeData = async (
 
 export const updateGithubKnowledgeData = async (
   session: Session | null,
+  envConfig: EnvConfigType,
   knowledgeFormData: KnowledgeFormData,
   knowledgeEditFormData: KnowledgeEditFormData,
   setActionGroupAlertContent: (content: ActionGroupAlertContent) => void
@@ -295,7 +296,7 @@ export const updateGithubKnowledgeData = async (
   if (session?.accessToken) {
     try {
       console.log(`Updating PR with number: ${knowledgeEditFormData.pullRequestNumber}`);
-      await updatePullRequest(session.accessToken, knowledgeEditFormData.pullRequestNumber, {
+      await updatePullRequest(session.accessToken, envConfig, knowledgeEditFormData.pullRequestNumber, {
         title: knowledgeFormData.submissionSummary
       });
 
@@ -375,7 +376,7 @@ Creator names: ${attributionData.creator_names}
       };
       setActionGroupAlertContent(waitForSubmissionAlert);
 
-      const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
+      const { upstreamRepoName, upstreamRepoOwner } = envConfig;
 
       const amendedCommitResponse = await amendCommit(
         session.accessToken,
@@ -653,6 +654,7 @@ export const updateNativeSkillData = async (
 
 export const updateGithubSkillData = async (
   session: Session | null,
+  envConfig: EnvConfigType,
   skillFormData: SkillFormData,
   skillEditFormData: SkillEditFormData,
   setActionGroupAlertContent: (content: ActionGroupAlertContent) => void
@@ -664,7 +666,7 @@ export const updateGithubSkillData = async (
     const { pullRequestNumber, oldFilesPath } = skillEditFormData;
     try {
       console.log(`Updating PR with number: ${pullRequestNumber}`);
-      await updatePullRequest(session.accessToken, pullRequestNumber, {
+      await updatePullRequest(session.accessToken, envConfig, pullRequestNumber, {
         title: skillFormData.submissionSummary
       });
 
@@ -721,7 +723,7 @@ Creator names: ${attributionData.creator_names}
         attribution: finalAttributionPath
       };
 
-      const { upstreamRepoName, upstreamRepoOwner } = await fetchEnvConfig();
+      const { upstreamRepoName, upstreamRepoOwner } = envConfig;
 
       const waitForSubmissionAlert: ActionGroupAlertContent = {
         title: 'Skill contribution update is in progress.!',

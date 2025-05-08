@@ -3,7 +3,7 @@
 import React from 'react';
 import { AlertGroup, Alert, AlertActionCloseButton, Spinner, Button, Flex, FlexItem } from '@patternfly/react-core';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
-import { ExternalLinkAltIcon } from '@patternfly/react-icons';
+import XsExternalLinkAltIcon from '@/components/Common/XsExternalLinkAltIcon';
 
 export interface ContributeAlertGroupProps {
   actionGroupAlertContent?: ActionGroupAlertContent;
@@ -48,7 +48,7 @@ export const ContributeAlertGroup: React.FunctionComponent<ContributeAlertGroupP
                   href={actionGroupAlertContent.url}
                   rel={actionGroupAlertContent.isUrlExternal ? 'noopener noreferrer' : 'noreferrer'}
                   target={actionGroupAlertContent.isUrlExternal ? '_blank' : undefined}
-                  icon={actionGroupAlertContent.isUrlExternal ? <ExternalLinkAltIcon /> : undefined}
+                  icon={actionGroupAlertContent.isUrlExternal ? <XsExternalLinkAltIcon /> : undefined}
                   iconPosition="end"
                 >
                   {actionGroupAlertContent.urlText || 'View your new branch'}

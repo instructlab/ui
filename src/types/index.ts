@@ -15,6 +15,19 @@ export interface DraftEditFormInfo {
   isKnowledgeDraft: boolean;
   isSubmitted: boolean;
   oldFilesPath: string;
+  taxonomy: string;
+}
+
+export interface ContributionInfo {
+  branchName: string;
+  title: string;
+  author?: string;
+  lastUpdated: Date;
+  isDraft: boolean;
+  isKnowledge: boolean;
+  isSubmitted: boolean;
+  state: string;
+  taxonomy: string;
 }
 
 export interface Endpoint {
@@ -56,6 +69,7 @@ export interface PullRequest {
   head: {
     ref: string;
   };
+  taxonomy: string;
 }
 
 export interface SkillYamlData {

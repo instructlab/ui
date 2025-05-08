@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { Button, Content, Flex, FlexItem, PageGroup, PageSection, Title, Wizard, WizardStep } from '@patternfly/react-core';
 import { ContributionFormData, EditFormData } from '@/types';
 import { useRouter } from 'next/navigation';
-import { autoFillKnowledgeFields, autoFillSkillsFields } from '@/components/Contribute/AutoFill';
+import { getAutoFillKnowledgeFields, getAutoFillSkillsFields } from '@/components/Contribute/AutoFill';
 import { getGitHubUserInfo } from '@/utils/github';
 import ContributionWizardFooter from '@/components/Contribute/ContributionWizard/ContributionWizardFooter';
 import { deleteDraftData } from '@/components/Contribute/Utils/autoSaveUtils';
@@ -124,7 +124,7 @@ export const ContributionWizard: React.FunctionComponent<Props> = ({
   }, [isGithubMode, session?.accessToken, session?.user?.name, session?.user?.email, setFormData]);
 
   const autoFillForm = (): void => {
-    setFormData(isSkillContribution ? { ...autoFillSkillsFields } : { ...autoFillKnowledgeFields });
+    setFormData(isSkillContribution ? getAutoFillSkillsFields() : getAutoFillKnowledgeFields());
   };
 
   const handleCancel = () => {
