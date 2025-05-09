@@ -12,6 +12,7 @@ type Props<DataType> = {
   defaultSortColumn?: number;
   rowRenderer: (data: DataType, rowIndex: number) => React.ReactNode;
   enablePagination?: boolean | 'compact';
+  showBottomPagination?: boolean;
   toolbarContent?: React.ReactElement<typeof ToolbarItem | typeof ToolbarGroup>;
   onClearFilters?: () => void;
   emptyTableView?: React.ReactNode;
@@ -54,6 +55,7 @@ const TableBase = <T,>({
   hasNestedHeader,
   rowRenderer,
   enablePagination,
+  showBottomPagination = false,
   toolbarContent,
   onClearFilters,
   emptyTableView,
@@ -74,7 +76,6 @@ const TableBase = <T,>({
   ...props
 }: Props<T>): React.ReactElement => {
   const selectAllRef = React.useRef(null);
-  const showPagination = enablePagination;
 
   const pagination = (variant: 'top' | 'bottom') => (
     <Pagination
@@ -170,7 +171,7 @@ const TableBase = <T,>({
 
   return (
     <Flex direction={{ default: 'column' }} style={{ height: '100%' }}>
-      {(toolbarContent || showPagination) && (
+      {(toolbarContent || enablePagination) && (
         <FlexItem>
           <Toolbar
             inset={{ default: 'insetNone' }}
@@ -180,7 +181,7 @@ const TableBase = <T,>({
           >
             <ToolbarContent>
               {toolbarContent}
-              {showPagination && (
+              {enablePagination && (
                 <ToolbarItem variant="pagination" align={{ default: 'alignEnd' }} className="pf-v6-u-pr-lg">
                   {pagination('top')}
                 </ToolbarItem>
@@ -197,7 +198,7 @@ const TableBase = <T,>({
           <div style={{ padding: 'var(--pf-global--spacer--2xl) 0', textAlign: 'center' }}>{emptyTableView}</div>
         </FlexItem>
       ) : null}
-      {showPagination ? <FlexItem>{pagination('bottom')}</FlexItem> : null}
+      {enablePagination && showBottomPagination ? <FlexItem>{pagination('bottom')}</FlexItem> : null}
     </Flex>
   );
 };

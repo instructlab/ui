@@ -6,6 +6,7 @@ type Props<DataType> = {
   data: DataType[];
   cardRenderer: (data: DataType, rowIndex: number) => React.ReactNode;
   enablePagination?: boolean | 'compact';
+  showBottomPagination?: boolean;
   toolbarContent?: React.ReactElement<typeof ToolbarItem | typeof ToolbarGroup>;
   onClearFilters?: () => void;
   emptyTableView?: React.ReactNode;
@@ -31,12 +32,12 @@ const CardView = <T,>({
   data,
   cardRenderer,
   enablePagination,
+  showBottomPagination = false,
   perPageOptions = defaultPerPageOptions,
   toolbarContent,
   onClearFilters,
   emptyTableView
 }: Props<T>): React.ReactElement => {
-  const showPagination = enablePagination;
   const [page, setPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(10);
 
@@ -90,7 +91,7 @@ const CardView = <T,>({
 
   return (
     <Flex direction={{ default: 'column' }} style={{ height: '100%' }}>
-      {(toolbarContent || showPagination) && (
+      {(toolbarContent || enablePagination) && (
         <FlexItem>
           <Toolbar
             inset={{ default: 'insetNone' }}
@@ -100,7 +101,7 @@ const CardView = <T,>({
           >
             <ToolbarContent>
               {toolbarContent}
-              {showPagination && (
+              {enablePagination && (
                 <ToolbarItem variant="pagination" align={{ default: 'alignEnd' }} className="pf-v6-u-pr-lg">
                   {pagination('top')}
                 </ToolbarItem>
@@ -117,7 +118,7 @@ const CardView = <T,>({
           <div style={{ padding: 'var(--pf-global--spacer--2xl) 0', textAlign: 'center' }}>{emptyTableView}</div>
         </FlexItem>
       ) : null}
-      {showPagination ? <FlexItem>{pagination('bottom')}</FlexItem> : null}
+      {enablePagination && showBottomPagination ? <FlexItem>{pagination('bottom')}</FlexItem> : null}
     </Flex>
   );
 };
