@@ -2,35 +2,14 @@
 'use client';
 
 import React from 'react';
-import { Flex, Spinner } from '@patternfly/react-core';
-import { t_global_spacer_xl as XlSpacerSize } from '@patternfly/react-tokens/dist/esm/t_global_spacer_xl';
 import '@patternfly/react-core/dist/styles/base.css';
 import { AppLayout } from '@/components/AppLayout';
-import { DashboardGithub } from '@/components/Dashboard/Github/DashboardPage';
-import { DashboardNative } from '@/components/Dashboard/Native/DashboardPage';
-import { useEnvConfig } from '@/context/EnvConfigContext';
+import DashboardPage from '@/components/Dashboard/DashboardPage';
 
-const Home: React.FunctionComponent = () => {
-  const {
-    loaded,
-    envConfig: { isGithubMode }
-  } = useEnvConfig();
-
-  return (
-    <AppLayout className="dashboard-page">
-      {loaded ? (
-        !isGithubMode ? (
-          <DashboardNative />
-        ) : (
-          <DashboardGithub />
-        )
-      ) : (
-        <Flex alignItems={{ default: 'alignItemsCenter' }} justifyContent={{ default: 'justifyContentCenter' }} style={{ padding: XlSpacerSize.var }}>
-          <Spinner size="xl" />
-        </Flex>
-      )}
-    </AppLayout>
-  );
-};
+const Home: React.FunctionComponent = () => (
+  <AppLayout className="dashboard-page">
+    <DashboardPage />
+  </AppLayout>
+);
 
 export default Home;

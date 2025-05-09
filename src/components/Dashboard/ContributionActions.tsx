@@ -34,7 +34,7 @@ interface Props {
 const ContributionActions: React.FC<Props> = ({ contribution, onUpdateContributions, addAlert }) => {
   const router = useRouter();
   const {
-    envConfig: { isGithubMode, taxonomyRootDir }
+    envConfig: { taxonomyRootDir }
   } = useEnvConfig();
   const [isActionMenuOpen, setIsActionMenuOpen] = React.useState<boolean>(false);
   const [isChangeModalOpen, setIsChangeModalOpen] = React.useState<boolean>(false);
@@ -50,13 +50,13 @@ const ContributionActions: React.FC<Props> = ({ contribution, onUpdateContributi
 
   const handleEditContribution = () => {
     router.push(
-      `/contribute/${contribution.isKnowledge ? 'knowledge' : 'skill'}/edit/${isGithubMode ? 'github' : 'native'}/${contribution.branchName}${contribution.isDraft ? '/isDraft' : ''}`
+      `/contribute/${contribution.isKnowledge ? 'knowledge' : 'skill'}/edit/${contribution.branchName}${contribution.isDraft ? '/isDraft' : ''}`
     );
   };
 
   const deleteContribution = async (branchName: string) => {
     try {
-      const response = await fetch('/api/native/git/branches', {
+      const response = await fetch('/api/git/branches', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ branchName, action: 'delete' })
@@ -98,7 +98,7 @@ const ContributionActions: React.FC<Props> = ({ contribution, onUpdateContributi
   const handlePublishContribution = async () => {
     setIsPublishing(true);
     try {
-      const response = await fetch('/api/native/git/branches', {
+      const response = await fetch('/api/git/branches', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ branchName: contribution.branchName, action: 'publish' })
@@ -186,7 +186,6 @@ const ContributionActions: React.FC<Props> = ({ contribution, onUpdateContributi
               setIsDownloadOpen(true);
               handleTaxonomyDownload({
                 branchName: contribution.branchName,
-                isGithubMode: false,
                 setIsDownloadDone: (done) => setIsDownloadOpen(!done)
               });
             }}
@@ -196,7 +195,7 @@ const ContributionActions: React.FC<Props> = ({ contribution, onUpdateContributi
           </DropdownItem>
           <Divider />
           {contribution.isDraft ? (
-            <DropdownItem className="destructive-action-item" key="delete-draftn" onClick={() => setIsDeleteModalOpen(true)}>
+            <DropdownItem className="destructive-action-item" key="delete-draft" onClick={() => setIsDeleteModalOpen(true)}>
               Delete draft
             </DropdownItem>
           ) : null}

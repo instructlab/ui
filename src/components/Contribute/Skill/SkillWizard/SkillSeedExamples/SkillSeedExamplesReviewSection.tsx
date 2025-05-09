@@ -1,4 +1,4 @@
-// src/components/Contribute/Knowledge/Native/KnowledgeSeedExampleNative/KnowledgeQuestionAnswerPairsNative.tsx
+// src/components/Contribute/Skill/SkillWizard/SkillSeedExamples/SkillSeedExamplesReviewSection.tsx
 import React from 'react';
 import {
   Accordion,

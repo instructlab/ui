@@ -24,7 +24,7 @@ const ContributionChangesModel: React.FC<Props> = ({ contribution, onClose }) =>
   React.useEffect(() => {
     const fetchChangeData = async () => {
       try {
-        const response = await fetch('/api/native/git/branches', {
+        const response = await fetch('/api/git/branches', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ branchName: contribution.branchName, action: 'diff' })

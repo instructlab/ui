@@ -1,11 +1,7 @@
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import { KnowledgeFile, KnowledgeFormData } from '@/types';
 
-const GITHUB_KNOWLEDGE_FILES_URL = '/api/github/knowledge-files';
-const NATIVE_GIT_KNOWLEDGE_FILES_URL = '/api/native/knowledge-files';
-
 export const UploadKnowledgeDocuments = async (
-  isGithubMode: boolean,
   knowledgeFormData: KnowledgeFormData,
   setActionGroupAlertContent: (content: ActionGroupAlertContent) => void
 ): Promise<boolean> => {
@@ -44,7 +40,7 @@ export const UploadKnowledgeDocuments = async (
     // Trigger the upload only if all the newly uploaded files were read successfully and there are existing uploaded files.
     if (newFiles.length === knowledgeFormData.filesToUpload.length && (newFiles.length !== 0 || updatedExistingFiles.length !== 0)) {
       try {
-        const response = await fetch(isGithubMode ? GITHUB_KNOWLEDGE_FILES_URL : NATIVE_GIT_KNOWLEDGE_FILES_URL, {
+        const response = await fetch('/api/knowledge-files', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -101,11 +97,9 @@ export const UploadKnowledgeDocuments = async (
   return true;
 };
 
-export const fetchExistingKnowledgeDocuments = async (isGithubMode: boolean, knowledgeDocumentCommit: string): Promise<KnowledgeFile[]> => {
+export const fetchExistingKnowledgeDocuments = async (knowledgeDocumentCommit: string): Promise<KnowledgeFile[]> => {
   try {
-    const url = isGithubMode ? GITHUB_KNOWLEDGE_FILES_URL : NATIVE_GIT_KNOWLEDGE_FILES_URL;
-
-    const response = await fetch(`${url}?commitSHA=${knowledgeDocumentCommit}`, {
+    const response = await fetch(`/api/knowledge-files?commitSHA=${knowledgeDocumentCommit}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     });

@@ -1,4 +1,4 @@
-// src/app/components/contribute/EditKnowledge/native/EditKnowledge.tsx
+// src/app/components/Contribute/Knowledge/View/ViewKnowledge.tsx
 'use client';
 
 import * as React from 'react';
@@ -20,7 +20,6 @@ import {
   DescriptionListDescription
 } from '@patternfly/react-core';
 import { CatalogIcon, PficonTemplateIcon } from '@patternfly/react-icons';
-import { useEnvConfig } from '@/context/EnvConfigContext';
 import ViewContributionSection from '@/components/Common/ViewContributionSection';
 import ViewKnowledgeSeedExample from '@/components/Contribute/Knowledge/View/ViewKnowledgeSeedExample';
 
@@ -28,11 +27,8 @@ interface ViewKnowledgeProps {
   knowledgeEditFormData: KnowledgeEditFormData;
 }
 
-const ViewKnowledgeNative: React.FC<ViewKnowledgeProps> = ({ knowledgeEditFormData }) => {
+const ViewKnowledge: React.FC<ViewKnowledgeProps> = ({ knowledgeEditFormData }) => {
   const router = useRouter();
-  const {
-    envConfig: { isGithubMode }
-  } = useEnvConfig();
 
   return (
     <PageGroup isFilled style={{ overflowY: 'hidden', flex: 1 }}>
@@ -131,47 +127,6 @@ const ViewKnowledgeNative: React.FC<ViewKnowledgeProps> = ({ knowledgeEditFormDa
             />
           </FlexItem>
 
-          {/* Attribution Information */}
-          {isGithubMode ? (
-            <FlexItem>
-              <ViewContributionSection
-                title="Source attribution"
-                descriptionItems={[
-                  <DescriptionListGroup key="title-work">
-                    <DescriptionListTerm>Title</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div>{knowledgeEditFormData.formData.titleWork}</div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>,
-                  <DescriptionListGroup key="work-link">
-                    <DescriptionListTerm>Link to work</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div>{knowledgeEditFormData.formData.linkWork}</div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>,
-                  <DescriptionListGroup key="revision">
-                    <DescriptionListTerm>Revision</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div>{knowledgeEditFormData.formData.revision}</div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>,
-                  <DescriptionListGroup key="license">
-                    <DescriptionListTerm>License of the work</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div>{knowledgeEditFormData.formData.licenseWork}</div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>,
-                  <DescriptionListGroup key="creators">
-                    <DescriptionListTerm>Authors</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div>{knowledgeEditFormData.formData.creators}</div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                ]}
-              />
-            </FlexItem>
-          ) : null}
-
           {/* Seed Examples */}
           <FlexItem>
             <ViewContributionSection
@@ -199,4 +154,4 @@ const ViewKnowledgeNative: React.FC<ViewKnowledgeProps> = ({ knowledgeEditFormDa
   );
 };
 
-export default ViewKnowledgeNative;
+export default ViewKnowledge;

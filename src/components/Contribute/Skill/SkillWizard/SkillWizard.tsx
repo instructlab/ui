@@ -1,23 +1,15 @@
 // src/components/Contribute/Skill/SkillWizard/SkillWizard.tsx
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ValidatedOptions, Button, PageBreadcrumb, Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 import { SkillSchemaVersion } from '@/types/const';
 import { ContributionFormData, SkillEditFormData, SkillFormData, SkillSeedExample, SkillYamlData } from '@/types';
-import { useEnvConfig } from '@/context/EnvConfigContext';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
-import { isAttributionInformationValid, isSkillSeedExamplesValid, isDetailsValid } from '@/components/Contribute/Utils/validationUtils';
-import {
-  submitGithubSkillData,
-  submitNativeSkillData,
-  updateGithubSkillData,
-  updateNativeSkillData
-} from '@/components/Contribute/Utils/submitUtils';
+import { isSkillSeedExamplesValid, isDetailsValid } from '@/components/Contribute/Utils/validationUtils';
+import { submitSkillData } from '@/components/Contribute/Utils/submitUtils';
 import { addYamlUploadSkill } from '@/components/Contribute/Utils/uploadUtils';
 import { getDefaultSkillFormData } from '@/components/Contribute/Utils/contributionUtils';
-import AttributionInformation from '@/components/Contribute/ContributionWizard/AttributionInformation/AttributionInformation';
 import { ContributionWizard, StepStatus, StepType } from '@/components/Contribute/ContributionWizard/ContributionWizard';
 import { YamlFileUploadModal } from '@/components/Contribute/YamlFileUploadModal';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
@@ -31,14 +23,11 @@ import './skills.css';
 
 export interface Props {
   skillEditFormData?: SkillEditFormData;
-  isGithubMode: boolean;
 }
 
-const STEP_IDS = ['details', 'seed-examples', 'attribution-info', 'review-submission'];
+const STEP_IDS = ['details', 'seed-examples', 'review-submission'];
 
-export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData, isGithubMode }) => {
-  const { data: session } = useSession();
-  const { envConfig } = useEnvConfig();
+export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData }) => {
   const [skillFormData, setSkillFormData] = React.useState<SkillFormData>(
     skillEditFormData?.formData
       ? {
@@ -102,7 +91,6 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
           <DetailsPage
             isEditForm={skillEditFormData?.isEditForm}
             infoSectionHelp="Skill contributions help a model perform tasks. Skill data is supported by documents such as textbooks, technical manuals, journals, or magazines."
-            isGithubMode={isGithubMode}
             email={skillFormData.email}
             setEmail={(email) => setSkillFormData((prev) => ({ ...prev, email }))}
             name={skillFormData.name}
@@ -132,35 +120,13 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
         ),
         status: isSkillSeedExamplesValid(skillFormData) ? StepStatus.Success : StepStatus.Error
       },
-      ...(isGithubMode
-        ? [
-            {
-              id: STEP_IDS[2],
-              name: 'Source attribution',
-              component: (
-                <AttributionInformation
-                  isEditForm={skillEditFormData?.isEditForm}
-                  contributionFormData={skillFormData}
-                  titleWork={skillFormData.titleWork}
-                  setTitleWork={(titleWork) => setSkillFormData((prev) => ({ ...prev, titleWork }))}
-                  licenseWork={skillFormData.licenseWork}
-                  setLicenseWork={(licenseWork) => setSkillFormData((prev) => ({ ...prev, licenseWork }))}
-                  creators={skillFormData.creators}
-                  setCreators={(creators) => setSkillFormData((prev) => ({ ...prev, creators }))}
-                />
-              ),
-              status: isAttributionInformationValid(skillFormData) ? StepStatus.Success : StepStatus.Error
-            }
-          ]
-        : []),
       {
-        id: STEP_IDS[3],
+        id: STEP_IDS[2],
         name: 'Review',
         component: (
           <ReviewSubmission
             contributionFormData={skillFormData}
             isSkillContribution
-            isGithubMode={isGithubMode}
             seedExamples={<SkillSeedExamplesReviewSection seedExamples={skillFormData.seedExamples} />}
             onUpdateSeedExamples={(seedExamples) => setSkillFormData((prev) => ({ ...prev, seedExamples: seedExamples as SkillSeedExample[] }))}
           />
@@ -168,7 +134,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
         status: StepStatus.Default
       }
     ],
-    [isGithubMode, setFilePath, skillEditFormData?.isEditForm, skillFormData]
+    [setFilePath, skillEditFormData?.isEditForm, skillFormData]
   );
 
   const convertToYaml = (contributionFormData: ContributionFormData) => {
@@ -187,28 +153,14 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
     return yamlData;
   };
 
-  const handleSubmit = async (githubUsername: string): Promise<boolean> => {
-    //SkillEditFormData will be generated for local storage as well.
-    // If the PR number is present it means the draft is for the submitted PR.
-    if (skillEditFormData && skillEditFormData.isSubmitted) {
-      const result = isGithubMode
-        ? await updateGithubSkillData(session, envConfig, skillFormData, skillEditFormData, updateActionGroupAlertContent)
-        : await updateNativeSkillData(skillFormData, skillEditFormData, updateActionGroupAlertContent);
-      if (result) {
-        //Remove draft if present in the local storage
-        deleteDraftData(skillEditFormData.formData.branchName);
-        router.push('/dashboard');
-      }
-      return false;
-    }
-    const result = isGithubMode
-      ? await submitGithubSkillData(skillFormData, githubUsername, updateActionGroupAlertContent)
-      : await submitNativeSkillData(skillFormData, updateActionGroupAlertContent);
+  const handleSubmit = async (): Promise<boolean> => {
+    // SkillEditFormData will be generated for local storage as well, only pass if it has already been submitted
+    const result = await submitSkillData(
+      skillFormData,
+      updateActionGroupAlertContent,
+      skillEditFormData?.isSubmitted ? skillEditFormData : undefined
+    );
     if (result) {
-      const newFormData = { ...getDefaultSkillFormData() };
-      newFormData.name = skillFormData.name;
-      newFormData.email = skillFormData.email;
-
       //Remove draft if present in the local storage
       deleteDraftData(skillFormData.branchName);
 
@@ -260,7 +212,6 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData,
         }
         formData={skillFormData}
         setFormData={setSkillFormData as React.Dispatch<React.SetStateAction<ContributionFormData>>}
-        isGithubMode={isGithubMode}
         isSkillContribution
         steps={steps}
         convertToYaml={convertToYaml}

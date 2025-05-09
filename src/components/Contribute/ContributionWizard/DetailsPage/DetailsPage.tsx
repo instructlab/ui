@@ -25,7 +25,6 @@ import { MAX_SUMMARY_CHARS } from '@/components/Contribute/Utils/validationUtils
 import EditContributorModal from '@/components/Contribute/ContributionWizard/DetailsPage/EditContributorModal';
 
 interface Props {
-  isGithubMode: boolean;
   infoSectionHelp?: React.ReactNode;
   isEditForm?: boolean;
   email: string;
@@ -39,7 +38,6 @@ interface Props {
   setFilePath: (val: string) => void;
 }
 const DetailsPage: React.FC<Props> = ({
-  isGithubMode,
   infoSectionHelp,
   isEditForm,
   email,
@@ -162,8 +160,7 @@ const DetailsPage: React.FC<Props> = ({
                   rootPath={rootPath}
                   path={filePath}
                   handlePathChange={setFilePath}
-                  helperText={`Specify the file path for the question-and-answer (Q and A)${isGithubMode ? ' and attribution' : ''} files. `}
-                  isGithubMode={isGithubMode}
+                  helperText={`Specify the file path for the question-and-answer (Q and A) files. `}
                 />
               </FormGroup>
             </Form>

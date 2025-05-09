@@ -1,4 +1,4 @@
-// src/components/Contribute/Knowledge/Native/KnowledgeSeedExampleNative/KnowledgeQuestionAnswerPairsNative.tsx
+// src/components/Contribute/Knowledge/KnowledgeWizard/KnowledgeSeedExamples/ViewKnowledge.tsx
 import React from 'react';
 import {
   Accordion,

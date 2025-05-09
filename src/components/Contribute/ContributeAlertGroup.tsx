@@ -1,4 +1,4 @@
-// src/components/Contribute/Native/Knowledge/index.tsx
+// src/components/Contribute/ContributeAlertGroup.tsx
 'use client';
 import React from 'react';
 import { AlertGroup, Alert, AlertActionCloseButton, Spinner, Button, Flex, FlexItem } from '@patternfly/react-core';

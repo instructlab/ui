@@ -17,7 +17,6 @@ import {
 } from '@patternfly/react-core';
 import { t_global_color_disabled_100 as DisabledColor } from '@patternfly/react-tokens';
 import { ContributionInfo } from '@/types';
-import { useEnvConfig } from '@/context/EnvConfigContext';
 import TruncatedText from '@/components/Common/TruncatedText';
 import TableRowTitleDescription from '@/components/Table/TableRowTitleDescription';
 import { getTaxonomyDir, getFormattedLastUpdatedDate } from '@/components/Dashboard/const';
@@ -33,9 +32,6 @@ interface Props {
 
 const ContributionCard: React.FC<Props> = ({ contribution, onUpdateContributions, addAlert }) => {
   const router = useRouter();
-  const {
-    envConfig: { isGithubMode }
-  } = useEnvConfig();
 
   return (
     <GalleryItem key={contribution.branchName}>
@@ -62,7 +58,7 @@ const ContributionCard: React.FC<Props> = ({ contribution, onUpdateContributions
                         isInline
                         onClick={() =>
                           router.push(
-                            `/contribute/${contribution.isKnowledge ? 'knowledge' : 'skill'}/${isGithubMode ? 'github' : 'native'}/${contribution.branchName}${contribution.isDraft ? '/isDraft' : ''}`
+                            `/contribute/${contribution.isKnowledge ? 'knowledge' : 'skill'}/${contribution.branchName}${contribution.isDraft ? '/isDraft' : ''}`
                           )
                         }
                       >
