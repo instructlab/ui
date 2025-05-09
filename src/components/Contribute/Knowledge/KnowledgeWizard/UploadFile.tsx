@@ -302,7 +302,7 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ existingF
             <FlexItem>
               <MultipleFileUploadStatus statusToggleText={`Existing uploaded files`} statusToggleIcon={statusIcon} aria-label="Existing uploads">
                 {existingFiles.map((file: KnowledgeFile) => {
-                  const fileObject = new File([file.content], file.filename, { type: 'text/plain' });
+                  const fileObject = new File([file.content ? file.content : ''], file.filename, { type: 'text/plain' });
                   return (
                     <MultipleFileUploadStatusItem
                       file={fileObject}
