@@ -1,13 +1,12 @@
 // src/components/Documents/Documents.tsx
 import * as React from 'react';
-import { PageSection, Title, Content, Button, Flex, FlexItem } from '@patternfly/react-core';
+import { PageSection, Title, Flex, FlexItem } from '@patternfly/react-core';
 import { KnowledgeFile } from '@/types';
 import { useAlerts } from '@/context/AlertContext';
-import XsExternalLinkAltIcon from '@/components/Common/XsExternalLinkAltIcon';
+import DocumentsSidePanelHelp from '@/components/SidePanelContents/DocumentsSidePanelHelp';
 import DocumentUploadArea from '@/components/Documents/DocumentUploadArea';
 import MyDocuments from '@/components/Documents/MyDocuments';
-
-const helpLinkUrl = `https://docs.instructlab.ai/user-interface/ui_overview`;
+import PageDescriptionWithHelp from '@/components/Common/PageDescriptionWithHelp';
 
 const Documents: React.FC = () => {
   const { addAlert } = useAlerts();
@@ -103,22 +102,12 @@ const Documents: React.FC = () => {
             </Flex>
           </FlexItem>
           <FlexItem>
-            <Content component="p">
-              Resources such as, textbooks, technical manuals, encyclopedias, journals, or websites, are used as the knowledge source for training
-              your model.
-            </Content>
-            <Button
-              variant="link"
-              isInline
-              component="a"
-              href={helpLinkUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              icon={<XsExternalLinkAltIcon />}
-              iconPosition="end"
-            >
-              Learn about best practices related to documents.
-            </Button>
+            <PageDescriptionWithHelp
+              description="Resources such as, textbooks, technical manuals, encyclopedias, journals, or websites, are used as the knowledge source for training
+              your model."
+              helpText="Learn how to add documents to knowledge contributions"
+              sidePanelContent={<DocumentsSidePanelHelp />}
+            />
           </FlexItem>
           <FlexItem flex={{ default: 'flex_1' }} style={{ overflowY: 'hidden' }}>
             <DocumentUploadArea existingFiles={documents} onUploaded={addDocuments} />

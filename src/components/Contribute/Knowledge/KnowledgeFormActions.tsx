@@ -287,15 +287,15 @@ export const KnowledgeFormActions: React.FunctionComponent<Props> = ({
       ) : null}
       {yamlOverwriteData ? (
         <Modal variant={ModalVariant.small} isOpen onClose={() => setYamlOverwriteData(undefined)} aria-labelledby="overwrite-confirm-title">
-          <ModalHeader titleIconVariant="warning" title="Uploading a new YAML file will clear existing data" labelId="overwrite-confirm-title" />
+          <ModalHeader titleIconVariant="warning" title="Overwrite unsaved changes?" labelId="overwrite-confirm-title" />
           <ModalBody>
             <>
-              Uploading a new YAML file will clear the current data for <strong>{contributionTitle}</strong>. Are you sure you want to continue?
+              Uploading a YAML file will overwrite all unsaved changes in the <strong>{contributionTitle}</strong> knowledge contribution.
             </>
           </ModalBody>
           <ModalFooter>
             <Button variant={ButtonVariant.primary} onClick={doYamlOverwrite}>
-              Continue
+              Overwrite unsaved changes
             </Button>
             <Button key="close" variant="link" onClick={doYamlOverwrite}>
               Cancel

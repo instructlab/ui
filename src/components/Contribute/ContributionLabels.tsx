@@ -16,7 +16,7 @@ const KnowledgeContributionLabel: React.FC<LabelProps> = ({ isCompact }) => (
 
 const SkillContributionLabel: React.FC<LabelProps> = ({ isCompact }) => (
   <Label className="skill-contribution-label" icon={<TaskIcon />} variant="outline" isCompact={isCompact}>
-    Skills
+    Skill
   </Label>
 );
 

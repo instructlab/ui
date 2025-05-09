@@ -34,6 +34,7 @@ export const addYamlUploadKnowledge = (knowledgeFormData: KnowledgeFormData, dat
   knowledgeDocumentRepositoryUrl: data.document.repo ?? '',
   knowledgeDocumentCommit: data.document.commit ?? '',
   documentName: data.document.patterns.join(', ') ?? '',
+  filePath: data.domain,
   seedExamples: yamlKnowledgeSeedExampleToFormSeedExample(data.seed_examples)
 });
 

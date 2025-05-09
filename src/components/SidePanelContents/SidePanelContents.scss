@@ -1,0 +1,11 @@
+.side-panel-contents {
+  .pf-v6-c-content--li {
+    line-height: 1.1em;
+    &:first-of-type {
+      padding-top: var(--pf-t--global--spacer--xs);
+    }
+  }
+  .second-level-list {
+    margin: 0 !important;
+  }
+}

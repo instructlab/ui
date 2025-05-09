@@ -2,9 +2,10 @@
 'use client';
 
 import * as React from 'react';
-import { EditFormData, KnowledgeFormData, SkillFormData } from '@/types';
 import { useRouter } from 'next/navigation';
-import { PageSection, Flex, FlexItem, Title, Content, PageBreadcrumb, Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
+import { PageSection, Flex, FlexItem, Title, PageBreadcrumb, Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
+import { EditFormData, KnowledgeFormData, SkillFormData } from '@/types';
+import PageDescriptionWithHelp from '@/components/Common/PageDescriptionWithHelp';
 import {
   DraftContributionLabel,
   KnowledgeContributionLabel,
@@ -17,12 +18,22 @@ interface Props {
   isEdit?: boolean;
   isSkill?: boolean;
   description: React.ReactNode;
+  helpText: React.ReactNode;
+  sidePanelContent: React.ReactNode;
   actions: React.ReactNode;
 }
 
-const ContributePageHeader: React.FC<Props> = ({ editFormData, isEdit = false, isSkill = false, description, actions }) => {
+const ContributePageHeader: React.FC<Props> = ({
+  editFormData,
+  isEdit = false,
+  isSkill = false,
+  description,
+  helpText,
+  sidePanelContent,
+  actions
+}) => {
   const router = useRouter();
-  const contributionType = isSkill ? 'skills' : 'knowledge';
+  const contributionType = isSkill ? 'skill' : 'knowledge';
   const viewUrl = `/contribute/${isSkill ? 'skill' : 'knowledge'}/${editFormData?.formData.branchName}${editFormData?.isDraft ? '/isDraft' : ''}`;
   const contributionTitle = editFormData?.formData?.submissionSummary || `Draft ${contributionType} contribution`;
 
@@ -67,7 +78,7 @@ const ContributePageHeader: React.FC<Props> = ({ editFormData, isEdit = false, i
                     <Title headingLevel="h1" size="2xl">
                       {!editFormData
                         ? `Submit ${contributionType} contribution`
-                        : editFormData?.formData?.submissionSummary || `Draft ${isSkill ? 'skills' : 'knowledge'} contribution`}
+                        : editFormData?.formData?.submissionSummary || `Draft ${isSkill ? 'skill' : 'knowledge'} contribution`}
                     </Title>
                   </FlexItem>
                   <FlexItem>{isSkill ? <SkillContributionLabel /> : <KnowledgeContributionLabel />}</FlexItem>
@@ -84,7 +95,7 @@ const ContributePageHeader: React.FC<Props> = ({ editFormData, isEdit = false, i
                 </Flex>
               </FlexItem>
               <FlexItem>
-                <Content component="p">{description}</Content>
+                <PageDescriptionWithHelp description={description} helpText={helpText} sidePanelContent={sidePanelContent} />
               </FlexItem>
             </Flex>
           </FlexItem>
