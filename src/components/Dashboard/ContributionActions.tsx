@@ -77,8 +77,8 @@ const ContributionActions: React.FC<Props> = ({ contribution, onUpdateContributi
         console.error(errorMessage);
         addAlert(errorMessage, 'danger');
       } else {
-        console.error('Unknown error deleting the contribution ${branchName}');
-        addAlert('Unknown error deleting the contribution ${branchName}', 'danger');
+        console.error(`Unknown error deleting the contribution ${branchName}`);
+        addAlert(`Unknown error deleting the contribution ${branchName}`, 'danger');
       }
     }
   };
