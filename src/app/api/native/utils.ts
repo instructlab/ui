@@ -17,7 +17,7 @@ export const cloneTaxonomyDocsRepo = async (): Promise<string | null> => {
     return null;
   }
 
-  const taxonomyDocsDirectoryPath = path.join(remoteTaxonomyRepoDirFinal, '/taxonomy-knowledge-docs');
+  const taxonomyDocsDirectoryPath = path.join(path.dirname(remoteTaxonomyRepoDirFinal), '/taxonomy-knowledge-docs');
 
   if (fs.existsSync(taxonomyDocsDirectoryPath)) {
     console.log(`Using existing taxonomy knowledge docs repository at ${TAXONOMY_DOCS_ROOT_DIR}/taxonomy-knowledge-docs.`);
