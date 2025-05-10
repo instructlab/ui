@@ -9,7 +9,7 @@ import { cloneTaxonomyDocsRepo, DOC_POOL_DIR, TAXONOMY_DOCS_ROOT_DIR } from '@/a
 import { devLog } from '@/utils/devlog';
 
 /**
- * Handler to upload new files and replace existing files to document pool in taxonomy-knowledge-doc repo.
+ * Handler to upload new files and replace existing files to the document pool of taxonomy knowledge doc repo.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -52,10 +52,10 @@ export async function POST(req: NextRequest) {
       fs,
       dir: docsRepoPath,
       author: { name: 'instructlab-ui', email: 'ui@instructlab.ai' },
-      message: `Document uploaded: ${filenames}\n\nSigned-off-by: ui@instructlab.ai`
+      message: `File uploaded: ${filenames}\n\nSigned-off-by: ui@instructlab.ai`
     });
 
-    devLog(`Successfully uploaded following documents to taxonomy knowledge docs repository: ${filenames}`);
+    devLog(`Successfully uploaded following file to taxonomy knowledge docs repository: ${filenames}`);
 
     const origTaxonomyDocsRepoDir = path.join(TAXONOMY_DOCS_ROOT_DIR, '/taxonomy-knowledge-docs');
     return NextResponse.json(
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Failed to upload knowledge documents:', error);
-    return NextResponse.json({ error: 'Failed to upload knowledge documents' }, { status: 500 });
+    console.error('Failed to upload knowledge file:', error);
+    return NextResponse.json({ error: 'Failed to upload knowledge file' }, { status: 500 });
   }
 }

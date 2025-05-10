@@ -11,16 +11,16 @@ import { KnowledgeFile } from '@/types';
 const BASE_BRANCH = 'main';
 
 /**
- * Function to retrieve knowledge file from a document pool.
+ * Function to retrieve knowledge file content from a document pool.
  * @param filename - Name of the file to retrieve
  * @returns A KnowledgeFile object with the content
  */
-const getKnowledgeFiles = async (filename: string): Promise<KnowledgeFile[]> => {
+const getKnowledgeFiles = async (filename: string): Promise<KnowledgeFile> => {
   const REPO_DIR = findTaxonomyDocRepoPath();
 
   // Ensure the repository path exists
   if (!fs.existsSync(REPO_DIR)) {
-    throw new Error('Taxonomy knowledge doc repository does not exist. No documents present.');
+    throw new Error('Taxonomy knowledge doc repository does not exist. No files present.');
   }
 
   // Check if the branch exists
@@ -33,13 +33,11 @@ const getKnowledgeFiles = async (filename: string): Promise<KnowledgeFile[]> => 
   await git.checkout({ fs, dir: REPO_DIR, ref: BASE_BRANCH });
 
   // check if the file exists in the document pool
-  const filePath = path.join(DOC_POOL_DIR, filename);
+  const filePath = path.join(REPO_DIR, DOC_POOL_DIR, filename);
 
   if (!fs.existsSync(filePath)) {
     throw new Error(`File "${filename}" does not exist in document pool.`);
   }
-
-  const knowledgeFiles: KnowledgeFile[] = [];
 
   try {
     // Retrieve the latest commit SHA for the file on the specified branch
@@ -47,7 +45,7 @@ const getKnowledgeFiles = async (filename: string): Promise<KnowledgeFile[]> => 
       fs,
       dir: REPO_DIR,
       ref: BASE_BRANCH,
-      filepath: filePath,
+      filepath: path.join(DOC_POOL_DIR, filename),
       depth: 1 // Only the latest commit
     });
 
@@ -62,21 +60,20 @@ const getKnowledgeFiles = async (filename: string): Promise<KnowledgeFile[]> => 
     // Read the file content
     const fileContent = fs.readFileSync(filePath, 'utf-8');
 
-    knowledgeFiles.push({
+    const knowledgeFile: KnowledgeFile = {
       filename: path.basename(filename),
       content: fileContent,
       commitDate: commitDate
-    });
+    };
+    return knowledgeFile;
   } catch (error) {
     console.error(`Failed to read file ${filename}:`, error);
     throw new Error(`File "${filename}" does not exist in document pool.`);
   }
-
-  return knowledgeFiles;
 };
 
 /**
- * GET handler to retrieve knowledge files from the taxonomy-knowledge-doc main branch.
+ * Handler to retrieve knowledge file content
  */
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -86,11 +83,11 @@ export async function GET(request: NextRequest) {
       const knowledgeFile = await getKnowledgeFiles(filename);
       return NextResponse.json({ file: knowledgeFile }, { status: 200 });
     } catch (error) {
-      console.error(`Failed to retrieve content of the fine: ${filename}`, error);
+      console.error(`Failed to retrieve content of the file: ${filename}`, error);
       return NextResponse.json({ error: (error as Error).message }, { status: 500 });
     }
   } else {
-    console.error(`${filename} not found in the document pool.`);
-    return NextResponse.json({ error: `${filename} not found in the document pool.` }, { status: 500 });
+    console.error(`File name must be not empty.`);
+    return NextResponse.json({ error: `File name must be not empty.` }, { status: 500 });
   }
 }

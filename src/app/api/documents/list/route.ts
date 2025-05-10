@@ -12,7 +12,7 @@ import { devLog } from '@/utils/devlog';
 const BASE_BRANCH = 'main';
 
 /**
- * Function to retrieve documents from taxonomy-knowledge-docs.
+ * Function to retrieve list of documents from taxonomy-knowledge-docs document pool.
  * @returns An array of document name.
  */
 const getKnowledgeFiles = async (): Promise<KnowledgeFile[]> => {
@@ -50,7 +50,7 @@ const getKnowledgeFiles = async (): Promise<KnowledgeFile[]> => {
   const markdownFiles = allFiles.filter((file) => path.extname(file).toLowerCase() === '.md');
 
   for (const file of markdownFiles) {
-    const filePath = path.join(REPO_DIR, file);
+    const filePath = path.join(docPoolDir, file);
 
     // Check if the file is a regular file
     const stat = fs.statSync(filePath);
@@ -64,7 +64,7 @@ const getKnowledgeFiles = async (): Promise<KnowledgeFile[]> => {
         fs,
         dir: REPO_DIR,
         ref: BASE_BRANCH,
-        filepath: file,
+        filepath: path.join(DOC_POOL_DIR, file),
         depth: 1 // Only the latest commit
       });
 
@@ -85,12 +85,11 @@ const getKnowledgeFiles = async (): Promise<KnowledgeFile[]> => {
       throw new Error(`Failed to retrieve commit for file: ${error}`);
     }
   }
-
   return knowledgeFiles;
 };
 
 /**
- * Handler to retrieve knowledge files from the taxonomy-knowledge-doc document pool.
+ * Handler to retrieve list of knowledge file from the taxonomy knowledge doc document pool.
  */
 export async function GET() {
   try {

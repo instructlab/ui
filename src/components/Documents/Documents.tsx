@@ -37,16 +37,17 @@ const Documents: React.FC = () => {
     try {
       const response = await fetch('/api/documents/list', {
         method: 'GET',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' }
       });
 
       const result = await response.json();
       console.log(`List documents: `, response.ok);
-      console.log(result);
+      setDocuments(result.files);
+      return;
     } catch (error) {
       console.error('Error fetching documents:', error);
     }
-      setDocuments([]);
+    setDocuments([]);
     setIsLoading(false);
   }, []);
 
@@ -57,12 +58,15 @@ const Documents: React.FC = () => {
   const addDocuments = React.useCallback(async (newDocuments: KnowledgeFile[]) => {
     // TODO: Add documents to storage and trigger a fetch
     try {
-      const newFiles: { fileName: string; fileContent?: string }[] = newDocuments.map((doc) => ({ fileName: doc.filename, fileContent: doc.content }));
+      const newFiles: { fileName: string; fileContent?: string }[] = newDocuments.map((doc) => ({
+        fileName: doc.filename,
+        fileContent: doc.content
+      }));
 
       const response = await fetch('/api/documents/add', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ newFiles }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newFiles })
       });
       const result = await response.json();
       console.log(`Add documents: `, response.ok);
@@ -74,9 +78,42 @@ const Documents: React.FC = () => {
     setDocuments((prev) => [...prev, ...newDocuments]);
   }, []);
 
-  const handleRemove = React.useCallback((document: KnowledgeFile) => {
+  const handleGetDocument = React.useCallback(async (document: KnowledgeFile) => {
+    // TODO: Fetch documents...
+    try {
+      const response = await fetch(`/api/documents/get?filename=${document.filename}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const result = await response.json();
+      console.log(`Document content: `, response.ok);
+      const doc: KnowledgeFile = result.file;
+      document.content = doc.content;
+      const updatedDocs = documents.map((item) => (item.filename === document.filename ? document : item));
+      setDocuments(updatedDocs);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    }
+    return {};
+  }, []);
+
+  const handleRemove = React.useCallback(async (document: KnowledgeFile) => {
     // TODO: Remove the document from storage and trigger a fetch
     setDocuments((prev) => prev.filter((doc) => doc.filename !== document.filename));
+    try {
+      const response = await fetch('/api/documents/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: document.filename })
+      });
+      const result = await response.json();
+      console.log(`Removed documents: `, response.ok);
+      console.log(result);
+      fetchDocuments();
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    }
   }, []);
 
   const addAlert = React.useCallback((title: string, variant: AlertProps['variant']) => {
@@ -131,7 +168,7 @@ const Documents: React.FC = () => {
           </FlexItem>
         </Flex>
       </PageSection>
-      <MyDocuments documents={documents} isLoading={isLoading} removeDocument={handleRemove} />
+      <MyDocuments documents={documents} isLoading={isLoading} removeDocument={handleRemove} getDocument={handleGetDocument} />
       <AlertGroup isToast isLiveRegion>
         {alerts.map((alert) => (
           <Alert

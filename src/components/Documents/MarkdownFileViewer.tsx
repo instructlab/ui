@@ -23,7 +23,7 @@ const MarkdownFileViewer: React.FC<Props> = ({ markdownFile, handleCloseModal })
           userSelect: 'text'
         }}
       >
-        {markdownFile.content}
+        {markdownFile.content ? markdownFile.content : ''}
       </Content>
     </ModalBody>
     <ModalFooter>

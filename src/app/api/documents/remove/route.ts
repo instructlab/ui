@@ -9,7 +9,7 @@ import { DOC_POOL_DIR, findTaxonomyDocRepoPath } from '@/app/api/utils';
 import { devLog } from '@/utils/devlog';
 
 /**
- * Handler to upload knowledge files to taxonomy-knowledge-doc main document pool
+ * Handler to delete knowledge file from taxonomy knowledge doc repo's document pool
  */
 export async function POST(req: NextRequest) {
   try {
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     if (!fs.existsSync(newDocsDirPath)) {
       console.error(`Document pool directory doesn't exist: ${docsRepoPath}`);
-      return NextResponse.json({ error: "Failed to delete the document from document pool. Document doesn't exists." }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to delete the file from document pool. File does not exists.' }, { status: 500 });
     }
 
     const filePath = path.join(newDocsDirPath, fileName);
@@ -52,11 +52,11 @@ export async function POST(req: NextRequest) {
       message: `File deleted from document pool: ${fileName}\n\nSigned-off-by: ui@instructlab.ai`
     });
 
-    devLog(`Successfully deleted ${fileName} from document pool.`);
+    devLog(`Successfully deleted file ${fileName} from document pool.`);
 
-    return NextResponse.json({ message: `Successfully deleted ${fileName} from document pool.` }, { status: 201 });
+    return NextResponse.json({ message: `Successfully deleted file ${fileName} from document pool.` }, { status: 201 });
   } catch (error) {
-    console.error('Failed to upload knowledge documents:', error);
-    return NextResponse.json({ error: 'Failed to upload knowledge documents' }, { status: 500 });
+    console.error('Failed to upload knowledge files:', error);
+    return NextResponse.json({ error: 'Failed to upload knowledge files' }, { status: 500 });
   }
 }

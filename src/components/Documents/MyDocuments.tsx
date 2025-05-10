@@ -29,9 +29,10 @@ interface Props {
   documents: KnowledgeFile[];
   isLoading: boolean;
   removeDocument: (document: KnowledgeFile) => void;
+  getDocument: (document: KnowledgeFile) => void;
 }
 
-const Documents: React.FC<Props> = ({ isLoading, documents, removeDocument }) => {
+const Documents: React.FC<Props> = ({ isLoading, documents, removeDocument, getDocument }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -140,7 +141,14 @@ const Documents: React.FC<Props> = ({ isLoading, documents, removeDocument }) =>
               columns={DocumentColumns}
               isStickyHeader
               toolbarContent={toolbar}
-              rowRenderer={(document) => <DocumentTableRow key={document.filename} document={document} onRemove={() => removeDocument(document)} />}
+              rowRenderer={(document) => (
+                <DocumentTableRow
+                  key={document.filename}
+                  document={document}
+                  onRemove={() => removeDocument(document)}
+                  onGetDocument={() => getDocument(document)}
+                />
+              )}
             />
           ) : (
             <CardView

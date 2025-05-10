@@ -11,17 +11,23 @@ import MarkdownFileViewer from '@/components/Documents/MarkdownFileViewer';
 interface Props {
   document: KnowledgeFile;
   onRemove: () => void;
+  onGetDocument: () => void;
 }
 
-const DocumentTableRow: React.FC<Props> = ({ document, onRemove }) => {
+const DocumentTableRow: React.FC<Props> = ({ document, onRemove, onGetDocument }) => {
   const [showDocumentViewer, setShowDocumentViewer] = React.useState<boolean>(false);
+
+  const handleGetDocument = () => {
+    onGetDocument();
+    setShowDocumentViewer(true);
+  };
 
   return (
     <Tr>
       <Td modifier="truncate" dataLabel="File name">
         <TableRowTitleDescription
           title={
-            <Button variant="link" isInline onClick={() => setShowDocumentViewer(true)}>
+            <Button variant="link" isInline onClick={() => handleGetDocument()}>
               <TruncatedText maxLines={2} content={document.filename} />
             </Button>
           }
