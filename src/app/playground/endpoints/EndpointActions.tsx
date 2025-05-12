@@ -34,9 +34,9 @@ const EndpointActions: React.FC<Props> = ({ endpoint, onToggleEnabled, onEdit, o
       >
         <DropdownList>
           <DropdownItem onClick={onEdit}>Edit</DropdownItem>
-          <Divider />
-          <DropdownItem key="delete" onClick={onDelete}>
-            <span style={{ color: 'var(--pf-t--global--color--status--danger--100)' }}>Delete endpoint</span>
+          <Divider component="li" />
+          <DropdownItem key="delete" onClick={onDelete} className="destructive-action-item">
+            <span>Delete endpoint</span>
           </DropdownItem>
         </DropdownList>
       </Dropdown>

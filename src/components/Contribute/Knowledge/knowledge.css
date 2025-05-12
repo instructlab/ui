@@ -1,0 +1,29 @@
+Knowledge CSS .form-k {
+  width: 80%;
+  margin-bottom: 50px;
+}
+
+.heading-k {
+  text-align: left;
+  font-size: medium;
+}
+
+.knowledge-form {
+  flex: 1;
+  overflow-y: hidden;
+  position: relative;
+
+  .pf-v6-c-page__main__main-container {
+    overflow-y: hidden;
+  }
+  .pf-v6-c-page__main-section.pf-m-fill {
+    overflow-y: auto;
+    flex: 1;
+    padding-top: 0;
+    height: 100%;
+
+    .pf-v6-c-page__main-body {
+      height: 100%;
+    }
+  }
+}

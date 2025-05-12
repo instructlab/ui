@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Flex, Modal, ModalBody, ModalHeader, ModalVariant, Spinner } from '@patternfly/react-core';
 import { ExpandableSection } from '@patternfly/react-core/dist/esm/components/ExpandableSection/ExpandableSection';
-import { t_global_spacer_xl as XlSpacerSize } from '@patternfly/react-tokens/dist/esm/t_global_spacer_xl';
+import { t_global_spacer_xl as XlSpacerSize } from '@patternfly/react-tokens';
 import { ContributionInfo } from '@/types';
 
 interface ChangeData {

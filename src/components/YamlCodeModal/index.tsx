@@ -11,40 +11,51 @@ import {
   ModalFooter,
   ModalHeader,
   ButtonVariant,
-  Alert
+  Alert,
+  Flex,
+  FlexItem
 } from '@patternfly/react-core';
 import React from 'react';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { DownloadIcon } from '@patternfly/react-icons';
 
 interface YamlCodeModalProps {
-  isModalOpen: boolean;
   handleModalToggle: () => void;
   yamlContent: string;
   onSave?: () => void;
 }
 
-export const YamlCodeModal: React.FC<YamlCodeModalProps> = ({ isModalOpen, handleModalToggle, yamlContent, onSave }) => {
+export const YamlCodeModal: React.FC<YamlCodeModalProps> = ({ handleModalToggle, yamlContent, onSave }) => {
   return (
     <Modal
       variant={ModalVariant.medium}
-      isOpen={isModalOpen}
+      isOpen
       onClose={handleModalToggle}
       aria-labelledby="show-yaml-modal-title"
       aria-describedby="show-yaml-body-variant"
     >
       <ModalHeader title="Current YAML" labelId="show-yaml-modal-title" titleIconVariant="info" />
       <ModalBody id="show-yaml-body-variant">
-        <Alert isInline variant="warning" title={` Document section in the below yaml will be updated once you submit the knowledge contribution.`} />
-        <CodeBlock
-          actions={
-            <CodeBlockAction>
-              <CopyToClipboardButton key="copy" text={yamlContent} />
-            </CodeBlockAction>
-          }
-        >
-          <CodeBlockCode>{yamlContent}</CodeBlockCode>
-        </CodeBlock>
+        <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+          <FlexItem>
+            <Alert
+              isInline
+              variant="warning"
+              title={` Document section in the below yaml will be updated once you submit the knowledge contribution.`}
+            />
+          </FlexItem>
+          <FlexItem>
+            <CodeBlock
+              actions={
+                <CodeBlockAction>
+                  <CopyToClipboardButton key="copy" text={yamlContent} />
+                </CodeBlockAction>
+              }
+            >
+              <CodeBlockCode>{yamlContent}</CodeBlockCode>
+            </CodeBlock>
+          </FlexItem>
+        </Flex>
       </ModalBody>
       <ModalFooter>
         {onSave ? (

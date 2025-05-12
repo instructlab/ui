@@ -1,4 +1,4 @@
-import { KnowledgeFormData, SkillFormData } from '@/types';
+import { KnowledgeFile, KnowledgeFormData, SkillFormData } from '@/types';
 import { createDefaultKnowledgeSeedExamples, createDefaultSkillSeedExamples } from './seedExampleUtils';
 
 export const getDefaultKnowledgeFormData = (): KnowledgeFormData => {
@@ -17,7 +17,6 @@ export const getDefaultKnowledgeFormData = (): KnowledgeFormData => {
     revision: '',
     licenseWork: '',
     creators: '',
-    filesToUpload: [],
     uploadedFiles: []
   };
 };
@@ -37,3 +36,15 @@ export const getDefaultSkillFormData = (): SkillFormData => {
 };
 
 export const getWordCount = (text?: string): number => text?.split(/\s+/).filter((word) => word.length > 0).length ?? 0;
+
+export const compareKnowledgeFileDates = (a: KnowledgeFile, b: KnowledgeFile): number => {
+  const now = new Date().getTime();
+  const aDate = a.commitDate ? Date.parse(a.commitDate) : now;
+  const bDate = b.commitDate ? Date.parse(b.commitDate) : now;
+
+  return aDate - bDate;
+};
+
+export const descendingCompareKnowledgeFileDates = (a: KnowledgeFile, b: KnowledgeFile): number => {
+  return compareKnowledgeFileDates(a, b) * -1;
+};

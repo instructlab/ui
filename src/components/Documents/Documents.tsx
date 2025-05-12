@@ -1,39 +1,20 @@
 // src/components/Documents/Documents.tsx
 import * as React from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import {
-  AlertProps,
-  PageSection,
-  Title,
-  Content,
-  Button,
-  AlertGroup,
-  Alert,
-  AlertVariant,
-  AlertActionCloseButton,
-  Flex,
-  FlexItem
-} from '@patternfly/react-core';
+import { PageSection, Title, Content, Button, Flex, FlexItem } from '@patternfly/react-core';
+import { KnowledgeFile } from '@/types';
+import { useAlerts } from '@/context/AlertContext';
 import XsExternalLinkAltIcon from '@/components/Common/XsExternalLinkAltIcon';
 import DocumentUploadArea from '@/components/Documents/DocumentUploadArea';
 import MyDocuments from '@/components/Documents/MyDocuments';
-import { KnowledgeFile } from '@/types';
-
-export interface AlertItem {
-  title: string;
-  variant: AlertProps['variant'];
-  key: React.Key;
-}
 
 const helpLinkUrl = `https://docs.instructlab.ai/user-interface/ui_overview`;
 
 const Documents: React.FC = () => {
+  const { addAlert } = useAlerts();
   const [documents, setDocuments] = React.useState<KnowledgeFile[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
-  const [alerts, setAlerts] = React.useState<AlertItem[]>([]);
 
   const fetchDocuments = React.useCallback(async () => {
-    // TODO: Fetch documents...
     try {
       const response = await fetch('/api/documents/list', {
         method: 'GET',
@@ -52,16 +33,6 @@ const Documents: React.FC = () => {
   React.useEffect(() => {
     fetchDocuments();
   }, [fetchDocuments]);
-
-  const addAlert = React.useCallback((title: string, variant: AlertProps['variant']) => {
-    const alertKey = uuidv4();
-    const newAlert: AlertItem = { title, variant, key: alertKey };
-    setAlerts((prevAlerts) => [...prevAlerts, newAlert]);
-  }, []);
-
-  const removeAlert = (alertToRemove: AlertItem) => {
-    setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert.key !== alertToRemove.key));
-  };
 
   const addDocuments = React.useCallback(
     async (newDocuments: KnowledgeFile[]) => {
@@ -150,22 +121,11 @@ const Documents: React.FC = () => {
             </Button>
           </FlexItem>
           <FlexItem flex={{ default: 'flex_1' }} style={{ overflowY: 'hidden' }}>
-            <DocumentUploadArea existingFiles={documents} onUploaded={addDocuments} addAlert={addAlert} />
+            <DocumentUploadArea existingFiles={documents} onUploaded={addDocuments} />
           </FlexItem>
         </Flex>
       </PageSection>
       <MyDocuments documents={documents} isLoading={isLoading} removeDocument={handleRemove} />
-      <AlertGroup isToast isLiveRegion>
-        {alerts.map((alert) => (
-          <Alert
-            variant={alert.variant ? AlertVariant[alert.variant] : undefined}
-            title={alert.title}
-            timeout={true}
-            actionClose={<AlertActionCloseButton title={alert.title} onClose={() => removeAlert(alert)} />}
-            key={alert.key}
-          />
-        ))}
-      </AlertGroup>
     </>
   );
 };

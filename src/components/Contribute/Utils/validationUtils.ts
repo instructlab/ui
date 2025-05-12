@@ -20,17 +20,6 @@ export const isDetailsValid = (formData: ContributionFormData): boolean =>
 
 export const isFilePathInfoValid = (knowledgeFormData: ContributionFormData): boolean => knowledgeFormData.filePath.trim().length > 0;
 
-export const isDocumentInfoValid = (knowledgeFormData: KnowledgeFormData): boolean => {
-  if (
-    knowledgeFormData.uploadedFiles.length === 0 &&
-    knowledgeFormData.filesToUpload.length === 0 &&
-    knowledgeFormData.knowledgeDocumentCommit.length === 0
-  ) {
-    return false;
-  }
-  return true;
-};
-
 export const isSkillSeedExamplesValid = (skillFormData: SkillFormData): boolean => {
   if (skillFormData.seedExamples.length < 5) {
     return false;

@@ -12,12 +12,12 @@ import {
   FlexItem,
   MultipleFileUploadContext,
   Content,
-  AlertProps,
   Spinner
 } from '@patternfly/react-core';
 import { UploadIcon } from '@patternfly/react-icons';
 import { FileRejection } from 'react-dropzone';
 import { KnowledgeFile } from '@/types';
+import { useAlerts } from '@/context/AlertContext';
 import MultiFileUploadArea from '@/components/Documents/MultFileUploadArea';
 import { useFeatureFlags } from '@/context/FeatureFlagsContext';
 import MarkdownFileViewer from '@/components/Documents/MarkdownFileViewer';
@@ -35,14 +35,14 @@ const convertFileToKnowledgeFile = (file: File): Promise<KnowledgeFile> =>
 interface UploadFileProps {
   existingFiles: KnowledgeFile[];
   onUploaded: (newFiles: KnowledgeFile[]) => void;
-  addAlert: (title: string, variant: AlertProps['variant']) => void;
 }
 
-const DocumentUploadArea: React.FunctionComponent<UploadFileProps> = ({ existingFiles, onUploaded, addAlert }) => {
+const DocumentUploadArea: React.FunctionComponent<UploadFileProps> = ({ existingFiles, onUploaded }) => {
   const {
     featureFlags: { docConversionEnabled }
   } = useFeatureFlags();
   React.useContext(MultipleFileUploadContext);
+  const { addAlert } = useAlerts();
   const [showUploadModal, setShowUploadModal] = React.useState<boolean>();
   const [showOverwriteModal, setShowOverwriteModal] = React.useState(false);
   const [filesToOverwrite, setFilesToOverwrite] = React.useState<File[]>([]);

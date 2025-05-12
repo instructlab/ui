@@ -24,7 +24,11 @@ import {
   PageSidebar,
   PageSidebarBody,
   SkipToContent,
-  Page
+  Page,
+  AlertGroup,
+  Alert,
+  AlertVariant,
+  AlertActionCloseButton
 } from '@patternfly/react-core';
 import { BarsIcon } from '@patternfly/react-icons';
 import ThemePreference from '@/components/ThemePreference/ThemePreference';
@@ -33,6 +37,7 @@ import UserMenu from './UserMenu/UserMenu';
 
 import '../styles/globals.scss';
 import { useFeatureFlags } from '@/context/FeatureFlagsContext';
+import { useAlerts } from '@/context/AlertContext';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -56,6 +61,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     loaded,
     featureFlags: { playgroundFeaturesEnabled, experimentalFeaturesEnabled }
   } = useFeatureFlags();
+  const { alerts, removeAlert } = useAlerts();
 
   const router = useRouter();
   const pathname = usePathname();
@@ -187,6 +193,17 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
       isContentFilled
     >
       {children}
+      <AlertGroup isToast isLiveRegion>
+        {alerts.map((alert) => (
+          <Alert
+            variant={alert.variant ? AlertVariant[alert.variant] : undefined}
+            title={alert.title}
+            timeout={true}
+            actionClose={<AlertActionCloseButton title={alert.title} onClose={() => removeAlert(alert.key)} />}
+            key={alert.key}
+          />
+        ))}
+      </AlertGroup>
     </Page>
   );
 };

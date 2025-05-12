@@ -24,18 +24,19 @@ import { handleTaxonomyDownload } from '@/utils/taxonomy';
 import { deleteDraftData, TOOLTIP_FOR_DISABLE_COMPONENT, TOOLTIP_FOR_DISABLE_NEW_COMPONENT } from '@/components/Contribute/Utils/autoSaveUtils';
 import ContributionChangesModal from '@/components/Dashboard/ContributionChangesModal';
 import DeleteContributionModal from '@/components/Dashboard/DeleteContributionModal';
+import { useAlerts } from '@/context/AlertContext';
 
 interface Props {
   contribution: ContributionInfo;
   onUpdateContributions: () => void;
-  addAlert: (message: string, status: 'success' | 'danger') => void;
 }
 
-const ContributionActions: React.FC<Props> = ({ contribution, onUpdateContributions, addAlert }) => {
+const ContributionActions: React.FC<Props> = ({ contribution, onUpdateContributions }) => {
   const router = useRouter();
   const {
     envConfig: { taxonomyRootDir }
   } = useEnvConfig();
+  const { addAlert } = useAlerts();
   const [isActionMenuOpen, setIsActionMenuOpen] = React.useState<boolean>(false);
   const [isChangeModalOpen, setIsChangeModalOpen] = React.useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
@@ -193,7 +194,7 @@ const ContributionActions: React.FC<Props> = ({ contribution, onUpdateContributi
           >
             Download taxonomy
           </DropdownItem>
-          <Divider />
+          <Divider component="li" />
           {contribution.isDraft ? (
             <DropdownItem className="destructive-action-item" key="delete-draft" onClick={() => setIsDeleteModalOpen(true)}>
               Delete draft
@@ -212,7 +213,9 @@ const ContributionActions: React.FC<Props> = ({ contribution, onUpdateContributi
         </DropdownList>
       </Dropdown>
       {isChangeModalOpen ? <ContributionChangesModal contribution={contribution} onClose={() => setIsChangeModalOpen(false)} /> : null}
-      {isDeleteModalOpen ? <DeleteContributionModal contribution={contribution} onClose={handleDeleteContributionConfirm} /> : null}
+      {isDeleteModalOpen ? (
+        <DeleteContributionModal title={contribution.title} isDraft={contribution.isDraft} onClose={handleDeleteContributionConfirm} />
+      ) : null}
       {isPublishModalOpen ? (
         <Modal
           variant={ModalVariant.small}

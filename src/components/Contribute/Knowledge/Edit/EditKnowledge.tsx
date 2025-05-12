@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 import { fetchDraftKnowledgeChanges } from '@/components/Contribute/Utils/autoSaveUtils';
 import { fetchKnowledgeBranchChanges } from '@/components/Contribute/fetchUtils';
-import KnowledgeWizard from '@/components/Contribute/Knowledge/KnowledgeWizard/KnowledgeWizard';
+import KnowledgeForm from '@/components/Contribute/Knowledge/Edit/KnowledgeForm';
 
 interface EditKnowledgeClientComponentProps {
   branchName: string;
@@ -36,6 +36,12 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ branchName
         setLoadingMsg(error);
         return;
       }
+
+      // If there is only one associated knowledge file, set it for each seed example
+      if (editFormData?.formData.uploadedFiles.length === 1) {
+        editFormData.formData.seedExamples.forEach((seedExample) => (seedExample.knowledgeFile = editFormData?.formData.uploadedFiles[0]));
+      }
+
       setIsLoading(false);
       setKnowledgeEditFormData(editFormData);
     };
@@ -57,7 +63,7 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ branchName
     );
   }
 
-  return <KnowledgeWizard knowledgeEditFormData={knowledgeEditFormData} />;
+  return <KnowledgeForm knowledgeEditFormData={knowledgeEditFormData} />;
 };
 
 export default EditKnowledge;
