@@ -142,7 +142,7 @@ export interface SkillSeedExample extends SeedExample {
 
 export interface KnowledgeFile {
   filename: string;
-  content: string;
+  content?: string;
   commitSha?: string;
   commitDate?: string;
 }

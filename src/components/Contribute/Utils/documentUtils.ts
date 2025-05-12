@@ -34,8 +34,8 @@ export const UploadKnowledgeDocuments = async (
       )
     );
 
-    knowledgeFormData.uploadedFiles.map((file: { filename: string; content: string }) => {
-      updatedExistingFiles.push({ fileName: file.filename, fileContent: file.content });
+    knowledgeFormData.uploadedFiles.map((file: { filename: string; content?: string }) => {
+      updatedExistingFiles.push({ fileName: file.filename, fileContent: file.content ? file.content : '' });
     });
     // Trigger the upload only if all the newly uploaded files were read successfully and there are existing uploaded files.
     if (newFiles.length === knowledgeFormData.filesToUpload.length && (newFiles.length !== 0 || updatedExistingFiles.length !== 0)) {

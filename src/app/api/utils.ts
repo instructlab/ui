@@ -4,6 +4,7 @@ import fs from 'fs';
 import * as git from 'isomorphic-git';
 import http from 'isomorphic-git/http/node';
 
+export const DOC_POOL_DIR = 'doc-pool';
 export const TAXONOMY_DOCS_ROOT_DIR = process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || '';
 export const TAXONOMY_DOCS_CONTAINER_MOUNT_DIR = '/tmp/.instructlab-ui';
 export const TAXONOMY_KNOWLEDGE_DOCS_REPO_URL =
@@ -24,7 +25,7 @@ export const cloneTaxonomyDocsRepo = async (): Promise<string | null> => {
     return null;
   }
 
-  const taxonomyDocsDirectoryPath = path.join(remoteTaxonomyRepoDirFinal, '/taxonomy-knowledge-docs');
+  const taxonomyDocsDirectoryPath = path.join(path.dirname(remoteTaxonomyRepoDirFinal), '/taxonomy-knowledge-docs');
 
   if (fs.existsSync(taxonomyDocsDirectoryPath)) {
     console.log(`Using existing taxonomy knowledge docs repository at ${TAXONOMY_DOCS_ROOT_DIR}/taxonomy-knowledge-docs.`);
