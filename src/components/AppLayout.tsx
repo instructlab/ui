@@ -81,6 +81,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
 
   const routes = [
     { path: '/dashboard', altPaths: ['/contribute'], label: 'My contributions' },
+    { path: '/documents', label: 'Documents' },
     ...(playgroundFeaturesEnabled
       ? [
           {

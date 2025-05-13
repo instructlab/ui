@@ -28,8 +28,9 @@ import {
 import { AngleDownIcon, GithubIcon, SearchIcon } from '@patternfly/react-icons';
 import { ContributionInfo } from '@/types';
 import { useFeatureFlags } from '@/context/FeatureFlagsContext';
-import Table from '@/components/Table/Table';
 import { useEnvConfig } from '@/context/EnvConfigContext';
+import Table from '@/components/Table/Table';
+import CardView from '@/components/CardView/CardView';
 import XsExternalLinkAltIcon from '@/components/Common/XsExternalLinkAltIcon';
 import ClearDraftDataButton from '@/components/Contribute/ClearDraftDataButton';
 import {
@@ -45,7 +46,6 @@ import ContributionTableRow from '@/components/Dashboard/ContributionTableRow';
 import ContributionCard from '@/components/Dashboard/ContributionCard';
 
 import './Dashboard.scss';
-import CardView from '@/components/CardView/CardView';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
