@@ -33,6 +33,7 @@ interface Props {
   setName: (val: string) => void;
   submissionSummary: string;
   setSubmissionSummary: (val: string) => void;
+  submissionSummaryPlaceholder: string;
   rootPath: string;
   filePath: string;
   setFilePath: (val: string) => void;
@@ -48,7 +49,8 @@ const DetailsPage: React.FC<Props> = ({
   setSubmissionSummary,
   rootPath,
   filePath,
-  setFilePath
+  setFilePath,
+  submissionSummaryPlaceholder
 }) => {
   const [editContributorOpen, setEditContributorOpen] = React.useState<boolean>();
   const [validSummary, setValidSummary] = React.useState<ValidatedOptions>(ValidatedOptions.default);
@@ -131,7 +133,7 @@ const DetailsPage: React.FC<Props> = ({
                   resizeOrientation="vertical"
                   type="text"
                   aria-label="submission_summary"
-                  placeholder="Example: Information about the Phoenix Constellation including the history, characteristics, and features of the stars in the constellation."
+                  placeholder={submissionSummaryPlaceholder}
                   value={submissionSummary}
                   validated={isSummaryInvalid ? ValidatedOptions.error : ValidatedOptions.default}
                   onChange={(_event, value) => setSubmissionSummary(value)}

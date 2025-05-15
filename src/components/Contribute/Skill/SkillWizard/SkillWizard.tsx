@@ -102,6 +102,7 @@ export const SkillWizard: React.FunctionComponent<Props> = ({ skillEditFormData 
                 submissionSummary
               }))
             }
+            submissionSummaryPlaceholder="Describe the skill this example helps the model learn (e.g., solving math problems, spotting grammar mistakes)"
             rootPath="skills"
             filePath={skillFormData.filePath}
             setFilePath={setFilePath}

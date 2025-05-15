@@ -124,6 +124,7 @@ export const KnowledgeWizard: React.FunctionComponent<KnowledgeFormProps> = ({ k
                 submissionSummary
               }))
             }
+            submissionSummaryPlaceholder="Describe the main idea or information this example teaches (e.g., defining a scientific term, explaining a historical event)."
             rootPath="knowledge"
             filePath={knowledgeFormData.filePath}
             setFilePath={setFilePath}
