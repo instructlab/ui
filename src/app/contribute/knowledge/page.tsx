@@ -2,11 +2,11 @@
 'use client';
 import React from 'react';
 import { AppLayout } from '@/components/AppLayout';
-import KnowledgeWizard from '@/components/Contribute/Knowledge/KnowledgeWizard/KnowledgeWizard';
+import KnowledgeForm from '@/components/Contribute/Knowledge/Edit/KnowledgeForm';
 
 const AddKnowledgePage: React.FunctionComponent = () => (
   <AppLayout className="contribute-page">
-    <KnowledgeWizard />
+    <KnowledgeForm />
   </AppLayout>
 );
 

@@ -3,15 +3,10 @@ import * as React from 'react';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
-  AlertProps,
   PageSection,
   Title,
   Content,
   Button,
-  AlertGroup,
-  Alert,
-  AlertVariant,
-  AlertActionCloseButton,
   Spinner,
   EmptyState,
   EmptyStateBody,
@@ -49,24 +44,15 @@ import './Dashboard.scss';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
-export interface AlertItem {
-  title: string;
-  variant: AlertProps['variant'];
-  key: React.Key;
-}
-
 interface Props {
   contributions: ContributionInfo[];
   isLoading: boolean;
   triggerUpdateContributions: () => void;
-  alerts: AlertItem[];
-  addAlert: (title: string, variant: AlertProps['variant']) => void;
-  removeAlert: (alert: AlertItem) => void;
 }
 
 const helpLinkUrl = `https://docs.instructlab.ai/user-interface/ui_overview`;
 
-const Dashboard: React.FC<Props> = ({ contributions, isLoading, triggerUpdateContributions, alerts, addAlert, removeAlert }) => {
+const Dashboard: React.FC<Props> = ({ contributions, isLoading, triggerUpdateContributions }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -82,7 +68,7 @@ const Dashboard: React.FC<Props> = ({ contributions, isLoading, triggerUpdateCon
   const viewType = searchParams.get('viewType') || 'table';
   const sort = searchParams.get('sortBy') || SORT_BY_LAST_UPDATE;
   const sortDirParam = searchParams.get('sortDir');
-  const sortDirection = sortDirParam === SORT_ASCENDING || sortDirParam === SORT_DESCENDING ? sortDirParam : SORT_ASCENDING;
+  const sortDirection = sortDirParam === SORT_ASCENDING || sortDirParam === SORT_DESCENDING ? sortDirParam : SORT_DESCENDING;
 
   const filteredContributions = React.useMemo(
     () =>
@@ -274,12 +260,7 @@ const Dashboard: React.FC<Props> = ({ contributions, isLoading, triggerUpdateCon
               isStickyHeader
               toolbarContent={toolbar}
               rowRenderer={(contribution) => (
-                <ContributionTableRow
-                  key={contribution.branchName}
-                  contribution={contribution}
-                  onUpdateContributions={triggerUpdateContributions}
-                  addAlert={addAlert}
-                />
+                <ContributionTableRow key={contribution.branchName} contribution={contribution} onUpdateContributions={triggerUpdateContributions} />
               )}
             />
           ) : (
@@ -289,28 +270,12 @@ const Dashboard: React.FC<Props> = ({ contributions, isLoading, triggerUpdateCon
               data={filteredContributions}
               toolbarContent={toolbar}
               cardRenderer={(contribution) => (
-                <ContributionCard
-                  key={contribution.branchName}
-                  contribution={contribution}
-                  onUpdateContributions={triggerUpdateContributions}
-                  addAlert={addAlert}
-                />
+                <ContributionCard key={contribution.branchName} contribution={contribution} onUpdateContributions={triggerUpdateContributions} />
               )}
             />
           )}
         </FlexItem>
       </Flex>
-      <AlertGroup isToast isLiveRegion>
-        {alerts.map((alert) => (
-          <Alert
-            variant={alert.variant ? AlertVariant[alert.variant] : undefined}
-            title={alert.title}
-            timeout={true}
-            actionClose={<AlertActionCloseButton title={alert.title} onClose={() => removeAlert(alert)} />}
-            key={alert.key}
-          />
-        ))}
-      </AlertGroup>
     </PageSection>
   );
 };

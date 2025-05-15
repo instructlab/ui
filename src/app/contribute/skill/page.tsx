@@ -2,11 +2,11 @@
 'use client';
 import React from 'react';
 import { AppLayout } from '@/components/AppLayout';
-import SkillWizard from '@/components/Contribute/Skill/SkillWizard/SkillWizard';
+import SkillForm from '@/components/Contribute/Skill/Edit/SkillForm';
 
 const AddSkillPage: React.FunctionComponent = () => (
   <AppLayout className="contribute-page">
-    <SkillWizard />
+    <SkillForm />
   </AppLayout>
 );
 

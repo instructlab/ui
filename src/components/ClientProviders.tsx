@@ -6,6 +6,7 @@ import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { EnvConfigProvider } from '@/context/EnvConfigContext';
 import { FeatureFlagsProvider } from '@/context/FeatureFlagsContext';
+import { AlertProvider } from '@/context/AlertContext';
 
 interface ClientProviderProps {
   children: ReactNode;
@@ -16,7 +17,9 @@ const ClientProvider = ({ children }: ClientProviderProps) => {
     <SessionProvider>
       <EnvConfigProvider>
         <FeatureFlagsProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <AlertProvider>{children}</AlertProvider>
+          </ThemeProvider>
         </FeatureFlagsProvider>
       </EnvConfigProvider>
     </SessionProvider>

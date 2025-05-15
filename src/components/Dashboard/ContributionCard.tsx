@@ -27,10 +27,9 @@ import { NewContributionLabel, KnowledgeContributionLabel, SkillContributionLabe
 interface Props {
   contribution: ContributionInfo;
   onUpdateContributions: () => void;
-  addAlert: (message: string, status: 'success' | 'danger') => void;
 }
 
-const ContributionCard: React.FC<Props> = ({ contribution, onUpdateContributions, addAlert }) => {
+const ContributionCard: React.FC<Props> = ({ contribution, onUpdateContributions }) => {
   const router = useRouter();
 
   return (
@@ -40,18 +39,18 @@ const ContributionCard: React.FC<Props> = ({ contribution, onUpdateContributions
           <FlexItem>
             <CardHeader
               actions={{
-                actions: <ContributionActions contribution={contribution} onUpdateContributions={onUpdateContributions} addAlert={addAlert} />
+                actions: <ContributionActions contribution={contribution} onUpdateContributions={onUpdateContributions} />
               }}
             >
               {contribution.isKnowledge ? <KnowledgeContributionLabel /> : <SkillContributionLabel />}
             </CardHeader>
           </FlexItem>
           <FlexItem flex={{ default: 'flex_1' }}>
-            <CardTitle>
-              <TableRowTitleDescription
-                title={
-                  <Flex gap={{ default: 'gapSm' }} alignItems={{ default: 'alignItemsCenter' }} flexWrap={{ default: 'nowrap' }}>
-                    <FlexItem>
+            <Flex gap={{ default: 'gapNone' }} alignItems={{ default: 'alignItemsCenter' }} flexWrap={{ default: 'nowrap' }}>
+              <FlexItem>
+                <CardTitle>
+                  <TableRowTitleDescription
+                    title={
                       <Button
                         component="a"
                         variant="link"
@@ -64,16 +63,16 @@ const ContributionCard: React.FC<Props> = ({ contribution, onUpdateContributions
                       >
                         <TruncatedText maxLines={2} content={contribution.title} />
                       </Button>
-                    </FlexItem>
-                    {!contribution.isSubmitted ? (
-                      <FlexItem>
-                        <NewContributionLabel />
-                      </FlexItem>
-                    ) : null}
-                  </Flex>
-                }
-              />
-            </CardTitle>
+                    }
+                  />
+                </CardTitle>
+              </FlexItem>
+              {!contribution.isSubmitted ? (
+                <FlexItem>
+                  <NewContributionLabel />
+                </FlexItem>
+              ) : null}
+            </Flex>
           </FlexItem>
           <FlexItem>
             <CardBody>

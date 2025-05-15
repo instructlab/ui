@@ -4,9 +4,9 @@ import { Tr, Td } from '@patternfly/react-table';
 import { KnowledgeFile } from '@/types';
 import TruncatedText from '@/components/Common/TruncatedText';
 import TableRowTitleDescription from '@/components/Table/TableRowTitleDescription';
-import { getFormattedLastUpdatedDate } from '@/components/Documents/const';
 import DocumentActions from '@/components/Documents/DocumentActions';
 import MarkdownFileViewer from '@/components/Documents/MarkdownFileViewer';
+import { getFormattedLastUpdatedDate } from '@/components/Contribute/Utils/documentUtils';
 
 interface Props {
   document: KnowledgeFile;

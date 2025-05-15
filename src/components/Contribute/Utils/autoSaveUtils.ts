@@ -1,7 +1,6 @@
 import { ContributionFormData, DraftEditFormInfo, KnowledgeEditFormData, KnowledgeFormData, SkillEditFormData, SkillFormData } from '@/types';
 import { KnowledgeSchemaVersion, SkillSchemaVersion } from '@/types/const';
 import { devLog } from '@/utils/devlog';
-import path from 'path';
 
 export const TOOLTIP_FOR_DISABLE_COMPONENT = 'This action can be performed once the draft changes are either submitted or discarded.';
 export const TOOLTIP_FOR_DISABLE_NEW_COMPONENT = 'This action can be performed once the draft changes are submitted.';
@@ -26,10 +25,6 @@ export const storeDraftData = (branchName: string, taxonomy: string, data: strin
 
 export const isDraftDataExist = (branchName: string): boolean => {
   return localStorage.getItem(branchName) ? true : false;
-};
-
-export const getDraftData = (branchName: string): string | null => {
-  return localStorage.getItem(branchName);
 };
 
 export const deleteDraftData = (branchName: string) => {
@@ -109,50 +104,6 @@ export const fetchDraftContributions = (): DraftEditFormInfo[] => {
   return drafts;
 };
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-export const storeDraftKnowledgeFile = async (knowledgeContributionName: string, file: File): Promise<void> => {
-  const base64 = await fileToBase64(file);
-  const fileData = {
-    name: file.name,
-    type: file.type,
-    data: base64
-  };
-  devLog('Saving file of draft contribution : ', fileData);
-  localStorage.setItem(path.join(knowledgeContributionName, file.name), JSON.stringify(fileData));
-};
-
-function base64ToFile(base64: string, name: string, type: string): File {
-  const arr = base64.split(',');
-  const mime = type;
-  const bstr = atob(arr[1]);
-  let n = bstr.length;
-  const u8arr = new Uint8Array(n);
-
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
-  }
-
-  return new File([u8arr], name, { type: mime });
-}
-
-export const retrieveDraftKnowledgeFile = (knowledgeContributionName: string, fileName: string): File | null => {
-  const item = localStorage.getItem(path.join(knowledgeContributionName, fileName));
-  if (!item) return null;
-
-  const { name, type, data } = JSON.parse(item);
-  devLog('Retrieving file for draft contribution : ', name);
-
-  return base64ToFile(data, name, type);
-};
-
 const optionalKeys = [
   'email',
   'name',
@@ -226,16 +177,6 @@ export function fetchDraftKnowledgeChanges({ branchName, setIsLoading, setLoadin
       return value;
     });
     devLog('Draft data retrieved from local storage :', knowledgeExistingFormData);
-    const storedDraftFiles: File[] = [];
-    knowledgeExistingFormData.filesToUpload.forEach((file) => {
-      const readFile = retrieveDraftKnowledgeFile(knowledgeExistingFormData.branchName, file.name);
-      if (readFile) {
-        storedDraftFiles.push(readFile);
-      } else {
-        console.error('Not able to retrieve file :', path.join(knowledgeExistingFormData.branchName, file.name));
-      }
-    });
-    knowledgeExistingFormData.filesToUpload = storedDraftFiles;
     const knowledgeEditFormData: KnowledgeEditFormData = {
       isEditForm: true,
       isSubmitted: !!draftInfo?.isSubmitted,

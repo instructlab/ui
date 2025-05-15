@@ -2,7 +2,7 @@ import React from 'react';
 import { ContributionInfo } from '@/types';
 import { Flex, FlexItem } from '@patternfly/react-core';
 import { CheckCircleIcon, PficonTemplateIcon } from '@patternfly/react-icons';
-import { t_global_icon_color_status_success_default as SuccessColor } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_status_success_default';
+import { t_global_icon_color_status_success_default as SuccessColor } from '@patternfly/react-tokens';
 
 interface Props {
   contribution: ContributionInfo;

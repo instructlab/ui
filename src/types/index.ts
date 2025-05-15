@@ -1,4 +1,5 @@
-import { ValidatedOptions } from '@patternfly/react-core';
+import { AlertProps, ValidatedOptions } from '@patternfly/react-core';
+import * as React from 'react';
 
 export enum ModelEndpointStatus {
   available,
@@ -175,7 +176,6 @@ export interface KnowledgeFormData extends ContributionFormData {
   linkWork: string;
   revision: string;
   seedExamples: KnowledgeSeedExample[];
-  filesToUpload: File[];
   uploadedFiles: KnowledgeFile[];
 }
 
@@ -211,4 +211,10 @@ export interface FeatureFlagsType {
   skillFeaturesEnabled: boolean;
   playgroundFeaturesEnabled: boolean;
   experimentalFeaturesEnabled: boolean;
+}
+
+export interface AlertItem {
+  title: string;
+  variant: AlertProps['variant'];
+  key: React.Key;
 }

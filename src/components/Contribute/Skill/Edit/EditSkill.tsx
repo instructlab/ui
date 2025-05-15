@@ -9,7 +9,7 @@ import { Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 import { useSession } from 'next-auth/react';
 import { fetchDraftSkillChanges } from '@/components/Contribute/Utils/autoSaveUtils';
 import { fetchSkillBranchChanges } from '@/components/Contribute/fetchUtils';
-import SkillWizard from '@/components/Contribute/Skill/SkillWizard/SkillWizard';
+import SkillForm from '@/components/Contribute/Skill/Edit/SkillForm';
 
 interface EditSkillClientComponentProps {
   branchName: string;
@@ -57,7 +57,7 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ branchName, isDraf
     );
   }
 
-  return <SkillWizard skillEditFormData={skillEditFormData} />;
+  return <SkillForm skillEditFormData={skillEditFormData} />;
 };
 
 export default EditSkill;

@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { Button, Content, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant, TextInput } from '@patternfly/react-core';
-import { ContributionInfo } from '@/types';
 
 interface Props {
-  contribution: ContributionInfo;
+  title: string;
+  isDraft: boolean;
   onClose: (deleteContribution: boolean) => void;
 }
 
-const DeleteContributionModal: React.FC<Props> = ({ contribution, onClose }) => {
+const DeleteContributionModal: React.FC<Props> = ({ isDraft, title, onClose }) => {
   const [deleteContributionConfirm, setDeleteContributionConfirm] = React.useState<string>('');
 
   return (
@@ -22,12 +22,12 @@ const DeleteContributionModal: React.FC<Props> = ({ contribution, onClose }) => 
     >
       <ModalHeader
         titleIconVariant="warning"
-        title={`Permanently delete this${contribution.isDraft ? ' draft' : ''} contribution?`}
+        title={`Permanently delete this${isDraft ? ' draft' : ''} contribution?`}
         labelId="confirm-delete-contribution-title"
         descriptorId="confirm-delete-contribution-description"
         description={
           <>
-            Are you sure you want to delete{contribution.isDraft ? ' the draft changes you made to' : ''} <strong>{contribution.title}</strong>?
+            Are you sure you want to delete{isDraft ? ' the draft changes you made to' : ''} <strong>{title}</strong>?
           </>
         }
       />

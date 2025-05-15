@@ -2,7 +2,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Flex, FlexItem } from '@patternfly/react-core';
 import { Tr, Td } from '@patternfly/react-table';
-import { t_global_color_disabled_100 as DisabledColor } from '@patternfly/react-tokens/dist/esm/t_global_color_disabled_100';
+import { t_global_color_disabled_100 as DisabledColor } from '@patternfly/react-tokens';
 import { ContributionInfo } from '@/types';
 import TruncatedText from '@/components/Common/TruncatedText';
 import TableRowTitleDescription from '@/components/Table/TableRowTitleDescription';
@@ -14,12 +14,10 @@ import { NewContributionLabel, KnowledgeContributionLabel, SkillContributionLabe
 interface Props {
   contribution: ContributionInfo;
   onUpdateContributions: () => void;
-  addAlert: (message: string, status: 'success' | 'danger') => void;
 }
 
-const ContributionTableRow: React.FC<Props> = ({ contribution, onUpdateContributions, addAlert }) => {
+const ContributionTableRow: React.FC<Props> = ({ contribution, onUpdateContributions }) => {
   const router = useRouter();
-
   return (
     <Tr>
       <Td modifier="truncate" dataLabel="Title">
@@ -57,7 +55,7 @@ const ContributionTableRow: React.FC<Props> = ({ contribution, onUpdateContribut
       </Td>
       <Td dataLabel="Last updated">{getFormattedLastUpdatedDate(contribution.lastUpdated)}</Td>
       <Td isActionCell>
-        <ContributionActions contribution={contribution} onUpdateContributions={onUpdateContributions} addAlert={addAlert} />
+        <ContributionActions contribution={contribution} onUpdateContributions={onUpdateContributions} />
       </Td>
     </Tr>
   );

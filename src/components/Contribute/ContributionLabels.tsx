@@ -1,27 +1,35 @@
 import * as React from 'react';
 import { Label } from '@patternfly/react-core';
-import { CatalogIcon } from '@patternfly/react-icons';
+import { CatalogIcon, PficonTemplateIcon, TaskIcon } from '@patternfly/react-icons';
 
 import './ContributionLabels.scss';
 
-const KnowledgeContributionLabel: React.FC = () => (
-  <Label className="knowledge-contribution-label" icon={<CatalogIcon />} variant="outline">
+interface LabelProps {
+  isCompact?: boolean;
+}
+
+const KnowledgeContributionLabel: React.FC<LabelProps> = ({ isCompact }) => (
+  <Label className="knowledge-contribution-label" icon={<CatalogIcon />} variant="outline" isCompact={isCompact}>
     Knowledge
   </Label>
 );
 
-import { TaskIcon } from '@patternfly/react-icons';
-
-const SkillContributionLabel: React.FC = () => (
-  <Label className="skill-contribution-label" icon={<TaskIcon />} variant="outline">
+const SkillContributionLabel: React.FC<LabelProps> = ({ isCompact }) => (
+  <Label className="skill-contribution-label" icon={<TaskIcon />} variant="outline" isCompact={isCompact}>
     Skills
   </Label>
 );
 
-const NewContributionLabel: React.FC = () => (
-  <Label className="new-contribution-label" isCompact>
+const DraftContributionLabel: React.FC<LabelProps> = ({ isCompact }) => (
+  <Label key="draft" variant="outline" icon={<PficonTemplateIcon />} isCompact={isCompact}>
+    Draft
+  </Label>
+);
+
+const NewContributionLabel: React.FC<LabelProps> = ({ isCompact = true }) => (
+  <Label className="new-contribution-label" isCompact={isCompact}>
     NEW
   </Label>
 );
 
-export { KnowledgeContributionLabel, SkillContributionLabel, NewContributionLabel };
+export { KnowledgeContributionLabel, SkillContributionLabel, NewContributionLabel, DraftContributionLabel };

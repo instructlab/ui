@@ -5,7 +5,15 @@ export const UploadKnowledgeDocuments = async (
   knowledgeFormData: KnowledgeFormData,
   setActionGroupAlertContent: (content: ActionGroupAlertContent) => void
 ): Promise<boolean> => {
-  if (knowledgeFormData.filesToUpload.length > 0 || knowledgeFormData.uploadedFiles.length > 0) {
+  const filesToUpload = knowledgeFormData.seedExamples.reduce<KnowledgeFile[]>((knowledgeFiles, nextSeedExample) => {
+    const nextKnowledgeFile = nextSeedExample.knowledgeFile;
+    if (nextKnowledgeFile && !knowledgeFiles.find((knowledgeFile) => knowledgeFile.filename === nextKnowledgeFile.filename)) {
+      knowledgeFiles.push(nextKnowledgeFile);
+    }
+    return knowledgeFiles;
+  }, []);
+
+  if (filesToUpload.length > 0 || knowledgeFormData.uploadedFiles.length > 0) {
     const alertInfo: ActionGroupAlertContent = {
       title: 'Document upload(s) in progress!',
       message: 'Document upload(s) is in progress. You will be notified once the upload successfully completes.',
@@ -15,83 +23,68 @@ export const UploadKnowledgeDocuments = async (
     };
     setActionGroupAlertContent(alertInfo);
 
-    const newFiles: { fileName: string; fileContent: string }[] = [];
-    const updatedExistingFiles: { fileName: string; fileContent: string }[] = [];
+    const newFiles: { fileName: string; fileContent: string }[] = filesToUpload.map((file) => ({
+      fileName: file.filename,
+      fileContent: file.content ? file.content : ''
+    }));
 
-    await Promise.all(
-      knowledgeFormData.filesToUpload.map(
-        (file) =>
-          new Promise<void>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              const fileContent = e.target!.result as string;
-              newFiles.push({ fileName: file.name, fileContent: fileContent });
-              resolve();
-            };
-            reader.onerror = reject;
-            reader.readAsText(file);
-          })
-      )
-    );
+    const updatedExistingFiles: { fileName: string; fileContent: string }[] = knowledgeFormData.uploadedFiles.map((file) => ({
+      fileName: file.filename,
+      fileContent: file.content ? file.content : ''
+    }));
 
-    knowledgeFormData.uploadedFiles.map((file: { filename: string; content?: string }) => {
-      updatedExistingFiles.push({ fileName: file.filename, fileContent: file.content ? file.content : '' });
-    });
-    // Trigger the upload only if all the newly uploaded files were read successfully and there are existing uploaded files.
-    if (newFiles.length === knowledgeFormData.filesToUpload.length && (newFiles.length !== 0 || updatedExistingFiles.length !== 0)) {
-      try {
-        const response = await fetch('/api/knowledge-files', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            branchName: knowledgeFormData.branchName,
-            currentCommitSHA: knowledgeFormData.knowledgeDocumentCommit,
-            newFiles: newFiles,
-            updatedExistingFiles: updatedExistingFiles
-          })
-        });
+    try {
+      const response = await fetch('/api/knowledge-files', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          branchName: knowledgeFormData.branchName,
+          currentCommitSHA: knowledgeFormData.knowledgeDocumentCommit,
+          newFiles: newFiles,
+          updatedExistingFiles: updatedExistingFiles
+        })
+      });
 
-        if (response.status === 201 || response.ok) {
-          const result = await response.json();
-          knowledgeFormData.knowledgeDocumentRepositoryUrl = result.repoUrl;
-          knowledgeFormData.knowledgeDocumentCommit = result.commitSha;
-          knowledgeFormData.documentName = result.documentNames.join(', ');
+      if (response.status === 201 || response.ok) {
+        const result = await response.json();
+        knowledgeFormData.knowledgeDocumentRepositoryUrl = result.repoUrl;
+        knowledgeFormData.knowledgeDocumentCommit = result.commitSha;
+        knowledgeFormData.documentName = result.documentNames.join(', ');
 
-          const alertInfo: ActionGroupAlertContent = {
-            success: true,
-            title: 'Document uploaded successfully!',
-            message: 'Documents have been submitted to local taxonomy knowledge docs repo to be referenced in the knowledge submission.',
-            url: result.prUrl,
-            isUrlExternal: true,
-            urlText: 'View it here',
-            timeout: true
-          };
-          setActionGroupAlertContent(alertInfo);
-          return true;
-        } else {
-          console.error('Knowledge document upload failed:', response.statusText);
-          const alertInfo: ActionGroupAlertContent = {
-            success: false,
-            title: 'Failed to upload document!',
-            message: `This upload failed. ${response.statusText}`,
-            timeout: true
-          };
-          setActionGroupAlertContent(alertInfo);
-          return false;
-        }
-      } catch (error) {
-        console.error('Knowledge document upload encountered an error:', error);
+        const alertInfo: ActionGroupAlertContent = {
+          success: true,
+          title: 'Document uploaded successfully!',
+          message: 'Documents have been submitted to local taxonomy knowledge docs repo to be referenced in the knowledge submission.',
+          url: result.prUrl,
+          isUrlExternal: true,
+          urlText: 'View it here',
+          timeout: true
+        };
+        setActionGroupAlertContent(alertInfo);
+        return true;
+      } else {
+        console.error('Knowledge document upload failed:', response.statusText);
         const alertInfo: ActionGroupAlertContent = {
           success: false,
           title: 'Failed to upload document!',
-          message: `This upload failed. ${(error as Error).message}`,
+          message: `This upload failed. ${response.statusText}`,
           timeout: true
         };
         setActionGroupAlertContent(alertInfo);
         return false;
       }
+    } catch (error) {
+      console.error('Knowledge document upload encountered an error:', error);
+      const alertInfo: ActionGroupAlertContent = {
+        success: false,
+        title: 'Failed to upload document!',
+        message: `This upload failed. ${(error as Error).message}`,
+        timeout: true
+      };
+      setActionGroupAlertContent(alertInfo);
+      return false;
     }
   }
   return true;
@@ -115,4 +108,22 @@ export const fetchExistingKnowledgeDocuments = async (knowledgeDocumentCommit: s
     return [];
   }
   return [];
+};
+
+export const LastUpdatedDateFormatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'short',
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+  hour: 'numeric',
+  hourCycle: 'h12',
+  minute: '2-digit',
+  timeZoneName: 'short'
+});
+
+export const getFormattedLastUpdatedDate = (date: Date) => LastUpdatedDateFormatter.format(date);
+
+export const getFormattedKnowledgeFileData = (knowledgeFile: KnowledgeFile): string => {
+  const date = knowledgeFile.commitDate ? new Date(Date.parse(knowledgeFile.commitDate)) : new Date();
+  return getFormattedLastUpdatedDate(date);
 };

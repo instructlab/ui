@@ -1,11 +1,10 @@
 // src/components/Dashboard/DashboardPage.tsx
 import * as React from 'react';
-import { AlertProps } from '@patternfly/react-core';
-import { v4 as uuidv4 } from 'uuid';
 import { ContributionInfo, DraftEditFormInfo } from '@/types';
 import { fetchDraftContributions } from '@/components/Contribute/Utils/autoSaveUtils';
 import { useFeatureFlags } from '@/context/FeatureFlagsContext';
-import Dashboard, { AlertItem } from '@/components/Dashboard/Dashboard';
+import Dashboard from '@/components/Dashboard/Dashboard';
+import { useAlerts } from '@/context/AlertContext';
 
 const fetchBranchTaxonomy = async (branchName: string) => {
   let taxonomy = '';
@@ -61,22 +60,12 @@ const DashboardPage: React.FunctionComponent = () => {
   const {
     featureFlags: { skillFeaturesEnabled }
   } = useFeatureFlags();
+  const { addAlert } = useAlerts();
   const [branches, setBranches] = React.useState<
     { name: string; creationDate: number; message: string; author: string; state: string; taxonomy: string }[]
   >([]);
   const [draftContributions, setDraftContributions] = React.useState<DraftEditFormInfo[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
-  const [alerts, setAlerts] = React.useState<AlertItem[]>([]);
-
-  const addAlert = React.useCallback((title: string, variant: AlertProps['variant']) => {
-    const alertKey = uuidv4();
-    const newAlert: AlertItem = { title, variant, key: alertKey };
-    setAlerts((prevAlerts) => [...prevAlerts, newAlert]);
-  }, []);
-
-  const removeAlert = (alertToRemove: AlertItem) => {
-    setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert.key !== alertToRemove.key));
-  };
 
   const fetchBranches = React.useCallback(async () => {
     try {
@@ -170,16 +159,7 @@ const DashboardPage: React.FunctionComponent = () => {
     fetchBranches();
   };
 
-  return (
-    <Dashboard
-      contributions={contributions}
-      isLoading={isLoading}
-      triggerUpdateContributions={onUpdateContributions}
-      alerts={alerts}
-      addAlert={addAlert}
-      removeAlert={removeAlert}
-    />
-  );
+  return <Dashboard contributions={contributions} isLoading={isLoading} triggerUpdateContributions={onUpdateContributions} />;
 };
 
 export default DashboardPage;

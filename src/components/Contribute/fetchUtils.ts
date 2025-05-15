@@ -97,7 +97,6 @@ export const fetchKnowledgeBranchChanges = async (
         revision: '',
         licenseWork: '',
         creators: '',
-        filesToUpload: [],
         uploadedFiles: []
       };
 
@@ -141,9 +140,9 @@ export const fetchKnowledgeBranchChanges = async (
             }
           }
         });
+
         const existingFiles = await fetchExistingKnowledgeDocuments(knowledgeEditFormData.formData.knowledgeDocumentCommit);
         if (existingFiles.length != 0) {
-          console.log(`Contribution has ${existingFiles.length} existing knowledge documents`);
           knowledgeExistingFormData.uploadedFiles.push(...existingFiles);
         }
         return { editFormData: knowledgeEditFormData };
