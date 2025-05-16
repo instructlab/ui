@@ -92,21 +92,33 @@ const DashboardPage: React.FunctionComponent = () => {
 
   // Fetch branches from the API route
   React.useEffect(() => {
+    let canceled = false;
     let refreshIntervalId: NodeJS.Timeout;
 
     cloneTaxonomyRepo().then((success) => {
+      if (canceled) {
+        return;
+      }
       if (success) {
         fetchBranches().then(() => {
+          if (canceled) {
+            return;
+          }
           setIsLoading(false);
+          refreshIntervalId = setInterval(() => {
+            fetchBranches();
+          }, 60000);
         });
-        refreshIntervalId = setInterval(fetchBranches, 60000);
       } else {
         addAlert('Failed to fetch branches.', 'danger');
         setIsLoading(false);
       }
     });
 
-    return () => clearInterval(refreshIntervalId);
+    return () => {
+      canceled = true;
+      clearInterval(refreshIntervalId);
+    };
   }, [addAlert, fetchBranches]);
 
   React.useEffect(() => {

@@ -5,7 +5,6 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   PageSection,
   Title,
-  Content,
   Button,
   Spinner,
   EmptyState,
@@ -25,8 +24,8 @@ import { ContributionInfo } from '@/types';
 import { useFeatureFlags } from '@/context/FeatureFlagsContext';
 import { useEnvConfig } from '@/context/EnvConfigContext';
 import Table from '@/components/Table/Table';
+import ContributionsSidePanelHelp from '@/components/SidePanelContents/ContributionsSidePanelHelp';
 import CardView from '@/components/CardView/CardView';
-import XsExternalLinkAltIcon from '@/components/Common/XsExternalLinkAltIcon';
 import ClearDraftDataButton from '@/components/Contribute/ClearDraftDataButton';
 import {
   ContributionColumns,
@@ -41,6 +40,7 @@ import ContributionTableRow from '@/components/Dashboard/ContributionTableRow';
 import ContributionCard from '@/components/Dashboard/ContributionCard';
 
 import './Dashboard.scss';
+import PageDescriptionWithHelp from '@/components/Common/PageDescriptionWithHelp';
 
 const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
 
@@ -49,8 +49,6 @@ interface Props {
   isLoading: boolean;
   triggerUpdateContributions: () => void;
 }
-
-const helpLinkUrl = `https://docs.instructlab.ai/user-interface/ui_overview`;
 
 const Dashboard: React.FC<Props> = ({ contributions, isLoading, triggerUpdateContributions }) => {
   const router = useRouter();
@@ -87,7 +85,7 @@ const Dashboard: React.FC<Props> = ({ contributions, isLoading, triggerUpdateCon
         params.set(name2, value2);
       }
 
-      router.push(pathname + '?' + params.toString());
+      router.replace(pathname + '?' + params.toString());
     },
     [pathname, router, searchParams]
   );
@@ -172,7 +170,7 @@ const Dashboard: React.FC<Props> = ({ contributions, isLoading, triggerUpdateCon
                     >
                       <DropdownList>
                         <DropdownItem onClick={() => router.push('/contribute/knowledge/')}>Contribute knowledge</DropdownItem>
-                        <DropdownItem onClick={() => router.push('/contribute/skill/')}>Contribute skills</DropdownItem>
+                        <DropdownItem onClick={() => router.push('/contribute/skill/')}>Contribute skill</DropdownItem>
                       </DropdownList>
                     </Dropdown>
                   ) : (
@@ -185,21 +183,11 @@ const Dashboard: React.FC<Props> = ({ contributions, isLoading, triggerUpdateCon
               </Flex>
             </FlexItem>
             <FlexItem>
-              <Content component="p">
-                View and manage your contributions. By contributing your own data, you can help train and refine your language models.
-              </Content>
-              <Button
-                variant="link"
-                isInline
-                component="a"
-                href={helpLinkUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                icon={<XsExternalLinkAltIcon />}
-                iconPosition="end"
-              >
-                {`Learn more about ${skillFeaturesEnabled ? 'knowledge and skills' : 'knowledge'} contributions`}
-              </Button>
+              <PageDescriptionWithHelp
+                description="View and manage your contributions. By contributing your own data, you can help train and refine your language models."
+                helpText="Learn more about contributions"
+                sidePanelContent={<ContributionsSidePanelHelp />}
+              />
             </FlexItem>
           </Flex>
         </FlexItem>

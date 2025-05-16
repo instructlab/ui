@@ -12,6 +12,7 @@ import {
   DescriptionListTerm,
   DescriptionListDescription
 } from '@patternfly/react-core';
+import KnowledgeContributionSidePanelHelp from '@/components/SidePanelContents/KnowledgeContributionSidePanelHelp';
 import ViewContributionSection from '@/components/Common/ViewContributionSection';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import ContributePageHeader from '@/components/Contribute/ContributePageHeader';
@@ -34,8 +35,10 @@ const ViewKnowledge: React.FC<ViewKnowledgeProps> = ({ knowledgeEditFormData }) 
     <PageGroup isFilled style={{ overflowY: 'hidden', flex: 1 }}>
       <ContributePageHeader
         editFormData={knowledgeEditFormData}
-        description="Knowledge contributions improve a model’s ability to answer questions accurately. They consist of questions and answers, and
-                  documents which back up that data."
+        description="Knowledge contributions improve a model’s ability to answer questions accurately. They consist of questions and answers, and documents
+              which back up that data."
+        sidePanelContent={<KnowledgeContributionSidePanelHelp />}
+        helpText="Learn more about knowledge contributions"
         actions={
           <KnowledgeFormActions
             contributionTitle={knowledgeEditFormData.formData.submissionSummary}

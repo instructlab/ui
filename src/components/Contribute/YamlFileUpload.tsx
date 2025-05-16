@@ -56,12 +56,12 @@ const YamlFileUpload: React.FC<YamlFileUploadProps> = ({
         } else {
           const yamlFileSchemaIssueAlertContent: ActionGroupAlertContent = {
             title: 'YAML file upload error!',
-            message: `This yaml file does not match the Skills or Knowledge schema.`,
+            message: `This yaml file does not match the Skill or Knowledge schema.`,
             success: false,
             timeout: false
           };
           setActionGroupAlertContent(yamlFileSchemaIssueAlertContent);
-          console.error('This yaml file does not match the Skills or Knowledge schema');
+          console.error('This yaml file does not match the Skill or Knowledge schema');
         }
       } catch (error) {
         const yamlFileParsingIssueAlertContent: ActionGroupAlertContent = {

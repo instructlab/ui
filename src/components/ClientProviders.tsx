@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { EnvConfigProvider } from '@/context/EnvConfigContext';
 import { FeatureFlagsProvider } from '@/context/FeatureFlagsContext';
 import { AlertProvider } from '@/context/AlertContext';
+import { SideDrawerProvider } from '@/context/SideDrawerContext';
 
 interface ClientProviderProps {
   children: ReactNode;
@@ -18,7 +19,9 @@ const ClientProvider = ({ children }: ClientProviderProps) => {
       <EnvConfigProvider>
         <FeatureFlagsProvider>
           <ThemeProvider>
-            <AlertProvider>{children}</AlertProvider>
+            <SideDrawerProvider>
+              <AlertProvider>{children}</AlertProvider>
+            </SideDrawerProvider>
           </ThemeProvider>
         </FeatureFlagsProvider>
       </EnvConfigProvider>

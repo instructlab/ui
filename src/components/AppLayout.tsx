@@ -6,7 +6,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import {
+  AlertGroup,
+  Alert,
+  AlertVariant,
+  AlertActionCloseButton,
   Bullseye,
+  Drawer,
+  DrawerContent,
+  DrawerContentBody,
   Spinner,
   Masthead,
   MastheadMain,
@@ -24,20 +31,17 @@ import {
   PageSidebar,
   PageSidebarBody,
   SkipToContent,
-  Page,
-  AlertGroup,
-  Alert,
-  AlertVariant,
-  AlertActionCloseButton
+  Page
 } from '@patternfly/react-core';
 import { BarsIcon } from '@patternfly/react-icons';
+import { useFeatureFlags } from '@/context/FeatureFlagsContext';
+import { useAlerts } from '@/context/AlertContext';
+import { useSideDrawer } from '@/context/SideDrawerContext';
 import ThemePreference from '@/components/ThemePreference/ThemePreference';
 import HelpDropdown from './HelpDropdown/HelpDropdown';
 import UserMenu from './UserMenu/UserMenu';
 
 import '../styles/globals.scss';
-import { useFeatureFlags } from '@/context/FeatureFlagsContext';
-import { useAlerts } from '@/context/AlertContext';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -62,6 +66,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
     featureFlags: { playgroundFeaturesEnabled, experimentalFeaturesEnabled }
   } = useFeatureFlags();
   const { alerts, removeAlert } = useAlerts();
+  const sideDrawerContext = useSideDrawer();
 
   const router = useRouter();
   const pathname = usePathname();
@@ -183,28 +188,34 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, className })
   const PageSkipToContent = <SkipToContent href={`#${pageId}`}>Skip to Content</SkipToContent>;
 
   return (
-    <Page
-      className={className}
-      mainContainerId={pageId}
-      masthead={Header}
-      isManagedSidebar
-      sidebar={Sidebar}
-      skipToContent={PageSkipToContent}
-      isContentFilled
-    >
-      {children}
-      <AlertGroup isToast isLiveRegion>
-        {alerts.map((alert) => (
-          <Alert
-            variant={alert.variant ? AlertVariant[alert.variant] : undefined}
-            title={alert.title}
-            timeout={true}
-            actionClose={<AlertActionCloseButton title={alert.title} onClose={() => removeAlert(alert.key)} />}
-            key={alert.key}
-          />
-        ))}
-      </AlertGroup>
-    </Page>
+    <Drawer isExpanded={!!sideDrawerContext.setSideDrawerContent} isInline>
+      <DrawerContent panelContent={sideDrawerContext.sideDrawerContent}>
+        <DrawerContentBody>
+          <Page
+            className={className}
+            mainContainerId={pageId}
+            masthead={Header}
+            isManagedSidebar
+            sidebar={Sidebar}
+            skipToContent={PageSkipToContent}
+            isContentFilled
+          >
+            {children}
+            <AlertGroup isToast isLiveRegion>
+              {alerts.map((alert) => (
+                <Alert
+                  variant={alert.variant ? AlertVariant[alert.variant] : undefined}
+                  title={alert.title}
+                  timeout={true}
+                  actionClose={<AlertActionCloseButton title={alert.title} onClose={() => removeAlert(alert.key)} />}
+                  key={alert.key}
+                />
+              ))}
+            </AlertGroup>
+          </Page>
+        </DrawerContentBody>
+      </DrawerContent>
+    </Drawer>
   );
 };
 

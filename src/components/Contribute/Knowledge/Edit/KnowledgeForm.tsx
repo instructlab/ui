@@ -18,6 +18,7 @@ import {
 } from '@patternfly/react-core';
 import { KnowledgeEditFormData, KnowledgeFormData } from '@/types';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
+import KnowledgeContributionSidePanelHelp from '@/components/SidePanelContents/KnowledgeContributionSidePanelHelp';
 import ContributePageHeader from '@/components/Contribute/ContributePageHeader';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
 import { storeDraftData, deleteDraftData, doSaveDraft, isDraftDataExist } from '@/components/Contribute/Utils/autoSaveUtils';
@@ -37,6 +38,7 @@ export interface KnowledgeFormProps {
 
 export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData }) => {
   const router = useRouter();
+
   const { data: session } = useSession();
   const [knowledgeFormData, setKnowledgeFormData] = React.useState<KnowledgeFormData>(
     knowledgeEditFormData?.formData
@@ -133,14 +135,16 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
         <ContributePageHeader
           isEdit
           editFormData={knowledgeEditFormData}
-          description="Knowledge contributions improve a model’s ability to answer questions accurately. They consist of questions and answers, and
-                  documents which back up that data."
+          description="Knowledge contributions improve a model’s ability to answer questions accurately. They consist of questions and answers, and documents
+                which back up that data. To autofill this form from a document, upload a YAML file."
+          sidePanelContent={<KnowledgeContributionSidePanelHelp />}
+          helpText="Learn more about knowledge contributions"
           actions={
             <KnowledgeFormActions
               contributionTitle={knowledgeEditFormData?.formData.submissionSummary ?? 'New contribution'}
               knowledgeFormData={knowledgeFormData}
               isDraft={knowledgeEditFormData?.isDraft}
-              isSubmitted={knowledgeEditFormData?.isDraft}
+              isSubmitted={knowledgeEditFormData?.isSubmitted}
               setActionGroupAlertContent={setActionGroupAlertContent}
               setKnowledgeFormData={setKnowledgeFormData}
             />

@@ -202,7 +202,7 @@ const KnowledgeSeedExampleCard: React.FC<Props> = ({
   };
 
   const clearSeedExample = () => {
-    onUpdateSeedExample(createEmptyKnowledgeSeedExample());
+    onUpdateSeedExample(createEmptyKnowledgeSeedExample(seedExample.immutable));
     setShowClearConfirmation(false);
   };
 
@@ -278,7 +278,11 @@ const KnowledgeSeedExampleCard: React.FC<Props> = ({
             <DropdownItem className="destructive-action-item" isDisabled={isEmpty} onClick={onClear}>
               Clear seed example
             </DropdownItem>
-            {!seedExample.immutable ? <DropdownItem onClick={onDelete}>Remove seed example</DropdownItem> : null}
+            {!seedExample.immutable ? (
+              <DropdownItem className="destructive-action-item" onClick={onDelete}>
+                Remove seed example
+              </DropdownItem>
+            ) : null}
           </DropdownList>
         </Dropdown>
       ) : null}
@@ -440,20 +444,16 @@ const KnowledgeSeedExampleCard: React.FC<Props> = ({
               onClose={() => (showClearConfirmation ? setShowClearConfirmation(false) : setShowDeleteConfirmation(false))}
             >
               <ModalHeader
-                title={
-                  <span>
-                    {showClearConfirmation ? 'Clear' : 'Remove'} <strong>{getKnowledgeSeedExampleTitle(seedExample, seedExampleIndex)}</strong>?
-                  </span>
-                }
+                title={<span>{showClearConfirmation ? 'Clear' : 'Remove'} context and Q and A pairs?</span>}
                 labelId="clear-warning-title"
-                titleIconVariant={showClearConfirmation ? 'warning' : 'danger'}
+                titleIconVariant="warning"
               />
-              <ModalBody id="clear-warning-message">The context selection and it’s 3 associated question-and-answer pairs will be lost.</ModalBody>
+              <ModalBody id="clear-warning-message">
+                The <strong>{getKnowledgeSeedExampleTitle(seedExample, seedExampleIndex)}</strong> context and its three associated
+                question-and-answer pairs will be deleted.
+              </ModalBody>
               <ModalFooter>
-                <Button
-                  variant={showClearConfirmation ? 'primary' : 'danger'}
-                  onClick={() => (showClearConfirmation ? clearSeedExample() : onDeleteSeedExample())}
-                >
+                <Button variant="primary" onClick={() => (showClearConfirmation ? clearSeedExample() : onDeleteSeedExample())}>
                   {showClearConfirmation ? 'Clear' : 'Remove'}
                 </Button>
                 <Button

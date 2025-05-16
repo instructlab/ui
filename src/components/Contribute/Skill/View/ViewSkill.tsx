@@ -12,6 +12,7 @@ import {
   DescriptionListTerm,
   DescriptionListDescription
 } from '@patternfly/react-core';
+import SkillContributionSidePanelHelp from '@/components/SidePanelContents/SkillContributionSidePanelHelp';
 import ViewContributionSection from '@/components/Common/ViewContributionSection';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
@@ -31,13 +32,16 @@ const ViewSkill: React.FC<ViewSkillProps> = ({ skillEditFormData }) => {
       <ContributePageHeader
         editFormData={skillEditFormData}
         isSkill
-        description="Skill contributions improve a model’s ability to perform tasks. They consist of seed data which provide instructions for completing a task."
+        description="Skill contributions improve a model’s ability to perform tasks. They consist of seed data which provide instructions for completing a
+              task."
+        sidePanelContent={<SkillContributionSidePanelHelp />}
+        helpText="Learn more about skill contributions"
         actions={
           <SkillFormActions
             contributionTitle={skillEditFormData.formData.submissionSummary}
             skillFormData={skillEditFormData.formData}
             isDraft={skillEditFormData?.isDraft}
-            isSubmitted={skillEditFormData?.isDraft}
+            isSubmitted={skillEditFormData?.isSubmitted}
             setActionGroupAlertContent={setActionGroupAlertContent}
           />
         }

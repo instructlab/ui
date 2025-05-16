@@ -49,7 +49,7 @@ const ViewSkillPage: React.FC<ViewKnowledgeClientComponentProps> = ({ branchName
 
   if (isLoading || !skillEditFormData?.formData) {
     return (
-      <Modal variant={ModalVariant.small} title="Loading Skills Data" isOpen={isLoading} onClose={() => handleOnClose()}>
+      <Modal variant={ModalVariant.small} title="Loading skill data" isOpen={isLoading} onClose={() => handleOnClose()}>
         <ModalBody>
           <div>{loadingMsg}</div>
         </ModalBody>

@@ -196,8 +196,8 @@ export const createDefaultSkillSeedExamples = (): SkillSeedExample[] => [
   createEmptySkillSeedExample()
 ];
 
-export const createEmptyKnowledgeSeedExample = (): KnowledgeSeedExample => ({
-  immutable: true,
+export const createEmptyKnowledgeSeedExample = (immutable = true): KnowledgeSeedExample => ({
+  immutable,
   isExpanded: false,
   context: '',
   isContextValid: ValidatedOptions.default,
