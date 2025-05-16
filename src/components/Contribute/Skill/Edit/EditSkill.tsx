@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { SkillEditFormData } from '@/types';
+import { SkillEditFormData, SkillFormData } from '@/types';
 import { Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
 import { useSession } from 'next-auth/react';
 import { fetchDraftSkillChanges } from '@/components/Contribute/Utils/autoSaveUtils';
@@ -13,34 +13,32 @@ import SkillForm from '@/components/Contribute/Skill/Edit/SkillForm';
 
 interface EditSkillClientComponentProps {
   branchName: string;
-  isDraft: boolean;
 }
 
-const EditSkill: React.FC<EditSkillClientComponentProps> = ({ branchName, isDraft }) => {
+const EditSkill: React.FC<EditSkillClientComponentProps> = ({ branchName }) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingMsg, setLoadingMsg] = useState<string>('');
-  const [skillEditFormData, setSkillEditFormData] = useState<SkillEditFormData>();
+  const [skillData, setSkillData] = useState<{ draftData?: SkillFormData; editFormData?: SkillEditFormData }>();
   const router = useRouter();
 
   useEffect(() => {
-    if (isDraft) {
-      fetchDraftSkillChanges({ branchName, setIsLoading, setLoadingMsg, setSkillEditFormData });
-      return;
-    }
+    setLoadingMsg('Fetching skill data');
 
     const fetchBranchChanges = async () => {
       setLoadingMsg('Fetching skill data from branch: ' + branchName);
+      const draftData = fetchDraftSkillChanges(branchName);
+
       const { editFormData, error } = await fetchSkillBranchChanges(session, branchName);
-      if (error) {
+      if (error && !draftData) {
         setLoadingMsg(error);
         return;
       }
       setIsLoading(false);
-      setSkillEditFormData(editFormData);
+      setSkillData({ draftData, editFormData });
     };
     fetchBranchChanges();
-  }, [branchName, isDraft, session]);
+  }, [branchName, session]);
 
   const handleOnClose = () => {
     router.push('/dashboard');
@@ -57,7 +55,7 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ branchName, isDraf
     );
   }
 
-  return <SkillForm skillEditFormData={skillEditFormData} />;
+  return <SkillForm skillEditFormData={skillData?.editFormData} draftData={skillData?.draftData} />;
 };
 
 export default EditSkill;

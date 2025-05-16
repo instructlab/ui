@@ -12,7 +12,7 @@ const EditKnowledgePage = async ({ params }: PageProps) => {
 
   return (
     <AppLayout className="contribute-page">
-      <EditKnowledge branchName={resolvedParams.slug[0]} isDraft={resolvedParams.slug[1] === 'isDraft'} />
+      <EditKnowledge branchName={resolvedParams.slug[0]} />
     </AppLayout>
   );
 };

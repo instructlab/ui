@@ -55,11 +55,7 @@ const ContributionCard: React.FC<Props> = ({ contribution, onUpdateContributions
                         component="a"
                         variant="link"
                         isInline
-                        onClick={() =>
-                          router.push(
-                            `/contribute/${contribution.isKnowledge ? 'knowledge' : 'skill'}/${contribution.branchName}${contribution.isDraft ? '/isDraft' : ''}`
-                          )
-                        }
+                        onClick={() => router.push(`/contribute/${contribution.isKnowledge ? 'knowledge' : 'skill'}/${contribution.branchName}`)}
                       >
                         <TruncatedText maxLines={2} content={contribution.title} />
                       </Button>

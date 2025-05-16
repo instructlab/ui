@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { SkillEditFormData } from '@/types';
+import { SkillEditFormData, SkillFormData } from '@/types';
 import {
   PageSection,
   Flex,
@@ -21,11 +21,17 @@ import SkillFormActions from '@/components/Contribute/Skill/SkillFormActions';
 import SkillSeedExamples from '@/components/Contribute/Skill/View/SkillSeedExamples/SkillSeedExamples';
 
 interface ViewSkillProps {
-  skillEditFormData: SkillEditFormData;
+  skillEditFormData?: SkillEditFormData;
+  draftData?: SkillFormData;
 }
 
-const ViewSkill: React.FC<ViewSkillProps> = ({ skillEditFormData }) => {
+const ViewSkill: React.FC<ViewSkillProps> = ({ skillEditFormData, draftData }) => {
   const [actionGroupAlertContent, setActionGroupAlertContent] = React.useState<ActionGroupAlertContent | undefined>();
+  const currentData = draftData || skillEditFormData?.formData;
+
+  if (!currentData) {
+    return null;
+  }
 
   return (
     <PageGroup isFilled style={{ overflowY: 'hidden', flex: 1 }}>
@@ -38,10 +44,10 @@ const ViewSkill: React.FC<ViewSkillProps> = ({ skillEditFormData }) => {
         helpText="Learn more about skill contributions"
         actions={
           <SkillFormActions
-            contributionTitle={skillEditFormData.formData.submissionSummary}
-            skillFormData={skillEditFormData.formData}
-            isDraft={skillEditFormData?.isDraft}
-            isSubmitted={skillEditFormData?.isSubmitted}
+            contributionTitle={currentData.submissionSummary}
+            skillFormData={currentData}
+            isDraft={!!draftData}
+            isSubmitted={!!skillEditFormData?.formData}
             setActionGroupAlertContent={setActionGroupAlertContent}
           />
         }
@@ -57,8 +63,8 @@ const ViewSkill: React.FC<ViewSkillProps> = ({ skillEditFormData }) => {
                 <DescriptionListGroup key="contributors">
                   <DescriptionListTerm>Contributors</DescriptionListTerm>
                   <DescriptionListDescription>
-                    <div>{skillEditFormData.formData.name}</div>
-                    <div>{skillEditFormData.formData.email}</div>
+                    <div>{currentData.name}</div>
+                    <div>{currentData.email}</div>
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               ]}
@@ -73,13 +79,13 @@ const ViewSkill: React.FC<ViewSkillProps> = ({ skillEditFormData }) => {
                 <DescriptionListGroup key="submission-summary">
                   <DescriptionListTerm>Contribution summary</DescriptionListTerm>
                   <DescriptionListDescription>
-                    <div>{skillEditFormData.formData.submissionSummary}</div>
+                    <div>{currentData.submissionSummary}</div>
                   </DescriptionListDescription>
                 </DescriptionListGroup>,
                 <DescriptionListGroup key="file-path">
                   <DescriptionListTerm>Directory path</DescriptionListTerm>
                   <DescriptionListDescription>
-                    <div>{skillEditFormData.formData.filePath}</div>
+                    <div>{currentData.filePath}</div>
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               ]}
@@ -95,7 +101,7 @@ const ViewSkill: React.FC<ViewSkillProps> = ({ skillEditFormData }) => {
                 <DescriptionListGroup key="examples">
                   <DescriptionListTerm>Examples</DescriptionListTerm>
                   <DescriptionListDescription>
-                    <SkillSeedExamples seedExamples={skillEditFormData.formData.seedExamples} />
+                    <SkillSeedExamples seedExamples={currentData.seedExamples} />
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               ]}

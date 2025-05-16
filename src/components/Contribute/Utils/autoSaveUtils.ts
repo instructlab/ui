@@ -1,5 +1,4 @@
-import { ContributionFormData, DraftEditFormInfo, KnowledgeEditFormData, KnowledgeFormData, SkillEditFormData, SkillFormData } from '@/types';
-import { KnowledgeSchemaVersion, SkillSchemaVersion } from '@/types/const';
+import { ContributionFormData, DraftEditFormInfo, KnowledgeFormData, SkillFormData } from '@/types';
 import { devLog } from '@/utils/devlog';
 
 export const TOOLTIP_FOR_DISABLE_COMPONENT = 'This action can be performed once the draft changes are either submitted or discarded.';
@@ -18,9 +17,9 @@ export const clearAllDraftData = () => {
   }
 };
 
-export const storeDraftData = (branchName: string, taxonomy: string, data: string, isSubmitted: boolean, oldFilesPath: string) => {
+export const storeDraftData = (branchName: string, taxonomy: string, data: string, oldFilesPath: string) => {
   localStorage.setItem(branchName, data);
-  addToDraftList(branchName, isSubmitted, oldFilesPath, taxonomy);
+  addToDraftList(branchName, oldFilesPath, taxonomy);
 };
 
 export const isDraftDataExist = (branchName: string): boolean => {
@@ -41,14 +40,13 @@ const getDraftInfo = (branchName: string): DraftEditFormInfo | undefined => {
   return undefined;
 };
 
-const addToDraftList = (branchName: string, isSubmitted: boolean, oldFilesPath: string, taxonomy: string) => {
+const addToDraftList = (branchName: string, oldFilesPath: string, taxonomy: string) => {
   const existingDrafts = localStorage.getItem('draftContributions');
   let draftContributions: DraftEditFormInfo[] = [];
   const draft: DraftEditFormInfo = {
     branchName,
     lastUpdated: new Date(Date.now()).toUTCString(),
     isKnowledgeDraft: branchName.includes('knowledge-contribution'),
-    isSubmitted,
     oldFilesPath,
     taxonomy
   };
@@ -121,30 +119,31 @@ const optionalKeys = [
 ];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const doSaveDraft = (knowledgeFormData: any): boolean => {
+export const formDataChanged = (knowledgeFormData: any, prevFormData: any): boolean => {
+  if (!prevFormData) {
+    return true;
+  }
   for (const [key, value] of Object.entries(knowledgeFormData)) {
     if (value) {
-      if (optionalKeys.includes(key)) {
-        continue;
-      } else {
-        if (Array.isArray(value) && value.length == 0) {
-          return false;
-        } else if (Array.isArray(value)) {
+      if (!optionalKeys.includes(key)) {
+        if (Array.isArray(value)) {
+          if (value.length == 0) {
+            return false;
+          }
           for (let i = 0; i < value.length; i++) {
-            if (doSaveDraft(value[i])) {
+            if (formDataChanged(value[i], prevFormData[key][i])) {
               return true;
-            } else {
-              continue;
             }
           }
-        } else if (value !== null && typeof value === 'object') {
-          if (doSaveDraft(value)) {
+        } else if (typeof value === 'object') {
+          if (formDataChanged(value, prevFormData[key])) {
             return true;
-          } else {
-            continue;
           }
         } else {
-          return true;
+          console.log(`${key} changed: `, value !== prevFormData[key]);
+          if (value !== prevFormData[key]) {
+            return true;
+          }
         }
       }
     }
@@ -152,71 +151,49 @@ export const doSaveDraft = (knowledgeFormData: any): boolean => {
   return false;
 };
 
-interface DraftChangePros {
-  branchName: string;
-  setIsLoading: (loading: boolean) => void;
-  setLoadingMsg: (msg: string) => void;
-  setKnowledgeEditFormData?: (data: KnowledgeEditFormData) => void;
-  setSkillEditFormData?: (data: SkillEditFormData) => void;
-}
-export function fetchDraftKnowledgeChanges({ branchName, setIsLoading, setLoadingMsg, setKnowledgeEditFormData }: DraftChangePros) {
+export const fetchDraftKnowledgeChanges = (branchName: string): KnowledgeFormData | undefined => {
   devLog('Fetching draft data from the local storage for knowledge contribution:', branchName);
-  setLoadingMsg(`Fetching draft knowledge data for ${branchName}`);
   const draftInfo = getDraftInfo(branchName);
-  const contributionData = localStorage.getItem(branchName);
-  if (contributionData != null) {
-    const knowledgeExistingFormData: KnowledgeFormData = JSON.parse(contributionData, (key, value) => {
-      if (key === 'filesToUpload' && Array.isArray(value)) {
-        return value.map((meta: File) => {
-          return new File([''], meta.name, {
-            type: 'text/markdown',
-            lastModified: Date.now()
-          });
-        });
-      }
-      return value;
-    });
-    devLog('Draft data retrieved from local storage :', knowledgeExistingFormData);
-    const knowledgeEditFormData: KnowledgeEditFormData = {
-      isEditForm: true,
-      isSubmitted: !!draftInfo?.isSubmitted,
-      isDraft: true,
-      version: KnowledgeSchemaVersion,
-      formData: knowledgeExistingFormData,
-      pullRequestNumber: 0,
-      oldFilesPath: draftInfo?.oldFilesPath ? draftInfo.oldFilesPath : ''
-    };
-    if (setKnowledgeEditFormData) {
-      setKnowledgeEditFormData(knowledgeEditFormData);
-    }
-    setIsLoading(false);
-  } else {
-    console.warn('Contribution draft data is not present in the local storage.');
+  if (!draftInfo) {
+    return;
   }
-}
 
-export function fetchDraftSkillChanges({ branchName, setIsLoading, setLoadingMsg, setSkillEditFormData }: DraftChangePros) {
-  devLog('Fetching draft data from the local storage for skill contribution:', branchName);
-  setLoadingMsg(`Fetching draft skill data for ${branchName}`);
-  const draftInfo = getDraftInfo(branchName);
   const contributionData = localStorage.getItem(branchName);
-  if (contributionData != null) {
-    const skillExistingFormData: SkillFormData = JSON.parse(contributionData);
-    devLog('Draft skill data retrieved from local storage :', skillExistingFormData);
-    const skillEditFormData: SkillEditFormData = {
-      isEditForm: true,
-      isSubmitted: draftInfo ? draftInfo.isSubmitted : false,
-      isDraft: true,
-      version: SkillSchemaVersion,
-      pullRequestNumber: 0,
-      formData: skillExistingFormData,
-      oldFilesPath: draftInfo?.oldFilesPath ? draftInfo.oldFilesPath : ''
-    };
-    if (setSkillEditFormData) {
-      setSkillEditFormData(skillEditFormData);
-    }
-    setIsLoading(false);
-  } else {
+  if (!contributionData) {
     console.warn('Contribution draft data is not present in the local storage.');
+    return;
   }
-}
+
+  const knowledgeExistingFormData: KnowledgeFormData = JSON.parse(contributionData, (key, value) => {
+    if (key === 'filesToUpload' && Array.isArray(value)) {
+      return value.map((meta: File) => {
+        return new File([''], meta.name, {
+          type: 'text/markdown',
+          lastModified: Date.now()
+        });
+      });
+    }
+    return value;
+  });
+  devLog('Draft data retrieved from local storage :', knowledgeExistingFormData);
+
+  return knowledgeExistingFormData;
+};
+
+export const fetchDraftSkillChanges = (branchName: string): SkillFormData | undefined => {
+  const draftInfo = getDraftInfo(branchName);
+  if (!draftInfo) {
+    return;
+  }
+
+  const contributionData = localStorage.getItem(branchName);
+  if (!contributionData) {
+    console.warn('Contribution draft data is not present in the local storage.');
+    return;
+  }
+
+  const skillExistingFormData: SkillFormData = JSON.parse(contributionData);
+  devLog('Draft skill data retrieved from local storage :', skillExistingFormData);
+
+  return skillExistingFormData;
+};

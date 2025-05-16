@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
-import { KnowledgeEditFormData } from '@/types';
+import { KnowledgeEditFormData, KnowledgeFormData } from '@/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
@@ -13,26 +13,22 @@ import KnowledgeForm from '@/components/Contribute/Knowledge/Edit/KnowledgeForm'
 
 interface EditKnowledgeClientComponentProps {
   branchName: string;
-  isDraft: boolean;
 }
 
-const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ branchName, isDraft }) => {
+const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ branchName }) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingMsg, setLoadingMsg] = useState<string>('');
-  const [knowledgeEditFormData, setKnowledgeEditFormData] = useState<KnowledgeEditFormData>();
+  const [knowledgeData, setKnowledgeData] = useState<{ draftData?: KnowledgeFormData; editFormData?: KnowledgeEditFormData }>();
   const router = useRouter();
 
   useEffect(() => {
-    if (isDraft) {
-      fetchDraftKnowledgeChanges({ branchName, setIsLoading, setLoadingMsg, setKnowledgeEditFormData });
-      return;
-    }
-
-    setLoadingMsg('Fetching knowledge data from branch : ' + branchName);
+    setLoadingMsg('Fetching knowledge data');
     const fetchFormData = async () => {
+      const draftData = fetchDraftKnowledgeChanges(branchName);
+
       const { editFormData, error } = await fetchKnowledgeBranchChanges(session, branchName);
-      if (error) {
+      if (error && !draftData) {
         setLoadingMsg(error);
         return;
       }
@@ -43,10 +39,10 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ branchName
       }
 
       setIsLoading(false);
-      setKnowledgeEditFormData(editFormData);
+      setKnowledgeData({ draftData, editFormData });
     };
     fetchFormData();
-  }, [branchName, isDraft, session]);
+  }, [branchName, session]);
 
   const handleOnClose = () => {
     router.push('/dashboard');
@@ -63,7 +59,7 @@ const EditKnowledge: React.FC<EditKnowledgeClientComponentProps> = ({ branchName
     );
   }
 
-  return <KnowledgeForm knowledgeEditFormData={knowledgeEditFormData} />;
+  return <KnowledgeForm knowledgeEditFormData={knowledgeData?.editFormData} draftData={knowledgeData?.draftData} />;
 };
 
 export default EditKnowledge;

@@ -50,9 +50,7 @@ const ContributionActions: React.FC<Props> = ({ contribution, onUpdateContributi
   const deleteRef = React.useRef<HTMLButtonElement>(null);
 
   const handleEditContribution = () => {
-    router.push(
-      `/contribute/${contribution.isKnowledge ? 'knowledge' : 'skill'}/edit/${contribution.branchName}${contribution.isDraft ? '/isDraft' : ''}`
-    );
+    router.push(`/contribute/${contribution.isKnowledge ? 'knowledge' : 'skill'}/edit/${contribution.branchName}`);
   };
 
   const deleteContribution = async (branchName: string) => {

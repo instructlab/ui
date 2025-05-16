@@ -12,7 +12,7 @@ const KnowledgeViewPage = async ({ params }: PageProps) => {
 
   return (
     <AppLayout className="contribute-page">
-      <ViewKnowledgePage branchName={resolvedParams.slug[0]} isDraft={resolvedParams.slug[1] === 'isDraft'} />
+      <ViewKnowledgePage branchName={resolvedParams.slug[0]} />
     </AppLayout>
   );
 };

@@ -4,8 +4,9 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { PageSection, Flex, FlexItem, Title, PageBreadcrumb, Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
-import { EditFormData, KnowledgeFormData, SkillFormData } from '@/types';
+import { ContributionFormData, EditFormData, KnowledgeFormData, SkillFormData } from '@/types';
 import PageDescriptionWithHelp from '@/components/Common/PageDescriptionWithHelp';
+import { isDraftDataExist } from '@/components/Contribute/Utils/autoSaveUtils';
 import {
   DraftContributionLabel,
   KnowledgeContributionLabel,
@@ -15,6 +16,7 @@ import {
 
 interface Props {
   editFormData?: EditFormData<SkillFormData | KnowledgeFormData>;
+  draftData?: ContributionFormData;
   isEdit?: boolean;
   isSkill?: boolean;
   description: React.ReactNode;
@@ -25,6 +27,7 @@ interface Props {
 
 const ContributePageHeader: React.FC<Props> = ({
   editFormData,
+  draftData,
   isEdit = false,
   isSkill = false,
   description,
@@ -33,9 +36,10 @@ const ContributePageHeader: React.FC<Props> = ({
   actions
 }) => {
   const router = useRouter();
+  const currentData = draftData || editFormData?.formData;
   const contributionType = isSkill ? 'skill' : 'knowledge';
-  const viewUrl = `/contribute/${isSkill ? 'skill' : 'knowledge'}/${editFormData?.formData.branchName}${editFormData?.isDraft ? '/isDraft' : ''}`;
-  const contributionTitle = editFormData?.formData?.submissionSummary || `Draft ${contributionType} contribution`;
+  const viewUrl = `/contribute/${isSkill ? 'skill' : 'knowledge'}/${currentData?.branchName}`;
+  const contributionTitle = currentData?.submissionSummary || `Draft ${contributionType} contribution`;
 
   return (
     <>
@@ -58,9 +62,7 @@ const ContributePageHeader: React.FC<Props> = ({
                 router.push(viewUrl);
               }}
             >
-              {!editFormData
-                ? `Contribute ${contributionType}`
-                : editFormData?.formData?.submissionSummary || `Draft ${contributionType} contribution`}
+              {!editFormData ? `Contribute ${contributionType}` : currentData?.submissionSummary || `Draft ${contributionType} contribution`}
             </BreadcrumbItem>
           ) : null}
           <BreadcrumbItem isActive>
@@ -78,16 +80,16 @@ const ContributePageHeader: React.FC<Props> = ({
                     <Title headingLevel="h1" size="2xl">
                       {!editFormData
                         ? `Submit ${contributionType} contribution`
-                        : editFormData?.formData?.submissionSummary || `Draft ${isSkill ? 'skill' : 'knowledge'} contribution`}
+                        : currentData?.submissionSummary || `Draft ${isSkill ? 'skill' : 'knowledge'} contribution`}
                     </Title>
                   </FlexItem>
                   <FlexItem>{isSkill ? <SkillContributionLabel /> : <KnowledgeContributionLabel />}</FlexItem>
-                  {editFormData?.isDraft ? (
+                  {currentData && isDraftDataExist(currentData.branchName) ? (
                     <FlexItem>
                       <DraftContributionLabel />
                     </FlexItem>
                   ) : null}
-                  {editFormData && !editFormData.isSubmitted ? (
+                  {!editFormData ? (
                     <FlexItem>
                       <NewContributionLabel isCompact={false} />
                     </FlexItem>

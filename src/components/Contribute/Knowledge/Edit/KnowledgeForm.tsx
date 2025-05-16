@@ -21,7 +21,7 @@ import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import KnowledgeContributionSidePanelHelp from '@/components/SidePanelContents/KnowledgeContributionSidePanelHelp';
 import ContributePageHeader from '@/components/Contribute/ContributePageHeader';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
-import { storeDraftData, deleteDraftData, doSaveDraft, isDraftDataExist } from '@/components/Contribute/Utils/autoSaveUtils';
+import { storeDraftData, deleteDraftData, formDataChanged, isDraftDataExist } from '@/components/Contribute/Utils/autoSaveUtils';
 import { getDefaultKnowledgeFormData } from '@/components/Contribute/Utils/contributionUtils';
 import { UploadKnowledgeDocuments } from '@/components/Contribute/Utils/documentUtils';
 import { submitKnowledgeData } from '@/components/Contribute/Utils/submitUtils';
@@ -34,17 +34,19 @@ import '../knowledge.css';
 
 export interface KnowledgeFormProps {
   knowledgeEditFormData?: KnowledgeEditFormData;
+  draftData?: KnowledgeFormData;
 }
 
-export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData }) => {
+export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData, draftData }) => {
   const router = useRouter();
 
   const { data: session } = useSession();
+  const currentData: KnowledgeFormData | undefined = draftData || knowledgeEditFormData?.formData;
   const [knowledgeFormData, setKnowledgeFormData] = React.useState<KnowledgeFormData>(
-    knowledgeEditFormData?.formData
+    currentData
       ? {
-          ...knowledgeEditFormData.formData,
-          seedExamples: knowledgeEditFormData.formData.seedExamples.map((example, index) => ({
+          ...currentData,
+          seedExamples: currentData.seedExamples.map((example, index) => ({
             ...example,
             isExpanded: index === 0,
             immutable: example.immutable !== undefined ? example.immutable : true, // Ensure immutable is set
@@ -59,10 +61,12 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
               answerValidationError: qa.answerValidationError || ''
             }))
           })),
-          uploadedFiles: knowledgeEditFormData.formData.uploadedFiles
+          uploadedFiles: currentData.uploadedFiles
         }
       : getDefaultKnowledgeFormData()
   );
+  const lastUpdateRef = React.useRef<string>(JSON.stringify(knowledgeFormData));
+
   const [actionGroupAlertContent, setActionGroupAlertContent] = React.useState<ActionGroupAlertContent | undefined>();
   const [scrollableRef, setScrollableRef] = React.useState<HTMLElement | null>();
 
@@ -79,21 +83,23 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
   const setFilePath = React.useCallback((filePath: string) => setKnowledgeFormData((prev) => ({ ...prev, filePath })), []);
 
   React.useEffect(() => {
-    const storeDraft = async () => {
-      // If no change in the form data and there is no existing draft present, skip storing the draft.
-      if (!doSaveDraft(knowledgeFormData) && !isDraftDataExist(knowledgeFormData.branchName)) return;
+    const storeDraft = () => {
+      if (isDraftDataExist(knowledgeFormData.branchName) && !formDataChanged(knowledgeFormData, knowledgeEditFormData?.formData)) {
+        deleteDraftData(knowledgeFormData.branchName);
+        lastUpdateRef.current = JSON.stringify(knowledgeFormData);
+        return;
+      }
 
-      const draftContributionStr = JSON.stringify(knowledgeFormData);
-      storeDraftData(
-        knowledgeFormData.branchName,
-        knowledgeFormData.filePath,
-        draftContributionStr,
-        !!knowledgeEditFormData?.isSubmitted,
-        knowledgeEditFormData?.oldFilesPath || ''
-      );
+      const draftChanges = formDataChanged(knowledgeFormData, JSON.parse(lastUpdateRef.current));
+      if (draftChanges) {
+        const draftContributionStr = JSON.stringify(knowledgeFormData);
+        lastUpdateRef.current = draftContributionStr;
+        storeDraftData(knowledgeFormData.branchName, knowledgeFormData.filePath, draftContributionStr, knowledgeEditFormData?.oldFilesPath || '');
+      }
     };
+
     storeDraft();
-  }, [knowledgeEditFormData?.isSubmitted, knowledgeEditFormData?.oldFilesPath, knowledgeFormData]);
+  }, [knowledgeEditFormData?.formData, knowledgeEditFormData?.oldFilesPath, knowledgeFormData]);
 
   const updateActionGroupAlertContent = (newContent: ActionGroupAlertContent | undefined) => {
     // In order to restart the timer, we must re-create the Alert not re-use it. Clear it for one round then set the new info
@@ -116,11 +122,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
       return isDocUploaded;
     }
 
-    const result = await submitKnowledgeData(
-      knowledgeFormData,
-      updateActionGroupAlertContent,
-      knowledgeEditFormData?.isSubmitted ? knowledgeEditFormData : undefined
-    );
+    const result = await submitKnowledgeData(knowledgeFormData, updateActionGroupAlertContent, knowledgeEditFormData);
     if (result) {
       //Remove draft if present in the local storage
       deleteDraftData(knowledgeFormData.branchName);
@@ -135,6 +137,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
         <ContributePageHeader
           isEdit
           editFormData={knowledgeEditFormData}
+          draftData={draftData}
           description="Knowledge contributions improve a model’s ability to answer questions accurately. They consist of questions and answers, and documents
                 which back up that data. To autofill this form from a document, upload a YAML file."
           sidePanelContent={<KnowledgeContributionSidePanelHelp />}
@@ -143,8 +146,8 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             <KnowledgeFormActions
               contributionTitle={knowledgeEditFormData?.formData.submissionSummary ?? 'New contribution'}
               knowledgeFormData={knowledgeFormData}
-              isDraft={knowledgeEditFormData?.isDraft}
-              isSubmitted={knowledgeEditFormData?.isSubmitted}
+              isDraft={!!draftData}
+              isSubmitted={!!knowledgeEditFormData}
               setActionGroupAlertContent={setActionGroupAlertContent}
               setKnowledgeFormData={setKnowledgeFormData}
             />
@@ -196,7 +199,7 @@ export const KnowledgeForm: React.FunctionComponent<KnowledgeFormProps> = ({ kno
             <ActionListGroup>
               <ActionListItem>
                 <Button variant={ButtonVariant.primary} type="submit" isDisabled={!isValid} onClick={() => isValid && handleSubmit()}>
-                  {knowledgeEditFormData?.isSubmitted ? 'Update' : 'Submit'}
+                  {knowledgeEditFormData ? 'Update' : 'Submit'}
                 </Button>
               </ActionListItem>
               <ActionListItem>

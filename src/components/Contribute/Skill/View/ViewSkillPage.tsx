@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
-import { SkillEditFormData } from '@/types';
+import { SkillEditFormData, SkillFormData } from '@/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Modal, ModalVariant, ModalBody } from '@patternfly/react-core';
@@ -13,41 +13,37 @@ import ViewSkill from '@/components/Contribute/Skill/View/ViewSkill';
 
 interface ViewKnowledgeClientComponentProps {
   branchName: string;
-  isDraft: boolean;
 }
 
-const ViewSkillPage: React.FC<ViewKnowledgeClientComponentProps> = ({ branchName, isDraft }) => {
+const ViewSkillPage: React.FC<ViewKnowledgeClientComponentProps> = ({ branchName }) => {
   const router = useRouter();
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingMsg, setLoadingMsg] = useState<string>('');
-  const [skillEditFormData, setSkillEditFormData] = useState<SkillEditFormData>();
+  const [skillData, setSkillData] = useState<{ draftData?: SkillFormData; editFormData?: SkillEditFormData }>();
 
   useEffect(() => {
-    if (isDraft) {
-      fetchDraftSkillChanges({ branchName, setIsLoading, setLoadingMsg, setSkillEditFormData });
-      return;
-    }
-
-    setLoadingMsg('Fetching knowledge data from branch : ' + branchName);
+    setLoadingMsg('Fetching skill data');
     const fetchFormData = async () => {
+      const draftData = fetchDraftSkillChanges(branchName);
+
       const { editFormData, error } = await fetchSkillBranchChanges(session, branchName);
-      if (error) {
+      if (error && !draftData) {
         setLoadingMsg(error);
         return;
       }
       setIsLoading(false);
-      setSkillEditFormData(editFormData);
+      setSkillData({ draftData, editFormData });
     };
     fetchFormData();
-  }, [branchName, isDraft, session]);
+  }, [branchName, session]);
 
   const handleOnClose = () => {
     router.push('/dashboard');
     setIsLoading(false);
   };
 
-  if (isLoading || !skillEditFormData?.formData) {
+  if (isLoading || (!skillData?.editFormData && !skillData?.draftData)) {
     return (
       <Modal variant={ModalVariant.small} title="Loading skill data" isOpen={isLoading} onClose={() => handleOnClose()}>
         <ModalBody>
@@ -57,7 +53,7 @@ const ViewSkillPage: React.FC<ViewKnowledgeClientComponentProps> = ({ branchName
     );
   }
 
-  return <ViewSkill skillEditFormData={skillEditFormData} />;
+  return <ViewSkill skillEditFormData={skillData.editFormData} draftData={skillData.draftData} />;
 };
 
 export default ViewSkillPage;

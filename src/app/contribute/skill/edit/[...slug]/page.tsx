@@ -12,7 +12,7 @@ const EditSkillPage = async ({ params }: PageProps) => {
 
   return (
     <AppLayout className="contribute-page" requiredFeature={FeaturePages.Skill}>
-      <EditSkill branchName={resolvedParams.slug[0]} isDraft={resolvedParams.slug[1] === 'isDraft'} />
+      <EditSkill branchName={resolvedParams.slug[0]} />
     </AppLayout>
   );
 };

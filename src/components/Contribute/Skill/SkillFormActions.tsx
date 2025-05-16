@@ -207,9 +207,7 @@ export const SkillFormActions: React.FunctionComponent<Props> = ({
         <DropdownList>
           {isDevMode && setSkillFormData ? <DropdownItem onClick={autoFillForm}>Autofill</DropdownItem> : null}
           {!setSkillFormData ? (
-            <DropdownItem onClick={() => router.push(`/contribute/skill/edit/${skillFormData.branchName}${isDraft ? '/isDraft' : ''}`)}>
-              Edit contribution
-            </DropdownItem>
+            <DropdownItem onClick={() => router.push(`/contribute/skill/edit/${skillFormData.branchName}`)}>Edit contribution</DropdownItem>
           ) : null}
           {setSkillFormData ? <DropdownItem onClick={() => setIsUploadYamlModalOpen(true)}>Upload YAML</DropdownItem> : null}
           <DropdownItem onClick={() => handleViewYaml()}>View YAML</DropdownItem>

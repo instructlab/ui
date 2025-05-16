@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { KnowledgeEditFormData } from '@/types';
+import { KnowledgeEditFormData, KnowledgeFormData } from '@/types';
 import {
   PageSection,
   Flex,
@@ -15,6 +15,7 @@ import {
 import KnowledgeContributionSidePanelHelp from '@/components/SidePanelContents/KnowledgeContributionSidePanelHelp';
 import ViewContributionSection from '@/components/Common/ViewContributionSection';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
+import { isDraftDataExist } from '@/components/Contribute/Utils/autoSaveUtils';
 import ContributePageHeader from '@/components/Contribute/ContributePageHeader';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
 import KnowledgeFormActions from '@/components/Contribute/Knowledge/KnowledgeFormActions';
@@ -23,28 +24,35 @@ import KnowledgeSeedExampleCard from '@/components/Contribute/Knowledge/Knowledg
 import '../knowledge.css';
 
 interface ViewKnowledgeProps {
-  knowledgeEditFormData: KnowledgeEditFormData;
+  knowledgeEditFormData?: KnowledgeEditFormData;
+  draftData?: KnowledgeFormData;
 }
 
-const ViewKnowledge: React.FC<ViewKnowledgeProps> = ({ knowledgeEditFormData }) => {
+const ViewKnowledge: React.FC<ViewKnowledgeProps> = ({ knowledgeEditFormData, draftData }) => {
   const [actionGroupAlertContent, setActionGroupAlertContent] = React.useState<ActionGroupAlertContent | undefined>();
   const [scrollableRef, setScrollableRef] = React.useState<HTMLElement | null>();
   const [bodyRef, setBodyRef] = React.useState<HTMLElement | null>();
+  const currentData = draftData || knowledgeEditFormData?.formData;
+
+  if (!currentData) {
+    return null;
+  }
 
   return (
     <PageGroup isFilled style={{ overflowY: 'hidden', flex: 1 }}>
       <ContributePageHeader
         editFormData={knowledgeEditFormData}
+        draftData={draftData}
         description="Knowledge contributions improve a model’s ability to answer questions accurately. They consist of questions and answers, and documents
               which back up that data."
         sidePanelContent={<KnowledgeContributionSidePanelHelp />}
         helpText="Learn more about knowledge contributions"
         actions={
           <KnowledgeFormActions
-            contributionTitle={knowledgeEditFormData.formData.submissionSummary}
-            knowledgeFormData={knowledgeEditFormData.formData}
-            isDraft={knowledgeEditFormData.isDraft}
-            isSubmitted={knowledgeEditFormData.isSubmitted}
+            contributionTitle={currentData.submissionSummary}
+            knowledgeFormData={currentData}
+            isDraft={isDraftDataExist(currentData.branchName)}
+            isSubmitted={!!knowledgeEditFormData}
             setActionGroupAlertContent={setActionGroupAlertContent}
           />
         }
@@ -61,8 +69,8 @@ const ViewKnowledge: React.FC<ViewKnowledgeProps> = ({ knowledgeEditFormData }) 
                   <DescriptionListGroup key="contributors">
                     <DescriptionListTerm>Contributors</DescriptionListTerm>
                     <DescriptionListDescription>
-                      <div>{knowledgeEditFormData.formData.name}</div>
-                      <div>{knowledgeEditFormData.formData.email}</div>
+                      <div>{currentData.name}</div>
+                      <div>{currentData.email}</div>
                     </DescriptionListDescription>
                   </DescriptionListGroup>
                 ]}
@@ -77,13 +85,13 @@ const ViewKnowledge: React.FC<ViewKnowledgeProps> = ({ knowledgeEditFormData }) 
                   <DescriptionListGroup key="submission-summary">
                     <DescriptionListTerm>Contribution summary</DescriptionListTerm>
                     <DescriptionListDescription>
-                      <div>{knowledgeEditFormData.formData.submissionSummary}</div>
+                      <div>{currentData.submissionSummary}</div>
                     </DescriptionListDescription>
                   </DescriptionListGroup>,
                   <DescriptionListGroup key="file-path">
                     <DescriptionListTerm>Directory path</DescriptionListTerm>
                     <DescriptionListDescription>
-                      <div>{knowledgeEditFormData.formData.filePath}</div>
+                      <div>{currentData.filePath}</div>
                     </DescriptionListDescription>
                   </DescriptionListGroup>
                 ]}
@@ -100,7 +108,7 @@ const ViewKnowledge: React.FC<ViewKnowledgeProps> = ({ knowledgeEditFormData }) 
                     <DescriptionListTerm>Examples</DescriptionListTerm>
                     <DescriptionListDescription>
                       <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }} ref={setBodyRef}>
-                        {knowledgeEditFormData.formData.seedExamples?.map((seedExample, index) => (
+                        {currentData.seedExamples?.map((seedExample, index) => (
                           <FlexItem key={`seed-${index}`}>
                             <KnowledgeSeedExampleCard
                               isReadOnly
