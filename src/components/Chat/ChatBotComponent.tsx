@@ -32,14 +32,11 @@ import {
   MessageProps
 } from '@patternfly/chatbot';
 import { Model } from '@/types';
-import { modelFetcher } from '@/components/Chat/modelService';
-const botAvatar = '/bot-icon-chat-32x32.svg';
-
-import { EllipsisVIcon, OutlinedQuestionCircleIcon, TimesIcon } from '@patternfly/react-icons';
-import styles from '@/components/Chat/chat.module.css';
+import { modelFetcher } from '@/services/modelService';
 import { ModelsContext } from '@/components/Chat/ModelsContext';
-import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { EllipsisVIcon, OutlinedQuestionCircleIcon, TimesIcon } from '@patternfly/react-icons';
+
+const botAvatar = '/bot-icon-chat-32x32.svg';
 
 export const getId = () => {
   const date = Date.now() + Math.random();
@@ -48,13 +45,14 @@ export const getId = () => {
 
 type ChatbotComponentProps = {
   model: Model;
+  userName: string;
   messages: MessageProps[];
   setMessages: React.Dispatch<React.SetStateAction<MessageProps[]>>;
   showCompare: boolean;
   onCompare: () => void;
   onChangeModel: (model: Model) => void;
   onClose?: () => void;
-  submittedMessage?: string;
+  submittedMessage?: MessageProps;
   setFetching: (fetching: boolean) => void;
   setStopCallback: (stopFn: () => void) => void;
   setController: (controller: AbortController) => void;
@@ -62,6 +60,7 @@ type ChatbotComponentProps = {
 
 const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
   model,
+  userName,
   messages,
   setMessages,
   showCompare,
@@ -74,7 +73,6 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
   setController
 }) => {
   const router = useRouter();
-  const { data: session } = useSession();
   const { availableModels } = React.useContext(ModelsContext);
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSelectOpen, setIsSelectOpen] = React.useState(false);
@@ -84,18 +82,7 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
   const [announcement, setAnnouncement] = React.useState<string>();
   const [isActionsOpen, setActionsOpen] = React.useState<boolean>(false);
   const stopped = React.useRef<boolean>(false);
-  const [userName, setUserName] = useState<string>('');
-  const [userImage, setUserImage] = useState<string>('');
-
-  useEffect(() => {
-    if (session?.user?.name === 'Admin') {
-      setUserName(session?.user?.name);
-      setUserImage('/default-avatar.png');
-    } else {
-      setUserName(session?.user?.name ?? '');
-      setUserImage(session?.user?.image || '');
-    }
-  }, [session?.user?.name, session?.user?.image]);
+  const lastQuestionRef = React.useRef<string>();
 
   React.useEffect(() => {
     setStopCallback(() => {
@@ -106,12 +93,12 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
   }, []);
 
   const handleSubmit = React.useCallback(
-    async (input: string) => {
+    async (message: MessageProps) => {
       if (!model) {
         setShowNoModelAlert(true);
         return;
       }
-      if (!input.trim()) {
+      if (!message.content?.trim()) {
         setShowNoQuestionAlert(true);
         return;
       }
@@ -119,19 +106,11 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
       const date = new Date();
 
       setMessages((prevMessages) => {
-        const newMessage: MessageProps = {
-          avatar: userImage,
-          id: getId(),
-          name: userName,
-          role: 'user',
-          content: input,
-          timestamp: `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
-        };
-        return [...prevMessages, newMessage];
+        return [...prevMessages, message];
       });
 
       // make announcement to assistive devices that new messages have been added
-      setAnnouncement(`Message from You: ${input}. Message from Chatbot is loading.`);
+      setAnnouncement(`Message from You: ${message.content}. Message from Chatbot is loading.`);
 
       setIsLoading(true);
       setFetching(true);
@@ -157,7 +136,7 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
 
       stopped.current = false;
       try {
-        await modelFetcher(model, input, setCurrentMessage, setController);
+        await modelFetcher(model, message.content, setCurrentMessage, setController);
       } catch (e) {
         console.error(`Model fetch failed: `, e);
       }
@@ -165,16 +144,17 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
       setIsLoading(false);
       setFetching(false);
     },
-    [model, setController, setFetching, setMessages, userImage, userName]
+    [model, setController, setFetching, setMessages]
   );
 
   React.useEffect(() => {
-    if (submittedMessage) {
+    if (submittedMessage && submittedMessage.id !== lastQuestionRef.current) {
+      lastQuestionRef.current = submittedMessage.id;
       handleSubmit(submittedMessage);
     }
     // Do not update when handleSubmit changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [submittedMessage]);
+  }, [submittedMessage, handleSubmit]);
 
   const onToggleClick = () => {
     setIsSelectOpen(!isSelectOpen);
@@ -221,7 +201,7 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
 
   return (
     <Chatbot displayMode={ChatbotDisplayMode.embedded}>
-      <ChatbotHeader className={styles.chatHeader}>
+      <ChatbotHeader>
         <ChatbotHeaderMain>
           <Select
             id="single-select"
@@ -284,7 +264,7 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
         </ChatbotHeaderActions>
       </ChatbotHeader>
       <ChatbotContent>
-        <MessageBox announcement={announcement} className={styles.chatBotMessage}>
+        <MessageBox announcement={announcement}>
           <ChatbotWelcomePrompt title={`Hello, ${userName}`} description="Go ahead and ask me a question." />
           {messages.map((message) => (
             <Message key={message.id} {...message} />

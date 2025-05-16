@@ -19,7 +19,7 @@ import {
   ValidatedOptions
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
-import { fetchEndpointStatus } from '@/components/Chat/modelService';
+import { fetchEndpointStatus } from '@/services/modelService';
 
 const removeTrailingSlash = (inputUrl: string): string => {
   if (inputUrl.slice(-1) === '/') {

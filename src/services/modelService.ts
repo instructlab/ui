@@ -1,4 +1,4 @@
-import { Endpoint, Model, ModelEndpointStatus } from '@/types';
+import { CustomModel, Endpoint, Model, ModelEndpointStatus, ServingModel } from '@/types';
 
 const systemRole =
   'You are a cautious assistant. You carefully follow instructions.' +
@@ -35,10 +35,10 @@ export const customModelFetcher = async (
   selectedModel: Model,
   input: string,
   onMessageReceived: (message: string) => void,
-  setController: (controller: AbortController) => void
+  setController?: (controller: AbortController) => void
 ) => {
   const newController = new AbortController();
-  setController(newController);
+  setController && setController(newController);
 
   // Client-side fetch if the selected model is a custom endpoint
   try {
@@ -112,17 +112,17 @@ export const customModelFetcher = async (
 };
 
 export const defaultModelFetcher = async (
-  selectedModel: Model,
+  selectedModel: ServingModel,
   input: string,
   onMessageReceived: (message: string) => void,
-  setController: (controller: AbortController) => void
+  setController?: (controller: AbortController) => void
 ) => {
   // Default endpoints (server-side fetch)
   const newController = new AbortController();
-  setController(newController);
+  setController && setController(newController);
 
   const response = await fetch(
-    `/api/playground/chat?apiURL=${encodeURIComponent(selectedModel.apiURL)}&modelName=${encodeURIComponent(selectedModel.modelName)}`,
+    `/api/playground/chat?apiURL=${encodeURIComponent(selectedModel.apiURL)}&modelName=${encodeURIComponent(selectedModel.vvlmName)}`,
     {
       method: 'POST',
       headers: {
@@ -157,10 +157,10 @@ export const modelFetcher = async (
   selectedModel: Model,
   input: string,
   onMessageReceived: (message: string) => void,
-  setController: (controller: AbortController) => void
+  setController?: (controller: AbortController) => void
 ) =>
   selectedModel.isDefault
-    ? defaultModelFetcher(selectedModel, input, onMessageReceived, setController)
+    ? defaultModelFetcher(selectedModel as ServingModel, input, onMessageReceived, setController)
     : customModelFetcher(selectedModel, input, onMessageReceived, setController);
 
 export const fetchEndpointStatus = async (endpoint: Endpoint): Promise<ModelEndpointStatus> => {
@@ -182,5 +182,74 @@ export const fetchEndpointStatus = async (endpoint: Endpoint): Promise<ModelEndp
     return ModelEndpointStatus.available;
   } catch (error) {
     return ModelEndpointStatus.unknown;
+  }
+};
+
+export const isServingModel = (model: Model) => !!(model as ServingModel).endpoint;
+
+const fetchServingModelStatus = async (servedModel: ServingModel): Promise<string> => {
+  try {
+    const res = await fetch(`/api/fine-tune/model/vllm-status?modelName=${servedModel.vvlmName}`);
+    if (!res.ok) {
+      console.error('Failed to fetch vllm status', res.status, res.statusText);
+      return 'stopped';
+    }
+
+    const data = await res.json();
+    return data.status;
+  } catch (error) {
+    console.error('Error fetching vllm status:', error);
+    return 'stopped';
+  }
+};
+
+const fetchCustomModelStatus = async (customModel: CustomModel): Promise<string> => {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json'
+  };
+  if (customModel.apiKey) {
+    headers['Authorization'] = `Bearer ${customModel.apiKey}`;
+  }
+
+  try {
+    const response = await fetch(`${customModel.apiURL}/v1/models?id=${customModel.modelName}`, {
+      headers
+    });
+
+    if (!response.ok) {
+      console.error(`Failed to serve model from endpoint ${customModel.apiURL}`);
+      return 'stopped';
+    }
+    return 'running';
+  } catch (error) {
+    return 'stopped';
+  }
+};
+
+export const fetchModelStatus = async (model: Model): Promise<string> =>
+  isServingModel(model) ? fetchServingModelStatus(model as ServingModel) : fetchCustomModelStatus(model as CustomModel);
+
+export const fetchModelJobId = async (servingModel: ServingModel): Promise<{ jobId?: string; error?: string }> => {
+  try {
+    const response = await fetch(servingModel.endpoint, {
+      method: 'POST'
+    });
+
+    if (!response.ok) {
+      console.error(`Failed to serve model from endpoint ${servingModel.endpoint}`);
+      return { error: `Failed to serve model from endpoint ${servingModel.endpoint}` };
+    }
+
+    const data = await response.json();
+    const { job_id } = data;
+    if (!job_id) {
+      console.error('No job_id returned from serving model');
+      return { error: 'Invalid response returned from serving model' };
+    }
+
+    return { jobId: job_id };
+  } catch (error) {
+    console.error('Error serving model:', error);
+    return { error: `Error serving model: ${error}` };
   }
 };
