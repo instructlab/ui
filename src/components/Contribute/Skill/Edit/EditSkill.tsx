@@ -30,7 +30,7 @@ const EditSkill: React.FC<EditSkillClientComponentProps> = ({ branchName, isDraf
     }
 
     const fetchBranchChanges = async () => {
-      setLoadingMsg('Fetching skills data from branch: ' + branchName);
+      setLoadingMsg('Fetching skill data from branch: ' + branchName);
       const { editFormData, error } = await fetchSkillBranchChanges(session, branchName);
       if (error) {
         setLoadingMsg(error);

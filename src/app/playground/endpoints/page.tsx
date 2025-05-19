@@ -14,17 +14,18 @@ import {
   Flex,
   FlexItem,
   PageSection,
-  Title,
   Truncate,
   ClipboardCopy
 } from '@patternfly/react-core';
 import { BanIcon, CheckCircleIcon, EyeSlashIcon, EyeIcon, QuestionCircleIcon } from '@patternfly/react-icons';
-import { AppLayout } from '@/components/AppLayout';
 import { Endpoint, ModelEndpointStatus } from '@/types';
+import { fetchEndpointStatus } from '@/services/modelService';
+import { AppLayout } from '@/components/AppLayout';
+import CustomEndpointsSidePanelHelp from '@/components/SidePanelContents/CustomEndpointsSidePanelHelp';
 import EditEndpointModal from '@/app/playground/endpoints/EditEndpointModal';
 import DeleteEndpointModal from '@/app/playground/endpoints/DeleteEndpoinModal';
 import EndpointActions from '@/app/playground/endpoints/EndpointActions';
-import { fetchEndpointStatus } from '@/services/modelService';
+import PageDescriptionWithHelp from '@/components/Common/PageDescriptionWithHelp';
 
 const iconForStatus = (status: ModelEndpointStatus) => {
   switch (status) {
@@ -188,22 +189,22 @@ const EndpointsPage: React.FC = () => {
 
   return (
     <AppLayout>
-      <PageSection hasBodyWrapper={false}>
-        <Flex direction={{ default: 'column' }}>
+      <PageSection>
+        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} gap={{ default: 'gapMd' }}>
           <FlexItem>
-            <Title headingLevel="h1">Custom model endpoints</Title>
+            <Content component="h1">Custom model endpoints</Content>
           </FlexItem>
-          <FlexItem>
-            <Content component="p">Custom model endpoints enable you to interact with and test fine-tuned models using the chat interface.</Content>
-          </FlexItem>
-        </Flex>
-      </PageSection>
-      <PageSection hasBodyWrapper={false}>
-        <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}>
           <FlexItem>
             <Button onClick={handleAddEndpoint}>Add custom endpoint</Button>
           </FlexItem>
         </Flex>
+        <PageDescriptionWithHelp
+          description="Custom model endpoints enable you to interact with and test fine-tuned models using the chat interface."
+          helpText="Learn more about chatting with models"
+          sidePanelContent={<CustomEndpointsSidePanelHelp />}
+        />
+      </PageSection>
+      <PageSection hasBodyWrapper={false}>
         <DataList aria-label="Endpoints list">
           <DataListItem key="property-headers">
             <DataListItemRow wrapModifier="breakWord">
