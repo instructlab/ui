@@ -58,7 +58,7 @@ const Documents: React.FC<Props> = ({ isLoading, documents, removeDocument }) =>
         params.set(name2, value2);
       }
 
-      router.push(pathname + '?' + params.toString());
+      router.replace(pathname + '?' + params.toString());
     },
     [pathname, router, searchParams]
   );

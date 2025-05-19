@@ -16,6 +16,7 @@ import {
   PageGroup
 } from '@patternfly/react-core';
 import { SkillEditFormData, SkillFormData } from '@/types';
+import SkillContributionSidePanelHelp from '@/components/SidePanelContents/SkillContributionSidePanelHelp';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
 import ContributePageHeader from '@/components/Contribute/ContributePageHeader';
@@ -110,13 +111,16 @@ export const SkillForm: React.FunctionComponent<Props> = ({ skillEditFormData })
           editFormData={skillEditFormData}
           isEdit
           isSkill
-          description="Skill contributions improve a model’s ability to perform tasks. They consist of seed data which provide instructions for completing a task. To autofill this form from a document, upload a YAML file."
+          description="Skill contributions improve a model’s ability to perform tasks. They consist of seed data which provide instructions for completing a
+                  task. To autofill this form from a document, upload a YAML file."
+          helpText="Learn more about skill contributions"
+          sidePanelContent={<SkillContributionSidePanelHelp />}
           actions={
             <SkillFormActions
               contributionTitle={skillEditFormData?.formData.submissionSummary ?? 'New contribution'}
               skillFormData={skillFormData}
               isDraft={skillEditFormData?.isDraft}
-              isSubmitted={skillEditFormData?.isDraft}
+              isSubmitted={skillEditFormData?.isSubmitted}
               setActionGroupAlertContent={setActionGroupAlertContent}
               setSkillFormData={setSkillFormData}
             />

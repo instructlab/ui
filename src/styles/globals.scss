@@ -15,10 +15,10 @@
 
 /* Custom class to make PatternFly Labels square */
 .square-label.pf-c-label {
-  border-radius: 0px !important;
+  border-radius: 0 !important;
 }
 
-.destructive-action-item {
+.pf-v6-c-menu__list-item.destructive-action-item:not(.pf-m-disabled) {
   .pf-v6-c-menu__item-text {
     color: var(--pf-t--global--color--status--danger--100);
   }
