@@ -4,6 +4,7 @@ import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import {
   Button,
+  ClipboardCopy,
   Content,
   DataList,
   DataListAction,
@@ -14,13 +15,12 @@ import {
   Flex,
   FlexItem,
   PageSection,
-  Truncate,
-  ClipboardCopy
+  Truncate
 } from '@patternfly/react-core';
-import { BanIcon, CheckCircleIcon, EyeSlashIcon, EyeIcon, QuestionCircleIcon } from '@patternfly/react-icons';
+import { BanIcon, CheckCircleIcon, EyeIcon, EyeSlashIcon, QuestionCircleIcon } from '@patternfly/react-icons';
 import { Endpoint, ModelEndpointStatus } from '@/types';
 import { fetchEndpointStatus } from '@/services/modelService';
-import { AppLayout } from '@/components/AppLayout';
+import { AppLayout, FeaturePages } from '@/components/AppLayout';
 import CustomEndpointsSidePanelHelp from '@/components/SidePanelContents/CustomEndpointsSidePanelHelp';
 import EditEndpointModal from '@/app/playground/endpoints/EditEndpointModal';
 import DeleteEndpointModal from '@/app/playground/endpoints/DeleteEndpoinModal';
@@ -188,7 +188,7 @@ const EndpointsPage: React.FC = () => {
   };
 
   return (
-    <AppLayout>
+    <AppLayout requiredFeature={FeaturePages.Playground}>
       <PageSection>
         <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} gap={{ default: 'gapMd' }}>
           <FlexItem>
