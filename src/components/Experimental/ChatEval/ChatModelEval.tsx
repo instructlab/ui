@@ -96,6 +96,7 @@ const ChatModelEval: React.FC<Props> = ({ compareSide, userName, userImage, free
           const lastMessage = prevMessages[prevMessages.length - 1];
           const newMessage: MessageProps = {
             avatar: logo.src,
+            hasRoundAvatar: false,
             id: botMsgId,
             name: 'Bot',
             role: 'bot',
@@ -433,15 +434,7 @@ const ChatModelEval: React.FC<Props> = ({ compareSide, userName, userImage, free
             buttonProps={sendButtonProps}
             placeholder="Enter prompt..."
           />
-          <ChatbotFootnote
-            label="Please verify the accuracy of the responses."
-            popover={{
-              title: 'Verify Accuracy',
-              description: 'While the model strives for accuracy, there can be errors. Verify critical info.',
-              link: { label: 'Learn more', url: 'https://www.redhat.com/' },
-              cta: { label: 'Close', onClick: () => {} }
-            }}
-          />
+          <ChatbotFootnote label="Please verify the accuracy of the responses." />
         </ChatbotFooter>
       )}
       {showLogs && selectedModel && jobId ? <ChatModelLogViewer model={selectedModel} modelJobId={jobId} onClose={() => setShowLogs(false)} /> : null}

@@ -22,7 +22,12 @@ export async function GET() {
     TAXONOMY_ROOT_DIR: process.env.NEXT_PUBLIC_TAXONOMY_ROOT_DIR || '',
     TAXONOMY_KNOWLEDGE_DOCUMENT_REPO:
       process.env.NEXT_PUBLIC_TAXONOMY_DOCUMENTS_REPO || 'https://github.com/instructlab-public/taxonomy-knowledge-docs',
-    API_SERVER: process.env.NEXT_PUBLIC_API_SERVER
+    API_SERVER: process.env.NEXT_PUBLIC_API_SERVER,
+    HEADER_LOGO: process.env.IL_HEADER_LOGO,
+    HEADER_LOGO_DARK: process.env.IL_HEADER_LOGO_DARK,
+    LARGE_LOGO: process.env.IL_LARGE_LOGO,
+    LARGE_LOGO_DARK: process.env.IL_LARGE_LOGO_DARK,
+    PRODUCT_NAME: process.env.IL_PRODUCT_NAME
   };
 
   return NextResponse.json(envConfig);

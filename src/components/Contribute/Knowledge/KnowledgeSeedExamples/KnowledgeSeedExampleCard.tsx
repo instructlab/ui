@@ -46,6 +46,7 @@ import KnowledgeQuestionAnswerPair from '@/components/Contribute/Knowledge/Knowl
 
 import './KnowledgeSeedExamples.scss';
 import { css } from '@patternfly/react-styles';
+import { useRouter } from 'next/navigation';
 
 const useForceUpdate = () => {
   const [, setValue] = React.useState(0);
@@ -77,6 +78,7 @@ const KnowledgeSeedExampleCard: React.FC<Props> = ({
   handleAnswerBlur = () => {},
   bodyRef
 }) => {
+  const router = useRouter();
   const forceUpdate = useForceUpdate();
   const [amISticky, setSticky] = React.useState<boolean>();
   const [expanded, setExpanded] = React.useState<boolean>(false);
@@ -234,7 +236,6 @@ const KnowledgeSeedExampleCard: React.FC<Props> = ({
               icon={<CaretDownIcon />}
               iconPosition="end"
               onClick={() => setFileSelectOpen((prev) => !prev)}
-              isDisabled={!knowledgeFiles?.length}
             >
               Select file
             </Button>
@@ -247,6 +248,8 @@ const KnowledgeSeedExampleCard: React.FC<Props> = ({
                 {file.filename}
               </DropdownItem>
             ))}
+            {knowledgeFiles.length > 0 ? <Divider component="li" /> : null}
+            <DropdownItem onClick={() => router.push('/documents')}>Upload documents</DropdownItem>
           </DropdownList>
         </Dropdown>
       ) : null}

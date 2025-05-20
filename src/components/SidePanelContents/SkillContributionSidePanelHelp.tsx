@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Content } from '@patternfly/react-core';
 import SidePanelHelp from '@/components/SidePanelContents/SidePanelHelp';
 
-const ContributionsSidePanelHelp: React.FC = () => {
+const SkillContributionsSidePanelHelp: React.FC = () => {
   return (
     <SidePanelHelp
       header="Skill contributions"
@@ -80,4 +80,4 @@ const ContributionsSidePanelHelp: React.FC = () => {
   );
 };
 
-export default ContributionsSidePanelHelp;
+export default SkillContributionsSidePanelHelp;
