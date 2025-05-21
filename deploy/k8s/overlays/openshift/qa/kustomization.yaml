@@ -3,7 +3,6 @@ kind: Kustomization
 namespace: instructlab
 resources:
   - ../../../base
-  - ../common
   - issuer.yaml
   - certificate.yaml
   - qa.env.sealedsecret.yaml
