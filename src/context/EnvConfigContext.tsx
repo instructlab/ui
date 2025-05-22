@@ -17,7 +17,12 @@ const DefaultEnvConfig = {
   taxonomyKnowledgeDocumentRepo: '',
   apiServer: '',
   isGithubMode: false,
-  isDevMode: false
+  isDevMode: false,
+  productName: '',
+  headerLogo: '',
+  headerLogoDark: '',
+  largeLogo: '',
+  largeLogoDark: ''
 };
 
 const EnvConfigContext = React.createContext<{ loaded: boolean; envConfig: EnvConfigType }>({ loaded: false, envConfig: DefaultEnvConfig });

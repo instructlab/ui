@@ -120,6 +120,7 @@ const ChatBotComponent: React.FunctionComponent<ChatbotComponentProps> = ({
           const lastMessage = prevMessages[prevMessages.length - 1];
           const newMessage: MessageProps = {
             avatar: botAvatar,
+            hasRoundAvatar: false,
             id: getId(),
             name: model?.modelName ?? model?.name,
             role: 'bot',

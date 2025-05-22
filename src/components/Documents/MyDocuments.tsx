@@ -16,7 +16,7 @@ import {
 } from '@patternfly/react-core';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SORT_ASCENDING, SORT_BY_LAST_UPDATE, SORT_DESCENDING, SortByIndex } from '@/components/Documents/const';
-import { FileIcon, SearchIcon } from '@patternfly/react-icons';
+import { SearchIcon } from '@patternfly/react-icons';
 import { KnowledgeFile } from '@/types';
 import { DocumentColumns, DocumentSorter } from '@/components/Documents/const';
 import DocumentsToolbar from '@/components/Documents/DocumentsToolbar';
@@ -24,6 +24,9 @@ import Table from '@/components/Table/Table';
 import CardView from '@/components/CardView/CardView';
 import DocumentCard from '@/components/Documents/DocumentCard';
 import DocumentTableRow from '@/components/Documents/DocumentTableRow';
+import Image from 'next/image';
+
+const EmptyStateIcon: React.FC = () => <Image src="/Contribution_empty.svg" alt="No documents" width={56} height={56} />;
 
 interface Props {
   documents: KnowledgeFile[];
@@ -124,7 +127,7 @@ const Documents: React.FC<Props> = ({ isLoading, documents, removeDocument }) =>
             </Bullseye>
           ) : documents.length === 0 ? (
             <Bullseye>
-              <EmptyState headingLevel="h1" icon={FileIcon} titleText="No documents yet" variant={EmptyStateVariant.lg}>
+              <EmptyState headingLevel="h1" icon={EmptyStateIcon} titleText="No documents yet" variant={EmptyStateVariant.lg}>
                 <EmptyStateBody>To get started, upload external files or files from your device.</EmptyStateBody>
               </EmptyState>
             </Bullseye>

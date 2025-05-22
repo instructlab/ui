@@ -22,7 +22,8 @@ const MultiFileUploadArea: React.FunctionComponent<Props> = ({ titleIcon, titleT
       className={css(styles.multipleFileUploadMain)}
       style={{
         gridTemplateColumns: '1fr auto auto',
-        gridTemplateAreas: `'title upload upload2' 'info upload upload2'`
+        gridTemplateAreas: `'title upload upload2' 'info upload upload2'`,
+        flex: 1
       }}
     >
       <div className={css(styles.multipleFileUploadTitle)}>

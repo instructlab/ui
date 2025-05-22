@@ -213,6 +213,11 @@ export interface EnvConfigType {
   taxonomyKnowledgeDocumentRepo: string;
   apiServer: string;
   isDevMode: boolean;
+  productName: string;
+  headerLogo: string;
+  headerLogoDark: string;
+  largeLogo: string;
+  largeLogoDark: string;
 }
 
 export interface FeatureFlagsType {

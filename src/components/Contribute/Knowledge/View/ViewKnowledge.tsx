@@ -56,7 +56,7 @@ const ViewKnowledge: React.FC<ViewKnowledgeProps> = ({ knowledgeEditFormData }) 
             <FlexItem>
               <ViewContributionSection
                 title="Contributor details"
-                descriptionText="Information required for a Github Developer Certificate of Origin (DCO) sign-off."
+                descriptionText="Information required for a GitHub Developer Certificate of Origin (DCO) sign-off."
                 descriptionItems={[
                   <DescriptionListGroup key="contributors">
                     <DescriptionListTerm>Contributors</DescriptionListTerm>

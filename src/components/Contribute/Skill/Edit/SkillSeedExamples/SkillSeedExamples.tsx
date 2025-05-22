@@ -3,6 +3,9 @@ import React from 'react';
 import type { SkillSeedExample } from '@/types';
 import { Button, Flex, FlexItem } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
+import { useSideDrawer } from '@/context/SideDrawerContext';
+import XsOpenDrawerRightIcon from '@/components/Common/XsOpenDrawerRightIcon';
+import SkillContributionSidePanelHelp from '@/components/SidePanelContents/SkillContributionSidePanelHelp';
 import {
   createEmptySkillSeedExample,
   handleSkillSeedExamplesAnswerBlur,
@@ -11,7 +14,6 @@ import {
   handleSkillSeedExamplesQuestionBlur,
   handleSkillSeedExamplesQuestionInputChange
 } from '@/components/Contribute/Utils/seedExampleUtils';
-import XsExternalLinkAltIcon from '@/components/Common/XsExternalLinkAltIcon';
 import FormSectionHeader from '@/components/Common/FormSectionHeader';
 import SkillSeedExampleCard from '@/components/Contribute/Skill/Edit/SkillSeedExamples/SkillSeedExampleCard';
 
@@ -21,6 +23,8 @@ interface Props {
 }
 
 const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onUpdateSeedExamples }) => {
+  const sideDrawerContext = useSideDrawer();
+
   const onUpdateSeedExample = (seedExampleIndex: number, seedExample: SkillSeedExample): void => {
     onUpdateSeedExamples(seedExamples.map((nextExample, i) => (i === seedExampleIndex ? seedExample : nextExample)));
   };
@@ -67,10 +71,8 @@ const SkillSeedExamples: React.FC<Props> = ({ seedExamples, onUpdateSeedExamples
                 variant="link"
                 component="a"
                 isInline
-                href="https://docs.instructlab.ai/taxonomy/knowledge/#knowledge-yaml-examples"
-                target="_blank"
-                rel="noopener noreferrer"
-                icon={<XsExternalLinkAltIcon />}
+                onClick={() => sideDrawerContext.setSideDrawerContent(<SkillContributionSidePanelHelp />)}
+                icon={<XsOpenDrawerRightIcon />}
                 iconPosition="end"
               >
                 Learn more about seed examples

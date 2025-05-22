@@ -193,23 +193,20 @@ const DocumentUploadArea: React.FunctionComponent<UploadFileProps> = ({ existing
           onDropRejected: handleDropRejected
         }}
         isHorizontal
+        style={{ width: '100%', display: 'flex' }}
       >
-        <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
-          <FlexItem>
-            <MultiFileUploadArea
-              titleIcon={<UploadIcon />}
-              titleText="Drag and drop files here or upload"
-              infoText={
-                docConversionEnabled
-                  ? 'Accepted file types include PDF, DOCX, PPTX, XLSX, HTML, AsciiDoc, Markdown, and images. All files will be converted to Markdown.'
-                  : 'Accepted file type: Markdown'
-              }
-              uploadText="Upload from device"
-              manualUploadText="Upload an external document"
-              onManualUpload={() => setShowUploadModal(true)}
-            />
-          </FlexItem>
-        </Flex>
+        <MultiFileUploadArea
+          titleIcon={<UploadIcon />}
+          titleText="Drag and drop files here or upload"
+          infoText={
+            docConversionEnabled
+              ? 'Accepted file types include PDF, DOCX, PPTX, XLSX, HTML, AsciiDoc, Markdown, and images. All files will be converted to Markdown.'
+              : 'Accepted file type: Markdown'
+          }
+          uploadText="Upload from device"
+          manualUploadText="Upload an external document"
+          onManualUpload={() => setShowUploadModal(true)}
+        />
       </MultipleFileUpload>
       {viewedFile ? <MarkdownFileViewer markdownFile={viewedFile} handleCloseModal={() => setViewedFile(undefined)} /> : null}
       {showOverwriteModal ? (
