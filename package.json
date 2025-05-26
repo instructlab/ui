@@ -31,7 +31,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "uuid": "^11.1.0",
-    "winston": "^3.14.2"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
