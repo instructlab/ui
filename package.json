@@ -22,7 +22,7 @@
     "@patternfly/react-core": "^5.4.0",
     "@patternfly/react-icons": "^6.2.2",
     "@patternfly/react-styles": "^6.2.2",
-    "@patternfly/react-table": "^5.4.0",
+    "@patternfly/react-table": "^6.2.2",
     "axios": "^1.9.0",
     "js-yaml": "^4.1.0",
     "next": "^14.2.13",
@@ -31,7 +31,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "uuid": "^11.1.0",
-    "winston": "^3.14.2"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
