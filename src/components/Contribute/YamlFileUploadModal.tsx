@@ -1,7 +1,7 @@
 import React from 'react';
 import YamlFileUpload from './YamlFileUpload';
 import { KnowledgeYamlData, SkillYamlData } from '@/types';
-import { Modal, ModalVariant, ModalHeader, ModalBody } from '@patternfly/react-core';
+import { Modal, ModalVariant, ModalHeader, ModalBody, Flex, FlexItem } from '@patternfly/react-core';
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 
 interface Props {
@@ -31,13 +31,17 @@ export const YamlFileUploadModal: React.FunctionComponent<Props> = ({
       >
         <ModalHeader title="Upload YAML file" labelId="variant-modal-title" />
         <ModalBody id="modal-box-body-variant">
-          Uploading your YAML will bring in all its data and streamline the contribution process.
-          <YamlFileUpload
-            isKnowledgeForm={isKnowledgeForm}
-            onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
-            onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
-            setActionGroupAlertContent={setActionGroupAlertContent}
-          />
+          <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+            <FlexItem>Uploading your YAML will bring in all its data and streamline the contribution process.</FlexItem>
+            <FlexItem>
+              <YamlFileUpload
+                isKnowledgeForm={isKnowledgeForm}
+                onYamlUploadKnowledgeFillForm={onYamlUploadKnowledgeFillForm}
+                onYamlUploadSkillsFillForm={onYamlUploadSkillsFillForm}
+                setActionGroupAlertContent={setActionGroupAlertContent}
+              />
+            </FlexItem>
+          </Flex>
         </ModalBody>
       </Modal>
     </React.Fragment>

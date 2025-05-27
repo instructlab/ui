@@ -2,35 +2,44 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { PageBreadcrumb } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
-import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
-import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
-import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { ToggleGroupItem, ToggleGroup } from '@patternfly/react-core';
-import { Button } from '@patternfly/react-core/dist/esm/components/Button';
-import { EmptyState, EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import Image from 'next/image';
+import { format } from 'date-fns';
 import {
+  ToggleGroupItem,
+  ToggleGroup,
+  Flex,
+  FlexItem,
+  Bullseye,
+  EmptyStateVariant,
   Modal,
   Form,
   FormGroup,
   Dropdown,
   DropdownItem,
   DropdownList,
+  ExpandableSection,
+  CodeBlock,
+  CodeBlockCode,
   MenuToggle,
   MenuToggleElement,
+  PageSection,
   Card,
   CardTitle,
   CardBody,
   CardFooter,
-  NumberInput
+  NumberInput,
+  Title,
+  Button,
+  EmptyState,
+  EmptyStateBody,
+  Spinner,
+  Alert,
+  EmptyStateFooter,
+  EmptyStateActions
 } from '@patternfly/react-core';
-import { format } from 'date-fns';
+import { CheckCircleIcon, ExclamationCircleIcon, SearchIcon } from '@patternfly/react-icons';
 
-import { ExpandableSection, CodeBlock, CodeBlockCode } from '@patternfly/react-core';
-import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
-import { CheckCircleIcon } from '@patternfly/react-icons';
+const EmptyStateIcon: React.FC = () => <Image src="/Finetune_empty.svg" alt="No documents" width={56} height={56} />;
 
 interface Model {
   name: string;
@@ -96,57 +105,19 @@ const FineTuning: React.FC = () => {
 
   // Fetch models, branches, and jobs when the component mounts
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch models
-        const modelsResponse = await fetch('/api/fine-tune/models', { cache: 'no-cache' });
-        if (!modelsResponse.ok) {
-          throw new Error('Failed to fetch models');
-        }
-        const modelsData = await modelsResponse.json();
+    let canceled = false;
+    let refreshIntervalId: NodeJS.Timeout;
 
-        // Fetch branches
-        const branchesResponse = await fetch('/api/fine-tune/git/branches', { cache: 'no-cache' });
-        if (!branchesResponse.ok) {
-          throw new Error('Failed to fetch git branches');
-        }
-        const branchesData = await branchesResponse.json();
-
-        // Fetch jobs
-        const jobsResponse = await fetch('/api/fine-tune/jobs', { cache: 'no-cache' });
-        if (!jobsResponse.ok) {
-          throw new Error('Failed to fetch jobs');
-        }
-        const jobsData = await jobsResponse.json();
-
-        const safeJobsData = Array.isArray(jobsData) ? jobsData : [];
-        const updatedJobs = safeJobsData
-          .map((job: Job) => mapJobType(job))
-          .sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime());
-
-        setModels(modelsData);
-        setBranches(branchesData.branches);
-        setJobs(updatedJobs);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setErrorMessage('Error fetching data');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-
-    // Polling to update jobs periodically
-    const interval = setInterval(async () => {
-      console.debug('Polling: Fetching jobs from /api/fine-tune/jobs');
+    const fetchJobs = async () => {
+      console.debug('Fetching jobs from /api/fine-tune/jobs');
 
       try {
         const response = await fetch('/api/fine-tune/jobs', { cache: 'no-cache' });
-        console.debug(`Polling fetch response status: ${response.status}`);
+        console.debug(`Fetch response status: ${response.status}`);
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`Failed to fetch jobs during polling: ${response.status} ${errorText}`);
+          console.error(`Failed to fetch jobs: ${response.status} ${errorText}`);
+          return;
         }
 
         const data = await response.json();
@@ -157,13 +128,60 @@ const FineTuning: React.FC = () => {
           .map((job: Job) => mapJobType(job))
           .sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime());
 
-        setJobs(updatedJobs);
+        if (!canceled) {
+          setJobs(updatedJobs);
+        }
       } catch (error) {
         console.error('Error fetching jobs during polling:', error);
       }
-    }, 10000); // Poll every 10 seconds
+    };
 
-    return () => clearInterval(interval);
+    const fetchData = async () => {
+      try {
+        // Fetch models
+        const modelsResponse = await fetch('/api/fine-tune/models', { cache: 'no-cache' });
+        if (canceled) {
+          return;
+        }
+        if (!modelsResponse.ok) {
+          throw new Error('Failed to fetch models');
+        }
+        const modelsData = await modelsResponse.json();
+
+        // Fetch branches
+        const branchesResponse = await fetch('/api/fine-tune/git/branches', { cache: 'no-cache' });
+        if (canceled) {
+          return;
+        }
+        if (!branchesResponse.ok) {
+          throw new Error('Failed to fetch git branches');
+        }
+        const branchesData = await branchesResponse.json();
+
+        // Fetch jobs
+        await fetchJobs();
+        if (!canceled) {
+          setModels(modelsData);
+          setBranches(branchesData.branches);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setErrorMessage('Error fetching data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData().then(() => {
+      if (!canceled) {
+        refreshIntervalId = setInterval(fetchJobs, 10000);
+      }
+    });
+
+    return () => {
+      canceled = true;
+      clearInterval(refreshIntervalId);
+    };
   }, []);
 
   // Clean up all intervals on component unmount
@@ -379,108 +397,123 @@ const FineTuning: React.FC = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <PageSection hasBodyWrapper={false}>
-        <Spinner size="lg" />
-      </PageSection>
-    );
-  }
-
   return (
-    <div>
-      <PageBreadcrumb hasBodyWrapper={false}>
-        <Breadcrumb>
-          <BreadcrumbItem to="/">Dashboard</BreadcrumbItem>
-          <BreadcrumbItem isActive>Fine Tuning</BreadcrumbItem>
-        </Breadcrumb>
-      </PageBreadcrumb>
-      <PageSection hasBodyWrapper={false} style={{ backgroundColor: 'white' }}>
-        <Title headingLevel="h1" size="lg">
-          Fine Tuning Jobs
-        </Title>
-      </PageSection>
-
-      <PageSection hasBodyWrapper={false} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <ToggleGroup aria-label="Job Status Filter">
-            <ToggleGroupItem text="All" buttonId="all" isSelected={selectedStatus === 'all'} onChange={handleToggleChange} />
-            <ToggleGroupItem text="Successful" buttonId="successful" isSelected={selectedStatus === 'successful'} onChange={handleToggleChange} />
-            <ToggleGroupItem text="Pending" buttonId="pending" isSelected={selectedStatus === 'pending'} onChange={handleToggleChange} />
-            <ToggleGroupItem text="Failed" buttonId="failed" isSelected={selectedStatus === 'failed'} onChange={handleToggleChange} />
-          </ToggleGroup>
-        </div>
-        <div>
-          <Button variant="primary" className="square-button" onClick={handleCreateButtonClick}>
-            Create+
-          </Button>
-        </div>
-      </PageSection>
-
+    <>
       <PageSection hasBodyWrapper={false}>
-        {filteredJobs.length > 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {filteredJobs.map((job) => {
-              const isExpanded = expandedJobs[job.job_id] || false;
-              const logs = jobLogs[job.job_id];
-              return (
-                <Card key={job.job_id} style={{ width: '100%' }}>
-                  <CardTitle style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    {/* TODO: fix the status icons to have color, e.g. red/green */}
-                    {job.status === 'finished' ? (
-                      <CheckCircleIcon color="var(--pf-global--success-color--nonstatus--green)" />
-                    ) : job.status === 'failed' ? (
-                      <ExclamationCircleIcon color="var(--pf-global--danger-color--status--danger--default)" />
-                    ) : null}
-                    {job.type === 'generate'
-                      ? 'Generate Job'
-                      : job.type === 'pipeline'
-                        ? 'Generate & Train Pipeline'
-                        : job.type === 'model-serve'
-                          ? 'Model Serve Job'
-                          : 'Train Job'}
-                  </CardTitle>
-                  <CardBody>
-                    {/* If fields are added, the percentages need to be tweaked to keep columns lined up across cards. */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <div style={{ width: '25%' }}>
-                        <strong>Job ID:</strong> {job.job_id}
-                      </div>
-                      <div style={{ width: '25%' }}>
-                        <strong>Status:</strong> {job.status}
-                      </div>
-                      <div style={{ width: '25%' }}>
-                        <strong>Start Time:</strong> {formatDate(job.start_time)}
-                      </div>
-                      <div style={{ width: '25%' }}>
-                        <strong>End Time:</strong> {formatDate(job.end_time)}
-                      </div>
-                    </div>
-                  </CardBody>
-                  <CardFooter>
-                    {/* Expandable section for logs */}
-                    <ExpandableSection
-                      toggleText={isExpanded ? 'Hide Logs' : 'View Logs'}
-                      onToggle={(_event, expanded) => handleToggleLogs(job.job_id, expanded)}
-                      isExpanded={isExpanded}
-                    >
-                      {logs ? (
-                        <CodeBlock>
-                          <CodeBlockCode id={`logs-${job.job_id}`}>{logs}</CodeBlockCode>
-                        </CodeBlock>
-                      ) : (
-                        <Spinner size="sm" />
-                      )}
-                    </ExpandableSection>
-                  </CardFooter>
-                </Card>
-              );
-            })}
-          </div>
-        ) : (
-          <EmptyState headingLevel="h4" titleText="No Fine Tuning Jobs">
+        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} gap={{ default: 'gapLg' }} alignItems={{ default: 'alignItemsCenter' }}>
+          <FlexItem>
+            <Title headingLevel="h1" size="2xl">
+              Fine tuning jobs
+            </Title>
+          </FlexItem>
+          {jobs.length > 0 ? (
+            <FlexItem>
+              <Button variant="primary" className="square-button" onClick={handleCreateButtonClick}>
+                Create+
+              </Button>
+            </FlexItem>
+          ) : null}
+        </Flex>
+      </PageSection>
+
+      <PageSection isFilled>
+        {isLoading ? (
+          <Bullseye>
+            <Spinner size="xl" />
+          </Bullseye>
+        ) : !jobs.length ? (
+          <EmptyState headingLevel="h1" icon={EmptyStateIcon} titleText="No fine tuning jobs" variant={EmptyStateVariant.lg}>
             <EmptyStateBody>You have not created any fine-tuning jobs yet. Use the Create+ button to get started.</EmptyStateBody>
+            <EmptyStateFooter>
+              <EmptyStateActions>
+                <Button variant="primary" className="square-button" onClick={handleCreateButtonClick}>
+                  Create+
+                </Button>
+              </EmptyStateActions>
+            </EmptyStateFooter>
           </EmptyState>
+        ) : (
+          <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }} flexWrap={{ default: 'nowrap' }}>
+            <FlexItem>
+              <ToggleGroup aria-label="Job Status Filter">
+                <ToggleGroupItem text="All" buttonId="all" isSelected={selectedStatus === 'all'} onChange={handleToggleChange} />
+                <ToggleGroupItem text="Successful" buttonId="successful" isSelected={selectedStatus === 'successful'} onChange={handleToggleChange} />
+                <ToggleGroupItem text="Pending" buttonId="pending" isSelected={selectedStatus === 'pending'} onChange={handleToggleChange} />
+                <ToggleGroupItem text="Failed" buttonId="failed" isSelected={selectedStatus === 'failed'} onChange={handleToggleChange} />
+              </ToggleGroup>
+            </FlexItem>
+            {filteredJobs.length > 0 ? (
+              filteredJobs.map((job) => {
+                const isExpanded = expandedJobs[job.job_id] || false;
+                const logs = jobLogs[job.job_id];
+                return (
+                  <FlexItem key={job.job_id}>
+                    <Card style={{ width: '100%' }}>
+                      <CardTitle style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        {/* TODO: fix the status icons to have color, e.g. red/green */}
+                        {job.status === 'finished' ? (
+                          <CheckCircleIcon color="var(--pf-global--success-color--nonstatus--green)" />
+                        ) : job.status === 'failed' ? (
+                          <ExclamationCircleIcon color="var(--pf-global--danger-color--status--danger--default)" />
+                        ) : null}
+                        {job.type === 'generate'
+                          ? 'Generate Job'
+                          : job.type === 'pipeline'
+                            ? 'Generate & Train Pipeline'
+                            : job.type === 'model-serve'
+                              ? 'Model Serve Job'
+                              : 'Train Job'}
+                      </CardTitle>
+                      <CardBody>
+                        {/* If fields are added, the percentages need to be tweaked to keep columns lined up across cards. */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <div style={{ width: '25%' }}>
+                            <strong>Job ID:</strong> {job.job_id}
+                          </div>
+                          <div style={{ width: '25%' }}>
+                            <strong>Status:</strong> {job.status}
+                          </div>
+                          <div style={{ width: '25%' }}>
+                            <strong>Start Time:</strong> {formatDate(job.start_time)}
+                          </div>
+                          <div style={{ width: '25%' }}>
+                            <strong>End Time:</strong> {formatDate(job.end_time)}
+                          </div>
+                        </div>
+                      </CardBody>
+                      <CardFooter>
+                        {/* Expandable section for logs */}
+                        <ExpandableSection
+                          toggleText={isExpanded ? 'Hide Logs' : 'View Logs'}
+                          onToggle={(_event, expanded) => handleToggleLogs(job.job_id, expanded)}
+                          isExpanded={isExpanded}
+                        >
+                          {logs ? (
+                            <CodeBlock>
+                              <CodeBlockCode id={`logs-${job.job_id}`}>{logs}</CodeBlockCode>
+                            </CodeBlock>
+                          ) : (
+                            <Spinner size="sm" />
+                          )}
+                        </ExpandableSection>
+                      </CardFooter>
+                    </Card>
+                  </FlexItem>
+                );
+              })
+            ) : (
+              <Bullseye>
+                <EmptyState headingLevel="h2" titleText="No results found" icon={SearchIcon}>
+                  <EmptyStateBody>No matching fine tuning jobs found</EmptyStateBody>
+                  <EmptyStateFooter>
+                    <Button variant="link" onClick={() => setSelectedStatus('all')}>
+                      Clear filter
+                    </Button>
+                  </EmptyStateFooter>
+                </EmptyState>
+              </Bullseye>
+            )}
+          </Flex>
         )}
       </PageSection>
 
@@ -578,7 +611,7 @@ const FineTuning: React.FC = () => {
           </Button>
         </Form>
       </Modal>
-    </div>
+    </>
   );
 };
 

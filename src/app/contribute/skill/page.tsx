@@ -1,11 +1,11 @@
 // src/app/contribute/skill/page.tsx
 'use client';
 import React from 'react';
-import { AppLayout } from '@/components/AppLayout';
+import { AppLayout, FeaturePages } from '@/components/AppLayout';
 import SkillForm from '@/components/Contribute/Skill/Edit/SkillForm';
 
 const AddSkillPage: React.FunctionComponent = () => (
-  <AppLayout className="contribute-page">
+  <AppLayout className="contribute-page" requiredFeature={FeaturePages.Skill}>
     <SkillForm />
   </AppLayout>
 );

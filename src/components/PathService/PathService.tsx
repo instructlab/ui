@@ -336,7 +336,7 @@ const PathService: React.FC<PathServiceProps> = ({ fieldId, rootPath, path, hand
       <MenuToggle
         onClick={() => setIsSelectOpen(!isSelectOpen)}
         isExpanded={isSelectOpen && addDirectoryPath === null}
-        style={{ width: '90%' }}
+        style={{ width: '100%' }}
         ref={toggleRef}
       >
         {path ? <Truncate content={path} position="middle" /> : 'Select directory'}

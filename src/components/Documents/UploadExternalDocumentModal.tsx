@@ -156,8 +156,17 @@ export const UploadExternalDocumentModal: React.FunctionComponent<Props> = ({ on
             <Content aria-label="git-upload-description">Enter the document details below.</Content>
           </FlexItem>
           <FlexItem>
+            <Flex gap={{ default: 'gapMd' }} flexWrap={{ default: 'nowrap' }}>
+              <FlexItem>
+                <Radio name="urlOption" id="url-radio" label="Enter URL" isChecked={enterUrl} onChange={() => setEnterUrl(true)} />
+              </FlexItem>
+              <FlexItem>
+                <Radio name="repoOption" id="repo-radio" label="Enter git repositiory" isChecked={!enterUrl} onChange={() => setEnterUrl(false)} />
+              </FlexItem>
+            </Flex>
+          </FlexItem>
+          <FlexItem>
             <Form>
-              <Radio name="urlOption" id="url-radio" label="Enter URL" isChecked={enterUrl} onChange={() => setEnterUrl(true)} />
               {enterUrl ? (
                 <FormGroup isRequired fieldId="external-url" label="URL">
                   <TextInput
@@ -187,7 +196,6 @@ export const UploadExternalDocumentModal: React.FunctionComponent<Props> = ({ on
                   ) : null}
                 </FormGroup>
               ) : null}
-              <Radio name="repoOption" id="repo-radio" label="Enter git repositiory" isChecked={!enterUrl} onChange={() => setEnterUrl(false)} />
               {!enterUrl ? (
                 <>
                   <FormGroup isRequired fieldId="doc-name" label="Document name">

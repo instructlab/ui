@@ -22,9 +22,20 @@ const UserMenu: React.FC = () => {
       onSelect={onSelect}
       onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
       toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-        <MenuToggle ref={toggleRef} aria-label="user menu dropdown" variant="plain" onClick={onToggleClick} isExpanded={isOpen}>
-          <Flex spaceItems={{ default: 'spaceItemsSm' }} style={{ display: 'flex', alignItems: 'center' }}>
-            <FlexItem>{userImage ? <Avatar src={userImage} alt={userName} /> : <Avatar src="/default-avatar.png" alt="Default Avatar" />}</FlexItem>
+        <MenuToggle
+          style={{ paddingTop: 0, paddingBottom: 0 }}
+          ref={toggleRef}
+          aria-label="user menu dropdown"
+          variant="plain"
+          onClick={onToggleClick}
+          isExpanded={isOpen}
+        >
+          <Flex gap={{ default: 'gapSm' }} style={{ display: 'flex', alignItems: 'center' }}>
+            {userImage ? (
+              <Avatar src={userImage} alt={userName} style={{ width: 36, height: 36 }} />
+            ) : (
+              <Avatar src="/default-avatar.png" alt="Default Avatar" />
+            )}
             <FlexItem>{userName}</FlexItem>
             <FlexItem>
               <CaretDownIcon />

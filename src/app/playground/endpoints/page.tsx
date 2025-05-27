@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
 import {
+  Bullseye,
   Button,
+  ClipboardCopy,
   Content,
   DataList,
   DataListAction,
@@ -11,16 +14,20 @@ import {
   DataListItem,
   DataListItemCells,
   DataListItemRow,
+  EmptyState,
+  EmptyStateActions,
+  EmptyStateBody,
+  EmptyStateFooter,
   Flex,
   FlexItem,
   PageSection,
-  Truncate,
-  ClipboardCopy
+  Spinner,
+  Truncate
 } from '@patternfly/react-core';
-import { BanIcon, CheckCircleIcon, EyeSlashIcon, EyeIcon, QuestionCircleIcon } from '@patternfly/react-icons';
+import { BanIcon, CheckCircleIcon, EyeIcon, EyeSlashIcon, QuestionCircleIcon } from '@patternfly/react-icons';
 import { Endpoint, ModelEndpointStatus } from '@/types';
 import { fetchEndpointStatus } from '@/services/modelService';
-import { AppLayout } from '@/components/AppLayout';
+import { AppLayout, FeaturePages } from '@/components/AppLayout';
 import CustomEndpointsSidePanelHelp from '@/components/SidePanelContents/CustomEndpointsSidePanelHelp';
 import EditEndpointModal from '@/app/playground/endpoints/EditEndpointModal';
 import DeleteEndpointModal from '@/app/playground/endpoints/DeleteEndpoinModal';
@@ -42,6 +49,8 @@ const iconForStatus = (status: ModelEndpointStatus) => {
   }
 };
 
+const EmptyStateIcon: React.FC = () => <Image src="/Endpoint_empty.svg" alt="No endpoints" width={56} height={56} />;
+
 interface ExtendedEndpoint extends Endpoint {
   isApiKeyVisible?: boolean;
 }
@@ -59,6 +68,7 @@ const getEndpointsStatus = async (endpoints: ExtendedEndpoint[]): Promise<Extend
   );
 
 const EndpointsPage: React.FC = () => {
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [endpoints, setEndpoints] = React.useState<ExtendedEndpoint[]>([]);
   const [deleteEndpoint, setDeleteEndpoint] = React.useState<Endpoint | undefined>();
   const [editEndpoint, setEditEndpoint] = React.useState<Endpoint | undefined>();
@@ -78,14 +88,23 @@ const EndpointsPage: React.FC = () => {
   };
 
   React.useEffect(() => {
+    let canceled = false;
+
     const loadEndpoints = async () => {
       const storedEndpoints = localStorage.getItem('endpoints');
       if (storedEndpoints) {
         const loadedEndpoints = await getEndpointsStatus(JSON.parse(storedEndpoints));
-        setEndpoints(loadedEndpoints);
+        if (!canceled) {
+          setEndpoints(loadedEndpoints);
+        }
       }
+      setIsLoading(false);
     };
     loadEndpoints();
+
+    return () => {
+      canceled = true;
+    };
   }, []);
 
   React.useEffect(() => {
@@ -188,15 +207,17 @@ const EndpointsPage: React.FC = () => {
   };
 
   return (
-    <AppLayout>
+    <AppLayout requiredFeature={FeaturePages.Playground}>
       <PageSection>
         <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} gap={{ default: 'gapMd' }}>
           <FlexItem>
             <Content component="h1">Custom model endpoints</Content>
           </FlexItem>
-          <FlexItem>
-            <Button onClick={handleAddEndpoint}>Add custom endpoint</Button>
-          </FlexItem>
+          {endpoints.length ? (
+            <FlexItem>
+              <Button onClick={handleAddEndpoint}>Add custom endpoint</Button>
+            </FlexItem>
+          ) : null}
         </Flex>
         <PageDescriptionWithHelp
           description="Custom model endpoints enable you to interact with and test fine-tuned models using the chat interface."
@@ -204,97 +225,116 @@ const EndpointsPage: React.FC = () => {
           sidePanelContent={<CustomEndpointsSidePanelHelp />}
         />
       </PageSection>
-      <PageSection hasBodyWrapper={false}>
-        <DataList aria-label="Endpoints list">
-          <DataListItem key="property-headers">
-            <DataListItemRow wrapModifier="breakWord">
-              <DataListItemCells
-                dataListCells={[
-                  <DataListCell key="nameHeader">
-                    <strong>Endpoint name</strong>
-                  </DataListCell>,
-                  <DataListCell key="statusHeader">
-                    <strong>Status</strong>
-                  </DataListCell>,
-                  <DataListCell key="urlHeader">
-                    <strong>URL</strong>
-                  </DataListCell>,
-                  <DataListCell key="modelNameHeader">
-                    <strong>Model name</strong>
-                  </DataListCell>,
-                  <DataListCell key="apiKeyHeader">
-                    <strong>API key</strong>
-                  </DataListCell>
-                ]}
-              />
-              <DataListAction style={{ width: actionsWidth }} aria-labelledby="no-actions" id="no-actions" aria-label="">
-                <span />
-              </DataListAction>
-            </DataListItemRow>
-          </DataListItem>
-          {endpoints.map((endpoint) => (
-            <DataListItem key={endpoint.id}>
-              <DataListItemRow wrapModifier="breakWord">
-                <DataListItemCells
-                  dataListCells={[
-                    <DataListCell key="name">
-                      <Content>
-                        <Truncate content={endpoint.name || ''} />
-                      </Content>
-                      {endpoint.description ? (
-                        <Content component="small">
-                          <Truncate content={endpoint.description} />
-                        </Content>
-                      ) : null}
-                    </DataListCell>,
-                    <DataListCell key="status">
-                      <Flex direction={{ default: 'row' }} gap={{ default: 'gapXs' }}>
-                        <FlexItem>{iconForStatus(endpoint.status)}</FlexItem>
-                        <FlexItem style={{ textTransform: 'capitalize' }}>{ModelEndpointStatus[endpoint.status] || 'unknown'}</FlexItem>
-                      </Flex>
-                    </DataListCell>,
-                    <DataListCell key="url">
-                      <ClipboardCopy
-                        style={{ display: 'flex', gap: 'var(--pf-t--global--spacer--xs)', flexWrap: 'nowrap', backgroundColor: 'transparent' }}
-                        hoverTip="Copy"
-                        clickTip="Copied to clipboard"
-                        variant="inline-compact"
-                        truncation
-                      >
-                        {endpoint.url}
-                      </ClipboardCopy>
-                    </DataListCell>,
-                    <DataListCell key="modelName">
-                      <Content>
-                        <Truncate content={endpoint.modelName || ''} />
-                      </Content>
-                      {endpoint.modelDescription ? (
-                        <Content component="small">
-                          <Truncate content={endpoint.modelDescription} />
-                        </Content>
-                      ) : null}
-                    </DataListCell>,
-                    <DataListCell key="apiKey">
-                      {renderApiKey(endpoint.apiKey, endpoint.isApiKeyVisible || false)}
-                      <Button variant="link" onClick={() => toggleApiKeyVisibility(endpoint.id)}>
-                        {endpoint.isApiKeyVisible ? <EyeSlashIcon /> : <EyeIcon />}
-                      </Button>
-                    </DataListCell>
-                  ]}
-                />
-                <DataListAction ref={setActionRef} aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
-                  <EndpointActions
-                    endpoint={endpoint}
-                    onToggleEnabled={() => toggleEndpointEnabled(endpoint.id)}
-                    onEdit={() => setEditEndpoint(endpoint)}
-                    onDelete={() => setDeleteEndpoint(endpoint)}
+      {isLoading ? (
+        <Bullseye>
+          <Spinner />
+        </Bullseye>
+      ) : (
+        <PageSection hasBodyWrapper={false}>
+          {endpoints.length ? (
+            <DataList aria-label="Endpoints list">
+              <DataListItem key="property-headers">
+                <DataListItemRow wrapModifier="breakWord">
+                  <DataListItemCells
+                    dataListCells={[
+                      <DataListCell key="nameHeader">
+                        <strong>Endpoint name</strong>
+                      </DataListCell>,
+                      <DataListCell key="statusHeader">
+                        <strong>Status</strong>
+                      </DataListCell>,
+                      <DataListCell key="urlHeader">
+                        <strong>URL</strong>
+                      </DataListCell>,
+                      <DataListCell key="modelNameHeader">
+                        <strong>Model name</strong>
+                      </DataListCell>,
+                      <DataListCell key="apiKeyHeader">
+                        <strong>API key</strong>
+                      </DataListCell>
+                    ]}
                   />
-                </DataListAction>
-              </DataListItemRow>
-            </DataListItem>
-          ))}
-        </DataList>
-      </PageSection>
+                  <DataListAction style={{ width: actionsWidth }} aria-labelledby="no-actions" id="no-actions" aria-label="">
+                    <span />
+                  </DataListAction>
+                </DataListItemRow>
+              </DataListItem>
+              {endpoints.map((endpoint) => (
+                <DataListItem key={endpoint.id}>
+                  <DataListItemRow wrapModifier="breakWord">
+                    <DataListItemCells
+                      dataListCells={[
+                        <DataListCell key="name">
+                          <Content>
+                            <Truncate content={endpoint.name || ''} />
+                          </Content>
+                          {endpoint.description ? (
+                            <Content component="small">
+                              <Truncate content={endpoint.description} />
+                            </Content>
+                          ) : null}
+                        </DataListCell>,
+                        <DataListCell key="status">
+                          <Flex direction={{ default: 'row' }} gap={{ default: 'gapXs' }}>
+                            <FlexItem>{iconForStatus(endpoint.status)}</FlexItem>
+                            <FlexItem style={{ textTransform: 'capitalize' }}>{ModelEndpointStatus[endpoint.status] || 'unknown'}</FlexItem>
+                          </Flex>
+                        </DataListCell>,
+                        <DataListCell key="url">
+                          <ClipboardCopy
+                            style={{ display: 'flex', gap: 'var(--pf-t--global--spacer--xs)', flexWrap: 'nowrap', backgroundColor: 'transparent' }}
+                            hoverTip="Copy"
+                            clickTip="Copied to clipboard"
+                            variant="inline-compact"
+                            truncation
+                          >
+                            {endpoint.url}
+                          </ClipboardCopy>
+                        </DataListCell>,
+                        <DataListCell key="modelName">
+                          <Content>
+                            <Truncate content={endpoint.modelName || ''} />
+                          </Content>
+                          {endpoint.modelDescription ? (
+                            <Content component="small">
+                              <Truncate content={endpoint.modelDescription} />
+                            </Content>
+                          ) : null}
+                        </DataListCell>,
+                        <DataListCell key="apiKey">
+                          {renderApiKey(endpoint.apiKey, endpoint.isApiKeyVisible || false)}
+                          <Button variant="link" onClick={() => toggleApiKeyVisibility(endpoint.id)}>
+                            {endpoint.isApiKeyVisible ? <EyeSlashIcon /> : <EyeIcon />}
+                          </Button>
+                        </DataListCell>
+                      ]}
+                    />
+                    <DataListAction ref={setActionRef} aria-labelledby="endpoint-actions" id="endpoint-actions" aria-label="Actions">
+                      <EndpointActions
+                        endpoint={endpoint}
+                        onToggleEnabled={() => toggleEndpointEnabled(endpoint.id)}
+                        onEdit={() => setEditEndpoint(endpoint)}
+                        onDelete={() => setDeleteEndpoint(endpoint)}
+                      />
+                    </DataListAction>
+                  </DataListItemRow>
+                </DataListItem>
+              ))}
+            </DataList>
+          ) : (
+            <EmptyState headingLevel="h4" titleText="No custom model endpoints yet" icon={EmptyStateIcon}>
+              <EmptyStateBody>To get started, create a custom model endpoint</EmptyStateBody>
+              <EmptyStateFooter>
+                <EmptyStateActions>
+                  <Button variant="primary" onClick={handleAddEndpoint}>
+                    Create custom model endpoint
+                  </Button>
+                </EmptyStateActions>
+              </EmptyStateFooter>
+            </EmptyState>
+          )}
+        </PageSection>
+      )}
       {editEndpoint ? <EditEndpointModal endpoint={editEndpoint} onClose={handleSaveEndpoint} /> : null}
       {deleteEndpoint ? <DeleteEndpointModal endpoint={deleteEndpoint} onClose={handleDeleteEndpoint} /> : null}
     </AppLayout>

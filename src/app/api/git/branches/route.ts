@@ -37,7 +37,7 @@ export async function GET() {
       const branchCommit = await git.resolveRef({ fs, dir: REPO_DIR, ref: branch });
       const commitDetails = await git.readCommit({ fs, dir: REPO_DIR, oid: branchCommit });
 
-      const commitMessage = commitDetails.commit.message;
+      const commitMessage = commitDetails.commit.message.replace(`...\n\n...`, '');
 
       // Check for Signed-off-by line
       const signoffMatch = commitMessage.match(/^Signed-off-by: (.+)$/m);
@@ -142,7 +142,7 @@ async function handleDiff(branchName: string, localTaxonomyDir: string) {
     const message = signoffMatch ? signoffMatch[0].trim() : '';
 
     const commitDetails: CommitDetails = {
-      message: message,
+      message: message.replace('...\n\n...', ''),
       email: commit.commit.author.email,
       name: commit.commit.author.name
     };
