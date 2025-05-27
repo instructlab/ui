@@ -1,6 +1,6 @@
 import * as React from 'react';
-import ContributionsSidePanelHelp from '@/components/SidePanelContents/ContributionsSidePanelHelp';
+import KnowledgeContributionSidePanelHelp from '@/components/SidePanelContents/KnowledgeContributionSidePanelHelp';
 
-const DocumentsSidePanelHelp: React.FC = () => <ContributionsSidePanelHelp knowledgeOnly />;
+const DocumentsSidePanelHelp: React.FC = () => <KnowledgeContributionSidePanelHelp />;
 
 export default DocumentsSidePanelHelp;

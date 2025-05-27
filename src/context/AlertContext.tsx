@@ -33,7 +33,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 export const useAlerts = () => {
   const context = React.useContext(AlertContext);
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error('useAlerts must be used within an AlertProvider');
   }
   return context;
 };

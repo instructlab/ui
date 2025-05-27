@@ -23,6 +23,8 @@ import { AngleDownIcon, GithubIcon, SearchIcon } from '@patternfly/react-icons';
 import { ContributionInfo } from '@/types';
 import { useFeatureFlags } from '@/context/FeatureFlagsContext';
 import { useEnvConfig } from '@/context/EnvConfigContext';
+import { useTheme } from '@/context/ThemeContext';
+import PageDescriptionWithHelp from '@/components/Common/PageDescriptionWithHelp';
 import Table from '@/components/Table/Table';
 import ContributionsSidePanelHelp from '@/components/SidePanelContents/ContributionsSidePanelHelp';
 import CardView from '@/components/CardView/CardView';
@@ -40,9 +42,14 @@ import ContributionTableRow from '@/components/Dashboard/ContributionTableRow';
 import ContributionCard from '@/components/Dashboard/ContributionCard';
 
 import './Dashboard.scss';
-import PageDescriptionWithHelp from '@/components/Common/PageDescriptionWithHelp';
 
-const InstructLabLogo: React.FC = () => <Image src="/InstructLab-LogoFile-RGB-FullColor.svg" alt="InstructLab Logo" width={256} height={256} />;
+const EmptyStateLogo: React.FC = () => {
+  const { theme } = useTheme();
+  const {
+    envConfig: { largeLogo, largeLogoDark, productName }
+  } = useEnvConfig();
+  return <Image src={theme !== 'dark' ? largeLogo : largeLogoDark} alt={`${productName} logo`} width={256} height={256} />;
+};
 
 interface Props {
   contributions: ContributionInfo[];
@@ -55,7 +62,7 @@ const Dashboard: React.FC<Props> = ({ contributions, isLoading, triggerUpdateCon
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const {
-    featureFlags: { skillFeaturesEnabled }
+    featureFlags: { skillFeaturesEnabled, playgroundFeaturesEnabled }
   } = useFeatureFlags();
   const {
     envConfig: { isDevMode }
@@ -197,7 +204,7 @@ const Dashboard: React.FC<Props> = ({ contributions, isLoading, triggerUpdateCon
               <Spinner size="xl" />
             </Bullseye>
           ) : contributions.length === 0 ? (
-            <EmptyState headingLevel="h4" titleText="Welcome to InstructLab" icon={InstructLabLogo}>
+            <EmptyState headingLevel="h4" titleText="Welcome to InstructLab" icon={EmptyStateLogo}>
               <EmptyStateBody>
                 <div style={{ maxWidth: '60ch' }}>
                   InstructLab is a powerful and accessible tool for advancing generative AI through community collaboration and open-source
@@ -210,27 +217,29 @@ const Dashboard: React.FC<Props> = ({ contributions, isLoading, triggerUpdateCon
                 <EmptyStateActions>
                   {skillFeaturesEnabled ? (
                     <Button variant="primary" onClick={() => router.push('/contribute/skill/')}>
-                      Contribute Skill
+                      Contribute skill
                     </Button>
                   ) : null}
                   <Button variant="primary" onClick={() => router.push('/contribute/knowledge/')}>
-                    Contribute Knowledge
+                    Contribute knowledge
                   </Button>
-                  <Button variant="primary" onClick={() => router.push('/playground/chat')}>
-                    Chat with the Models
-                  </Button>
+                  {playgroundFeaturesEnabled ? (
+                    <Button variant="primary" onClick={() => router.push('/playground/chat')}>
+                      Chat with the models
+                    </Button>
+                  ) : null}
                 </EmptyStateActions>
                 <EmptyStateActions>
                   <Button
                     variant="link"
                     icon={<GithubIcon />}
-                    iconPosition="right"
+                    iconPosition="left"
                     component="a"
                     href="https://github.com/instructlab"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    View the Project on Github
+                    View the project on GitHub
                   </Button>
                 </EmptyStateActions>
               </EmptyStateFooter>

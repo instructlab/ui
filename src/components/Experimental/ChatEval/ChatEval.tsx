@@ -2,19 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  PageBreadcrumb,
-  PageSection,
-  Content,
-  Title,
-  Switch,
-  Badge,
-  Flex,
-  FlexItem,
-  Spinner
-} from '@patternfly/react-core';
+import { PageSection, Content, Title, Switch, Badge, Flex, FlexItem, Spinner } from '@patternfly/react-core';
 import { MessageBar, ChatbotFooter, ChatbotFootnote, MessageProps, Compare } from '@patternfly/chatbot';
 import { css } from '@patternfly/react-styles';
 import userLogo from '../../../../public/default-avatar.svg';
@@ -148,12 +136,6 @@ const ChatEval: React.FC = () => {
 
   return (
     <>
-      <PageBreadcrumb>
-        <Breadcrumb>
-          <BreadcrumbItem to="/">Dashboard</BreadcrumbItem>
-          <BreadcrumbItem isActive>Model Chat Evaluation</BreadcrumbItem>
-        </Breadcrumb>
-      </PageBreadcrumb>
       <PageSection>
         <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
           <FlexItem>
@@ -222,15 +204,7 @@ const ChatEval: React.FC = () => {
             buttonProps={sendButtonProps}
             placeholder="Enter prompt..."
           />
-          <ChatbotFootnote
-            label="Please verify the accuracy of the responses."
-            popover={{
-              title: 'Verify Accuracy',
-              description: 'While the model strives for accuracy, there can be errors. Verify critical info.',
-              link: { label: 'Learn more', url: 'https://www.redhat.com/' },
-              cta: { label: 'Got it', onClick: () => {} }
-            }}
-          />
+          <ChatbotFootnote label="Please verify the accuracy of the responses." />
         </ChatbotFooter>
       ) : null}
     </>

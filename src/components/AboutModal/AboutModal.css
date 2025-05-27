@@ -1,0 +1,56 @@
+.il-modal {
+  --modal--text--color: var(--pf-t--color--white);
+  background-size: cover !important;
+  background-position: left !important;
+}
+
+.il-modal--content {
+  text-align: center;
+}
+
+.il-modal--text {
+  color: var(--modal--text--color) !important;
+}
+
+.il-modal > div:last-child > div {
+  display: flex;
+  flex-direction: column-reverse;
+  height: 100%;
+}
+
+/* hide brand img */
+.il-modal img {
+  visibility: hidden;
+}
+
+.il-modal button {
+  --pf-v6-c-button__icon--Color: var(--modal--text--color) !important;
+  --pf-v6-c-button--Color: var(--modal--text--color) !important;
+  background: var(--pf-t--color--black) !important;
+  border-radius: 80px !important;
+}
+
+.il-modal--joinCommunityButton {
+  border-radius: 80px !important;
+}
+
+.il-modal--link {
+  color: var(--modal--text--color) !important;
+  position: relative;
+}
+
+.il-modal--link:not(:first-of-type)::after {
+  content: '';
+  border-left: 1px solid var(--modal--text--color);
+  border-radius: 0;
+  position: absolute;
+  top: var(--pf-t--global--spacer--xs);
+  bottom: var(--pf-t--global--spacer--xs);
+}
+
+.il-modal--link:not(:first-of-type) {
+  padding-left: var(--pf-t--global--spacer--md);
+}
+.il-modal--link:not(:last-of-type) {
+  padding-right: var(--pf-t--global--spacer--md);
+}

@@ -3,7 +3,9 @@ import * as React from 'react';
 import { Bullseye, Button, Flex, FlexItem, Spinner } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import type { KnowledgeFile, KnowledgeSeedExample } from '@/types';
-import XsExternalLinkAltIcon from '@/components/Common/XsExternalLinkAltIcon';
+import { useSideDrawer } from '@/context/SideDrawerContext';
+import XsOpenDrawerRightIcon from '@/components/Common/XsOpenDrawerRightIcon';
+import KnowledgeContributionSidePanelHelp from '@/components/SidePanelContents/KnowledgeContributionSidePanelHelp';
 import FormSectionHeader from '@/components/Common/FormSectionHeader';
 import { descendingCompareKnowledgeFileDates } from '@/components/Contribute/Utils/contributionUtils';
 import {
@@ -21,6 +23,7 @@ interface Props {
 }
 
 const KnowledgeSeedExamples: React.FC<Props> = ({ scrollable, uploadedFiles, seedExamples, onUpdateSeedExamples }) => {
+  const sideDrawerContext = useSideDrawer();
   const [documents, setDocuments] = React.useState<KnowledgeFile[]>([]);
   const [documentsLoading, setDocumentsLoading] = React.useState<boolean>(true);
   const [bodyRef, setBodyRef] = React.useState<HTMLElement | null>();
@@ -102,10 +105,8 @@ const KnowledgeSeedExamples: React.FC<Props> = ({ scrollable, uploadedFiles, see
                 variant="link"
                 isInline
                 component="a"
-                href="https://docs.instructlab.ai/taxonomy/knowledge/#knowledge-yaml-examples"
-                target="_blank"
-                rel="noopener noreferrer"
-                icon={<XsExternalLinkAltIcon />}
+                onClick={() => sideDrawerContext.setSideDrawerContent(<KnowledgeContributionSidePanelHelp />)}
+                icon={<XsOpenDrawerRightIcon />}
                 iconPosition="end"
               >
                 Learn more about seed data
