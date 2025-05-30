@@ -1,5 +1,7 @@
 // src/components/Documents/MyDocuments.tsx
 import * as React from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import {
   PageSection,
   Title,
@@ -14,19 +16,16 @@ import {
   Spinner,
   EmptyStateVariant
 } from '@patternfly/react-core';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { SORT_ASCENDING, SORT_BY_LAST_UPDATE, SORT_DESCENDING, SortByIndex } from '@/components/Documents/const';
 import { SearchIcon } from '@patternfly/react-icons';
 import { KnowledgeFile } from '@/types';
-import { DocumentColumns, DocumentSorter } from '@/components/Documents/const';
-import DocumentsToolbar from '@/components/Documents/DocumentsToolbar';
+import { useTheme } from '@/context/ThemeContext';
 import Table from '@/components/Table/Table';
 import CardView from '@/components/CardView/CardView';
+import { SORT_ASCENDING, SORT_BY_LAST_UPDATE, SORT_DESCENDING, SortByIndex } from '@/components/Documents/const';
+import { DocumentColumns, DocumentSorter } from '@/components/Documents/const';
+import DocumentsToolbar from '@/components/Documents/DocumentsToolbar';
 import DocumentCard from '@/components/Documents/DocumentCard';
 import DocumentTableRow from '@/components/Documents/DocumentTableRow';
-import Image from 'next/image';
-
-const EmptyStateIcon: React.FC = () => <Image src="/Contribution_empty.svg" alt="No documents" width={56} height={56} />;
 
 interface Props {
   documents: KnowledgeFile[];
@@ -36,6 +35,7 @@ interface Props {
 
 const Documents: React.FC<Props> = ({ isLoading, documents, removeDocument }) => {
   const router = useRouter();
+  const { theme } = useTheme();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [filter, setFilter] = React.useState<string | undefined>('');
@@ -127,7 +127,19 @@ const Documents: React.FC<Props> = ({ isLoading, documents, removeDocument }) =>
             </Bullseye>
           ) : documents.length === 0 ? (
             <Bullseye>
-              <EmptyState headingLevel="h1" icon={EmptyStateIcon} titleText="No documents yet" variant={EmptyStateVariant.lg}>
+              <EmptyState
+                headingLevel="h1"
+                icon={() => (
+                  <Image
+                    src={theme === 'dark' ? '/Contribution_empty_Dark.svg' : '/Contribution_empty.svg'}
+                    alt="No documents"
+                    width={56}
+                    height={56}
+                  />
+                )}
+                titleText="No documents yet"
+                variant={EmptyStateVariant.lg}
+              >
                 <EmptyStateBody>To get started, upload external files or files from your device.</EmptyStateBody>
               </EmptyState>
             </Bullseye>

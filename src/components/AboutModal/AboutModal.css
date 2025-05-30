@@ -23,14 +23,21 @@
   visibility: hidden;
 }
 
-.il-modal button {
-  --pf-v6-c-button__icon--Color: var(--modal--text--color) !important;
-  --pf-v6-c-button--Color: var(--modal--text--color) !important;
-  background: var(--pf-t--color--black) !important;
-  border-radius: 80px !important;
+.il-modal .pf-v6-c-about-modal-box__close {
+  --pf-v6-c-about-modal-box__close--PaddingBlockStart: var(--pf-t--global--spacer--md);
+  --pf-v6-c-about-modal-box__close--PaddingInlineEnd: var(--pf-t--global--spacer--md);
+}
+
+.il-modal .pf-v6-c-about-modal-box__close button {
+  --pf-v6-c-button__icon--Color: var(--pf-t--color--black) !important;
+  --pf-v6-c-button--Color: var(--pf-t--color--black) !important;
+  --pf-v6-c-about-modal-box__close--c-button--FontSize: var(--pf-t--global--font--size--xl);
 }
 
 .il-modal--joinCommunityButton {
+  --pf-v6-c-button__icon--Color: var(--modal--text--color) !important;
+  --pf-v6-c-button--Color: var(--modal--text--color) !important;
+  background: var(--pf-t--color--black) !important;
   border-radius: 80px !important;
 }
 

@@ -26,6 +26,7 @@ import {
 } from '@patternfly/react-core';
 import { BanIcon, CheckCircleIcon, EyeIcon, EyeSlashIcon, QuestionCircleIcon } from '@patternfly/react-icons';
 import { Endpoint, ModelEndpointStatus } from '@/types';
+import { useTheme } from '@/context/ThemeContext';
 import { fetchEndpointStatus } from '@/services/modelService';
 import { AppLayout, FeaturePages } from '@/components/AppLayout';
 import CustomEndpointsSidePanelHelp from '@/components/SidePanelContents/CustomEndpointsSidePanelHelp';
@@ -49,8 +50,6 @@ const iconForStatus = (status: ModelEndpointStatus) => {
   }
 };
 
-const EmptyStateIcon: React.FC = () => <Image src="/Endpoint_empty.svg" alt="No endpoints" width={56} height={56} />;
-
 interface ExtendedEndpoint extends Endpoint {
   isApiKeyVisible?: boolean;
 }
@@ -68,6 +67,7 @@ const getEndpointsStatus = async (endpoints: ExtendedEndpoint[]): Promise<Extend
   );
 
 const EndpointsPage: React.FC = () => {
+  const { theme } = useTheme();
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [endpoints, setEndpoints] = React.useState<ExtendedEndpoint[]>([]);
   const [deleteEndpoint, setDeleteEndpoint] = React.useState<Endpoint | undefined>();
@@ -322,7 +322,13 @@ const EndpointsPage: React.FC = () => {
               ))}
             </DataList>
           ) : (
-            <EmptyState headingLevel="h4" titleText="No custom model endpoints yet" icon={EmptyStateIcon}>
+            <EmptyState
+              headingLevel="h4"
+              titleText="No custom model endpoints yet"
+              icon={() => (
+                <Image src={theme === 'dark' ? '/Endpoint_empty_Dark.svg' : '/Endpoint_empty.svg'} alt="No endpoints" width={56} height={56} />
+              )}
+            >
               <EmptyStateBody>To get started, create a custom model endpoint</EmptyStateBody>
               <EmptyStateFooter>
                 <EmptyStateActions>

@@ -38,8 +38,7 @@ import {
   EmptyStateActions
 } from '@patternfly/react-core';
 import { CheckCircleIcon, ExclamationCircleIcon, SearchIcon } from '@patternfly/react-icons';
-
-const EmptyStateIcon: React.FC = () => <Image src="/Finetune_empty.svg" alt="No documents" width={56} height={56} />;
+import { useTheme } from '@/context/ThemeContext';
 
 interface Model {
   name: string;
@@ -62,6 +61,7 @@ interface Job {
 }
 
 const FineTuning: React.FC = () => {
+  const { theme } = useTheme();
   const [models, setModels] = useState<Model[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -422,7 +422,14 @@ const FineTuning: React.FC = () => {
             <Spinner size="xl" />
           </Bullseye>
         ) : !jobs.length ? (
-          <EmptyState headingLevel="h1" icon={EmptyStateIcon} titleText="No fine tuning jobs" variant={EmptyStateVariant.lg}>
+          <EmptyState
+            headingLevel="h1"
+            icon={() => (
+              <Image src={theme === 'dark' ? '/Finetune_empty_Dark.svg' : '/Finetune_empty.svg'} alt="No documents" width={56} height={56} />
+            )}
+            titleText="No fine tuning jobs"
+            variant={EmptyStateVariant.lg}
+          >
             <EmptyStateBody>You have not created any fine-tuning jobs yet. Use the Create+ button to get started.</EmptyStateBody>
             <EmptyStateFooter>
               <EmptyStateActions>

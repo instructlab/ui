@@ -1,6 +1,7 @@
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import { AboutModal, Content, Button, ContentVariants, Flex, FlexItem } from '@patternfly/react-core';
 import { GithubIcon } from '@patternfly/react-icons';
+import { t_global_font_size_lg as FontSizeLg } from '@patternfly/react-tokens';
 import InstructLabLogo from '../../../public/InstructLab-About-Modal-Background.svg';
 import InstructLabAboutUsBg from '../../../public/InstructLab-About-Modal-Background.svg';
 import { linksData } from './data/linksData';
@@ -24,13 +25,23 @@ const AboutInstructLab = ({ isOpen, setIsOpen }: AboutModalProps) => {
     >
       <Flex className="il-modal--content" direction={{ default: 'column' }} gap={{ default: 'gap2xl' }}>
         <FlexItem>
-          <Content component="h2" className="il-modal--text">
+          <Content component="h1" className="il-modal--text">
             About InstructLab
           </Content>
-          <Content component="p" className="il-modal--text">
+          <Content component="p" className="il-modal--text" style={{ fontSize: FontSizeLg.var }}>
             InstructLab is an open source AI project that allows <br /> you to shape the future of Large Language Models.
             <br /> Join the community to start contributing today.
           </Content>
+          <Button
+            className="il-modal--joinCommunityButton"
+            variant="primary"
+            icon={<GithubIcon />}
+            iconPosition="left"
+            size="lg"
+            onClick={() => window.open('https://github.com/instructlab', '_blank', 'noopener,noreferrer')}
+          >
+            Join the community
+          </Button>
         </FlexItem>
         <FlexItem>
           <Flex
@@ -39,18 +50,6 @@ const AboutInstructLab = ({ isOpen, setIsOpen }: AboutModalProps) => {
             alignItems={{ default: 'alignItemsCenter' }}
             gap={{ default: 'gapMd' }}
           >
-            <FlexItem>
-              <Button
-                className="il-modal--joinCommunityButton"
-                variant="primary"
-                icon={<GithubIcon />}
-                iconPosition="left"
-                size="lg"
-                onClick={() => window.open('https://github.com/instructlab', '_blank', 'noopener,noreferrer')}
-              >
-                Join the community
-              </Button>
-            </FlexItem>
             <FlexItem>
               {linksData.map((link) => (
                 <Button key={link.name} className="il-modal--link" component="a" href={link.href} target="_blank" isInline variant="link">
