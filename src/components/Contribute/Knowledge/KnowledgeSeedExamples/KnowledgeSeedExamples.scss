@@ -8,12 +8,16 @@
       border-style: solid;
       &.pf-m-info {
         background-color: var(--pf-t--color--blue--10);
+        --pf-v6-c-alert--m-info__icon--Color: var(--pf-t--color--black);
+        --pf-v6-c-alert--m-info__title--Color: var(--pf-t--color--black);
       }
       &.pf-m-warning {
         background-color: #fdf7e7;
+        --pf-v6-c-alert--m-warning__title--Color: var(--pf-t--color--black);
       }
       &.pf-m-danger {
         background-color: #faeae8;
+        --pf-v6-c-alert--m-danger__title--Color: var(--pf-t--color--black);
       }
     }
   }
@@ -32,7 +36,7 @@
           padding-bottom: 1rem;
 
           &:not(:focus-visible) {
-            outline: var(--pf-t--global--background--color--primary--default) auto 1px;
+            outline: transparent auto 0;
           }
         }
       }
@@ -40,7 +44,7 @@
         position: absolute;
         bottom: calc(var(--pf-t--global--spacer--xs) + 3px);
         left: var(--pf-t--global--spacer--md);
-        background-color: var(--pf-t--global--background--color--primary--default);
+        background-color: transparent;
         width: calc(100% - 2 * var(--pf-t--global--spacer--lg));
       }
     }
