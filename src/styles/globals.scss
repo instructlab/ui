@@ -3,17 +3,11 @@
 @import '@patternfly/chatbot/dist/css/main.css';
 @import 'chatbot.scss';
 
-.square-button {
-  border-radius: 6px !important;
-}
-
-/* Custom class to make PatternFly Labels square */
-.square-label.pf-c-label {
-  border-radius: 0 !important;
-}
-
 .pf-v6-c-menu__list-item.destructive-action-item:not(.pf-m-disabled) {
   .pf-v6-c-menu__item-text {
     color: var(--pf-t--global--color--status--danger--100);
+    .pf-v6-theme-dark & {
+      color: var(--pf-t--color--red-orange--30);
+    }
   }
 }
