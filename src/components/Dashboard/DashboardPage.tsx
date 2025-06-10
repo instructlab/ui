@@ -144,7 +144,7 @@ const DashboardPage: React.FunctionComponent = () => {
           lastUpdated: new Date(draft.lastUpdated),
           isDraft: true,
           isKnowledge: draft.isKnowledgeDraft,
-          isSubmitted: draft.isSubmitted,
+          isSubmitted: false,
           state: 'draft',
           taxonomy: draft.taxonomy
         })),

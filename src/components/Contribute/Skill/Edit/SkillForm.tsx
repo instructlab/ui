@@ -20,7 +20,7 @@ import SkillContributionSidePanelHelp from '@/components/SidePanelContents/Skill
 import { ActionGroupAlertContent } from '@/components/Contribute/types';
 import ContributeAlertGroup from '@/components/Contribute/ContributeAlertGroup';
 import ContributePageHeader from '@/components/Contribute/ContributePageHeader';
-import { deleteDraftData, doSaveDraft, isDraftDataExist, storeDraftData } from '@/components/Contribute/Utils/autoSaveUtils';
+import { deleteDraftData, formDataChanged, isDraftDataExist, storeDraftData } from '@/components/Contribute/Utils/autoSaveUtils';
 import { getDefaultSkillFormData } from '@/components/Contribute/Utils/contributionUtils';
 import { submitSkillData } from '@/components/Contribute/Utils/submitUtils';
 import { isSkillSeedExamplesValid, isDetailsValid } from '@/components/Contribute/Utils/validationUtils';
@@ -32,15 +32,17 @@ import './skills.css';
 
 export interface Props {
   skillEditFormData?: SkillEditFormData;
+  draftData?: SkillFormData;
 }
 
-export const SkillForm: React.FunctionComponent<Props> = ({ skillEditFormData }) => {
+export const SkillForm: React.FunctionComponent<Props> = ({ skillEditFormData, draftData }) => {
   const router = useRouter();
+  const currentData: SkillFormData | undefined = draftData || skillEditFormData?.formData;
   const [skillFormData, setSkillFormData] = React.useState<SkillFormData>(
-    skillEditFormData?.formData
+    currentData
       ? {
-          ...skillEditFormData.formData,
-          seedExamples: skillEditFormData.formData.seedExamples.map((example) => ({
+          ...currentData,
+          seedExamples: currentData.seedExamples.map((example) => ({
             ...example,
             immutable: example.immutable !== undefined ? example.immutable : true, // Ensure immutable is set
             isContextValid: example.isContextValid || ValidatedOptions.default,
@@ -57,23 +59,25 @@ export const SkillForm: React.FunctionComponent<Props> = ({ skillEditFormData })
         }
       : getDefaultSkillFormData()
   );
+  const lastUpdateRef = React.useRef<string>(JSON.stringify(skillFormData));
   const [actionGroupAlertContent, setActionGroupAlertContent] = React.useState<ActionGroupAlertContent | undefined>();
 
   const isValid = isDetailsValid(skillFormData) && isSkillSeedExamplesValid(skillFormData);
 
   React.useEffect(() => {
-    if (!doSaveDraft(skillFormData) && !isDraftDataExist(skillFormData.branchName)) {
+    if (isDraftDataExist(skillFormData.branchName) && !formDataChanged(skillFormData, skillEditFormData?.formData)) {
+      deleteDraftData(skillFormData.branchName);
+      lastUpdateRef.current = JSON.stringify(skillFormData);
       return;
     }
 
-    storeDraftData(
-      skillFormData.branchName,
-      skillFormData.filePath,
-      JSON.stringify(skillFormData),
-      !!skillEditFormData?.isSubmitted,
-      skillEditFormData?.oldFilesPath || ''
-    );
-  }, [skillEditFormData?.isSubmitted, skillEditFormData?.oldFilesPath, skillFormData]);
+    if (formDataChanged(skillFormData, JSON.parse(lastUpdateRef.current))) {
+      const draftContributionStr = JSON.stringify(skillFormData);
+      lastUpdateRef.current = draftContributionStr;
+
+      storeDraftData(skillFormData.branchName, skillFormData.filePath, draftContributionStr, skillEditFormData?.oldFilesPath || '');
+    }
+  }, [skillEditFormData?.formData, skillEditFormData?.isSubmitted, skillEditFormData?.oldFilesPath, skillFormData]);
 
   const updateActionGroupAlertContent = (newContent: ActionGroupAlertContent | undefined) => {
     // In order to restart the timer, we must re-create the Alert not re-use it. Clear it for one round then set the new info
@@ -109,6 +113,7 @@ export const SkillForm: React.FunctionComponent<Props> = ({ skillEditFormData })
       <PageGroup isFilled style={{ overflowY: 'hidden', flex: 1 }}>
         <ContributePageHeader
           editFormData={skillEditFormData}
+          draftData={draftData}
           isEdit
           isSkill
           description="Skill contributions improve a model’s ability to perform tasks. They consist of seed data which provide instructions for completing a
@@ -119,8 +124,8 @@ export const SkillForm: React.FunctionComponent<Props> = ({ skillEditFormData })
             <SkillFormActions
               contributionTitle={skillEditFormData?.formData.submissionSummary ?? 'New contribution'}
               skillFormData={skillFormData}
-              isDraft={skillEditFormData?.isDraft}
-              isSubmitted={skillEditFormData?.isSubmitted}
+              isDraft={!!draftData}
+              isSubmitted={!!skillEditFormData}
               setActionGroupAlertContent={setActionGroupAlertContent}
               setSkillFormData={setSkillFormData}
             />

@@ -215,9 +215,7 @@ export const KnowledgeFormActions: React.FunctionComponent<Props> = ({
         <DropdownList>
           {isDevMode && setKnowledgeFormData ? <DropdownItem onClick={autoFillForm}>Autofill</DropdownItem> : null}
           {!setKnowledgeFormData ? (
-            <DropdownItem onClick={() => router.push(`/contribute/knowledge/edit/${knowledgeFormData.branchName}${isDraft ? '/isDraft' : ''}`)}>
-              Edit contribution
-            </DropdownItem>
+            <DropdownItem onClick={() => router.push(`/contribute/knowledge/edit/${knowledgeFormData.branchName}`)}>Edit contribution</DropdownItem>
           ) : null}
           {setKnowledgeFormData ? <DropdownItem onClick={() => setIsUploadYamlModalOpen(true)}>Upload YAML</DropdownItem> : null}
           <DropdownItem onClick={() => handleViewYaml()}>View YAML</DropdownItem>

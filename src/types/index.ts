@@ -14,7 +14,6 @@ export interface DraftEditFormInfo {
   author?: string;
   lastUpdated: string;
   isKnowledgeDraft: boolean;
-  isSubmitted: boolean;
   oldFilesPath: string;
   taxonomy: string;
 }

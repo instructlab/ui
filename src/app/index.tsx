@@ -2,16 +2,8 @@
 'use client';
 
 import * as React from 'react';
-import { ThemeProvider } from '../context/ThemeContext';
-import '@patternfly/react-core/dist/styles/base.css';
-import Dashboard from './dashboard/page';
+import DashboardPage from './dashboard/page';
 
-const Home: React.FunctionComponent = () => {
-  return (
-    <ThemeProvider>
-      <Dashboard />
-    </ThemeProvider>
-  );
-};
+const Home: React.FunctionComponent = () => <DashboardPage />;
 
 export default Home;
