@@ -159,7 +159,7 @@ transformers==4.52.4
 triton==3.3.1
 typing_extensions==4.13.2
 uc-micro-py==1.0.3
-urllib3==2.4.0
+urllib3==2.5.0
 uvicorn==0.34.3
 uvloop==0.21.0
 virtualenv==20.31.2
