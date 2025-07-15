@@ -1,5 +1,5 @@
 aiohappyeyeballs==2.6.1
-aiohttp==3.12.13
+aiohttp==3.12.14
 aiohttp-cors==0.8.1
 aiosignal==1.4.0
 airportsdata==20250706
