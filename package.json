@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
-    "@next/env": "^15.4.1",
+    "@next/env": "^15.4.4",
     "@patternfly/chatbot": "6.3.0-prerelease.25",
     "@patternfly/patternfly": "^6.2.0",
     "@patternfly/react-core": "^6.2.2",
