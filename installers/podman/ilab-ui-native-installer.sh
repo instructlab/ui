@@ -171,6 +171,7 @@ verify_user_taxonomy() {
 				fi
 			else
 				echo -e "${green}User provided taxonomy and the ilab configured taxonomy directory is same.${reset}\n"
+        SELECTED_TAXONOMY_DIR=$USER_TAXONOMY_DIR
 			fi
 			return
 		fi
@@ -284,8 +285,10 @@ normalize_taxonomy_path() {
 		else
 			USER_TAXONOMY_DIR="$(cd "$(dirname "$USER_TAXONOMY_DIR")" && pwd)/$(basename "$USER_TAXONOMY_DIR")"
 		fi
-		echo -e "${blue} Taxonomy path normalized to absolute path $USER_TAXONOMY_DIR${reset}\n"
+  else
+    USER_TAXONOMY_DIR="${USER_TAXONOMY_DIR%/}"
 	fi
+  echo -e "${blue} Taxonomy path normalized to absolute path $USER_TAXONOMY_DIR${reset}\n"
 }
 
 normalize_pyvenv_dir_path() {
