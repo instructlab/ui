@@ -95,7 +95,7 @@ jobs:
     if: ${{ github.event_name == 'push' }}
     steps:
       - name: download tar.gz binary artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: apiserver-darwin-packages-tar
           path: ./dist/packages
@@ -151,7 +151,7 @@ jobs:
     if: ${{ github.event_name == 'push' }}
     steps:
       - name: download tar.gz binary artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: apiserver-linux-packages-tar
           path: ./dist/packages
