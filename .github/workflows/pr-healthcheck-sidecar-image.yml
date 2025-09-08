@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.BOT_PAT }}
           ref: 'main'
@@ -59,7 +59,7 @@ jobs:
 
       - name: Get Pull Request Number from Commit
         id: get_pr_number
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             console.log("Repository owner:", context.repo.owner);
@@ -114,7 +114,7 @@ jobs:
           file: healthcheck-sidecar/Containerfile
 
       - name: Generate GHCR artifact attestation
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v3
         with:
           subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_HS_IMAGE_NAME}}
           subject-digest: ${{ steps.push-hs-ghcr.outputs.digest }}
@@ -136,7 +136,7 @@ jobs:
           file: healthcheck-sidecar/Containerfile
 
       - name: Generate QA HS Quay artifact attestation
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v3
         with:
           subject-name: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_HS_IMAGE_NAME}}
           subject-digest: ${{ steps.push-hs-quay.outputs.digest }}
