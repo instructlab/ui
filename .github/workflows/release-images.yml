@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Log in to the GHCR container image registry
         uses: docker/login-action@v3
@@ -75,7 +75,7 @@ jobs:
           file: src/Containerfile
 
       - name: Generate Prod UI GHCR artifact attestation
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v3
         with:
           subject-name: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_UI_IMAGE_NAME}}
           subject-digest: ${{ steps.push-ui-ghcr.outputs.digest }}
@@ -95,14 +95,14 @@ jobs:
           file: src/Containerfile
 
       - name: Generate PROD UI Quay artifact attestation
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v3
         with:
           subject-name: ${{ env.QUAY_REGISTRY }}/${{ env.QUAY_UI_IMAGE_NAME}}
           subject-digest: ${{ steps.push-ui-quay.outputs.digest }}
           push-to-registry: true
 
       - name: Re-Checkout main on the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.BOT_PAT }}
           ref: main
