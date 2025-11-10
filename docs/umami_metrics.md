@@ -55,9 +55,7 @@ Make targets are our prefered method of deployment.
 This section will cover how the make targets work and how they differ per environment. The umami deployment `make` targets for all 3 environments use a
 [conversion script](./deploy/k8s/overlays/kind/umami/umami-secret.yaml) to parse values out of the `.env` file, into their own secret created in the
 respective overlay directory (`deploy/k8s/overlays`). These secrets will be ignored in `git` and are not included in their respective `kustomization.yaml`
-overlay files - they must be applied indivdually. This is done because for the Ilab-teams hosted deployments ([ui.instructlab.ai](https://ui.instructlab.ai/)
-and [qa.ui.instructlab.ai](https://qa.ui.instructlab.ai/)) we want to track those manifests in `git` via an encrypted sealed-secret, but also allow the
-deployment to work out of the box for people trying to self-deploy the stack.This creates a straightforward experience for both developers and maintainers.
+overlay files - they must be applied indivdually.
 
 #### Kind
 
