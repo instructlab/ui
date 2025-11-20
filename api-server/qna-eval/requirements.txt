@@ -130,7 +130,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
 PyYAML==6.0.2
 pyzmq==27.0.1
-ray==2.48.0
+ray==2.50.0
 referencing==0.36.2
 regex==2025.7.34
 requests==2.32.4
